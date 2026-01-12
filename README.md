@@ -6,10 +6,10 @@ This project is **not affiliated with Synthesia**.
 
 ## What It Does
 
-- Load a video (or a frame sequence) of a piano keyboard.
-- Define/adjust key overlays (one overlay per key ROI).
+- Load a video of a piano keyboard.
+- Define/adjust key overlays 
 - Calibrate unlit keys and lit exemplars.
-- Run detection (color progression, optional histogram, optional delta timing, optional black-key spill filtering).
+- Run detection 
 - Convert detected key states into note on/off events and write a `.mid`.
 
 ## Quick Start

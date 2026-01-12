@@ -50,6 +50,8 @@ source .venv/bin/activate
 echo "Installing Python dependencies..."
 python -m pip install --upgrade pip
 python -m pip install -r synthesia2midi/requirements.txt
+# Always grab the latest yt-dlp (YouTube changes frequently)
+python -m pip install --upgrade yt-dlp
 
 if ! command -v ffmpeg >/dev/null 2>&1; then
   echo

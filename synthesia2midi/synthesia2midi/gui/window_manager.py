@@ -93,13 +93,14 @@ class WindowManager:
         max_height = screen_rect.height() - 40  # Leave space for taskbar
         
         # For 100% scaling with doubled fonts, use reasonable proportions
-        # Height should be enough to show all controls without scrolling
+        # Height should be enough to show controls; allow more flexibility on smaller screens
         optimal_height = min(int(max_height * 0.85), 1000)  # 85% of screen or 1000px max
-        optimal_height = max(optimal_height, 800)  # At least 800px for all controls
-        
-        # Width should accommodate both video and controls comfortably
-        optimal_width = min(int(max_width * 0.85), 1400)  # 85% of screen or 1400px max
-        optimal_width = max(optimal_width, 1200)  # At least 1200px for two-column layout
+        optimal_height = max(optimal_height, 700)  # Allow smaller screens down to ~700px
+
+        # Width: responsive to screen, avoid hard minimum that overflows small displays
+        optimal_width = int(max_width * 0.8)  # start at 80% of available width
+        optimal_width = min(optimal_width, 1400)  # cap for very large screens
+        optimal_width = max(optimal_width, 900)   # keep some baseline for two-column layout
         
         # Ensure we don't exceed screen bounds
         if optimal_width > max_width:
@@ -112,13 +113,13 @@ class WindowManager:
         # Position window at exact top-left of screen
         self.main_window.move(screen_rect.left(), screen_rect.top())
         
-        # Maintain control panel width at 900px (the ideal size without video)
-        # This prevents tab compression when video is loaded
-        control_panel_width = 900
-        
-        # Update control panel width if available
+        # Responsive control panel width: ~45% of window, with sensible bounds
         if hasattr(self.main_window, 'control_panel'):
-            self.main_window.control_panel.setFixedWidth(control_panel_width)
+            responsive_width = int(optimal_width * 0.45)
+            responsive_width = max(600, min(responsive_width, 900))  # clamp
+            self.main_window.control_panel.setMinimumWidth(400)
+            self.main_window.control_panel.setMaximumWidth(1200)
+            self.main_window.control_panel.setFixedWidth(responsive_width)
         
         # Force layout update to ensure everything is positioned correctly
         QApplication.processEvents()

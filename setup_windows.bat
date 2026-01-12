@@ -36,7 +36,7 @@ if not defined PY_LAUNCHER if exist "%LOCALAPPDATA%\Programs\Python\Launcher\py.
 )
 if defined PY_LAUNCHER (
   "%PY_LAUNCHER%" -3 -c "import sys" >nul 2>&1
-  if not errorlevel 1 set "PY_CMD=\"%PY_LAUNCHER%\" -3"
+  if not errorlevel 1 set "PY_CMD="%PY_LAUNCHER%" -3"
 )
 
 if not defined PY_CMD (
@@ -49,7 +49,7 @@ if not defined PY_CMD (
   )
   if defined PY_PATH (
     "%PY_PATH%" -c "import sys" >nul 2>&1
-    if not errorlevel 1 set "PY_CMD=\"%PY_PATH%\""
+    if not errorlevel 1 set "PY_CMD="%PY_PATH%""
   )
 )
 

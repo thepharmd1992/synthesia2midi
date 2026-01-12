@@ -12,41 +12,8 @@ REM Handle running from inside a zip file opened in Explorer.
 set "SCRIPT_DIR=%~dp0"
 echo %SCRIPT_DIR% | findstr /I ".zip" >nul
 if %errorlevel%==0 (
-  set "ZIP_PATH="
-  for /f "delims=" %%I in ('powershell -NoProfile -Command "$dirs=@([Environment]::GetFolderPath('Downloads'), [Environment]::GetFolderPath('Desktop')); $z=Get-ChildItem -Path $dirs -Filter '*synthesia2midi*.zip' -File -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1; if ($z) { $z.FullName }"') do set "ZIP_PATH=%%I"
-  if not defined ZIP_PATH (
-    echo ERROR: Could not find the Synthesia2MIDI zip in Downloads or Desktop.
-    echo Please extract the zip manually and re-run setup_windows.bat.
-    pause
-    exit /b 1
-  )
-  set "DEFAULT_EXTRACT=%USERPROFILE%\Downloads\synthesia2midi"
-  echo This script is running from inside a zip archive.
-  echo To continue, extract the zip to a normal folder.
-  set /p EXTRACT_OK=Extract to %DEFAULT_EXTRACT% now? Y or N:
-  if /I "%EXTRACT_OK%"=="Y" (
-    set "EXTRACT_DIR=%DEFAULT_EXTRACT%"
-  ) else (
-    set /p EXTRACT_DIR=Enter extract folder path:
-  )
-  if "%EXTRACT_DIR%"=="" (
-    echo ERROR: No extract folder provided.
-    pause
-    exit /b 1
-  )
-  powershell -NoProfile -Command "Expand-Archive -Path '%ZIP_PATH%' -DestinationPath '%EXTRACT_DIR%' -Force"
-  if %errorlevel% neq 0 (
-    echo ERROR: Failed to extract the zip.
-    pause
-    exit /b 1
-  )
-  if exist "%EXTRACT_DIR%\synthesia2midi-main\setup_windows.bat" (
-    echo Relaunching setup from extracted folder...
-    cmd /k "%EXTRACT_DIR%\synthesia2midi-main\setup_windows.bat" launched
-    exit /b 0
-  )
-  echo ERROR: setup_windows.bat not found after extraction.
-  echo Please extract manually and run it from the extracted folder.
+  echo ERROR: This setup is running from inside a zip archive.
+  echo Please extract the zip to a normal folder, then run setup_windows.bat again.
   pause
   exit /b 1
 )

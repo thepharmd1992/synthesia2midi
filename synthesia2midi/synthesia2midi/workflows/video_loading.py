@@ -48,6 +48,8 @@ class VideoLoadingWorkflow:
         """
         self.logger.info(f"[VIDEO-LOAD-START] load_video_file called with: {filepath}")
         try:
+            self.logger.info(f"[VIDEO-LOAD] Incoming path: {filepath}")
+            self.logger.info(f"[VIDEO-LOAD] Path stats - exists: {os.path.exists(filepath)}, isfile: {os.path.isfile(filepath)}, isdir: {os.path.isdir(filepath)}")
             # Handle Windows WSL paths
             # When accessing WSL files from Windows, paths come in as \\wsl.localhost\...
             if filepath.startswith('\\\\wsl.localhost\\') or filepath.startswith('\\\\wsl$\\'):
@@ -91,12 +93,13 @@ class VideoLoadingWorkflow:
                     if frames_path:
                         filepath = frames_path  # Use frames instead of video
                         self.logger.info(f"[VIDEO-LOAD] Using frames directory: {frames_path}")
-                        self._show_info("Performance Optimization", 
+                        self._show_info("Performance Optimization",
                                       "Video has been converted to image sequence for better navigation.\n"
                                       "Detection will use on-demand cropping for additional speed.")
                     else:
                         self.logger.warning(f"[VIDEO-LOAD] Frame conversion failed, using original video")
                 else:
+                    self.logger.info("[VIDEO-LOAD] Auto-convert disabled; will continue with video file unless user chooses existing frames.")
                     # Check if frames already exist and offer to use them
                     base_name = os.path.splitext(os.path.basename(filepath))[0]
                     frames_dir = os.path.join(os.path.dirname(filepath), f"{base_name}_frames")
@@ -619,11 +622,11 @@ class VideoLoadingWorkflow:
                     # Success
                     progress.setValue(100)
                     progress.close()
-                    
+
                     elapsed = time.time() - start_time
                     self.logger.info(f"[FRAME-CONVERT] Successfully converted {final_count} frames in {elapsed:.1f} seconds")
                     self.logger.info(f"[FRAME-CONVERT] Average conversion speed: {final_count/elapsed:.1f} fps")
-                    
+
                     conversion_successful = True
                     break  # Exit retry loop
                 

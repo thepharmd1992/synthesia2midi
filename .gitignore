@@ -28,6 +28,7 @@ Thumbs.db
 
 # Local agent / assistant files (keep out of public repo)
 AGENTS.md
+agents.md
 .claude/
 .claude.json
 .codex/

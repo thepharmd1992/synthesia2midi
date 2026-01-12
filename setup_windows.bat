@@ -115,7 +115,7 @@ if not exist ".venv" (
 echo Installing Python dependencies...
 set "PIP_CACHE_DIR=%CD%\\.pip-cache"
 ".venv\\Scripts\\python.exe" -m pip install --upgrade pip
-if %errorlevel% neq 0 (
+if errorlevel 1 (
   echo ERROR: pip upgrade failed.
   pause
   popd
@@ -123,26 +123,61 @@ if %errorlevel% neq 0 (
 )
 
 ".venv\\Scripts\\python.exe" -m pip install -r "synthesia2midi\\requirements.txt"
-if %errorlevel% neq 0 (
+if errorlevel 1 (
   echo ERROR: dependency install failed.
   pause
   popd
   exit /b 1
 )
 
-where ffmpeg >nul 2>&1
-if %errorlevel% neq 0 (
-  echo.
-  echo NOTE: FFmpeg was not found.
-  echo Some video workflows like YouTube downloads and video-to-frames conversion need FFmpeg.
-  echo Download: https://ffmpeg.org/download.html
-  echo.
+call :ensure_ffmpeg
+if errorlevel 1 (
+  popd
+  exit /b 1
 )
 
 echo Launching app...
 ".venv\\Scripts\\python.exe" "synthesia2midi\\run.py"
 
+rem Final FFmpeg check for visibility (so users see it last)
+set "FFMPEG_FINAL="
+for /f "delims=" %%I in ('where ffmpeg 2^>nul') do if not defined FFMPEG_FINAL set "FFMPEG_FINAL=%%I"
+if not defined FFMPEG_FINAL if exist "%CD%\\synthesia2midi\\ffmpeg\\ffmpeg.exe" set "FFMPEG_FINAL=%CD%\\synthesia2midi\\ffmpeg\\ffmpeg.exe"
+
+if not defined FFMPEG_FINAL (
+  echo.
+  echo ===== FFmpeg is missing =====
+  echo The app will run, but YouTube downloads and video-to-frames conversion will fail.
+  echo To fix:
+  echo   1) Download https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
+  echo   2) Extract it, then copy bin\\ffmpeg.exe to:
+  echo      %CD%\\synthesia2midi\\ffmpeg\\ffmpeg.exe
+  echo      (create the ffmpeg folder if it does not exist)
+  echo   3) Re-run setup_windows.bat
+  echo =================================
+)
+
 echo.
 echo Done.
 pause
 popd
+
+goto :eof
+
+:ensure_ffmpeg
+where ffmpeg >nul 2>&1
+if %errorlevel%==0 exit /b 0
+if exist "%CD%\\synthesia2midi\\ffmpeg\\ffmpeg.exe" exit /b 0
+
+echo.
+echo FFmpeg automatic install is not available in this environment.
+echo.
+echo To install FFmpeg manually:
+echo   1) Go to https://ffmpeg.org/download.html#build-windows
+echo   2) Download the latest Windows build (essentials).
+echo   3) Extract it, then copy bin\\ffmpeg.exe to:
+echo      %CD%\\synthesia2midi\\ffmpeg\\ffmpeg.exe
+echo      (create the ffmpeg folder if it does not exist)
+echo   4) Re-run setup_windows.bat
+echo.
+exit /b 1

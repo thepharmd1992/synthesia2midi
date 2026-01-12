@@ -226,6 +226,7 @@ class ControlPanelQt(QWidget):
         for line in help_lines:
             label = QLabel(line)
             label.setWordWrap(True)
+            label.setStyleSheet("font-size: 9pt;")  # slightly smaller help text
             help_layout.addWidget(label)
         layout.addWidget(help_section)
         
@@ -525,6 +526,7 @@ class ControlPanelQt(QWidget):
         layout.setSpacing(5)  # Minimal spacing between grey containers
 
         help_section = CollapsibleSection("Help", expanded=False)
+        help_section.setStyleSheet("QLabel { font-size: 9pt; }")  # shrink detection help text
         help_layout = help_section.content_layout()
         help_lines = [
             "Before tuning detection: run Unlit Key Calibration + at least one Lit Key Exemplar.",
@@ -712,11 +714,18 @@ class ControlPanelQt(QWidget):
         self.tab_widget.addTab(tab, "Detection")
     
     def _create_spark_detection_tab(self):
-        """Tab 4: Spark Detection"""
+        """Tab 4: Spark Detection (scrollable to avoid clipping)."""
         tab = QWidget()
-        layout = QVBoxLayout(tab)
-        layout.setContentsMargins(0, 0, 0, 0)  # Make grey containers flush with tab header
-        layout.setSpacing(5)  # Minimal spacing between grey containers
+        tab_layout = QVBoxLayout(tab)
+        tab_layout.setContentsMargins(0, 0, 0, 0)
+        tab_layout.setSpacing(0)
+
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        content = QWidget()
+        layout = QVBoxLayout(content)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(5)
 
         help_section = CollapsibleSection("Help", expanded=False)
         help_layout = help_section.content_layout()
@@ -728,14 +737,15 @@ class ControlPanelQt(QWidget):
         for line in help_lines:
             label = QLabel(line)
             label.setWordWrap(True)
+            label.setStyleSheet("font-size: 9pt;")  # slightly smaller help text
             help_layout.addWidget(label)
         layout.addWidget(help_section)
-        
+
         # Spark detection toggle
         main_group = QGroupBox("Spark Detection")
         main_group.setObjectName("first_in_tab")  # For CSS styling
         main_layout = QVBoxLayout(main_group)
-        
+
         self.spark_detection_cb = QCheckBox("Enable Spark Detection")
         self.spark_detection_cb.toggled.connect(self.spark_detection_toggled.emit)
         self.spark_detection_cb.toggled.connect(self._update_spark_controls_state)
@@ -744,7 +754,7 @@ class ControlPanelQt(QWidget):
             "and the overlays are solid color (no fading or gradients)."
         )
         main_layout.addWidget(self.spark_detection_cb)
-        
+
         # Sensitivity
         main_layout.addWidget(QLabel("Sensitivity:"))
         self.spark_sensitivity_slider = QSlider(Qt.Horizontal)
@@ -756,19 +766,19 @@ class ControlPanelQt(QWidget):
             "Controls how aggressively Spark Detection splits false continuous notes."
         )
         main_layout.addWidget(self.spark_sensitivity_slider)
-        
+
         self.spark_sensitivity_label = QLabel("50%")
         self.spark_sensitivity_label.setToolTip(
             "Controls how aggressively Spark Detection splits false continuous notes."
         )
         main_layout.addWidget(self.spark_sensitivity_label)
-        
+
         layout.addWidget(main_group)
-        
+
         # Spark calibration
         calibration_group = QGroupBox("Spark Calibration")
         calibration_layout = QVBoxLayout(calibration_group)
-        
+
         # ROI selection
         roi_layout = QHBoxLayout()
         roi_button = QPushButton("Select Spark ROI")
@@ -778,10 +788,10 @@ class ControlPanelQt(QWidget):
             "Select the region above the keys where spark bars and sparks appear."
         )
         roi_layout.addWidget(roi_button)
-        
+
         # Add spacing between buttons
         roi_layout.addSpacing(35)  # Increased spacing to move Hide button more to the right
-        
+
         # Add toggle button for showing/hiding spark overlays
         self.spark_roi_toggle_button = QPushButton("Hide Spark Overlays")
         self.spark_roi_toggle_button.setMaximumWidth(396)  # Increased by 10% from 360
@@ -792,12 +802,12 @@ class ControlPanelQt(QWidget):
         )
         roi_layout.addWidget(self.spark_roi_toggle_button)
         roi_layout.addStretch()
-        
+
         calibration_layout.addLayout(roi_layout)
-        
+
         manual_section = CollapsibleSection("Manual Calibration", expanded=False)
         calib_buttons_layout = manual_section.content_layout()
-        
+
         # Step 1: Calibrate Background
         step1_layout = QHBoxLayout()
         step1_label = QLabel("Step 1)")
@@ -812,7 +822,7 @@ class ControlPanelQt(QWidget):
         step1_layout.addWidget(self.spark_bg_button)
         step1_layout.addStretch()
         calib_buttons_layout.addLayout(step1_layout)
-        
+
         # Step 2: Calibrate Bar Only
         step2_layout = QHBoxLayout()
         step2_label = QLabel("Step 2)")
@@ -827,7 +837,7 @@ class ControlPanelQt(QWidget):
         step2_layout.addWidget(self.spark_bar_button)
         step2_layout.addStretch()
         calib_buttons_layout.addLayout(step2_layout)
-        
+
         # Step 3: Calibrate Dimmest Sparks
         step3_layout = QHBoxLayout()
         step3_label = QLabel("Step 3)")
@@ -842,26 +852,26 @@ class ControlPanelQt(QWidget):
         step3_layout.addWidget(self.spark_brightest_button)
         step3_layout.addStretch()
         calib_buttons_layout.addLayout(step3_layout)
-        
+
         calibration_layout.addWidget(manual_section)
-        
+
         # Auto calibration
         calibration_layout.addWidget(QLabel("Auto Calibration:"))
         auto_layout = QVBoxLayout()
         auto_layout.setContentsMargins(0, 0, 0, 0)  # Remove margins for left alignment
-        
+
         # Store button and status references for updates
         self.auto_calib_buttons = {}
         self.auto_calib_status_labels = {}
-        
+
         # Create white keys row (LW and RW aligned horizontally)
         white_keys_layout = QHBoxLayout()
         white_keys_layout.setContentsMargins(0, 0, 0, 0)
-        
+
         # Left Hand White
         lw_row = QHBoxLayout()
         lw_row.setSpacing(10)  # Space between button and status
-        
+
         lw_button = QPushButton(f"Auto {KEY_TYPE_LABELS['LW']}")
         lw_button.setFixedWidth(220)  # Fixed width for alignment
         lw_button.clicked.connect(lambda: self.auto_spark_calibration_requested.emit("LW"))
@@ -871,20 +881,20 @@ class ControlPanelQt(QWidget):
         )
         self.auto_calib_buttons["LW"] = lw_button
         lw_row.addWidget(lw_button)
-        
+
         lw_status = QLabel("Not Set")
         lw_status.setStyleSheet("color: grey; font-style: italic;")
         lw_status.setFixedWidth(80)
         self.auto_calib_status_labels["LW"] = lw_status
         lw_row.addWidget(lw_status)
-        
+
         white_keys_layout.addLayout(lw_row)
         white_keys_layout.addSpacing(50)  # Space between left and right hand buttons
-        
+
         # Right Hand White
         rw_row = QHBoxLayout()
         rw_row.setSpacing(10)  # Space between button and status
-        
+
         rw_button = QPushButton(f"Auto {KEY_TYPE_LABELS['RW']}")
         rw_button.setFixedWidth(220)  # Fixed width for alignment
         rw_button.clicked.connect(lambda: self.auto_spark_calibration_requested.emit("RW"))
@@ -894,26 +904,26 @@ class ControlPanelQt(QWidget):
         )
         self.auto_calib_buttons["RW"] = rw_button
         rw_row.addWidget(rw_button)
-        
+
         rw_status = QLabel("Not Set")
         rw_status.setStyleSheet("color: grey; font-style: italic;")
         rw_status.setFixedWidth(80)
         self.auto_calib_status_labels["RW"] = rw_status
         rw_row.addWidget(rw_status)
-        
+
         white_keys_layout.addLayout(rw_row)
         white_keys_layout.addStretch()  # Push everything left
-        
+
         auto_layout.addLayout(white_keys_layout)
-        
+
         # Create black keys row (LB and RB aligned horizontally)
         black_keys_layout = QHBoxLayout()
         black_keys_layout.setContentsMargins(0, 0, 0, 0)
-        
+
         # Left Hand Black
         lb_row = QHBoxLayout()
         lb_row.setSpacing(10)  # Space between button and status
-        
+
         lb_button = QPushButton(f"Auto {KEY_TYPE_LABELS['LB']}")
         lb_button.setFixedWidth(220)  # Fixed width for alignment
         lb_button.clicked.connect(lambda: self.auto_spark_calibration_requested.emit("LB"))
@@ -923,20 +933,20 @@ class ControlPanelQt(QWidget):
         )
         self.auto_calib_buttons["LB"] = lb_button
         lb_row.addWidget(lb_button)
-        
+
         lb_status = QLabel("Not Set")
         lb_status.setStyleSheet("color: grey; font-style: italic;")
         lb_status.setFixedWidth(80)
         self.auto_calib_status_labels["LB"] = lb_status
         lb_row.addWidget(lb_status)
-        
+
         black_keys_layout.addLayout(lb_row)
         black_keys_layout.addSpacing(50)  # Space between left and right hand buttons
-        
+
         # Right Hand Black
         rb_row = QHBoxLayout()
         rb_row.setSpacing(10)  # Space between button and status
-        
+
         rb_button = QPushButton(f"Auto {KEY_TYPE_LABELS['RB']}")
         rb_button.setFixedWidth(220)  # Fixed width for alignment
         rb_button.clicked.connect(lambda: self.auto_spark_calibration_requested.emit("RB"))
@@ -946,23 +956,40 @@ class ControlPanelQt(QWidget):
         )
         self.auto_calib_buttons["RB"] = rb_button
         rb_row.addWidget(rb_button)
-        
+
         rb_status = QLabel("Not Set")
         rb_status.setStyleSheet("color: grey; font-style: italic;")
         rb_status.setFixedWidth(80)
         self.auto_calib_status_labels["RB"] = rb_status
         rb_row.addWidget(rb_status)
-        
+
         black_keys_layout.addLayout(rb_row)
         black_keys_layout.addStretch()  # Push everything left
-        
+
         auto_layout.addLayout(black_keys_layout)
-        
+
         calibration_layout.addLayout(auto_layout)
-        
+
         layout.addWidget(calibration_group)
-        
+
+        # Preview / status
+        preview_group = QGroupBox("Spark Preview / Status")
+        preview_layout = QVBoxLayout(preview_group)
+        self.spark_preview_label = QLabel("Preview will show spark calibration status here.")
+        self.spark_preview_label.setWordWrap(True)
+        preview_layout.addWidget(self.spark_preview_label)
+
+        self.spark_status_label = QLabel("Preview not available yet.")
+        self.spark_status_label.setWordWrap(True)
+        self.spark_status_label.setStyleSheet("color: grey; font-style: italic;")
+        preview_layout.addWidget(self.spark_status_label)
+
+        layout.addWidget(preview_group)
+
         layout.addStretch()
+
+        scroll_area.setWidget(content)
+        tab_layout.addWidget(scroll_area)
         self.tab_widget.addTab(tab, "Spark Detection")
     
     def _create_midi_settings_tab(self):
@@ -1024,7 +1051,7 @@ class ControlPanelQt(QWidget):
         processing_grid.addWidget(processing_start_label, 0, 0)
         
         self.processing_start_frame_spin = QSpinBox()
-        self.processing_start_frame_spin.setMaximumWidth(60)
+        self.processing_start_frame_spin.setMaximumWidth(180)  # widened for readability
         self.processing_start_frame_spin.setRange(0, 999999)
         self.processing_start_frame_spin.setValue(0)
         self.processing_start_frame_spin.valueChanged.connect(self.processing_start_frame_changed.emit)
@@ -1041,7 +1068,7 @@ class ControlPanelQt(QWidget):
         processing_grid.addWidget(processing_end_label, 1, 0)
         
         self.processing_end_frame_spin = QSpinBox()
-        self.processing_end_frame_spin.setMaximumWidth(60)
+        self.processing_end_frame_spin.setMaximumWidth(180)  # widened for readability
         self.processing_end_frame_spin.setRange(0, 999999)
         self.processing_end_frame_spin.setValue(0)
         self.processing_end_frame_spin.valueChanged.connect(self.processing_end_frame_changed.emit)

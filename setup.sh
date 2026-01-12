@@ -13,10 +13,24 @@ fi
 
 if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
   echo "ERROR: Python 3 was not found."
-  echo "Install Python and re-run this script."
-  echo "- macOS: brew install python"
-  echo "- Windows: https://www.python.org/downloads/"
-  echo "- Linux: sudo apt install python3"
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    echo "Install Python and re-run this script."
+    if command -v brew >/dev/null 2>&1; then
+      read -r -p "Install Python now with Homebrew? (Y/N): " INSTALL_PY
+      if [[ "${INSTALL_PY^^}" == "Y" ]]; then
+        brew install python
+        echo "Python installation attempted. Please re-run this script after install completes."
+      fi
+    else
+      echo "Homebrew not found. Install it from https://brew.sh and re-run this script."
+      echo "Or download Python from https://www.python.org/downloads/"
+    fi
+  else
+    echo "Install Python and re-run this script."
+    echo "- macOS: brew install python"
+    echo "- Windows: https://www.python.org/downloads/"
+    echo "- Linux: sudo apt install python3"
+  fi
   exit 1
 fi
 

@@ -16,7 +16,7 @@ if %errorlevel% neq 0 (
   echo.
   echo If this is a \\wsl.localhost\\... path, Windows CMD cannot use it as a working directory.
   echo Options:
-  echo  1 - Copy or clone the repo into a normal Windows folder (e.g., C:\\Users\\%USERNAME%\\midi) and run this again, OR
+  echo  1 - Copy or clone the repo into a normal Windows folder, for example C:\\Users\\%USERNAME%\\midi, then run this again, OR
   echo  2 - Run the Linux setup inside WSL: bash setup.sh
   echo.
   pause
@@ -75,7 +75,7 @@ where ffmpeg >nul 2>&1
 if %errorlevel% neq 0 (
   echo.
   echo NOTE: FFmpeg was not found.
-  echo Some video workflows ^(YouTube downloads and video-to-frames conversion^) need FFmpeg.
+  echo Some video workflows like YouTube downloads and video-to-frames conversion need FFmpeg.
   echo Download: https://ffmpeg.org/download.html
   echo.
 )

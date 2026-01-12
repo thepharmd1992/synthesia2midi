@@ -35,9 +35,28 @@ if %errorlevel%==0 (
     set PY=python
   ) else (
     echo ERROR: Python was not found.
-    echo Install Python from https://www.python.org/downloads/ and re-run this script.
-    echo During install, enable: "Add python.exe to PATH".
-    pause
+    echo This app needs Python 3.
+    echo.
+    set /p INSTALL_PY=Install Python now? (Y/N): 
+    if /I "%INSTALL_PY%"=="Y" (
+      where winget >nul 2>&1
+      if %errorlevel%==0 (
+        echo Installing Python with winget...
+        winget install --id Python.Python.3 --scope user --accept-source-agreements --accept-package-agreements
+        echo.
+        echo Python installation attempted. Please re-run this script after install completes.
+        pause
+      ) else (
+        echo Winget not found. Opening the Python download page...
+        start "" "https://www.python.org/downloads/"
+        echo After installing, re-run this script.
+        pause
+      )
+    ) else (
+      echo Install Python from https://www.python.org/downloads/ and re-run this script.
+      echo During install, enable: Add python.exe to PATH.
+      pause
+    )
     popd
     exit /b 1
   )

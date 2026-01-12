@@ -95,6 +95,7 @@ if not exist ".venv" (
 )
 
 echo Installing Python dependencies...
+set "PIP_CACHE_DIR=%CD%\\.pip-cache"
 ".venv\\Scripts\\python.exe" -m pip install --upgrade pip
 if %errorlevel% neq 0 (
   echo ERROR: pip upgrade failed.

@@ -16,8 +16,8 @@ if %errorlevel% neq 0 (
   echo.
   echo If this is a \\wsl.localhost\\... path, Windows CMD cannot use it as a working directory.
   echo Options:
-  echo  1) Copy/clone the repo into a normal Windows folder (e.g., C:\\Users\\%USERNAME%\\midi) and run this again, OR
-  echo  2) Run the Linux setup inside WSL: bash setup.sh
+  echo  1 - Copy or clone the repo into a normal Windows folder (e.g., C:\\Users\\%USERNAME%\\midi) and run this again, OR
+  echo  2 - Run the Linux setup inside WSL: bash setup.sh
   echo.
   pause
   exit /b 1

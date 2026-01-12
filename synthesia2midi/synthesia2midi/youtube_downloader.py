@@ -137,17 +137,20 @@ class YouTubeDownloader:
         # This includes: < > : " / \ | ? * [ ] { } ( ) ' ` ! @ # $ % ^ & + = ; ,
         invalid_chars = r'[<>:"/\\|?*\[\]{}()\'`!@#$%^&+=;,]'
         filename = re.sub(invalid_chars, '_', filename)
-        
+
         # Replace multiple spaces or underscores with single underscore
         filename = re.sub(r'[\s_]+', '_', filename)
-        
+
         # Remove leading/trailing underscores and dots
-        filename = filename.strip('_.') 
-        
-        # Ensure filename doesn't start with a dot (hidden file on Unix)
+        filename = filename.strip('_.')
+
+        # Ensure filename doesn't start with a dot (hidden file on Unix)        
         if filename.startswith('.'):
             filename = filename[1:]
-            
+
+        # Strip non-ASCII characters (e.g., emojis) to avoid path issues on Windows/OpenCV
+        filename = filename.encode("ascii", "ignore").decode()
+
         # Limit length
         max_length = 200
         if len(filename) > max_length:

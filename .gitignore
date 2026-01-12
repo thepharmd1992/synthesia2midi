@@ -1,0 +1,76 @@
+# Large binaries
+synthesia2midi/ffmpeg/ffmpeg.exe
+*.exe
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.cursor-server/
+.npm-global/
+.npm/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local agent / assistant files (keep out of public repo)
+AGENTS.md
+.claude/
+.claude.json
+.codex/
+.mcp.json
+
+# Logs
+*.log
+logs/
+
+# Video files
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Audio files
+*.wav
+*.mp3
+
+# MIDI files (optional - remove this line if you want to track MIDI files)
+*.mid
+*.midi
+
+# Temporary files
+*.tmp
+*.bak
+debug_frames/
+test_output/
+
+# Generated frame files and screenshots
+videos/
+screenshots/
+*_frames/
+*.jpg
+*.png
+*.jpeg
+
+# Backups and test files
+test_qt_rendering_quality.py
+dependency_analysis.json
+prompt.txt
+
+# User-specific files
+.git-credentials
+.gitconfig
+nul

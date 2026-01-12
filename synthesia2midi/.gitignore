@@ -1,0 +1,81 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Project specific
+*.log
+debug_frames/
+test_full_conversion/
+*.mid
+*.ini
+
+# OS specific
+.DS_Store
+Thumbs.db 
+
+# Video files (all formats)
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+*.m4v
+
+# Audio files
+*.wav
+*.mp3
+*.flac
+*.aac
+
+# Image files (frame extractions)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+
+# ML model files
+*.h5
+*.npz
+*.pkl
+*.joblib
+
+# Large data directories
+*_frames/
+*_frames_frames/
+sustain_enhanced_midis/
+sustain_detection_output/
+
+# Cleanup script
+cleanup_script.sh

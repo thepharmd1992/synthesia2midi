@@ -1,5 +1,6 @@
 """YouTube video downloader module for Synthesia2MIDI"""
 
+import logging
 import os
 import re
 from typing import Optional, Dict, Any, Tuple
@@ -7,6 +8,21 @@ from pathlib import Path
 from PySide6.QtCore import QObject, Signal, QThread
 
 import yt_dlp
+
+
+def _ensure_cert_store():
+    """
+    On some macOS Python installs the default cert store is missing, which causes
+    yt-dlp SSL failures. Point OpenSSL to certifi's bundle if not already set.
+    """
+    try:
+        import certifi
+
+        ca_bundle = certifi.where()
+        os.environ.setdefault("SSL_CERT_FILE", ca_bundle)
+        os.environ.setdefault("REQUESTS_CA_BUNDLE", ca_bundle)
+    except Exception as exc:  # pragma: no cover - defensive only
+        logging.warning("Could not set cert bundle for yt-dlp: %s", exc)
 
 class DownloadProgress(QObject):
     """Signals for download progress updates"""
@@ -81,6 +97,7 @@ class YouTubeDownloader:
     
     def __init__(self, output_dir: str = 'videos'):
         """Initialize downloader with output directory"""
+        _ensure_cert_store()
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
         

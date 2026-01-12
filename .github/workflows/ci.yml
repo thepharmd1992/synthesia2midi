@@ -30,5 +30,7 @@ jobs:
           python -m compileall -q synthesia2midi
 
       - name: Import smoke test
+        env:
+          PYTHONPATH: synthesia2midi
         run: |
           python -c "from synthesia2midi.main import Video2MidiApp; print('import ok')"

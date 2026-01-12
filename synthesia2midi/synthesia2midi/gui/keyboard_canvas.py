@@ -163,7 +163,9 @@ class KeyboardCanvas(QWidget):
         self.on_overlay_select_callback = on_overlay_select_callback
 
         # Set widget properties
-        self.setMinimumSize(width, height)
+        # Keep a modest minimum so the window can fit smaller displays, but start larger
+        self.setMinimumSize(560, 360)
+        self.resize(width, height)
         self.setStyleSheet("background-color: black;")
         
         # Initialize coordinate management

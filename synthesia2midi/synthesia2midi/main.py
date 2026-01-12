@@ -291,7 +291,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         left_layout.setSpacing(5)
         
         # Canvas - Variable width
-        self.keyboard_canvas = KeyboardCanvas(self.app_state, width=800, height=600,
+        self.keyboard_canvas = KeyboardCanvas(self.app_state, width=720, height=450,
                                               on_color_pick_callback=self._handle_color_pick,
                                               on_overlay_select_callback=self._handle_overlay_selection,
                                               detect_pressed_func=self._create_detection_wrapper()
@@ -364,11 +364,11 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.signal_manager = ControlSignalManager(self.control_panel, self)
         
         
-        # Initial width, will be adjusted when video loads
-        self.control_panel.setFixedWidth(900)  # Increased for 14pt font readability
-        # Prevent control panel from expanding vertically - keep it compact
+        # Let the control panel shrink on smaller screens while keeping a reasonable preferred size
         from PySide6.QtWidgets import QSizePolicy
-        self.control_panel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
+        self.control_panel.setMinimumWidth(380)
+        self.control_panel.setMaximumWidth(1000)
+        self.control_panel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
         main_layout.addWidget(self.control_panel, 0)  # No stretch factor
     
     def resizeEvent(self, event):

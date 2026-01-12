@@ -116,7 +116,7 @@ class WindowManager:
         # Responsive control panel width: target ~45% of window, but allow user resizing
         if hasattr(self.main_window, 'control_panel'):
             responsive_width = int(optimal_width * 0.45)
-            responsive_width = max(500, min(responsive_width, 900))  # clamp
+            responsive_width = max(360, min(responsive_width, 900))  # clamp
             self.main_window.control_panel.setMinimumWidth(350)
             self.main_window.control_panel.setMaximumWidth(1200)
             # Avoid setFixedWidth so users can resize; set a preferred width via resize
@@ -125,6 +125,7 @@ class WindowManager:
         # Force layout update to ensure everything is positioned correctly
         QApplication.processEvents()
         
+        control_panel_width = getattr(self.main_window.control_panel, "width", lambda: 0)()
         logging.info(f"Window positioned at top-left ({screen_rect.left()}, {screen_rect.top()}) "
                      f"with size {optimal_width}x{optimal_height}, "
                      f"control panel width: {control_panel_width}px")

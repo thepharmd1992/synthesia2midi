@@ -8,6 +8,52 @@ if "%~1"=="" (
   exit /b 0
 )
 
+REM Handle running from inside a zip file opened in Explorer.
+set "SCRIPT_DIR=%~dp0"
+echo %SCRIPT_DIR% | findstr /I "\\.zip\\" >nul
+if %errorlevel%==0 (
+  set "ZIP_PATH="
+  for /f "delims=" %%I in ('powershell -NoProfile -Command "$p='%SCRIPT_DIR%'; $idx=$p.ToLower().IndexOf('.zip\\'); if ($idx -ge 0) { $p.Substring(0,$idx+4) }"') do set "ZIP_PATH=%%I"
+  if not exist "%ZIP_PATH%" (
+    echo ERROR: Could not locate the zip file to extract.
+    echo Please extract the zip manually and re-run setup_windows.bat.
+    pause
+    exit /b 1
+  )
+  for %%I in ("%ZIP_PATH%") do set "ZIP_NAME=%%~nI"
+  set "DEFAULT_EXTRACT=%USERPROFILE%\Desktop\synthesia2midi"
+  echo This script is running from inside a zip archive.
+  echo To continue, extract the zip to a normal folder.
+  set /p EXTRACT_OK=Extract to %DEFAULT_EXTRACT% now? Y or N:
+  if /I "%EXTRACT_OK%"=="Y" (
+    set "EXTRACT_DIR=%DEFAULT_EXTRACT%"
+  ) else (
+    set /p EXTRACT_DIR=Enter extract folder path:
+  )
+  if "%EXTRACT_DIR%"=="" (
+    echo ERROR: No extract folder provided.
+    pause
+    exit /b 1
+  )
+  powershell -NoProfile -Command "New-Item -ItemType Directory -Path '%EXTRACT_DIR%' -Force | Out-Null; Expand-Archive -Path '%ZIP_PATH%' -DestinationPath '%EXTRACT_DIR%' -Force"
+  if %errorlevel% neq 0 (
+    echo ERROR: Failed to extract the zip.
+    pause
+    exit /b 1
+  )
+  set "EXTRACTED_DIR=%EXTRACT_DIR%\%ZIP_NAME%"
+  if exist "%EXTRACTED_DIR%\setup_windows.bat" (
+    echo Relaunching setup from extracted folder...
+    cmd /k "%EXTRACTED_DIR%\setup_windows.bat" launched
+    exit /b 0
+  ) else (
+    echo ERROR: setup_windows.bat not found after extraction.
+    echo Please extract manually and run it from the extracted folder.
+    pause
+    exit /b 1
+  )
+)
+
 REM Use pushd to support UNC paths (including \\wsl.localhost\...).
 pushd "%~dp0" >nul 2>&1
 if %errorlevel% neq 0 (

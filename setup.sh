@@ -13,12 +13,15 @@ fi
 
 if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
   echo "ERROR: Python 3 was not found."
-  echo "Install Python from https://www.python.org/downloads/ and re-run this script."
+  echo "Install Python and re-run this script."
+  echo "- macOS: brew install python"
+  echo "- Windows: https://www.python.org/downloads/"
+  echo "- Linux: sudo apt install python3"
   exit 1
 fi
 
 if [[ ! -d ".venv" ]]; then
-  echo "Creating virtual environment (.venv)..."
+  echo "Creating virtual environment at .venv..."
   if ! "$PYTHON_BIN" -m venv .venv; then
     echo "ERROR: Failed to create virtual environment."
     echo "On Linux you may need: sudo apt install python3-venv"

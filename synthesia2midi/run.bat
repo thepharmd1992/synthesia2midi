@@ -9,19 +9,28 @@ if defined MSYSTEM (
     exit
 )
 
-REM Try py command first, then python
-where py >nul 2>&1
+REM Try py command first (only if it actually runs), then python
+py -V >nul 2>&1
 if %errorlevel% == 0 (
     py run.py
-) else (
-    where python >nul 2>&1
-    if %errorlevel% == 0 (
-        python run.py
-    ) else (
-        echo Error: Python not found. Please install Python and add it to PATH.
-        pause
-        exit /b 1
-    )
+    goto :done
 )
 
+python -V >nul 2>&1
+if %errorlevel% == 0 (
+    python run.py
+    goto :done
+)
+
+python3 -V >nul 2>&1
+if %errorlevel% == 0 (
+    python3 run.py
+    goto :done
+)
+
+echo Error: Python not found. Please install Python and add it to PATH.
+pause
+exit /b 1
+
+:done
 pause

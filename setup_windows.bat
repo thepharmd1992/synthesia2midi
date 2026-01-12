@@ -37,7 +37,7 @@ if %errorlevel%==0 (
     echo ERROR: Python was not found.
     echo This app needs Python 3.
     echo.
-    set /p INSTALL_PY=Install Python now? (Y/N): 
+    set /p INSTALL_PY=Install Python now? Y or N: 
     if /I "%INSTALL_PY%"=="Y" (
       where winget >nul 2>&1
       if %errorlevel%==0 (
@@ -63,7 +63,7 @@ if %errorlevel%==0 (
 )
 
 if not exist ".venv" (
-  echo Creating virtual environment (.venv)...
+  echo Creating virtual environment at .venv...
   %PY% -m venv .venv
   if %errorlevel% neq 0 (
     echo ERROR: Failed to create virtual environment.

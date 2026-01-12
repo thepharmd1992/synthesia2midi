@@ -114,6 +114,7 @@ class YouTubeDownloader:
         ydl_opts = {
             'quiet': True,
             'no_warnings': True,
+            'noplaylist': True,  # Avoid pulling entire mixes/radio playlists
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -185,6 +186,7 @@ class YouTubeDownloader:
         ydl_opts_info = {
             'quiet': True,
             'no_warnings': True,
+            'noplaylist': True,  # Avoid accidentally downloading full mixes
         }
         
         with yt_dlp.YoutubeDL(ydl_opts_info) as ydl:
@@ -209,6 +211,7 @@ class YouTubeDownloader:
             'format': f'bestvideo[height<={height}][ext=mp4]/bestvideo[height<={height}]',
             'quiet': False,
             'no_warnings': False,
+            'noplaylist': True,  # Do not expand mixes/playlist links
             'postprocessors': [{
                 'key': 'FFmpegVideoConvertor',
                 'preferedformat': 'mp4',  # Convert to mp4 if needed

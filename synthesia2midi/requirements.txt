@@ -5,3 +5,4 @@ midiutil>=1.2.1
 mido>=1.3.3
 PySide6>=6.5.0
 yt-dlp>=2025.6.30
+certifi>=2024.12.0

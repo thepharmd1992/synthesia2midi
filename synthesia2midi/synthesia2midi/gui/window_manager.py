@@ -100,7 +100,7 @@ class WindowManager:
         # Width: responsive to screen, avoid hard minimum that overflows small displays
         optimal_width = int(max_width * 0.8)  # start at 80% of available width
         optimal_width = min(optimal_width, 1400)  # cap for very large screens
-        optimal_width = max(optimal_width, 900)   # keep some baseline for two-column layout
+        optimal_width = max(optimal_width, 800)   # allow smaller screens to fit
         
         # Ensure we don't exceed screen bounds
         if optimal_width > max_width:
@@ -113,13 +113,14 @@ class WindowManager:
         # Position window at exact top-left of screen
         self.main_window.move(screen_rect.left(), screen_rect.top())
         
-        # Responsive control panel width: ~45% of window, with sensible bounds
+        # Responsive control panel width: target ~45% of window, but allow user resizing
         if hasattr(self.main_window, 'control_panel'):
             responsive_width = int(optimal_width * 0.45)
-            responsive_width = max(600, min(responsive_width, 900))  # clamp
-            self.main_window.control_panel.setMinimumWidth(400)
+            responsive_width = max(500, min(responsive_width, 900))  # clamp
+            self.main_window.control_panel.setMinimumWidth(350)
             self.main_window.control_panel.setMaximumWidth(1200)
-            self.main_window.control_panel.setFixedWidth(responsive_width)
+            # Avoid setFixedWidth so users can resize; set a preferred width via resize
+            self.main_window.control_panel.resize(responsive_width, self.main_window.control_panel.height())
         
         # Force layout update to ensure everything is positioned correctly
         QApplication.processEvents()

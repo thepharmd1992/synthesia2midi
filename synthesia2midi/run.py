@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 GUI entry point for Synthesia2MIDI.
 

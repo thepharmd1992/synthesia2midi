@@ -290,6 +290,7 @@ class MonolithicPianoDetector:
         strip = gray_img[strip_start:, :] if 0 <= strip_start < height else gray_img
 
         col_med = np.median(strip, axis=0).astype(np.float32)
+        col_med_u8 = np.clip(col_med, 0, 255).astype(np.uint8)
         white_level = float(np.percentile(col_med, 90))
         dark_level = float(np.percentile(col_med, 10))
         dyn = white_level - dark_level
@@ -309,7 +310,7 @@ class MonolithicPianoDetector:
             )
         else:
             _, mask = cv2.threshold(
-                col_med.reshape(1, -1),
+                col_med_u8.reshape(1, -1),
                 0,
                 255,
                 cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU,
@@ -347,7 +348,7 @@ class MonolithicPianoDetector:
 
         if len(runs) < 5:
             _, mask = cv2.threshold(
-                col_med.reshape(1, -1),
+                col_med_u8.reshape(1, -1),
                 0,
                 255,
                 cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU,

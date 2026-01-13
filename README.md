@@ -1,5 +1,3 @@
-Acknowledgment: This project was inspired by svsdval’s video2midi (https://github.com/svsdval/video2midi).
-
 # Synthesia2MIDI
 
 Synthesia2MIDI is a PySide6 desktop app that analyzes Synthesia videos, detects key presses frame-by-frame, and exports a MIDI file.

@@ -4,6 +4,8 @@ Synthesia2MIDI is a PySide6 desktop app that analyzes Synthesia videos, detects 
 
 This project is **not affiliated with Synthesia**.
 
+![Synthesia2MIDI GUI](docs/GUI.png)
+
 ## What It Does
 
 - Load a video of a piano keyboard.

@@ -67,6 +67,10 @@ screenshots/
 *.png
 *.jpeg
 
+# Documentation assets (tracked)
+!docs/
+!docs/GUI.png
+
 # Backups and test files
 test_qt_rendering_quality.py
 dependency_analysis.json

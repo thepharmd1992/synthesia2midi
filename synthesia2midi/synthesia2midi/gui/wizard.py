@@ -11,8 +11,9 @@ from typing import List, Optional, Tuple
 import numpy as np
 from PySide6.QtCore import Qt, Signal, QTimer
 from PySide6.QtWidgets import (
-    QComboBox, QDialog, QFormLayout, QGridLayout, QGroupBox, QHBoxLayout, QLabel,
-    QMessageBox, QPushButton, QSlider, QSpinBox, QVBoxLayout, QWidget
+    QApplication, QComboBox, QDialog, QFormLayout, QGridLayout, QGroupBox,
+    QHBoxLayout, QLabel, QMessageBox, QPushButton, QSlider, QSpinBox, QVBoxLayout,
+    QWidget
 )
 
 # Local imports
@@ -32,12 +33,26 @@ class AutoDetectTuningDialog(QDialog):
 
     DEFAULT_PARAMS = {
         "type_aware_assignment": True,
+        "black_threshold_method": "otsu",
+        "black_threshold": 60,
         "black_column_ratio": 0.06,
         "black_min_width": 6,
+        "black_max_width": 140,
+        "black_adaptive_block_size": 31,
+        "black_adaptive_c": 5,
         "black_recovery_enabled": True,
+        "black_recovery_ratio": 0.5,
+        "black_recovery_column_ratio_scale": 0.45,
+        "black_split_max_factor": 1.6,
         "white_strip_dark_threshold": 75,
         "white_strip_dark_fraction": 0.03,
+        "white_strip_min_run": 8,
+        "white_strip_allow_failures": 1,
         "white_sep_ratio": 0.55,
+        "white_sep_dyn_min": 8,
+        "white_sep_close_kernel": 5,
+        "white_sep_open_kernel": 3,
+        "white_sep_min_width": 2,
         "white_initial_top_ratio": 0.65,
     }
 
@@ -90,10 +105,13 @@ class AutoDetectTuningDialog(QDialog):
         layout.addWidget(self.status_label)
 
         button_layout = QHBoxLayout()
+        reset_button = QPushButton("Reset Sliders")
+        reset_button.clicked.connect(self._reset_sliders)
         self.save_button = QPushButton("Save Settings")
         self.save_button.clicked.connect(self._on_save)
         cancel_button = QPushButton("Cancel")
         cancel_button.clicked.connect(self.reject)
+        button_layout.addWidget(reset_button)
         button_layout.addWidget(self.save_button)
         button_layout.addWidget(cancel_button)
         layout.addLayout(button_layout)
@@ -106,8 +124,22 @@ class AutoDetectTuningDialog(QDialog):
         group = QGroupBox("Black Key Detection")
         form = QFormLayout()
 
+        self._add_choice_slider(
+            form,
+            "black_threshold_method",
+            "Threshold method",
+            ["fixed", "adaptive", "otsu"],
+            params,
+        )
+        self._add_slider(form, "black_threshold", "Threshold", 20, 120, 1, 0, params)
         self._add_slider(form, "black_column_ratio", "Column ratio", 0.02, 0.15, 0.001, 3, params)
         self._add_slider(form, "black_min_width", "Min width", 4, 20, 1, 0, params)
+        self._add_slider(form, "black_max_width", "Max width", 40, 220, 1, 0, params)
+        self._add_slider(form, "black_adaptive_block_size", "Adaptive block size", 3, 101, 2, 0, params)
+        self._add_slider(form, "black_adaptive_c", "Adaptive C", -20, 20, 1, 0, params)
+        self._add_slider(form, "black_recovery_ratio", "Recovery ratio", 0.2, 0.9, 0.05, 2, params)
+        self._add_slider(form, "black_recovery_column_ratio_scale", "Recovery column scale", 0.2, 1.0, 0.05, 2, params)
+        self._add_slider(form, "black_split_max_factor", "Split max factor", 1.2, 3.0, 0.1, 2, params)
 
         group.setLayout(form)
         return group
@@ -118,7 +150,14 @@ class AutoDetectTuningDialog(QDialog):
 
         self._add_slider(form, "white_strip_dark_threshold", "Strip dark threshold", 40, 120, 1, 0, params)
         self._add_slider(form, "white_strip_dark_fraction", "Strip dark fraction", 0.01, 0.08, 0.001, 3, params)
+        self._add_slider(form, "white_strip_min_run", "Strip min run", 2, 20, 1, 0, params)
+        self._add_slider(form, "white_strip_allow_failures", "Strip allow failures", 0, 4, 1, 0, params)
         self._add_slider(form, "white_sep_ratio", "Separator ratio", 0.35, 0.75, 0.01, 2, params)
+        self._add_slider(form, "white_sep_dyn_min", "Separator dyn min", 0, 20, 1, 0, params)
+        self._add_slider(form, "white_sep_close_kernel", "Separator close kernel", 1, 15, 1, 0, params)
+        self._add_slider(form, "white_sep_open_kernel", "Separator open kernel", 1, 15, 1, 0, params)
+        self._add_slider(form, "white_sep_min_width", "Separator min width", 1, 8, 1, 0, params)
+        self._add_slider(form, "white_initial_top_ratio", "Top ratio", 0.4, 0.9, 0.01, 2, params)
 
         group.setLayout(form)
         return group
@@ -159,6 +198,37 @@ class AutoDetectTuningDialog(QDialog):
             "decimals": decimals,
         }
 
+    def _add_choice_slider(self, form, key, label, choices, params):
+        slider = QSlider(Qt.Horizontal)
+        slider.setRange(0, len(choices) - 1)
+        value = params.get(key, self.DEFAULT_PARAMS.get(key, choices[0]))
+        try:
+            idx = choices.index(value)
+        except ValueError:
+            idx = 0
+        slider.setValue(idx)
+
+        value_label = QLabel(choices[idx])
+
+        def update_label(val):
+            value_label.setText(choices[val])
+
+        slider.valueChanged.connect(update_label)
+        slider.valueChanged.connect(self._schedule_detection)
+
+        row = QWidget()
+        row_layout = QHBoxLayout()
+        row_layout.setContentsMargins(0, 0, 0, 0)
+        row_layout.addWidget(slider)
+        row_layout.addWidget(value_label)
+        row.setLayout(row_layout)
+
+        form.addRow(QLabel(label), row)
+        self._controls[key] = {
+            "slider": slider,
+            "choices": choices,
+        }
+
     def _schedule_detection(self):
         if self._suppress_updates:
             return
@@ -168,6 +238,9 @@ class AutoDetectTuningDialog(QDialog):
     def _gather_params(self):
         params = self._base_params.copy()
         for key, meta in self._controls.items():
+            if "choices" in meta:
+                params[key] = meta["choices"][meta["slider"].value()]
+                continue
             raw = meta["slider"].value()
             value = raw / meta["scale"]
             if meta["decimals"] == 0:
@@ -179,6 +252,22 @@ class AutoDetectTuningDialog(QDialog):
         if block_size is not None and block_size % 2 == 0:
             params["black_adaptive_block_size"] = block_size + 1
         return params
+
+    def _reset_sliders(self):
+        self._suppress_updates = True
+        for key, meta in self._controls.items():
+            if "choices" in meta:
+                try:
+                    idx = meta["choices"].index(self._base_params.get(key, meta["choices"][0]))
+                except ValueError:
+                    idx = 0
+                meta["slider"].setValue(idx)
+                continue
+            scale = meta["scale"]
+            value = float(self._base_params.get(key, 0))
+            meta["slider"].setValue(int(round(value * scale)))
+        self._suppress_updates = False
+        self._schedule_detection()
 
     def _run_detection(self):
         params = self._gather_params()
@@ -465,6 +554,8 @@ class CalibrationWizard(QDialog):
             self.app_state.unsaved_changes = True
 
         self._refresh_canvas()
+        self._refresh_ui()
+        QApplication.processEvents()
 
     def _snapshot_state(self):
         return {
@@ -511,6 +602,7 @@ class CalibrationWizard(QDialog):
         state = self._pending_tuning_state
         self._pending_tuning_state = None
 
+        QApplication.processEvents()
         tuning_dialog = AutoDetectTuningDialog(
             self,
             state["adapter"],

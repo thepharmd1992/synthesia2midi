@@ -7,10 +7,28 @@ based on the user's requirements (per user instructions: WARNING and ERROR level
 import logging
 import os
 import datetime
+import sys
+from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Default log directory from app_config
-from synthesia2midi.app_config import LOG_DIR
+def _default_log_dir() -> str:
+    override = os.getenv("SYNTHESIA2MIDI_LOG_DIR") or os.getenv("S2M_LOG_DIR")
+    if override:
+        return override
+
+    # Prefer a project-local logs directory when running from a checkout/zip.
+    here = Path(__file__).resolve()
+    for parent in here.parents:
+        if (parent / ".git").exists() or (parent / "videos").exists():
+            return str(parent / "logs")
+
+    # Fallback to a per-user directory if we can't locate a project root.
+    if sys.platform == "win32":
+        base = Path(os.getenv("LOCALAPPDATA") or (Path.home() / "AppData" / "Local")) / "synthesia2midi"
+        return str(base / "logs")
+    if sys.platform == "darwin":
+        return str(Path.home() / "Library" / "Logs" / "synthesia2midi")
+    return str(Path.home() / ".synthesia2midi" / "logs")
 
 
 class LoggingConfig:
@@ -31,6 +49,10 @@ class LoggingConfig:
         'synthesia2midi.video_loader': logging.INFO,  # Enable INFO for video loader debugging
         'synthesia2midi.utils.ffmpeg_helper': logging.INFO,  # Enable INFO for ffmpeg debugging
         'synthesia2midi.gui': logging.ERROR,  # GUI errors only
+
+        # Autodetector diagnostics (INFO only, still suppresses DEBUG)
+        'synthesia2midi.detection.monolithic_detector': logging.INFO,
+        'synthesia2midi.detection.auto_detect_adapter': logging.INFO,
         
         # Third-party libraries - suppress most of their logs
         'PIL': logging.ERROR,
@@ -40,7 +62,7 @@ class LoggingConfig:
     }
     
     @classmethod
-    def setup_logging(cls, 
+    def setup_logging(cls,
                      log_to_file: bool = True,
                      log_to_console: bool = False,
                      log_level: Optional[int] = None,
@@ -57,6 +79,10 @@ class LoggingConfig:
         Returns:
             Path to log file if logging to file, empty string otherwise
         """
+        existing = getattr(cls, "_log_filename", "")
+        if getattr(cls, "_configured", False) and existing:
+            return existing
+
         # Use provided level or default
         root_level = log_level or cls.DEFAULT_LEVEL
         
@@ -66,11 +92,11 @@ class LoggingConfig:
         
         # File handler
         if log_to_file:
-            log_dir = log_dir or LOG_DIR
+            log_dir = log_dir or _default_log_dir()
             os.makedirs(log_dir, exist_ok=True)
             log_filename = os.path.join(
-                log_dir, 
-                f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+                log_dir,
+                f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"  
             )
             file_handler = logging.FileHandler(log_filename, mode='w')
             file_handler.setFormatter(logging.Formatter(cls.LOG_FORMAT))
@@ -117,9 +143,7 @@ class LoggingConfig:
         
         # Ensure specific noisy modules are suppressed
         noisy_modules = [
-            'synthesia2midi.detection.monolithic_detector',
-            'synthesia2midi.detection.factory', 
-            'synthesia2midi.detection.auto_detect_adapter'
+            'synthesia2midi.detection.factory',
         ]
         for module in noisy_modules:
             logging.getLogger(module).setLevel(logging.WARNING)
@@ -132,6 +156,9 @@ class LoggingConfig:
         if log_to_file:
             logger.info(f"Log file: {log_filename}")
             
+        cls._configured = True
+        cls._log_filename = log_filename
+        cls._log_dir = log_dir or ""
         return log_filename
     
     @classmethod

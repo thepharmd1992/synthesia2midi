@@ -9,32 +9,30 @@ import os
 import sys
 import logging
 import traceback
-from datetime import datetime
 
-# Set up logging before any imports
-log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
-os.makedirs(log_dir, exist_ok=True)
-log_file = os.path.join(log_dir, f'synthesia2midi_startup_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
+# Ensure the local package is importable (run.py lives next to the package directory)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(log_file),
-        logging.StreamHandler(sys.stdout)
-    ]
+# Centralized logging (single folder + single file per run)
+from synthesia2midi.core.logging_config import LoggingConfig
+
+log_file = LoggingConfig.setup_logging(
+    log_to_file=True,
+    log_to_console=True,
+    log_level=logging.INFO,
 )
 
 logger = logging.getLogger(__name__)
 logger.info("=" * 80)
 logger.info("Synthesia2MIDI Starting")
 logger.info("=" * 80)
-logger.info(f"Python version: {sys.version}")
-logger.info(f"Platform: {sys.platform}")
-logger.info(f"Current directory: {os.getcwd()}")
-
-logger.info(f"Script path: {os.path.abspath(__file__)}")
-logger.info(f"Log file: {log_file}")
+logger.info("Python version: %s", sys.version)
+logger.info("Platform: %s", sys.platform)
+logger.info("Current directory: %s", os.getcwd())
+logger.info("Script path: %s", os.path.abspath(__file__))
+logger.info("Log file: %s", log_file)
 
 def _missing_dep_instructions(missing_module: str) -> str:
     setup_hint = (
@@ -69,10 +67,8 @@ def _show_missing_dependency(missing_module: str) -> None:
 
 try:
     # Add the current directory to the Python path so we can import synthesia2midi package
-    current_dir = os.path.dirname(os.path.abspath(__file__))
     logger.info(f"Adding to Python path: {current_dir}")
-    sys.path.insert(0, current_dir)
-    
+
     logger.info("Importing Qt modules...")
     from PySide6.QtWidgets import QApplication
     from PySide6.QtCore import QLoggingCategory, QCoreApplication

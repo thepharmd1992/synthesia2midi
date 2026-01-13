@@ -324,7 +324,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         slider_layout.addWidget(self.time_label, 0)  # No stretch
         
         # Navigation instructions
-        nav_instructions = QLabel("Move forward – Page Down\nMove backward – Page Up")
+        nav_instructions = QLabel("Move forward - Page Down or Right Arrow\nMove backward - Page Up or Left Arrow")
         nav_instructions.setStyleSheet("font-size: 12px; color: #666; margin-left: 15px;")
         slider_layout.addWidget(nav_instructions, 0)  # No stretch
         
@@ -388,16 +388,25 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         space_action.triggered.connect(self._start_conversion_process)
         self.addAction(space_action)
         
-        # Page Up/Down for navigation
+        # Page Up/Down and Left/Right for navigation
         pgup_action = QAction(self)
         pgup_action.setShortcut(Qt.Key_PageUp)
         pgup_action.triggered.connect(self._navigate_frame_pgup)
         self.addAction(pgup_action)
+        left_action = QAction(self)
+        left_action.setShortcut(Qt.Key_Left)
+        left_action.triggered.connect(self._navigate_frame_pgup)
+        self.addAction(left_action)
+
         
         pgdn_action = QAction(self)
         pgdn_action.setShortcut(Qt.Key_PageDown)
         pgdn_action.triggered.connect(self._navigate_frame_pgdn)
         self.addAction(pgdn_action)
+        right_action = QAction(self)
+        right_action.setShortcut(Qt.Key_Right)
+        right_action.triggered.connect(self._navigate_frame_pgdn)
+        self.addAction(right_action)
 
     def _show_startup_dialog(self):
         """Show the startup dialog for choosing video source."""

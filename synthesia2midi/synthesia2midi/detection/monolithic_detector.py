@@ -47,10 +47,10 @@ DEFAULT_DETECTION_PARAMS = {
     "white_edge_smooth_kernel": 5,
     "white_edge_std_factor": 2.0,
     # White key boundary detection method:
-    # - "edge": vertical edge strength (Sobel) across a horizontal band (default)
+    # - "edge": vertical edge strength (Sobel) across a horizontal band
     # - "blackhat": emphasize dark vertical seams via morphological black-hat (more tolerant of blur)
-    # - "dark_columns": detect dark separator columns by robust per-column brightness (median) thresholding
-    "white_seam_method": "edge",
+    # - "dark_columns": detect dark separator columns by robust per-column brightness thresholding
+    "white_seam_method": "dark_columns",
     "white_blackhat_kernel_width": 15,
     "white_dark_column_threshold": "otsu",  # "otsu" | "relative" | int(0-255)
     # How to summarize brightness per x-column for dark-column seam detection.
@@ -63,7 +63,7 @@ DEFAULT_DETECTION_PARAMS = {
     "white_dark_column_dark_percentile": 20,  # for "relative": baseline "dark" estimate
     "white_dark_column_relative_ratio": 0.5,  # threshold = white - ratio*(white-dark)
     "white_separator_min_width": 2,
-    "white_auto_strip": False,  # attempt to crop out black-key region for dark_columns
+    "white_auto_strip": True,  # attempt to crop out black-key region for dark_columns
     "white_auto_strip_dark_threshold": 60,
     "white_auto_strip_frac_threshold": 0.02,
     "white_auto_strip_min_run": 6,
@@ -114,6 +114,8 @@ class MonolithicPianoDetector:
         self.key_notes = {}
         # Detection parameters (allow overrides for low-quality fallbacks)
         self.params = {**DEFAULT_DETECTION_PARAMS, **(detection_profile or {})}
+        self._white_strip_start = None
+        self._white_separator_runs = None
 
     def _save_preprocess_debug_images(
         self,
@@ -256,6 +258,7 @@ class MonolithicPianoDetector:
                 keyboard_gray,
                 edge_profile=edge_profile,
                 edge_profile_x_scale=white_x_scale,
+                edge_profile_y_scale=white_y_scale,
             )
         else:
             self.white_keys = self._detect_white_keys(keyboard_gray)
@@ -365,6 +368,8 @@ class MonolithicPianoDetector:
         method = (self.params.get("white_seam_method") or "edge").lower()
 
         response = None
+        self._white_strip_start = None
+        self._white_separator_runs = None
 
         if method == "dark_columns":
             # Prefer the full "white-only" strip when possible; this is less sensitive
@@ -394,6 +399,8 @@ class MonolithicPianoDetector:
                 if cut is not None and cut > 0 and cut < height:
                     strip_start = int(cut)
                     strip = gray_img[strip_start:, :]
+
+            self._white_strip_start = int(strip_start)
 
             exclude_ratio = float(self.params.get("white_strip_exclude_bottom_ratio", 0.0) or 0.0)
             exclude_ratio = max(0.0, min(0.9, exclude_ratio))
@@ -499,7 +506,7 @@ class MonolithicPianoDetector:
             smooth_kernel += 1
         if smooth_kernel > 1:
             edge_profile = cv2.GaussianBlur(
-                edge_profile.reshape(1, -1), (1, smooth_kernel), 0        
+                edge_profile.reshape(1, -1), (smooth_kernel, 1), 0        
             ).flatten()
 
         debug_dir = self.params.get("debug_save_preprocess_dir")
@@ -571,6 +578,7 @@ class MonolithicPianoDetector:
                 separator_cols = col_med < chosen_threshold
 
             min_w = int(self.params.get("white_separator_min_width", 2) or 2)
+            runs = []
             in_seg = False
             start = 0
             for x, is_sep in enumerate(separator_cols):
@@ -578,23 +586,24 @@ class MonolithicPianoDetector:
                     in_seg = True
                     start = x
                 elif (not is_sep) and in_seg:
-                    end = x
-                    width = end - start
+                    end = x - 1
+                    width = end - start + 1
                     if width >= min_w:
-                        edges.append(int((start + end - 1) // 2))
+                        runs.append((start, end))
                     in_seg = False
             if in_seg:
-                end = len(separator_cols)
-                width = end - start
+                end = len(separator_cols) - 1
+                width = end - start + 1
                 if width >= min_w:
-                    edges.append(int((start + end - 1) // 2))
+                    runs.append((start, end))
 
             self.logger.debug(
-                "DEBUG: White key separator (dark_columns): found %d separators (threshold=%s)",
-                len(edges),
+                "DEBUG: White key separator (dark_columns): found %d runs (threshold=%s)",
+                len(runs),
                 chosen_threshold if chosen_threshold is not None else "otsu",
             )
-            return edges
+            self._white_separator_runs = runs
+            return runs
 
         edge_threshold = np.std(edge_profile) * self.params["white_edge_std_factor"]
 
@@ -661,10 +670,131 @@ class MonolithicPianoDetector:
         gray_img,
         edge_profile,
         edge_profile_x_scale: float = 1.0,
+        edge_profile_y_scale: float = 1.0,
     ):
         """Detect white keys using an externally computed edge profile."""
         height, width = gray_img.shape
+        method = (self.params.get("white_seam_method") or "edge").lower()
         edges_scaled = self._find_white_key_edges_from_profile(edge_profile)
+
+        if method == "dark_columns":
+            if not edges_scaled:
+                self.logger.info("White separator runs: none detected (dark_columns)")
+                return []
+            if not isinstance(edges_scaled[0], tuple):
+                self.logger.info("White separator runs: unexpected edge format; falling back to edge logic")
+            else:
+                runs_scaled = edges_scaled
+                if edge_profile_x_scale and edge_profile_x_scale != 1.0:
+                    runs = [
+                        (
+                            int(round(s / edge_profile_x_scale)),
+                            int(round(e / edge_profile_x_scale)),
+                        )
+                        for s, e in runs_scaled
+                    ]
+                else:
+                    runs = list(runs_scaled)
+
+                runs = [
+                    (max(0, min(width - 1, s)), max(0, min(width - 1, e)))
+                    for s, e in runs
+                    if width > 0
+                ]
+                runs = [(s, e) for s, e in runs if e >= s]
+                runs.sort(key=lambda r: r[0])
+
+                min_key_width = int(self.params.get("white_min_width", 1) or 1)
+                strip_start = self._white_strip_start
+                if strip_start is not None and edge_profile_y_scale and edge_profile_y_scale != 1.0:
+                    strip_start = int(round(strip_start / edge_profile_y_scale))
+
+                use_strip_top = strip_start is not None and self.params.get("white_auto_strip")
+                if use_strip_top:
+                    trimmed_top = max(0, min(height - 1, int(strip_start)))
+                    trimmed_height = max(1, height - trimmed_top)
+
+                white_keys = []
+                segments_passing = 0
+                gaps = []
+
+                cursor = 0
+                for start, end in runs:
+                    gap_start = cursor
+                    gap_end = start - 1
+                    if gap_end >= gap_start:
+                        gaps.append(gap_end - gap_start + 1)
+                        if (gap_end - gap_start + 1) >= min_key_width:
+                            segments_passing += 1
+                            key_width = gap_end - gap_start + 1
+                            if use_strip_top:
+                                padded_overlay = self._add_overlay_padding(
+                                    gap_start, trimmed_top, key_width, trimmed_height
+                                )
+                            else:
+                                initial_top = int(height * self.params["white_initial_top_ratio"])
+                                initial_height = int(height * self.params["white_initial_height_ratio"])
+                                trimmed_top, trimmed_height = self._trim_white_key_top(
+                                    gray_img,
+                                    gap_start,
+                                    gap_end,
+                                    initial_top,
+                                    initial_height,
+                                )
+                                padded_overlay = self._add_overlay_padding(
+                                    gap_start, trimmed_top, key_width, trimmed_height
+                                )
+                            white_keys.append(padded_overlay)
+                    cursor = end + 1
+
+                if cursor <= width - 1:
+                    gap_start = cursor
+                    gap_end = width - 1
+                    gaps.append(gap_end - gap_start + 1)
+                    if (gap_end - gap_start + 1) >= min_key_width:
+                        segments_passing += 1
+                        key_width = gap_end - gap_start + 1
+                        if use_strip_top:
+                            padded_overlay = self._add_overlay_padding(
+                                gap_start, trimmed_top, key_width, trimmed_height
+                            )
+                        else:
+                            initial_top = int(height * self.params["white_initial_top_ratio"])
+                            initial_height = int(height * self.params["white_initial_height_ratio"])
+                            trimmed_top, trimmed_height = self._trim_white_key_top(
+                                gray_img,
+                                gap_start,
+                                gap_end,
+                                initial_top,
+                                initial_height,
+                            )
+                            padded_overlay = self._add_overlay_padding(
+                                gap_start, trimmed_top, key_width, trimmed_height
+                            )
+                        white_keys.append(padded_overlay)
+
+                if gaps:
+                    self.logger.info(
+                        "White separator runs: runs=%d gaps(min/med/max)=%.1f/%.1f/%.1f min_key_width=%d",
+                        len(runs),
+                        float(np.min(gaps)),
+                        float(np.median(gaps)),
+                        float(np.max(gaps)),
+                        int(min_key_width),
+                    )
+                else:
+                    self.logger.info(
+                        "White separator runs: runs=%d gaps(none) min_key_width=%d",
+                        len(runs),
+                        int(min_key_width),
+                    )
+                self.logger.info(
+                    "White key result: segments_total=%d segments_passing=%d keys=%d",
+                    max(0, len(gaps)),
+                    segments_passing,
+                    len(white_keys),
+                )
+                return white_keys
 
         if edge_profile_x_scale and edge_profile_x_scale != 1.0:
             edges = [
@@ -871,6 +1001,7 @@ class MonolithicPianoDetector:
             gray_img,
             edge_profile=edge_profile,
             edge_profile_x_scale=1.0,
+            edge_profile_y_scale=1.0,
         )
     
     def _trim_white_key_top(self, gray_img, start_x, end_x, initial_top, initial_height):

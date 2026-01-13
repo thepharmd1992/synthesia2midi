@@ -20,11 +20,15 @@ import numpy as np
 DEFAULT_DETECTION_PARAMS = {
     "black_upper_ratio": 0.6,
     "black_threshold": 70,
+    "black_threshold_method": "fixed",
+    "black_adaptive_block_size": 31,
+    "black_adaptive_c": 5,
     "black_column_ratio": 0.10,
     "black_min_width": 10,
     "black_max_width": 100,
     "white_bottom_ratio": 0.85,
     "white_edge_std_factor": 2.0,
+    "white_edge_smooth_kernel": 5,
     "white_min_width": 15,
     "white_initial_top_ratio": 0.7,
     "white_initial_height_ratio": 0.3,
@@ -88,8 +92,17 @@ class MonolithicPianoDetector:
         top_y, bottom_y, left_x, right_x = self.keyboard_region
         keyboard_img = self.image[top_y:bottom_y, left_x:right_x]
         keyboard_gray = cv2.cvtColor(keyboard_img, cv2.COLOR_BGR2GRAY)
-        
+
         self.logger.debug(f"\n=== Detecting Keys in Region {right_x-left_x}x{bottom_y-top_y} ===")
+        self.logger.info(
+            "Detection params: black_threshold_method=%s, black_threshold=%s, "
+            "black_column_ratio=%s, white_edge_std_factor=%s, white_edge_smooth_kernel=%s",
+            self.params.get("black_threshold_method", "fixed"),
+            self.params.get("black_threshold"),
+            self.params.get("black_column_ratio"),
+            self.params.get("white_edge_std_factor"),
+            self.params.get("white_edge_smooth_kernel"),
+        )
         
         # Detect black keys first (easier to identify)
         self.black_keys = self._detect_black_keys(keyboard_gray)
@@ -117,13 +130,7 @@ class MonolithicPianoDetector:
         upper_ratio = self.params["black_upper_ratio"]
         upper_region = gray_img[:int(height * upper_ratio), :]
         
-        # Create binary image - black keys are dark (conservative threshold to avoid shadowed white keys)
-        _, binary = cv2.threshold(
-            upper_region,
-            self.params["black_threshold"],
-            255,
-            cv2.THRESH_BINARY_INV,
-        )
+        binary = self._threshold_black_region(upper_region)
         
         # Scan columns to find black key regions
         column_sums = np.sum(binary, axis=0)
@@ -160,6 +167,50 @@ class MonolithicPianoDetector:
                 black_keys.append(padded_overlay)
         
         return black_keys
+
+    def _threshold_black_region(self, upper_region):
+        method = self.params.get("black_threshold_method", "fixed")
+        if method == "adaptive":
+            block_size = int(self.params.get("black_adaptive_block_size", 31))
+            if block_size < 3:
+                block_size = 3
+            if block_size % 2 == 0:
+                block_size += 1
+            c = int(self.params.get("black_adaptive_c", 5))
+            binary = cv2.adaptiveThreshold(
+                upper_region,
+                255,
+                cv2.ADAPTIVE_THRESH_MEAN_C,
+                cv2.THRESH_BINARY_INV,
+                block_size,
+                c,
+            )
+            self.logger.info(
+                "Black key threshold: adaptive (block_size=%s, C=%s)",
+                block_size,
+                c,
+            )
+            return binary
+
+        if method == "otsu":
+            _, binary = cv2.threshold(
+                upper_region,
+                0,
+                255,
+                cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU,
+            )
+            self.logger.info("Black key threshold: otsu")
+            return binary
+
+        threshold = self.params["black_threshold"]
+        _, binary = cv2.threshold(
+            upper_region,
+            threshold,
+            255,
+            cv2.THRESH_BINARY_INV,
+        )
+        self.logger.info("Black key threshold: fixed (threshold=%s)", threshold)
+        return binary
     
     def _detect_white_keys(self, gray_img):
         """Detect white keys by finding vertical separations"""
@@ -169,8 +220,20 @@ class MonolithicPianoDetector:
         bottom_y = int(height * self.params["white_bottom_ratio"])
         bottom_row = gray_img[bottom_y, :]
         
-        # Apply smoothing
-        bottom_smooth = cv2.GaussianBlur(bottom_row.reshape(1, -1), (1, 5), 0).flatten()
+        # Apply smoothing along x
+        smooth_kernel = int(self.params.get("white_edge_smooth_kernel", 5))
+        if smooth_kernel < 1:
+            smooth_kernel = 1
+        if smooth_kernel % 2 == 0:
+            smooth_kernel += 1
+        if smooth_kernel == 1:
+            bottom_smooth = bottom_row.astype(np.float32)
+        else:
+            bottom_smooth = cv2.GaussianBlur(
+                bottom_row.reshape(1, -1),
+                (smooth_kernel, 1),
+                0,
+            ).flatten()
         
         # Calculate gradient to find edges
         gradient = np.gradient(bottom_smooth)

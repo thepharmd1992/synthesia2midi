@@ -112,6 +112,9 @@ class AutoDetectAdapter:
                 {
                     "name": "lenient_1",
                     "params": {
+                        "black_threshold_method": "adaptive",
+                        "black_adaptive_block_size": 31,
+                        "black_adaptive_c": 5,
                         "black_threshold": 60,
                         "black_column_ratio": 0.08,
                         "black_min_width": 8,
@@ -123,6 +126,7 @@ class AutoDetectAdapter:
                 {
                     "name": "lenient_2",
                     "params": {
+                        "black_threshold_method": "otsu",
                         "black_threshold": 50,
                         "black_column_ratio": 0.06,
                         "black_min_width": 6,

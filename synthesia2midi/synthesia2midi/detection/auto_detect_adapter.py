@@ -162,7 +162,22 @@ class AutoDetectAdapter:
 
             for profile in detection_profiles:
                 try:
-                    self.logger.info(f"Attempting detection with profile: {profile['name']}")
+                    preprocess_mode = profile["params"].get("preprocess_mode", "none")
+                    preprocess_upscale = profile["params"].get("preprocess_upscale", 1)
+                    black_method = profile["params"].get("black_threshold_method", "fixed")
+                    black_threshold = profile["params"].get("black_threshold", None)
+                    white_band = profile["params"].get("white_edge_band_ratio", None)
+                    white_smooth = profile["params"].get("white_edge_smooth_kernel", None)
+                    self.logger.info(
+                        "Attempting detection with profile '%s' (preprocess=%s, upscale=%s, black_method=%s, black_threshold=%s, white_band=%s, white_smooth=%s)",
+                        profile["name"],
+                        preprocess_mode,
+                        preprocess_upscale,
+                        black_method,
+                        black_threshold,
+                        white_band,
+                        white_smooth,
+                    )
                     self._detector = MonolithicPianoDetector(
                         self._temp_image_path,
                         keyboard_region=cropped_region,

@@ -109,6 +109,20 @@ class MonolithicPianoDetector:
         processed_gray, x_scale, y_scale = self._preprocess_gray_for_detection(
             processed_gray
         )
+        self.logger.info(
+            "Detector preprocessing: mode=%s upscale=%s x_scale=%.3f y_scale=%.3f",
+            self.params.get("preprocess_mode", "none"),
+            self.params.get("preprocess_upscale", 1),
+            x_scale,
+            y_scale,
+        )
+        self.logger.info(
+            "Detector params: black_method=%s black_threshold=%s black_edge_fallback=%s white_gap_fill=%s",
+            self.params.get("black_threshold_method", "fixed"),
+            self.params.get("black_threshold", None),
+            self.params.get("black_edge_fallback", False),
+            self.params.get("white_gap_fill", False),
+        )
         
         self.logger.debug(f"\n=== Detecting Keys in Region {right_x-left_x}x{bottom_y-top_y} ===")
         
@@ -329,7 +343,9 @@ class MonolithicPianoDetector:
             edges.append(width - 1)
 
         if self.params["white_gap_fill"]:
+            before = len(edges)
             edges = self._fill_missing_white_edges(edges)
+            self.logger.info("White key edge gap fill: edges %d -> %d", before, len(edges))
 
         white_keys = []
         min_key_width = self.params["white_min_width"]
@@ -367,6 +383,7 @@ class MonolithicPianoDetector:
         upper_region = gray_img[:int(height * upper_ratio), :]
 
         threshold_method = self.params.get("black_threshold_method", "fixed")
+        self.logger.debug("Black key detection: threshold_method=%s", threshold_method)
         if threshold_method == "adaptive":
             block_size = int(self.params["black_adaptive_block_size"])
             if block_size % 2 == 0:
@@ -382,12 +399,13 @@ class MonolithicPianoDetector:
                 self.params["black_adaptive_c"],
             )
         elif threshold_method == "otsu" or self.params["black_threshold"] is None:
-            _, binary = cv2.threshold(
+            otsu_val, binary = cv2.threshold(
                 upper_region,
                 0,
                 255,
                 cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU,
             )
+            self.logger.debug("Black key detection: Otsu threshold=%.2f", otsu_val)
         else:
             _, binary = cv2.threshold(
                 upper_region,
@@ -409,6 +427,11 @@ class MonolithicPianoDetector:
             self.params["black_edge_fallback"]
             and len(black_keys) < self.params["black_min_count_for_valid"]
         ):
+            self.logger.info(
+                "Black key edge fallback enabled: base_detected=%d (<%d), attempting edge-based fallback",
+                len(black_keys),
+                self.params["black_min_count_for_valid"],
+            )
             edges = cv2.Canny(upper_region, 50, 150)
             edge_sums = np.sum(edges > 0, axis=0)
             edge_threshold = np.max(edge_sums) * self.params["black_edge_column_ratio"]
@@ -416,6 +439,13 @@ class MonolithicPianoDetector:
             edge_keys = self._extract_black_key_regions(edge_regions, upper_region.shape[0])
             if len(edge_keys) > len(black_keys):
                 black_keys = edge_keys
+                self.logger.info("Black key edge fallback improved count to %d", len(black_keys))
+            else:
+                self.logger.info(
+                    "Black key edge fallback did not improve count (edge=%d, base=%d)",
+                    len(edge_keys),
+                    len(black_keys),
+                )
 
         return black_keys
     

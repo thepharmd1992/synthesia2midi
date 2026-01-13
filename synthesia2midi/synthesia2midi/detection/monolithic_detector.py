@@ -17,6 +17,24 @@ import logging
 import cv2
 import numpy as np
 
+DEFAULT_DETECTION_PARAMS = {
+    "black_upper_ratio": 0.6,
+    "black_threshold": 70,
+    "black_column_ratio": 0.10,
+    "black_min_width": 10,
+    "black_max_width": 100,
+    "white_bottom_ratio": 0.85,
+    "white_edge_std_factor": 2.0,
+    "white_min_width": 15,
+    "white_initial_top_ratio": 0.7,
+    "white_initial_height_ratio": 0.3,
+    "edge_boundary_padding_px": 3,
+    "padding_percent": 0.15,
+    "trim_saturation_threshold": 45,
+    "trim_gray_threshold": 140,
+    "trim_row_height": 20,
+}
+
 class MonolithicPianoDetector:
     """
     Comprehensive piano keyboard detector for static images.
@@ -31,7 +49,7 @@ class MonolithicPianoDetector:
                         the manual ROI for keyboard detection
     """
     
-    def __init__(self, image_path, keyboard_region=None):
+    def __init__(self, image_path, keyboard_region=None, detection_profile=None):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         self.image_path = image_path
         self.image = cv2.imread(image_path)
@@ -45,9 +63,13 @@ class MonolithicPianoDetector:
         self.white_keys = []
         self.keyboard_region = keyboard_region  # Must be provided for manual ROI
         self.key_notes = {}
+        # Detection parameters (allow overrides for low-quality fallbacks)
+        self.params = {**DEFAULT_DETECTION_PARAMS, **(detection_profile or {})}
         
-    def _add_overlay_padding(self, start_x, y, width, height, padding_percent=0.15):
+    def _add_overlay_padding(self, start_x, y, width, height, padding_percent=None):
         """Add padding to overlay by shrinking inward from left and right sides"""
+        if padding_percent is None:
+            padding_percent = self.params.get("padding_percent", 0.15)
         padding_pixels = int(width * padding_percent)
         new_start_x = start_x + padding_pixels
         new_width = width - (2 * padding_pixels)
@@ -92,17 +114,22 @@ class MonolithicPianoDetector:
         height, width = gray_img.shape
         
         # Focus on upper portion where black keys are
-        upper_ratio = 0.6
+        upper_ratio = self.params["black_upper_ratio"]
         upper_region = gray_img[:int(height * upper_ratio), :]
         
         # Create binary image - black keys are dark (conservative threshold to avoid shadowed white keys)
-        _, binary = cv2.threshold(upper_region, 70, 255, cv2.THRESH_BINARY_INV)
+        _, binary = cv2.threshold(
+            upper_region,
+            self.params["black_threshold"],
+            255,
+            cv2.THRESH_BINARY_INV,
+        )
         
         # Scan columns to find black key regions
         column_sums = np.sum(binary, axis=0)
         
         # Find where columns have significant black pixels
-        threshold = np.max(column_sums) * 0.1  # Reduced threshold for better detection
+        threshold = np.max(column_sums) * self.params["black_column_ratio"]  # Reduced threshold for better detection
         black_regions = column_sums > threshold
         
         # Find start and end of each black key
@@ -116,7 +143,11 @@ class MonolithicPianoDetector:
                 in_key = True
             elif not black_regions[x] and in_key:
                 width = x - start_x
-                if 10 < width < 100:  # Reasonable key width
+                if (
+                    self.params["black_min_width"]
+                    < width
+                    < self.params["black_max_width"]
+                ):  # Reasonable key width
                     padded_overlay = self._add_overlay_padding(start_x, 0, width, upper_region.shape[0])
                     black_keys.append(padded_overlay)
                 in_key = False
@@ -124,7 +155,7 @@ class MonolithicPianoDetector:
         # Handle last key
         if in_key:
             width = len(black_regions) - start_x
-            if 10 < width < 100:
+            if self.params["black_min_width"] < width < self.params["black_max_width"]:
                 padded_overlay = self._add_overlay_padding(start_x, 0, width, upper_region.shape[0])
                 black_keys.append(padded_overlay)
         
@@ -135,7 +166,7 @@ class MonolithicPianoDetector:
         height, width = gray_img.shape
         
         # Look at bottom portion where white keys are clearly separated
-        bottom_y = int(height * 0.85)
+        bottom_y = int(height * self.params["white_bottom_ratio"])
         bottom_row = gray_img[bottom_y, :]
         
         # Apply smoothing
@@ -146,7 +177,7 @@ class MonolithicPianoDetector:
         
         # Find significant edges
         edges = []
-        edge_threshold = np.std(gradient) * 2
+        edge_threshold = np.std(gradient) * self.params["white_edge_std_factor"]
         
         for i in range(1, len(gradient) - 1):
             if abs(gradient[i]) > edge_threshold:
@@ -160,17 +191,18 @@ class MonolithicPianoDetector:
         self.logger.debug(f"  Found {len(edges)} edges: {edges[:10]}...")  # Show first 10 edges
         
         # MISSING KEY FIX: Add left and right boundaries if not present
-        if not edges or edges[0] > 3:  # If first edge is far from left boundary (reduced from 20 to 3)
+        boundary_pad = self.params["edge_boundary_padding_px"]
+        if not edges or edges[0] > boundary_pad:  # If first edge is far from left boundary (reduced from 20 to 3)
             edges.insert(0, 0)  # Add left boundary at x=0
             self.logger.debug(f"DEBUG: Added left boundary edge at x=0")
-        
-        if not edges or edges[-1] < width - 3:  # If last edge is far from right boundary (reduced from 20 to 3)
+
+        if not edges or edges[-1] < width - boundary_pad:  # If last edge is far from right boundary (reduced from 20 to 3)
             edges.append(width - 1)  # Add right boundary
             self.logger.debug(f"DEBUG: Added right boundary edge at x={width-1}")
         
         # Convert edges to key boundaries
         white_keys = []
-        min_key_width = 15
+        min_key_width = self.params["white_min_width"]
         
         for i in range(len(edges) - 1):
             start_x = edges[i]
@@ -179,8 +211,8 @@ class MonolithicPianoDetector:
             
             if key_width > min_key_width:
                 # Initial white key region - start lower to avoid black keys
-                initial_top = int(height * 0.7)  # Start at 70% instead of 60%
-                initial_height = int(height * 0.3)  # 30% height instead of 40%
+                initial_top = int(height * self.params["white_initial_top_ratio"])  # Start at 70% instead of 60%
+                initial_height = int(height * self.params["white_initial_height_ratio"])  # 30% height instead of 40%
                 
                 # Trim top of white key if it dips into black key area
                 trimmed_top, trimmed_height = self._trim_white_key_top(
@@ -205,7 +237,7 @@ class MonolithicPianoDetector:
         key_hsv = cv2.cvtColor(key_region, cv2.COLOR_BGR2HSV)
         
         # Scan upward in 20-pixel rows from bottom as requested
-        row_height = 20
+        row_height = self.params["trim_row_height"]
         trimmed_top = initial_top
         
         for y in range(key_region.shape[0] - row_height, 0, -row_height):
@@ -217,7 +249,7 @@ class MonolithicPianoDetector:
                 # If saturation increases significantly from white key baseline, stop here
                 # White keys typically have sat=15-18, but cream/beige keys can be ~38
                 # Increased threshold to accommodate cream-colored white keys (like halo video)
-                if avg_saturation > 45 or avg_gray < 140:  # Accommodate cream/beige white keys
+                if avg_saturation > self.params["trim_saturation_threshold"] or avg_gray < self.params["trim_gray_threshold"]:  # Accommodate cream/beige white keys
                     trimmed_top = initial_top + y + row_height
                     break
         

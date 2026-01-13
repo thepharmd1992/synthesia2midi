@@ -199,11 +199,15 @@ class CalibrationWizard(QDialog):
             logging.info("Running detection on cropped frame")
             # FIXED: Pass original ROI coordinates, not (0,0), so coordinate conversion works correctly
             detection_results = adapter.detect_from_frame(cropped_frame, keyboard_region=(x, y, width, height))
-            
+
             if detection_results is None:
                 logging.error("Detection returned None")
-                QMessageBox.warning(self, "Detection Error", 
-                                  "Failed to detect keys in the selected region. Please try again.")
+                reason = getattr(adapter, "last_failure_reason", None)
+                if reason == "low_quality":
+                    message = "Video quality is too blurry for autodetector. Please assign overlays manually."
+                else:
+                    message = "Failed to detect keys in the selected region. Please try again."
+                QMessageBox.warning(self, "Detection Error", message)
                 return
             
             logging.info(f"Detection successful: {detection_results['total_keys']} keys detected")

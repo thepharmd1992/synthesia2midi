@@ -40,9 +40,10 @@ class AutoDetectAdapter:
     """
     
     def __init__(self):
-        self.logger = logging.getLogger(f"{__name__}.AutoDetectAdapter")
+        self.logger = logging.getLogger(f"{__name__}.AutoDetectAdapter")        
         self._detector = None
         self._temp_image_path = None
+        self.last_failure_reason: Optional[str] = None
     
     def detect_from_frame(self, frame: np.ndarray, keyboard_region: Optional[Tuple[int, int, int, int]] = None) -> Optional[Dict]:
         """
@@ -103,51 +104,84 @@ class AutoDetectAdapter:
             self.logger.info(f"Cropped frame coordinates: y={top_y}-{bottom_y}, x={left_x}-{right_x}")
             self.logger.info(f"Detector region for coordinate conversion: {detector_region}")
             
-            # Initialize detector with the keyboard region (using cropped coordinates)
+            self.last_failure_reason = None
             cropped_region = (top_y, bottom_y, left_x, right_x)
-            self._detector = MonolithicPianoDetector(self._temp_image_path, keyboard_region=cropped_region)
-            
-            self.logger.info(f"Initialized detector with keyboard region: {cropped_region}")
-            
-            # Step 2: Detect individual keys
-            num_black, num_white = self._detector.detect_keys()
-            total_keys = num_black + num_white
-            self.logger.info(f"Detected {num_white} white keys, {num_black} black keys")
-            
-            # Step 3: Assign notes
-            key_notes = self._detector.assign_notes()
-            if not key_notes:
-                self.logger.error("Failed to assign notes to keys")
-                return None
-            
-            # Convert detector results to our format
-            # When manual region is used, we need to account for the fact that detection
-            # was performed on a cropped frame but we need absolute video coordinates
-            if keyboard_region:
-                # For manual selection, the detector worked on a cropped frame where
-                # coordinates are relative to the crop (0,0 is top-left of crop).
-                # We need to convert these to absolute video coordinates by adding
-                # the original region offset stored in detector_region
-                conversion_region = detector_region  # Use original region for proper offset
-            else:
-                # Use actual detector region for auto-detection
-                conversion_region = detector_region
-            detected_keys = self._convert_detector_results(key_notes, conversion_region)
-            
-            # Find leftmost key information
-            leftmost_note, leftmost_octave = self._get_leftmost_note_info(detected_keys)
-            
-            self.logger.info(f"Detection complete: {total_keys} keys, leftmost: {leftmost_note}{leftmost_octave}")
-            
-            return {
-                'total_keys': total_keys,
-                'leftmost_note': leftmost_note,
-                'leftmost_octave': leftmost_octave,
-                'detected_keys': detected_keys,
-                'keyboard_region': detector_region
-            }
-            
+
+            detection_profiles = [
+                {"name": "default", "params": {}},
+                {
+                    "name": "lenient_1",
+                    "params": {
+                        "black_threshold": 60,
+                        "black_column_ratio": 0.08,
+                        "black_min_width": 8,
+                        "black_max_width": 120,
+                        "white_edge_std_factor": 1.6,
+                        "white_min_width": 12,
+                    },
+                },
+                {
+                    "name": "lenient_2",
+                    "params": {
+                        "black_threshold": 50,
+                        "black_column_ratio": 0.06,
+                        "black_min_width": 6,
+                        "black_max_width": 140,
+                        "white_edge_std_factor": 1.4,
+                        "white_min_width": 10,
+                        "white_initial_top_ratio": 0.65,
+                        "white_initial_height_ratio": 0.35,
+                    },
+                },
+            ]
+
+            last_error: Optional[Exception] = None
+
+            for profile in detection_profiles:
+                try:
+                    self.logger.info(f"Attempting detection with profile: {profile['name']}")
+                    self._detector = MonolithicPianoDetector(
+                        self._temp_image_path,
+                        keyboard_region=cropped_region,
+                        detection_profile=profile["params"],
+                    )
+
+                    self.logger.info(f"Initialized detector with keyboard region: {cropped_region}")
+
+                    num_black, num_white = self._detector.detect_keys()
+                    total_keys = num_black + num_white
+                    self.logger.info(f"[{profile['name']}] Detected {num_white} white keys, {num_black} black keys")
+
+                    key_notes = self._detector.assign_notes()
+                    if not key_notes:
+                        raise ValueError("Failed to assign notes to keys")
+
+                    conversion_region = detector_region
+                    detected_keys = self._convert_detector_results(key_notes, conversion_region)
+
+                    leftmost_note, leftmost_octave = self._get_leftmost_note_info(detected_keys)
+
+                    self.logger.info(f"[{profile['name']}] Detection complete: {total_keys} keys, leftmost: {leftmost_note}{leftmost_octave}")
+
+                    return {
+                        'total_keys': total_keys,
+                        'leftmost_note': leftmost_note,
+                        'leftmost_octave': leftmost_octave,
+                        'detected_keys': detected_keys,
+                        'keyboard_region': detector_region
+                    }
+                except Exception as e:
+                    last_error = e
+                    self.logger.warning(f"Detection attempt '{profile['name']}' failed: {e}", exc_info=True)
+                    continue
+
+            self.last_failure_reason = "low_quality"
+            if last_error:
+                self.logger.error(f"All detection attempts failed. Last error: {last_error}")
+            return None
+
         except Exception as e:
+            self.last_failure_reason = "error"
             self.logger.error(f"Auto-detection failed: {e}")
             import traceback
             traceback.print_exc()

@@ -2,16 +2,18 @@
 Calibration wizard for setting up initial key overlays.
 """
 # Standard library imports
+import copy
 import logging
 import os
 from typing import List, Optional, Tuple
 
 # Third-party imports
 import numpy as np
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QTimer
 from PySide6.QtWidgets import (
-    QComboBox, QDialog, QGridLayout, QHBoxLayout, 
-    QLabel, QMessageBox, QPushButton, QSpinBox, QVBoxLayout
+    QCheckBox, QComboBox, QDialog, QDoubleSpinBox, QFormLayout, QGridLayout,
+    QGroupBox, QHBoxLayout, QLabel, QMessageBox, QPushButton, QSpinBox,
+    QVBoxLayout
 )
 
 # Local imports
@@ -22,9 +24,230 @@ from synthesia2midi.app_config import (
     IDEALIZED_WHITE_KEY_Y, NOTE_NAMES_SHARP, OverlayConfig
 )
 from synthesia2midi.core.app_state import AppState
-from synthesia2midi.detection.auto_detect_adapter import AutoDetectAdapter
-from synthesia2midi.gui.spinbox_utils import install_spinbox_wheel_filter 
+from synthesia2midi.detection.auto_detect_adapter import AutoDetectAdapter      
+from synthesia2midi.gui.spinbox_utils import install_spinbox_wheel_filter       
 
+
+class AutoDetectTuningDialog(QDialog):
+    """Popup dialog for tuning auto-detect parameters."""
+
+    DEFAULT_PARAMS = {
+        "type_aware_assignment": True,
+        "black_threshold_method": "otsu",
+        "black_threshold": 60,
+        "black_column_ratio": 0.06,
+        "black_min_width": 6,
+        "black_max_width": 140,
+        "black_adaptive_block_size": 31,
+        "black_adaptive_c": 5,
+        "black_recovery_enabled": True,
+        "black_recovery_ratio": 0.5,
+        "black_recovery_column_ratio_scale": 0.45,
+        "black_split_max_factor": 1.6,
+        "white_strip_dark_threshold": 75,
+        "white_strip_dark_fraction": 0.03,
+        "white_strip_min_run": 8,
+        "white_strip_allow_failures": 1,
+        "white_sep_ratio": 0.55,
+        "white_sep_dyn_min": 8,
+        "white_sep_close_kernel": 5,
+        "white_sep_open_kernel": 3,
+        "white_sep_min_width": 2,
+        "white_initial_top_ratio": 0.65,
+    }
+
+    def __init__(
+        self,
+        parent,
+        adapter: AutoDetectAdapter,
+        frame: np.ndarray,
+        keyboard_region: Tuple[int, int, int, int],
+        apply_callback,
+        initial_params: Optional[dict] = None,
+        initial_results: Optional[dict] = None,
+    ):
+        super().__init__(parent)
+        self.setWindowTitle("Auto-Detect Tuning")
+        self.setModal(True)
+        self.adapter = adapter
+        self.frame = frame
+        self.keyboard_region = keyboard_region
+        self.apply_callback = apply_callback
+        self._suppress_updates = True
+        self._last_detection_results = initial_results
+
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._run_detection)
+
+        self._controls = {}
+
+        layout = QVBoxLayout()
+        layout.addWidget(QLabel("Adjust parameters to refine auto-detection. Changes rerun detection automatically."))
+
+        params = self.DEFAULT_PARAMS.copy()
+        if initial_params:
+            params.update(initial_params)
+
+        layout.addWidget(self._build_black_group(params))
+        layout.addWidget(self._build_white_group(params))
+        layout.addWidget(self._build_general_group(params))
+
+        if initial_results:
+            status_text = (
+                f"Detected {initial_results['total_keys']} keys "
+                f"(leftmost: {initial_results['leftmost_note']}{initial_results['leftmost_octave']})"
+            )
+        else:
+            status_text = "Ready"
+        self.status_label = QLabel(status_text)
+        layout.addWidget(self.status_label)
+
+        button_layout = QHBoxLayout()
+        self.save_button = QPushButton("Save Settings")
+        self.save_button.clicked.connect(self._on_save)
+        cancel_button = QPushButton("Cancel")
+        cancel_button.clicked.connect(self.reject)
+        button_layout.addWidget(self.save_button)
+        button_layout.addWidget(cancel_button)
+        layout.addLayout(button_layout)
+
+        self.setLayout(layout)
+
+        self._suppress_updates = False
+
+    def _build_black_group(self, params: dict):
+        group = QGroupBox("Black Key Detection")
+        form = QFormLayout()
+
+        self._add_combo(
+            form,
+            "black_threshold_method",
+            "Threshold method",
+            ["fixed", "adaptive", "otsu"],
+            params,
+        )
+        self._add_spin(form, "black_threshold", "Threshold", 0, 255, 1, params)
+        self._add_double(form, "black_column_ratio", "Column ratio", 0.01, 0.5, 0.01, 3, params)
+        self._add_spin(form, "black_min_width", "Min width", 1, 50, 1, params)
+        self._add_spin(form, "black_max_width", "Max width", 20, 300, 1, params)
+        self._add_spin(form, "black_adaptive_block_size", "Adaptive block size", 3, 101, 2, params)
+        self._add_spin(form, "black_adaptive_c", "Adaptive C", -50, 50, 1, params)
+        self._add_checkbox(form, "black_recovery_enabled", "Recovery enabled", params)
+        self._add_double(form, "black_recovery_ratio", "Recovery ratio", 0.2, 0.9, 0.05, 2, params)
+        self._add_double(form, "black_recovery_column_ratio_scale", "Recovery column scale", 0.2, 1.0, 0.05, 2, params)
+        self._add_double(form, "black_split_max_factor", "Split max factor", 1.2, 3.0, 0.1, 2, params)
+
+        group.setLayout(form)
+        return group
+
+    def _build_white_group(self, params: dict):
+        group = QGroupBox("White Key Detection")
+        form = QFormLayout()
+
+        self._add_spin(form, "white_strip_dark_threshold", "Strip dark threshold", 0, 255, 1, params)
+        self._add_double(form, "white_strip_dark_fraction", "Strip dark fraction", 0.0, 0.2, 0.01, 3, params)
+        self._add_spin(form, "white_strip_min_run", "Strip min run", 2, 30, 1, params)
+        self._add_spin(form, "white_strip_allow_failures", "Strip allow failures", 0, 5, 1, params)
+        self._add_double(form, "white_sep_ratio", "Separator ratio", 0.3, 0.8, 0.05, 2, params)
+        self._add_spin(form, "white_sep_dyn_min", "Separator dyn min", 0, 30, 1, params)
+        self._add_spin(form, "white_sep_close_kernel", "Separator close kernel", 1, 15, 1, params)
+        self._add_spin(form, "white_sep_open_kernel", "Separator open kernel", 1, 15, 1, params)
+        self._add_spin(form, "white_sep_min_width", "Separator min width", 1, 10, 1, params)
+        self._add_double(form, "white_initial_top_ratio", "Top ratio", 0.4, 0.9, 0.01, 2, params)
+
+        group.setLayout(form)
+        return group
+
+    def _build_general_group(self, params: dict):
+        group = QGroupBox("General")
+        form = QFormLayout()
+        self._add_checkbox(form, "type_aware_assignment", "Type-aware assignment", params)
+        group.setLayout(form)
+        return group
+
+    def _add_spin(self, form, key, label, min_val, max_val, step, params):
+        spin = QSpinBox()
+        spin.setRange(min_val, max_val)
+        spin.setSingleStep(step)
+        spin.setValue(int(params.get(key, self.DEFAULT_PARAMS.get(key, min_val))))
+        install_spinbox_wheel_filter(spin)
+        spin.valueChanged.connect(self._schedule_detection)
+        form.addRow(QLabel(label), spin)
+        self._controls[key] = spin
+
+    def _add_double(self, form, key, label, min_val, max_val, step, decimals, params):
+        spin = QDoubleSpinBox()
+        spin.setRange(min_val, max_val)
+        spin.setSingleStep(step)
+        spin.setDecimals(decimals)
+        spin.setValue(float(params.get(key, self.DEFAULT_PARAMS.get(key, min_val))))
+        spin.valueChanged.connect(self._schedule_detection)
+        form.addRow(QLabel(label), spin)
+        self._controls[key] = spin
+
+    def _add_combo(self, form, key, label, items, params):
+        combo = QComboBox()
+        combo.addItems(items)
+        value = params.get(key, self.DEFAULT_PARAMS.get(key, items[0]))
+        if value in items:
+            combo.setCurrentText(value)
+        combo.currentTextChanged.connect(self._schedule_detection)
+        form.addRow(QLabel(label), combo)
+        self._controls[key] = combo
+
+    def _add_checkbox(self, form, key, label, params):
+        checkbox = QCheckBox()
+        checkbox.setChecked(bool(params.get(key, self.DEFAULT_PARAMS.get(key, False))))
+        checkbox.stateChanged.connect(self._schedule_detection)
+        form.addRow(QLabel(label), checkbox)
+        self._controls[key] = checkbox
+
+    def _schedule_detection(self):
+        if self._suppress_updates:
+            return
+        self.status_label.setText("Re-running detection...")
+        self._timer.start(200)
+
+    def _gather_params(self):
+        params = {}
+        for key, widget in self._controls.items():
+            if isinstance(widget, QDoubleSpinBox):
+                params[key] = float(widget.value())
+            elif isinstance(widget, QSpinBox):
+                params[key] = int(widget.value())
+            elif isinstance(widget, QComboBox):
+                params[key] = widget.currentText()
+            elif isinstance(widget, QCheckBox):
+                params[key] = widget.isChecked()
+        block_size = params.get("black_adaptive_block_size")
+        if block_size is not None and block_size % 2 == 0:
+            params["black_adaptive_block_size"] = block_size + 1
+        return params
+
+    def _run_detection(self):
+        params = self._gather_params()
+        results = self.adapter.detect_from_frame_with_params(
+            self.frame,
+            keyboard_region=self.keyboard_region,
+            detection_params=params,
+        )
+
+        if results is None:
+            self.status_label.setText("Detection failed. Adjust parameters and try again.")
+            return
+
+        self._last_detection_results = results
+        self.apply_callback(results, self.adapter)
+        self.status_label.setText(
+            f"Detected {results['total_keys']} keys (leftmost: {results['leftmost_note']}{results['leftmost_octave']})"
+        )
+
+    def _on_save(self):
+        if self._last_detection_results is None:
+            QMessageBox.warning(self, "Auto-Detect", "No valid detection results yet.")
+            return
+        self.accept()
 
 class CalibrationWizard(QDialog):
     """Modal dialog for initial keyboard calibration."""
@@ -211,24 +434,26 @@ class CalibrationWizard(QDialog):
                 return
             
             logging.info(f"Detection successful: {detection_results['total_keys']} keys detected")
-            
-            # Update app state with detected values
-            logging.info("Updating app state with detection results")
-            self.app_state.midi.total_keys = detection_results['total_keys']
-            self.app_state.midi.leftmost_note_name = detection_results['leftmost_note']
-            self.app_state.midi.leftmost_note_octave = detection_results['leftmost_octave']
-            logging.info(f"App state updated: {detection_results['total_keys']} keys, leftmost: {detection_results['leftmost_note']}{detection_results['leftmost_octave']}")
-            
-            # Store detected overlays for use in _generate_initial_overlays
-            logging.info("Creating overlays from detection results")
-            self.detected_overlays = adapter.create_overlays_from_detection(
-                detection_results, self.app_state.overlays)
-            logging.info(f"Created {len(self.detected_overlays) if self.detected_overlays else 0} overlays")
-            
-            # Update app state and generate overlays
-            logging.info("Calling _submit to generate overlays")
-            self._submit()
-            logging.info("Submit completed")
+
+            original_state = self._snapshot_state()
+            self._apply_detection_results(detection_results, adapter, mark_unsaved=False)
+
+            initial_params = adapter.last_successful_profile_params or {}
+            tuning_dialog = AutoDetectTuningDialog(
+                self,
+                adapter,
+                cropped_frame,
+                (x, y, width, height),
+                lambda results, adapt=adapter: self._apply_detection_results(results, adapt, mark_unsaved=False),
+                initial_params=initial_params,
+                initial_results=detection_results,
+            )
+            dialog_result = tuning_dialog.exec()
+            if dialog_result == QDialog.Accepted:
+                self.app_state.unsaved_changes = True
+                self.result = True
+            else:
+                self._restore_state(original_state)
             
         except Exception as e:
             logging.error(f"=== KEYBOARD DETECTION FAILED ===")
@@ -259,6 +484,58 @@ class CalibrationWizard(QDialog):
         except Exception as e:
             logging.error(f"Failed to get current frame: {e}")
             return None
+
+    def _apply_detection_results(self, detection_results: dict, adapter: AutoDetectAdapter, mark_unsaved: bool):
+        logging.info("Updating app state with detection results")
+        self.app_state.midi.total_keys = detection_results['total_keys']
+        self.app_state.midi.leftmost_note_name = detection_results['leftmost_note']
+        self.app_state.midi.leftmost_note_octave = detection_results['leftmost_octave']
+        logging.info(
+            "App state updated: %s keys, leftmost: %s%s",
+            detection_results['total_keys'],
+            detection_results['leftmost_note'],
+            detection_results['leftmost_octave'],
+        )
+
+        logging.info("Creating overlays from detection results")
+        self.detected_overlays = adapter.create_overlays_from_detection(
+            detection_results, self.app_state.overlays)
+        logging.info("Created %s overlays", len(self.detected_overlays) if self.detected_overlays else 0)
+
+        logging.info("Generating overlays from detected results")
+        self._generate_initial_overlays()
+
+        if mark_unsaved:
+            self.app_state.unsaved_changes = True
+
+        self._refresh_canvas()
+
+    def _snapshot_state(self):
+        return {
+            "overlays": copy.deepcopy(self.app_state.overlays),
+            "total_keys": self.app_state.midi.total_keys,
+            "leftmost_note": self.app_state.midi.leftmost_note_name,
+            "leftmost_octave": self.app_state.midi.leftmost_note_octave,
+            "unsaved_changes": self.app_state.unsaved_changes,
+        }
+
+    def _restore_state(self, snapshot: dict):
+        self.app_state.overlays = snapshot["overlays"]
+        self.app_state.midi.total_keys = snapshot["total_keys"]
+        self.app_state.midi.leftmost_note_name = snapshot["leftmost_note"]
+        self.app_state.midi.leftmost_note_octave = snapshot["leftmost_octave"]
+        self.app_state.unsaved_changes = snapshot["unsaved_changes"]
+        self.detected_overlays = None
+        self._refresh_canvas()
+
+    def _refresh_canvas(self):
+        if not self.parent_app or not hasattr(self.parent_app, 'keyboard_canvas'):
+            return
+        canvas = self.parent_app.keyboard_canvas
+        if self.app_state.video.current_frame_index is not None:
+            canvas.display_frame(self.app_state.video.current_frame_index)
+        else:
+            canvas.update()
 
     def _generate_initial_overlays(self):
         """Generates an idealized piano keyboard layout based on hardcoded stylistic constants."""

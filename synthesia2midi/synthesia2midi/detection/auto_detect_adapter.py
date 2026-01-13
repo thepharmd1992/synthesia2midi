@@ -44,6 +44,8 @@ class AutoDetectAdapter:
         self._detector = None
         self._temp_image_path = None
         self.last_failure_reason: Optional[str] = None
+        self.last_successful_profile_name: Optional[str] = None
+        self.last_successful_profile_params: Optional[Dict] = None
     
     def detect_from_frame(self, frame: np.ndarray, keyboard_region: Optional[Tuple[int, int, int, int]] = None) -> Optional[Dict]:
         """
@@ -154,6 +156,8 @@ class AutoDetectAdapter:
             ]
 
             last_error: Optional[Exception] = None
+            self.last_successful_profile_name = None
+            self.last_successful_profile_params = None
 
             for profile in detection_profiles:
                 try:
@@ -180,6 +184,8 @@ class AutoDetectAdapter:
                     leftmost_note, leftmost_octave = self._get_leftmost_note_info(detected_keys)
 
                     self.logger.info(f"[{profile['name']}] Detection complete: {total_keys} keys, leftmost: {leftmost_note}{leftmost_octave}")
+                    self.last_successful_profile_name = profile["name"]
+                    self.last_successful_profile_params = profile["params"].copy()
 
                     return {
                         'total_keys': total_keys,
@@ -203,6 +209,67 @@ class AutoDetectAdapter:
             self.logger.error(f"Auto-detection failed: {e}")
             import traceback
             traceback.print_exc()
+            return None
+        finally:
+            self._cleanup_temp_file()
+
+    def detect_from_frame_with_params(
+        self,
+        frame: np.ndarray,
+        keyboard_region: Optional[Tuple[int, int, int, int]] = None,
+        detection_params: Optional[Dict] = None,
+    ) -> Optional[Dict]:
+        """Run auto-detection on a video frame using explicit parameters."""
+        self.logger.info("=== AUTO DETECT ADAPTER - detect_from_frame_with_params ===")
+        self.logger.info(f"Frame shape: {frame.shape if frame is not None else 'None'}")
+        self.logger.info(f"Keyboard region: {keyboard_region}")
+
+        try:
+            from .monolithic_detector import MonolithicPianoDetector
+
+            self._save_frame_to_temp(frame)
+
+            if not keyboard_region:
+                self.logger.error("Manual keyboard region is required.")
+                return None
+
+            roi_x, roi_y, roi_width, roi_height = keyboard_region
+            top_y = 0
+            bottom_y = roi_height
+            left_x = 0
+            right_x = roi_width
+
+            detector_region = (roi_y, roi_y + roi_height, roi_x, roi_x + roi_width)
+            cropped_region = (top_y, bottom_y, left_x, right_x)
+
+            params = detection_params.copy() if detection_params else {}
+            self._detector = MonolithicPianoDetector(
+                self._temp_image_path,
+                keyboard_region=cropped_region,
+                detection_profile=params,
+            )
+
+            num_black, num_white = self._detector.detect_keys()
+            total_keys = num_black + num_white
+            self.logger.info(f"Detected {num_white} white keys, {num_black} black keys")
+
+            key_notes = self._detector.assign_notes()
+            if not key_notes:
+                raise ValueError("Failed to assign notes to keys")
+
+            detected_keys = self._convert_detector_results(key_notes, detector_region)
+            leftmost_note, leftmost_octave = self._get_leftmost_note_info(detected_keys)
+
+            return {
+                'total_keys': total_keys,
+                'leftmost_note': leftmost_note,
+                'leftmost_octave': leftmost_octave,
+                'detected_keys': detected_keys,
+                'keyboard_region': detector_region
+            }
+        except Exception as e:
+            self.last_failure_reason = "error"
+            self.logger.error(f"Auto-detection failed: {e}", exc_info=True)
             return None
         finally:
             self._cleanup_temp_file()

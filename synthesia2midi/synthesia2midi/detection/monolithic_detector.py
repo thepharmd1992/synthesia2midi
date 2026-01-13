@@ -45,6 +45,7 @@ DEFAULT_DETECTION_PARAMS = {
     "white_sep_close_kernel": 5,
     "white_sep_open_kernel": 3,
     "white_sep_min_width": 2,
+    "type_aware_assignment": False,
 }
 
 class MonolithicPianoDetector:
@@ -445,15 +446,18 @@ class MonolithicPianoDetector:
         
         self.logger.debug(f"\n=== Assigning Notes to {len(self.black_keys)} black + {len(self.white_keys)} white keys ===")
         
-        # Find F# anchor using confident LSSL pattern detection
-        f_sharp_position = self._find_confident_f_sharp_anchor()
-        
-        if f_sharp_position is None:
-            self.logger.debug("Could not find confident F# anchor - using fallback assignment")
-            return self._fallback_note_assignment()
-        
-        # Unified chromatic assignment using pixel-by-pixel scanning
-        self.key_notes = self._assign_notes_chromatically_from_anchor(f_sharp_position)
+        if self.params.get("type_aware_assignment", False):
+            self.key_notes = self._assign_notes_type_aware()
+        else:
+            # Find F# anchor using confident LSSL pattern detection
+            f_sharp_position = self._find_confident_f_sharp_anchor()
+
+            if f_sharp_position is None:
+                self.logger.debug("Could not find confident F# anchor - using fallback assignment")
+                return self._fallback_note_assignment()
+
+            # Unified chromatic assignment using pixel-by-pixel scanning
+            self.key_notes = self._assign_notes_chromatically_from_anchor(f_sharp_position)
         
         self.logger.debug(f"DEBUG: Total assigned keys: {len(self.key_notes)}")
         
@@ -588,7 +592,85 @@ class MonolithicPianoDetector:
         self.logger.debug("❌ Could not find any F# anchor pattern")
         return None
     
-    def _assign_notes_chromatically_from_anchor(self, f_sharp_center_x):
+    def _find_f_sharp_anchor_candidates(self):
+        """Return candidate F# black-key indices, ordered by confidence."""
+        if len(self.black_keys) < 3:
+            return []
+
+        gaps = []
+        for i in range(len(self.black_keys) - 1):
+            gap = self.black_keys[i + 1][0] - (self.black_keys[i][0] + self.black_keys[i][2])
+            gaps.append(gap)
+
+        median_gap = sorted(gaps)[len(gaps) // 2]
+        gap_threshold = median_gap * 1.4
+
+        candidates = []
+
+        for i in range(len(gaps) - 3):
+            if (
+                gaps[i] > gap_threshold and
+                gaps[i + 1] <= gap_threshold and
+                gaps[i + 2] <= gap_threshold and
+                gaps[i + 3] > gap_threshold
+            ):
+                candidates.append(i + 1)
+
+        for i in range(len(gaps) - 2):
+            if (
+                gaps[i] <= gap_threshold and
+                gaps[i + 1] <= gap_threshold and
+                gaps[i + 2] > gap_threshold
+            ):
+                if i not in candidates:
+                    candidates.append(i)
+
+        self.logger.debug(
+            "F# anchor candidates (indices): %s",
+            candidates if candidates else "none",
+        )
+        return candidates
+
+    def _assign_notes_type_aware(self):
+        """Assign notes by key type, using black-key anchors and white-key scanning."""
+        candidates = self._find_f_sharp_anchor_candidates()
+        if not candidates:
+            self.logger.debug("No F# anchor candidates - using fallback assignment")
+            return self._fallback_note_assignment()
+
+        fallback_notes = None
+
+        for f_sharp_idx in candidates:
+            black_notes = self._assign_black_key_notes(f_sharp_idx)
+            white_notes, used_fallback = self._assign_white_key_notes_by_scanning(
+                black_notes,
+                return_fallback=True,
+            )
+
+            if not white_notes:
+                continue
+
+            combined = {**black_notes, **white_notes}
+            if not used_fallback:
+                self.logger.debug(
+                    "Type-aware assignment using F# index %s (no white fallback)",
+                    f_sharp_idx,
+                )
+                return combined
+
+            if fallback_notes is None:
+                self.logger.debug(
+                    "Type-aware assignment using F# index %s (white fallback)",
+                    f_sharp_idx,
+                )
+                fallback_notes = combined
+
+        if fallback_notes:
+            return fallback_notes
+
+        return self._fallback_note_assignment()
+
+    def _assign_notes_chromatically_from_anchor(self, f_sharp_center_x):        
         """Assign notes chromatically using pixel-by-pixel scanning from F# anchor"""
         self.logger.debug(f"Starting chromatic assignment from F# anchor at x={f_sharp_center_x}")
         
@@ -756,7 +838,7 @@ class MonolithicPianoDetector:
         
         return black_notes
     
-    def _assign_white_key_notes_by_scanning(self, black_notes):
+    def _assign_white_key_notes_by_scanning(self, black_notes, return_fallback=False):
         """Assign white key notes by scanning from F# anchor"""
         white_notes = {}
         
@@ -771,7 +853,10 @@ class MonolithicPianoDetector:
                 break
         
         if f_sharp_center is None:
-            return self._fallback_white_assignment()
+            white_notes = self._fallback_white_assignment()
+            if return_fallback:
+                return white_notes, True
+            return white_notes
         
         # White key pattern starting from F (before F#)
         white_pattern = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
@@ -799,7 +884,10 @@ class MonolithicPianoDetector:
                     f_key_idx = i
         
         if f_key_idx is None:
-            return self._fallback_white_assignment()
+            white_notes = self._fallback_white_assignment()
+            if return_fallback:
+                return white_notes, True
+            return white_notes
         
         # Assign notes starting from F
         for i, white_key in enumerate(sorted_white_keys):
@@ -823,6 +911,8 @@ class MonolithicPianoDetector:
                 'box': white_key
             }
         
+        if return_fallback:
+            return white_notes, False
         return white_notes
     
     def _fallback_note_assignment(self):

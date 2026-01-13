@@ -1,0 +1,50 @@
+How to Run Synthesia2MIDI (non-technical)
+
+This file is for people who just want to use the app.
+
+Windows 10 and Windows 11
+1) If you downloaded a zip, right-click it and choose Extract All. On Windows 11, if you do not see it, click "Show more options".
+2) Open the extracted folder. Keep all files together.
+3) Double-click setup_windows.bat.
+   - If a blue "Windows protected your PC" screen appears, click "More info" then "Run anyway".
+   - If you are asked for permission, click Yes.
+4) Wait. A black window will show setup messages. Do not close it.
+5) The app should open. If it does not open, look at the black window for errors and use the fixes below.
+6) When the app opens, click "Open Local Video File" to pick a video, or "Download from YouTube" to paste a link.
+7) Next time, you can double-click synthesia2midi\run.bat to start faster. If that fails, run setup_windows.bat again.
+
+If you see a permissions error:
+- Move the folder to Documents or Desktop and run setup_windows.bat again.
+- On Windows 11, right-click setup_windows.bat, choose "Show more options", then "Run as administrator" if needed.
+
+If you see "FFmpeg is missing":
+- This is only needed for YouTube downloads and some video conversions. If you are not using those, you can skip this.
+1) Download FFmpeg from https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
+2) Open the zip, go into the "bin" folder, and copy ffmpeg.exe
+3) In this app folder, create a folder named "ffmpeg" inside "synthesia2midi"
+4) Paste ffmpeg.exe into:
+   synthesia2midi\ffmpeg\ffmpeg.exe
+5) Run setup_windows.bat again.
+
+Mac (macOS)
+1) If you downloaded a zip, double-click it to extract.
+2) Open the extracted folder. Keep all files together.
+3) First-time setup: right-click setup.sh and choose Open With -> Terminal.
+   - If macOS blocks it, right-click setup.sh, choose Open, then click Open.
+   - You might have to allow it in System Settings -> Privacy and Security -> Open Anyway.
+4) Wait. A Terminal window will show setup messages. Do not close it.
+5) The app should open. If it does not open, use the fixes below.
+6) When the app opens, click "Open Local Video File" to pick a video, or "Download from YouTube" to paste a link.
+
+Starting it later:
+- Double-click run_mac.command. Leave the Terminal window open while the app is running.
+
+If you see "Python 3 was not found":
+- The setup window will tell you how to install Python. Follow its instructions, then run setup.sh again.
+
+If you see "FFmpeg not found":
+- This is only needed for YouTube downloads and some video conversions. If you are not using those, you can skip this.
+1) Open Terminal (you can use the same Terminal window).
+2) Copy and paste this:
+   brew install ffmpeg
+3) If it says "brew: command not found", install Homebrew from https://brew.sh, then run the command again.

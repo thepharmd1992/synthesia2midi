@@ -18,6 +18,12 @@ import cv2
 import numpy as np
 
 DEFAULT_DETECTION_PARAMS = {
+    "preprocess_mode": "none",  # none | clahe | clahe_unsharp
+    "preprocess_upscale": 1,  # 1 (off) or 2 (common)
+    "preprocess_clahe_clip": 2.0,
+    "preprocess_clahe_tile": 8,
+    "preprocess_unsharp_amount": 1.0,
+    "preprocess_unsharp_sigma": 1.0,
     "black_upper_ratio": 0.6,
     "black_threshold": 70,
     "black_threshold_method": "fixed",
@@ -99,11 +105,19 @@ class MonolithicPianoDetector:
         top_y, bottom_y, left_x, right_x = self.keyboard_region
         keyboard_img = self.image[top_y:bottom_y, left_x:right_x]
         keyboard_gray = cv2.cvtColor(keyboard_img, cv2.COLOR_BGR2GRAY)
+        processed_gray = keyboard_gray
+        processed_gray, x_scale, y_scale = self._preprocess_gray_for_detection(
+            processed_gray
+        )
         
         self.logger.debug(f"\n=== Detecting Keys in Region {right_x-left_x}x{bottom_y-top_y} ===")
         
         # Detect black keys first (easier to identify)
-        self.black_keys = self._detect_black_keys(keyboard_gray)
+        self.black_keys = self._detect_black_keys(processed_gray)
+        if x_scale != 1.0 or y_scale != 1.0:
+            self.black_keys = [
+                self._scale_overlay(box, x_scale, y_scale) for box in self.black_keys
+            ]
         self.logger.debug(f"Detected {len(self.black_keys)} black keys")
         
         self.logger.debug("First 5 black keys detected:")
@@ -111,14 +125,71 @@ class MonolithicPianoDetector:
             self.logger.debug(f"  Black key {i}: x={x}, y={y}, w={w}, h={h} (absolute x={left_x + x})")
         
         # Detect white keys
-        self.white_keys = self._detect_white_keys(keyboard_gray)
-        self.logger.debug(f"Detected {len(self.white_keys)} white keys")
+        if x_scale != 1.0 or y_scale != 1.0:
+            edge_profile = self._compute_white_edge_profile(processed_gray)
+            self.white_keys = self._detect_white_keys_from_profile(
+                keyboard_gray,
+                edge_profile=edge_profile,
+                edge_profile_x_scale=x_scale,
+            )
+        else:
+            self.white_keys = self._detect_white_keys(keyboard_gray)
+        self.logger.debug(f"Detected {len(self.white_keys)} white keys")        
         
         self.logger.debug("First 5 white keys detected:")
         for i, (x, y, w, h) in enumerate(self.white_keys[:5]):
             self.logger.debug(f"  White key {i}: x={x}, y={y}, w={w}, h={h} (absolute x={left_x + x})")
         
         return len(self.black_keys), len(self.white_keys)
+
+    def _preprocess_gray_for_detection(self, gray_img: np.ndarray):
+        """Preprocess ROI grayscale to improve detection on blurry footage."""
+        height, width = gray_img.shape
+
+        upscale = int(self.params.get("preprocess_upscale", 1) or 1)
+        if upscale < 1:
+            upscale = 1
+
+        mode = (self.params.get("preprocess_mode") or "none").lower()
+
+        processed = gray_img
+        if upscale != 1:
+            processed = cv2.resize(
+                processed,
+                (width * upscale, height * upscale),
+                interpolation=cv2.INTER_CUBIC,
+            )
+
+        if mode in {"clahe", "clahe_unsharp"}:
+            tile = int(self.params.get("preprocess_clahe_tile", 8) or 8)
+            tile = max(2, tile)
+            clip = float(self.params.get("preprocess_clahe_clip", 2.0) or 2.0)
+            clahe = cv2.createCLAHE(clipLimit=clip, tileGridSize=(tile, tile))
+            processed = clahe.apply(processed)
+
+        if mode == "clahe_unsharp":
+            amount = float(self.params.get("preprocess_unsharp_amount", 1.0) or 1.0)
+            sigma = float(self.params.get("preprocess_unsharp_sigma", 1.0) or 1.0)
+            blurred = cv2.GaussianBlur(processed, (0, 0), sigma)
+            processed = cv2.addWeighted(processed, 1.0 + amount, blurred, -amount, 0)
+            processed = np.clip(processed, 0, 255).astype(np.uint8)
+
+        x_scale = processed.shape[1] / float(width) if width else 1.0
+        y_scale = processed.shape[0] / float(height) if height else 1.0
+        return processed, x_scale, y_scale
+
+    def _scale_overlay(self, box, x_scale: float, y_scale: float):
+        """Map overlay coordinates from a scaled detection image back to original."""
+        x, y, w, h = box
+        x = int(round(x / x_scale)) if x_scale else x
+        y = int(round(y / y_scale)) if y_scale else y
+        w = int(round(w / x_scale)) if x_scale else w
+        h = int(round(h / y_scale)) if y_scale else h
+        w = max(1, w)
+        h = max(1, h)
+        x = max(0, x)
+        y = max(0, y)
+        return (x, y, w, h)
 
     def _extract_black_key_regions(self, regions, region_height):
         """Convert a boolean region mask into black key overlays."""
@@ -182,6 +253,26 @@ class MonolithicPianoDetector:
 
         return edge_profile
 
+    def _find_white_key_edges_from_profile(self, edge_profile):
+        """Detect likely vertical boundaries from an edge-strength profile."""
+        edges = []
+        edge_threshold = np.std(edge_profile) * self.params["white_edge_std_factor"]
+
+        for i in range(1, len(edge_profile) - 1):
+            if (
+                edge_profile[i] > edge_threshold
+                and edge_profile[i] > edge_profile[i - 1]
+                and edge_profile[i] > edge_profile[i + 1]
+            ):
+                edges.append(i)
+
+        self.logger.debug("DEBUG: White key edge detection:")
+        self.logger.debug(
+            f"  Edge profile std: {np.std(edge_profile):.2f}, edge_threshold: {edge_threshold:.2f}"
+        )
+        self.logger.debug(f"  Found {len(edges)} edges: {edges[:10]}...")
+        return edges
+
     def _fill_missing_white_edges(self, edges):
         """Fill missing edges using a spacing prior."""
         if len(edges) < self.params["white_gap_fill_min_edges"]:
@@ -209,6 +300,63 @@ class MonolithicPianoDetector:
             filled_edges.append(edges[i + 1])
 
         return sorted(set(filled_edges))
+
+    def _detect_white_keys_from_profile(
+        self,
+        gray_img,
+        edge_profile,
+        edge_profile_x_scale: float = 1.0,
+    ):
+        """Detect white keys using an externally computed edge profile."""
+        height, width = gray_img.shape
+        edges_scaled = self._find_white_key_edges_from_profile(edge_profile)
+
+        if edge_profile_x_scale and edge_profile_x_scale != 1.0:
+            edges = [
+                int(round(e / edge_profile_x_scale))
+                for e in edges_scaled
+            ]
+        else:
+            edges = edges_scaled
+
+        edges = [max(0, min(width - 1, e)) for e in edges] if width else []
+        edges = sorted(set(edges))
+
+        boundary_pad = self.params["edge_boundary_padding_px"]
+        if not edges or edges[0] > boundary_pad:
+            edges.insert(0, 0)
+        if not edges or edges[-1] < width - boundary_pad:
+            edges.append(width - 1)
+
+        if self.params["white_gap_fill"]:
+            edges = self._fill_missing_white_edges(edges)
+
+        white_keys = []
+        min_key_width = self.params["white_min_width"]
+
+        for i in range(len(edges) - 1):
+            start_x = edges[i]
+            end_x = edges[i + 1]
+            key_width = end_x - start_x
+
+            if key_width > min_key_width:
+                initial_top = int(height * self.params["white_initial_top_ratio"])
+                initial_height = int(height * self.params["white_initial_height_ratio"])
+
+                trimmed_top, trimmed_height = self._trim_white_key_top(
+                    gray_img,
+                    start_x,
+                    end_x,
+                    initial_top,
+                    initial_height,
+                )
+
+                padded_overlay = self._add_overlay_padding(
+                    start_x, trimmed_top, key_width, trimmed_height
+                )
+                white_keys.append(padded_overlay)
+
+        return white_keys
 
     def _detect_black_keys(self, gray_img):
         """Detect black keys using column scanning"""
@@ -273,63 +421,12 @@ class MonolithicPianoDetector:
     
     def _detect_white_keys(self, gray_img):
         """Detect white keys by finding vertical separations"""
-        height, width = gray_img.shape
-        
-        # Look at a band near the bottom where white keys are clearly separated
         edge_profile = self._compute_white_edge_profile(gray_img)
-
-        # Find significant edges
-        edges = []
-        edge_threshold = np.std(edge_profile) * self.params["white_edge_std_factor"]
-
-        for i in range(1, len(edge_profile) - 1):
-            if (
-                edge_profile[i] > edge_threshold
-                and edge_profile[i] > edge_profile[i - 1]
-                and edge_profile[i] > edge_profile[i + 1]
-            ):
-                edges.append(i)
-
-        self.logger.debug(f"DEBUG: White key edge detection:")
-        self.logger.debug(f"  Edge profile std: {np.std(edge_profile):.2f}, edge_threshold: {edge_threshold:.2f}")
-        self.logger.debug(f"  Found {len(edges)} edges: {edges[:10]}...")  # Show first 10 edges
-        
-        # MISSING KEY FIX: Add left and right boundaries if not present
-        boundary_pad = self.params["edge_boundary_padding_px"]
-        if not edges or edges[0] > boundary_pad:  # If first edge is far from left boundary (reduced from 20 to 3)
-            edges.insert(0, 0)  # Add left boundary at x=0
-            self.logger.debug(f"DEBUG: Added left boundary edge at x=0")
-
-        if not edges or edges[-1] < width - boundary_pad:  # If last edge is far from right boundary (reduced from 20 to 3)
-            edges.append(width - 1)  # Add right boundary
-            self.logger.debug(f"DEBUG: Added right boundary edge at x={width-1}")
-
-        if self.params["white_gap_fill"]:
-            edges = self._fill_missing_white_edges(edges)
-
-        # Convert edges to key boundaries
-        white_keys = []
-        min_key_width = self.params["white_min_width"]
-        
-        for i in range(len(edges) - 1):
-            start_x = edges[i]
-            end_x = edges[i + 1]
-            key_width = end_x - start_x
-            
-            if key_width > min_key_width:
-                # Initial white key region - start lower to avoid black keys
-                initial_top = int(height * self.params["white_initial_top_ratio"])  # Start at 70% instead of 60%
-                initial_height = int(height * self.params["white_initial_height_ratio"])  # 30% height instead of 40%
-                
-                # Trim top of white key if it dips into black key area
-                trimmed_top, trimmed_height = self._trim_white_key_top(
-                    gray_img, start_x, end_x, initial_top, initial_height)
-                
-                # Add padding to white key overlay
-                padded_overlay = self._add_overlay_padding(start_x, trimmed_top, key_width, trimmed_height)
-                white_keys.append(padded_overlay)
-        
-        return white_keys
+        return self._detect_white_keys_from_profile(
+            gray_img,
+            edge_profile=edge_profile,
+            edge_profile_x_scale=1.0,
+        )
     
     def _trim_white_key_top(self, gray_img, start_x, end_x, initial_top, initial_height):
         """Trim white key overlay top when it dips into black key area"""

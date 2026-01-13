@@ -112,6 +112,10 @@ class AutoDetectAdapter:
                 {
                     "name": "lenient_1",
                     "params": {
+                        "preprocess_mode": "clahe",
+                        "preprocess_upscale": 1,
+                        "preprocess_clahe_clip": 2.0,
+                        "preprocess_clahe_tile": 8,
                         "black_threshold": 60,
                         "black_column_ratio": 0.08,
                         "black_edge_fallback": True,
@@ -127,6 +131,12 @@ class AutoDetectAdapter:
                 {
                     "name": "lenient_2",
                     "params": {
+                        "preprocess_mode": "clahe_unsharp",
+                        "preprocess_upscale": 2,
+                        "preprocess_clahe_clip": 2.0,
+                        "preprocess_clahe_tile": 8,
+                        "preprocess_unsharp_amount": 1.0,
+                        "preprocess_unsharp_sigma": 1.0,
                         "black_threshold_method": "adaptive",
                         "black_adaptive_block_size": 25,
                         "black_adaptive_c": 7,

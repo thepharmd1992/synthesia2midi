@@ -17,6 +17,7 @@ import logging
 import cv2
 import numpy as np
 from pathlib import Path
+from typing import Tuple
 
 DEFAULT_DETECTION_PARAMS = {
     "preprocess_mode": "none",  # none | clahe | clahe_unsharp

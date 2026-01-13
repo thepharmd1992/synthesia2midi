@@ -46,6 +46,11 @@ DEFAULT_DETECTION_PARAMS = {
     "white_edge_band_ratio": 0.12,
     "white_edge_smooth_kernel": 5,
     "white_edge_std_factor": 2.0,
+    # White key boundary detection method:
+    # - "edge": vertical edge strength (Sobel) across a horizontal band (default)
+    # - "blackhat": emphasize dark vertical seams via morphological black-hat (more tolerant of blur)
+    "white_seam_method": "edge",
+    "white_blackhat_kernel_width": 15,
     "white_min_width": 15,
     "white_initial_top_ratio": 0.7,
     "white_initial_height_ratio": 0.3,
@@ -339,7 +344,7 @@ class MonolithicPianoDetector:
         return black_keys
 
     def _compute_white_edge_profile(self, gray_img):
-        """Compute a robust edge-strength profile across a horizontal band."""
+        """Compute a robust boundary profile across a horizontal band."""
         height, width = gray_img.shape
         band_ratio = self.params["white_edge_band_ratio"]
         center_ratio = self.params["white_bottom_ratio"]
@@ -355,17 +360,60 @@ class MonolithicPianoDetector:
         if band.shape[0] == 0:
             band = gray_img[int(height * center_ratio):int(height * center_ratio) + 1, :]
 
+        method = (self.params.get("white_seam_method") or "edge").lower()
         band_blur = cv2.GaussianBlur(band, (3, 5), 0)
-        grad_x = cv2.Sobel(band_blur, cv2.CV_64F, 1, 0, ksize=3)
-        edge_profile = np.mean(np.abs(grad_x), axis=0)
 
-        smooth_kernel = int(self.params["white_edge_smooth_kernel"])
+        if method == "blackhat":
+            k = int(self.params.get("white_blackhat_kernel_width", 15) or 15)
+            if k < 3:
+                k = 3
+            if k % 2 == 0:
+                k += 1
+            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (k, 1))
+            response = cv2.morphologyEx(band_blur, cv2.MORPH_BLACKHAT, kernel)
+            edge_profile = np.mean(response.astype(np.float32), axis=0)
+        else:
+            grad_x = cv2.Sobel(band_blur, cv2.CV_64F, 1, 0, ksize=3)
+            response = None
+            edge_profile = np.mean(np.abs(grad_x), axis=0)
+
+        smooth_kernel = int(self.params["white_edge_smooth_kernel"])      
         if smooth_kernel % 2 == 0:
             smooth_kernel += 1
         if smooth_kernel > 1:
             edge_profile = cv2.GaussianBlur(
-                edge_profile.reshape(1, -1), (1, smooth_kernel), 0
+                edge_profile.reshape(1, -1), (1, smooth_kernel), 0        
             ).flatten()
+
+        debug_dir = self.params.get("debug_save_preprocess_dir")
+        if debug_dir:
+            try:
+                base = Path(str(debug_dir))
+                base.mkdir(parents=True, exist_ok=True)
+                tag = str(self.params.get("debug_save_tag", ""))
+                safe_tag = "".join(c if (c.isalnum() or c in ("-", "_")) else "_" for c in (tag or ""))
+                prefix = safe_tag + "_" if safe_tag else ""
+
+                cv2.imwrite(str(base / f"{prefix}white_band_gray.png"), band)
+                if response is not None:
+                    cv2.imwrite(
+                        str(base / f"{prefix}white_band_blackhat_k{int(self.params.get('white_blackhat_kernel_width', 15) or 15)}.png"),
+                        response,
+                    )
+
+                # Save a simple visualization of the 1D profile as an image for quick inspection.
+                prof = edge_profile.astype(np.float32)
+                pmin = float(np.min(prof)) if prof.size else 0.0
+                pmax = float(np.max(prof)) if prof.size else 0.0
+                if pmax > pmin:
+                    norm = (prof - pmin) / (pmax - pmin)
+                else:
+                    norm = np.zeros_like(prof)
+                profile_img = (norm * 255.0).clip(0, 255).astype(np.uint8)
+                profile_img = np.repeat(profile_img.reshape(1, -1), 60, axis=0)
+                cv2.imwrite(str(base / f"{prefix}white_profile_{method}.png"), profile_img)
+            except Exception as e:
+                self.logger.warning("Failed saving white-profile debug images: %s", e, exc_info=True)
 
         return edge_profile
 

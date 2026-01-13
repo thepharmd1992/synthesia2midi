@@ -20,6 +20,11 @@ import numpy as np
 DEFAULT_DETECTION_PARAMS = {
     "preprocess_mode": "none",  # none | clahe | clahe_unsharp
     "preprocess_upscale": 1,  # 1 (off) or 2 (common)
+    # Optionally decouple preprocessing used for white-edge detection from black-key detection.
+    # - mode_white: "inherit" uses preprocess_mode; otherwise one of: none | clahe | clahe_unsharp
+    # - upscale_white: 0 uses preprocess_upscale; otherwise an integer >= 1
+    "preprocess_mode_white": "inherit",
+    "preprocess_upscale_white": 0,
     "preprocess_clahe_clip": 2.0,
     "preprocess_clahe_tile": 8,
     "preprocess_unsharp_amount": 1.0,
@@ -105,16 +110,35 @@ class MonolithicPianoDetector:
         top_y, bottom_y, left_x, right_x = self.keyboard_region
         keyboard_img = self.image[top_y:bottom_y, left_x:right_x]
         keyboard_gray = cv2.cvtColor(keyboard_img, cv2.COLOR_BGR2GRAY)
-        processed_gray = keyboard_gray
-        processed_gray, x_scale, y_scale = self._preprocess_gray_for_detection(
-            processed_gray
+        black_gray, black_x_scale, black_y_scale = self._preprocess_gray_for_detection(
+            keyboard_gray
+        )
+
+        mode_white = (self.params.get("preprocess_mode_white") or "inherit").lower()
+        if mode_white == "inherit":
+            mode_white = (self.params.get("preprocess_mode") or "none").lower()
+        upscale_white = int(self.params.get("preprocess_upscale_white", 0) or 0)
+        if upscale_white <= 0:
+            upscale_white = int(self.params.get("preprocess_upscale", 1) or 1)
+
+        white_gray, white_x_scale, white_y_scale = self._preprocess_gray_for_detection(
+            keyboard_gray,
+            mode_override=mode_white,
+            upscale_override=upscale_white,
         )
         self.logger.info(
             "Detector preprocessing: mode=%s upscale=%s x_scale=%.3f y_scale=%.3f",
             self.params.get("preprocess_mode", "none"),
             self.params.get("preprocess_upscale", 1),
-            x_scale,
-            y_scale,
+            black_x_scale,
+            black_y_scale,
+        )
+        self.logger.info(
+            "Detector preprocessing (white): mode=%s upscale=%s x_scale=%.3f y_scale=%.3f",
+            mode_white,
+            upscale_white,
+            white_x_scale,
+            white_y_scale,
         )
         self.logger.info(
             "Detector params: black_method=%s black_threshold=%s black_edge_fallback=%s white_gap_fill=%s",
@@ -125,12 +149,13 @@ class MonolithicPianoDetector:
         )
         
         self.logger.debug(f"\n=== Detecting Keys in Region {right_x-left_x}x{bottom_y-top_y} ===")
-        
+
         # Detect black keys first (easier to identify)
-        self.black_keys = self._detect_black_keys(processed_gray)
-        if x_scale != 1.0 or y_scale != 1.0:
+        self.black_keys = self._detect_black_keys(black_gray)
+        if black_x_scale != 1.0 or black_y_scale != 1.0:
             self.black_keys = [
-                self._scale_overlay(box, x_scale, y_scale) for box in self.black_keys
+                self._scale_overlay(box, black_x_scale, black_y_scale)
+                for box in self.black_keys
             ]
         self.logger.debug(f"Detected {len(self.black_keys)} black keys")
         
@@ -139,12 +164,12 @@ class MonolithicPianoDetector:
             self.logger.debug(f"  Black key {i}: x={x}, y={y}, w={w}, h={h} (absolute x={left_x + x})")
         
         # Detect white keys
-        if x_scale != 1.0 or y_scale != 1.0:
-            edge_profile = self._compute_white_edge_profile(processed_gray)
+        if white_x_scale != 1.0 or white_y_scale != 1.0:
+            edge_profile = self._compute_white_edge_profile(white_gray)
             self.white_keys = self._detect_white_keys_from_profile(
                 keyboard_gray,
                 edge_profile=edge_profile,
-                edge_profile_x_scale=x_scale,
+                edge_profile_x_scale=white_x_scale,
             )
         else:
             self.white_keys = self._detect_white_keys(keyboard_gray)
@@ -156,15 +181,27 @@ class MonolithicPianoDetector:
         
         return len(self.black_keys), len(self.white_keys)
 
-    def _preprocess_gray_for_detection(self, gray_img: np.ndarray):
+    def _preprocess_gray_for_detection(
+        self,
+        gray_img: np.ndarray,
+        *,
+        mode_override=None,
+        upscale_override=None,
+    ):
         """Preprocess ROI grayscale to improve detection on blurry footage."""
         height, width = gray_img.shape
 
-        upscale = int(self.params.get("preprocess_upscale", 1) or 1)
+        if upscale_override is None:
+            upscale = int(self.params.get("preprocess_upscale", 1) or 1)
+        else:
+            upscale = int(upscale_override or 1)
         if upscale < 1:
             upscale = 1
 
-        mode = (self.params.get("preprocess_mode") or "none").lower()
+        if mode_override is None:
+            mode = (self.params.get("preprocess_mode") or "none").lower()
+        else:
+            mode = (mode_override or "none").lower()
 
         processed = gray_img
         if upscale != 1:

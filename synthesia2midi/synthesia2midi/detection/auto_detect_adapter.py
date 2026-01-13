@@ -133,6 +133,10 @@ class AutoDetectAdapter:
                     "params": {
                         "preprocess_mode": "clahe_unsharp",
                         "preprocess_upscale": 2,
+                        # White-edge detection is more sensitive to oversharpening/noise;
+                        # use a milder preprocessing path for white edges than for black keys.
+                        "preprocess_mode_white": "clahe",
+                        "preprocess_upscale_white": 1,
                         "preprocess_clahe_clip": 2.0,
                         "preprocess_clahe_tile": 8,
                         "preprocess_unsharp_amount": 1.0,

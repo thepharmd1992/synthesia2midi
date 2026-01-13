@@ -52,7 +52,10 @@ DEFAULT_DETECTION_PARAMS = {
     # - "dark_columns": detect dark separator columns by robust per-column brightness (median) thresholding
     "white_seam_method": "edge",
     "white_blackhat_kernel_width": 15,
-    "white_dark_column_threshold": "otsu",  # "otsu" | int(0-255)
+    "white_dark_column_threshold": "otsu",  # "otsu" | "relative" | int(0-255)
+    "white_dark_column_white_percentile": 90,  # for "relative": baseline "white" estimate
+    "white_dark_column_dark_percentile": 20,  # for "relative": baseline "dark" estimate
+    "white_dark_column_relative_ratio": 0.5,  # threshold = white - ratio*(white-dark)
     "white_separator_min_width": 2,
     "white_auto_strip": False,  # attempt to crop out black-key region for dark_columns
     "white_auto_strip_dark_threshold": 60,
@@ -403,6 +406,37 @@ class MonolithicPianoDetector:
                     cv2.imwrite(str(base / f"{prefix}white_strip_gray_y{strip_start}.png"), strip)
                     col_img = np.repeat(col_stat.reshape(1, -1), 60, axis=0)
                     cv2.imwrite(str(base / f"{prefix}white_col_median.png"), col_img)
+
+                    # Also save a quick-look mask for separator columns based on the configured threshold mode.
+                    thr = self.params.get("white_dark_column_threshold", "otsu")
+                    thr_mode = thr.lower() if isinstance(thr, str) else None
+                    if thr is None or thr_mode == "otsu":
+                        _t, mask = cv2.threshold(
+                            col_stat.reshape(1, -1),
+                            0,
+                            255,
+                            cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU,
+                        )
+                        mask_img = np.repeat(mask.astype(np.uint8), 60, axis=0)
+                        cv2.imwrite(str(base / f"{prefix}white_separator_mask_otsu.png"), mask_img)
+                    elif thr_mode == "relative":
+                        white_p = int(self.params.get("white_dark_column_white_percentile", 90) or 90)
+                        dark_p = int(self.params.get("white_dark_column_dark_percentile", 20) or 20)
+                        ratio = float(self.params.get("white_dark_column_relative_ratio", 0.5) or 0.5)
+                        white_level = float(np.percentile(col_stat, white_p))
+                        dark_level = float(np.percentile(col_stat, dark_p))
+                        if white_level < dark_level:
+                            white_level, dark_level = dark_level, white_level
+                        chosen_threshold = int(round(white_level - ratio * (white_level - dark_level)))
+                        chosen_threshold = max(0, min(255, chosen_threshold))
+                        mask = (col_stat < chosen_threshold).astype(np.uint8) * 255
+                        mask_img = np.repeat(mask.reshape(1, -1), 60, axis=0)
+                        cv2.imwrite(str(base / f"{prefix}white_separator_mask_relative_t{chosen_threshold}.png"), mask_img)
+                    else:
+                        chosen_threshold = int(thr)
+                        mask = (col_stat < chosen_threshold).astype(np.uint8) * 255
+                        mask_img = np.repeat(mask.reshape(1, -1), 60, axis=0)
+                        cv2.imwrite(str(base / f"{prefix}white_separator_mask_t{chosen_threshold}.png"), mask_img)
                 except Exception as e:
                     self.logger.warning("Failed saving dark-column debug images: %s", e, exc_info=True)
 
@@ -485,12 +519,33 @@ class MonolithicPianoDetector:
         if method == "dark_columns":
             col_med = edge_profile.astype(np.uint8)
             thr = self.params.get("white_dark_column_threshold", "otsu")
-            if thr is None or (isinstance(thr, str) and thr.lower() == "otsu"):
-                _t, mask = cv2.threshold(col_med.reshape(1, -1), 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+            thr_mode = thr.lower() if isinstance(thr, str) else None
+
+            if thr is None or thr_mode == "otsu":
+                _t, mask = cv2.threshold(
+                    col_med.reshape(1, -1),
+                    0,
+                    255,
+                    cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU,
+                )
                 separator_cols = mask.flatten() > 0
+                chosen_threshold = None
+            elif thr_mode == "relative":
+                white_p = int(self.params.get("white_dark_column_white_percentile", 90) or 90)
+                dark_p = int(self.params.get("white_dark_column_dark_percentile", 20) or 20)
+                ratio = float(self.params.get("white_dark_column_relative_ratio", 0.5) or 0.5)
+
+                white_level = float(np.percentile(col_med, white_p))
+                dark_level = float(np.percentile(col_med, dark_p))
+                if white_level < dark_level:
+                    white_level, dark_level = dark_level, white_level
+
+                chosen_threshold = int(round(white_level - ratio * (white_level - dark_level)))
+                chosen_threshold = max(0, min(255, chosen_threshold))
+                separator_cols = col_med < chosen_threshold
             else:
-                t_val = int(thr)
-                separator_cols = col_med < t_val
+                chosen_threshold = int(thr)
+                separator_cols = col_med < chosen_threshold
 
             min_w = int(self.params.get("white_separator_min_width", 2) or 2)
             in_seg = False
@@ -511,7 +566,11 @@ class MonolithicPianoDetector:
                 if width >= min_w:
                     edges.append(int((start + end - 1) // 2))
 
-            self.logger.debug("DEBUG: White key separator (dark_columns): found %d separators", len(edges))
+            self.logger.debug(
+                "DEBUG: White key separator (dark_columns): found %d separators (threshold=%s)",
+                len(edges),
+                chosen_threshold if chosen_threshold is not None else "otsu",
+            )
             return edges
 
         edge_threshold = np.std(edge_profile) * self.params["white_edge_std_factor"]

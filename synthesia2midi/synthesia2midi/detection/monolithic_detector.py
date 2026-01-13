@@ -16,6 +16,7 @@ import logging
 
 import cv2
 import numpy as np
+from pathlib import Path
 
 DEFAULT_DETECTION_PARAMS = {
     "preprocess_mode": "none",  # none | clahe | clahe_unsharp
@@ -55,6 +56,10 @@ DEFAULT_DETECTION_PARAMS = {
     "trim_saturation_threshold": 45,
     "trim_gray_threshold": 140,
     "trim_row_height": 20,
+    # Optional debug: save the ROI + preprocessed grayscale images used for detection.
+    # Set by AutoDetectAdapter when the user runs "Calibrate Key Overlays".
+    "debug_save_preprocess_dir": None,  # directory path
+    "debug_save_tag": "",  # profile name or other identifier
 }
 
 class MonolithicPianoDetector:
@@ -87,6 +92,48 @@ class MonolithicPianoDetector:
         self.key_notes = {}
         # Detection parameters (allow overrides for low-quality fallbacks)
         self.params = {**DEFAULT_DETECTION_PARAMS, **(detection_profile or {})}
+
+    def _save_preprocess_debug_images(
+        self,
+        base_dir: str,
+        tag: str,
+        keyboard_img_bgr: np.ndarray,
+        keyboard_gray: np.ndarray,
+        black_gray: np.ndarray,
+        white_gray: np.ndarray,
+        black_scale: Tuple[float, float],
+        white_scale: Tuple[float, float],
+        mode_black: str,
+        mode_white: str,
+        upscale_black: int,
+        upscale_white: int,
+    ) -> None:
+        try:
+            base = Path(base_dir)
+            base.mkdir(parents=True, exist_ok=True)
+
+            safe_tag = "".join(c if (c.isalnum() or c in ("-", "_")) else "_" for c in (tag or ""))
+            prefix = safe_tag + "_" if safe_tag else ""
+
+            cv2.imwrite(
+                str(base / f"{prefix}roi_bgr.png"),
+                keyboard_img_bgr,
+            )
+            cv2.imwrite(
+                str(base / f"{prefix}roi_gray.png"),
+                keyboard_gray,
+            )
+            cv2.imwrite(
+                str(base / f"{prefix}preprocessed_black_gray_{mode_black}_x{upscale_black}_sx{black_scale[0]:.2f}_sy{black_scale[1]:.2f}.png"),
+                black_gray,
+            )
+            cv2.imwrite(
+                str(base / f"{prefix}preprocessed_white_gray_{mode_white}_x{upscale_white}_sx{white_scale[0]:.2f}_sy{white_scale[1]:.2f}.png"),
+                white_gray,
+            )
+            self.logger.info("Saved detector preprocess debug images to: %s", str(base))
+        except Exception as e:
+            self.logger.warning("Failed saving detector preprocess debug images: %s", e, exc_info=True)
         
     def _add_overlay_padding(self, start_x, y, width, height, padding_percent=None):
         """Add padding to overlay by shrinking inward from left and right sides"""
@@ -106,10 +153,10 @@ class MonolithicPianoDetector:
         """Detect individual piano keys within the keyboard region"""
         if not self.keyboard_region:
             raise ValueError("Must detect keyboard region first")
-        
+
         top_y, bottom_y, left_x, right_x = self.keyboard_region
         keyboard_img = self.image[top_y:bottom_y, left_x:right_x]
-        keyboard_gray = cv2.cvtColor(keyboard_img, cv2.COLOR_BGR2GRAY)
+        keyboard_gray = cv2.cvtColor(keyboard_img, cv2.COLOR_BGR2GRAY)    
         black_gray, black_x_scale, black_y_scale = self._preprocess_gray_for_detection(
             keyboard_gray
         )
@@ -126,6 +173,23 @@ class MonolithicPianoDetector:
             mode_override=mode_white,
             upscale_override=upscale_white,
         )
+
+        debug_dir = self.params.get("debug_save_preprocess_dir")
+        if debug_dir:
+            self._save_preprocess_debug_images(
+                base_dir=str(debug_dir),
+                tag=str(self.params.get("debug_save_tag", "")),
+                keyboard_img_bgr=keyboard_img,
+                keyboard_gray=keyboard_gray,
+                black_gray=black_gray,
+                white_gray=white_gray,
+                black_scale=(black_x_scale, black_y_scale),
+                white_scale=(white_x_scale, white_y_scale),
+                mode_black=str(self.params.get("preprocess_mode", "none")),
+                mode_white=str(mode_white),
+                upscale_black=int(self.params.get("preprocess_upscale", 1) or 1),
+                upscale_white=int(upscale_white),
+            )
         self.logger.info(
             "Detector preprocessing: mode=%s upscale=%s x_scale=%.3f y_scale=%.3f",
             self.params.get("preprocess_mode", "none"),

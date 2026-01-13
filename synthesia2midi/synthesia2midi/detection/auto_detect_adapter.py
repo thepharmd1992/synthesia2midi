@@ -8,6 +8,8 @@ conversion while preserving all existing overlay functionality.
 import logging
 import os
 import tempfile
+import datetime
+from pathlib import Path
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
@@ -44,6 +46,18 @@ class AutoDetectAdapter:
         self._detector = None
         self._temp_image_path = None
         self.last_failure_reason: Optional[str] = None
+        self._last_debug_dir: Optional[str] = None
+
+    def _default_debug_screenshots_dir(self) -> Path:
+        """
+        Locate the project root (checkout/zip) and return its screenshots dir.
+        Falls back to CWD/screenshots if the root cannot be found.
+        """
+        here = Path(__file__).resolve()
+        for parent in here.parents:
+            if (parent / ".git").exists() or (parent / "videos").exists():
+                return parent / "screenshots"
+        return Path.cwd() / "screenshots"
     
     def detect_from_frame(self, frame: np.ndarray, keyboard_region: Optional[Tuple[int, int, int, int]] = None) -> Optional[Dict]:
         """
@@ -75,7 +89,7 @@ class AutoDetectAdapter:
             self._save_frame_to_temp(frame)
             
             # Run detection pipeline
-            self.logger.info("=== STARTING MONOLITHIC PIANO DETECTION ===")
+            self.logger.info("=== STARTING MONOLITHIC PIANO DETECTION ===")     
             
             # A manual keyboard region is required.
             if not keyboard_region:
@@ -99,6 +113,20 @@ class AutoDetectAdapter:
             
             # Store original region for coordinate conversion back to absolute canvas coordinates
             detector_region = (roi_y, roi_y + roi_height, roi_x, roi_x + roi_width)
+
+            # Save the preprocessed ROI images used by each profile so the user can visually
+            # confirm what "clahe"/"clahe_unsharp"/upscaling look like on their ROI.
+            debug_root = self._default_debug_screenshots_dir()
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            debug_dir = debug_root / f"autodetect_preprocess_{timestamp}"
+            try:
+                debug_dir.mkdir(parents=True, exist_ok=True)
+                self._last_debug_dir = str(debug_dir)
+                self.logger.info("Auto-detect preprocess images will be saved under: %s", str(debug_dir))
+            except Exception as e:
+                debug_dir = None
+                self._last_debug_dir = None
+                self.logger.warning("Failed creating preprocess debug image dir: %s", e, exc_info=True)
             
             self.logger.info(f"Using manual keyboard region (original): y={roi_y}-{roi_y + roi_height}, x={roi_x}-{roi_x + roi_width}")
             self.logger.info(f"Cropped frame coordinates: y={top_y}-{bottom_y}, x={left_x}-{right_x}")
@@ -185,7 +213,15 @@ class AutoDetectAdapter:
                     self._detector = MonolithicPianoDetector(
                         self._temp_image_path,
                         keyboard_region=cropped_region,
-                        detection_profile=profile["params"],
+                        detection_profile={
+                            **profile["params"],
+                            **(
+                                {
+                                    "debug_save_preprocess_dir": str(debug_dir) if debug_dir else None,
+                                    "debug_save_tag": profile["name"],
+                                }
+                            ),
+                        },
                     )
 
                     self.logger.info(f"Initialized detector with keyboard region: {cropped_region}")

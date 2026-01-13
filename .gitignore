@@ -8,6 +8,7 @@ __pycache__/
 *$py.class
 *.so
 .Python
+.pip-cache/
 env/
 venv/
 .venv/

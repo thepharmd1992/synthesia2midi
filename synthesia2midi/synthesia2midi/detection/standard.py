@@ -40,6 +40,7 @@ class StandardDetection(DetectionMethod):
     def __init__(self):
         super().__init__("Standard Detection")
         self.roi_cache = ROICache()
+        self._warned_missing_unlit_calibration = False
         
     def detect_frame(self, 
                     frame_bgr: np.ndarray, 
@@ -103,14 +104,15 @@ class StandardDetection(DetectionMethod):
         
         # First pass: Calculate base detection (color + histogram) for all overlays
         overlay_detection_data = {}
-        
+        missing_unlit_calibration = 0
+
         for overlay in overlays:
             # Update progression ratio history before calculations
             overlay.prev_progression_ratio = overlay.last_progression_ratio
 
             if overlay.key_type is None or overlay.unlit_reference_color is None:
-                # Not calibrated - skip but maintain state consistency
-                self.logger.error(f"DEBUG-SKIP-KEY-{overlay.key_id}: key_type={overlay.key_type}, unlit_ref={overlay.unlit_reference_color}")
+                # Not calibrated - skip but maintain state consistency    
+                missing_unlit_calibration += 1
                 overlay.last_progression_ratio = 0.0
                 overlay.last_is_lit = False
                 continue
@@ -170,13 +172,20 @@ class StandardDetection(DetectionMethod):
             progression_passes_sanity = detection_params['progression_passes_sanity']
             base_lit = detection_params['base_lit']
             
-            # TARGETED DEBUG: Log any activity on problematic overlays  
-            if overlay.key_id in [36, 43, 48]:
-                self.logger.error(f"DEBUG-KEY-{overlay.key_id}: ratio={current_max_progression_ratio:.6f}, is_lit_by_color={is_key_lit_by_color}, sanity_pass={progression_passes_sanity}, threshold={detection_threshold}")
+            # TARGETED DEBUG: Log any activity on problematic overlays
+            if overlay.key_id in [36, 43, 48] and self.logger.isEnabledFor(logging.DEBUG):
+                self.logger.debug(
+                    "DEBUG-KEY-%s: ratio=%.6f, is_lit_by_color=%s, sanity_pass=%s, threshold=%s",
+                    overlay.key_id,
+                    current_max_progression_ratio,
+                    is_key_lit_by_color,
+                    progression_passes_sanity,
+                    detection_threshold,
+                )
                 
             # TARGETED DEBUG: Log base_lit result
-            if overlay.key_id in [36, 43, 48]:
-                self.logger.error(f"DEBUG-KEY-{overlay.key_id}: base_lit={base_lit}")
+            if overlay.key_id in [36, 43, 48] and self.logger.isEnabledFor(logging.DEBUG):
+                self.logger.debug("DEBUG-KEY-%s: base_lit=%s", overlay.key_id, base_lit)
 
             # Store detection data for this overlay
             overlay_detection_data[overlay.key_id] = {
@@ -191,11 +200,18 @@ class StandardDetection(DetectionMethod):
             if base_lit:
                 base_detected_key_ids.add(overlay.key_id)
 
-        # Apply black key filtering to base detection results BEFORE delta
+        # Apply black key filtering to base detection results BEFORE delta      
         if apply_black_filter:
             base_detected_key_ids = self._apply_black_key_filter(
                 base_detected_key_ids, overlays, similarity_ratio
             )
+
+        if missing_unlit_calibration and not self._warned_missing_unlit_calibration:
+            self.logger.warning(
+                "Skipping %d overlays without unlit calibration; run Unlit Key Calibration to enable pressed-key detection.",
+                missing_unlit_calibration,
+            )
+            self._warned_missing_unlit_calibration = True
 
         # Second pass: Apply delta detection to the filtered base results
         for overlay in overlays:
@@ -208,8 +224,13 @@ class StandardDetection(DetectionMethod):
             key_lit_after_base_filtering = overlay.key_id in base_detected_key_ids
             
             # TARGETED DEBUG: Log filtering results
-            if overlay.key_id in [36, 43, 48]:
-                self.logger.error(f"DEBUG-KEY-{overlay.key_id}: after_filtering={key_lit_after_base_filtering}, base_keys={sorted(base_detected_key_ids)}")
+            if overlay.key_id in [36, 43, 48] and self.logger.isEnabledFor(logging.DEBUG):
+                self.logger.debug(
+                    "DEBUG-KEY-%s: after_filtering=%s, base_keys=%s",
+                    overlay.key_id,
+                    key_lit_after_base_filtering,
+                    sorted(base_detected_key_ids),
+                )
             
             
             # Apply delta detection for timing
@@ -239,8 +260,8 @@ class StandardDetection(DetectionMethod):
                 lit_now = key_lit_after_base_filtering
                 
             # TARGETED DEBUG: Log final decision
-            if overlay.key_id in [36, 43, 48]:
-                self.logger.error(f"DEBUG-KEY-{overlay.key_id}: FINAL lit_now={lit_now}")
+            if overlay.key_id in [36, 43, 48] and self.logger.isEnabledFor(logging.DEBUG):
+                self.logger.debug("DEBUG-KEY-%s: FINAL lit_now=%s", overlay.key_id, lit_now)
 
             # Update overlay state (CRITICAL: progression ratio update AFTER delta detection)
             overlay.last_progression_ratio = detection_data['current_max_progression_ratio']

@@ -52,8 +52,8 @@ class AutoDetectTuningDialog(QDialog):
         "white_sep_dyn_min": 8,
         "white_sep_close_kernel": 5,
         "white_sep_open_kernel": 3,
-        "white_sep_min_width": 2,
-        "white_initial_top_ratio": 0.65,
+        "white_sep_min_width": 1,
+        "white_initial_top_ratio": 0.8,
     }
 
     def __init__(

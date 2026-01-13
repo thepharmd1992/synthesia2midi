@@ -46,6 +46,10 @@ DEFAULT_DETECTION_PARAMS = {
     "white_sep_open_kernel": 3,
     "white_sep_min_width": 2,
     "type_aware_assignment": False,
+    "black_recovery_enabled": False,
+    "black_recovery_ratio": 0.6,
+    "black_recovery_column_ratio_scale": 0.6,
+    "black_split_max_factor": 1.6,
 }
 
 class MonolithicPianoDetector:
@@ -117,7 +121,7 @@ class MonolithicPianoDetector:
         
         # Detect black keys first (easier to identify)
         self.black_keys = self._detect_black_keys(keyboard_gray)
-        self.logger.debug(f"Detected {len(self.black_keys)} black keys")
+        self.logger.debug(f"Detected {len(self.black_keys)} black keys")        
         
         self.logger.debug("First 5 black keys detected:")
         for i, (x, y, w, h) in enumerate(self.black_keys[:5]):
@@ -125,15 +129,17 @@ class MonolithicPianoDetector:
         
         # Detect white keys
         self.white_keys = self._detect_white_keys(keyboard_gray)
-        self.logger.debug(f"Detected {len(self.white_keys)} white keys")
+        self.logger.debug(f"Detected {len(self.white_keys)} white keys")        
         
         self.logger.debug("First 5 white keys detected:")
         for i, (x, y, w, h) in enumerate(self.white_keys[:5]):
             self.logger.debug(f"  White key {i}: x={x}, y={y}, w={w}, h={h} (absolute x={left_x + x})")
         
+        self._maybe_recover_black_keys(keyboard_gray)
+
         return len(self.black_keys), len(self.white_keys)
     
-    def _detect_black_keys(self, gray_img):
+    def _detect_black_keys(self, gray_img, recovery=False):
         """Detect black keys using column scanning"""
         height, width = gray_img.shape
 
@@ -153,11 +159,15 @@ class MonolithicPianoDetector:
         column_sums = np.sum(binary, axis=0)
         
         # Find where columns have significant black pixels
-        threshold = np.max(column_sums) * self.params["black_column_ratio"]  # Reduced threshold for better detection
+        column_ratio = self.params["black_column_ratio"]
+        if recovery:
+            column_ratio *= self.params.get("black_recovery_column_ratio_scale", 0.6)
+        column_ratio = max(0.01, column_ratio)
+        threshold = np.max(column_sums) * column_ratio  # Reduced threshold for better detection
         black_regions = column_sums > threshold
-        
+
         # Find start and end of each black key
-        black_keys = []
+        segments = []
         in_key = False
         start_x = 0
         
@@ -167,23 +177,87 @@ class MonolithicPianoDetector:
                 in_key = True
             elif not black_regions[x] and in_key:
                 width = x - start_x
-                if (
-                    self.params["black_min_width"]
-                    < width
-                    < self.params["black_max_width"]
-                ):  # Reasonable key width
-                    padded_overlay = self._add_overlay_padding(start_x, 0, width, upper_region.shape[0])
-                    black_keys.append(padded_overlay)
+                if width > 0:
+                    segments.append((start_x, width))
                 in_key = False
         
         # Handle last key
         if in_key:
             width = len(black_regions) - start_x
-            if self.params["black_min_width"] < width < self.params["black_max_width"]:
-                padded_overlay = self._add_overlay_padding(start_x, 0, width, upper_region.shape[0])
-                black_keys.append(padded_overlay)
-        
+            if width > 0:
+                segments.append((start_x, width))
+
+        black_keys = []
+        min_width = self.params["black_min_width"]
+        max_width = self.params["black_max_width"]
+        if recovery:
+            max_width = max_width * 2
+
+        widths = [w for _, w in segments if w > 0]
+        median_width = None
+        valid_widths = [w for w in widths if min_width < w < max_width]
+        if valid_widths:
+            median_width = float(np.median(valid_widths))
+        elif widths:
+            median_width = float(np.median(widths))
+
+        split_factor = float(self.params.get("black_split_max_factor", 1.6))
+
+        for start_x, width in segments:
+            if width <= min_width:
+                continue
+
+            if recovery and median_width and width > (median_width * split_factor):
+                splits = int(round(width / median_width))
+                splits = max(2, splits)
+                sub_width = float(width) / splits
+                for i in range(splits):
+                    sub_start = int(round(start_x + (i * sub_width)))
+                    sub_end = int(round(start_x + ((i + 1) * sub_width))) - 1
+                    sub_w = sub_end - sub_start + 1
+                    if sub_w <= min_width:
+                        continue
+                    padded_overlay = self._add_overlay_padding(
+                        sub_start,
+                        0,
+                        sub_w,
+                        upper_region.shape[0],
+                    )
+                    black_keys.append(padded_overlay)
+                continue
+
+            if width > max_width and not recovery:
+                continue
+
+            padded_overlay = self._add_overlay_padding(start_x, 0, width, upper_region.shape[0])
+            black_keys.append(padded_overlay)
+
         return black_keys
+
+    def _maybe_recover_black_keys(self, gray_img):
+        if not self.params.get("black_recovery_enabled", False):
+            return
+        if not self.white_keys:
+            return
+
+        white_count = len(self.white_keys)
+        expected_black = int(round(white_count * 5 / 7))
+        min_ratio = float(self.params.get("black_recovery_ratio", 0.6))
+        min_black = max(1, int(expected_black * min_ratio))
+
+        if len(self.black_keys) >= min_black:
+            return
+
+        recovered = self._detect_black_keys(gray_img, recovery=True)
+        if len(recovered) > len(self.black_keys):
+            self.logger.info(
+                "Recovered black keys: %s -> %s (expected=%s, min=%s)",
+                len(self.black_keys),
+                len(recovered),
+                expected_black,
+                min_black,
+            )
+            self.black_keys = recovered
 
     def _threshold_black_region(self, upper_region):
         method = self.params.get("black_threshold_method", "fixed")

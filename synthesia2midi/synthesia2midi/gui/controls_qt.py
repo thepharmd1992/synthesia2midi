@@ -1535,7 +1535,11 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
             
             # Update auto calibration status indicators
             self._update_auto_calibration_status()
-            
+
+            # Update convert button availability based on prerequisites
+            if hasattr(self, "convert_button"):
+                self.convert_button.setEnabled(self._can_convert())
+
         except Exception as e:
             logging.warning(f"Error updating controls from state: {e}")
     
@@ -1654,6 +1658,50 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
         """Update shadow calibration display (compatibility no-op)."""
         # This control panel does not require additional handling for this update.
         pass
+
+    def _can_convert(self) -> bool:
+        """Return True if MIDI conversion prerequisites are satisfied."""
+        if not self.app_state or not hasattr(self.app_state, 'video'):
+            return False
+
+        if not getattr(self.app_state.video, 'filepath', None):
+            return False
+
+        overlays = getattr(self.app_state, 'overlays', None) or []
+        if not overlays:
+            return False
+
+        missing_unlit = [
+            overlay.key_id
+            for overlay in overlays
+            if getattr(overlay, 'unlit_reference_color', None) is None
+        ]
+        if missing_unlit:
+            return False
+
+        if getattr(self.app_state.detection, 'use_histogram_detection', False):
+            missing_hist = [
+                overlay.key_id
+                for overlay in overlays
+                if getattr(overlay, 'unlit_hist', None) is None
+            ]
+            if missing_hist:
+                return False
+
+        required_exemplars = ["LW", "LB", "RW", "RB"]
+        exemplar_colors = getattr(self.app_state.detection, 'exemplar_lit_colors', {})
+        for exemplar in required_exemplars:
+            if exemplar_colors.get(exemplar) is None:
+                return False
+
+        detection_threshold = getattr(self.app_state.detection, 'detection_threshold', 0.0)
+        if not 0.1 <= detection_threshold <= 0.99:
+            return False
+
+        if getattr(self.app_state.midi, 'tempo', 0) <= 0:
+            return False
+
+        return True
     
     # Compatibility properties that the main window expects to exist
     @property

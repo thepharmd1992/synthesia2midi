@@ -405,6 +405,23 @@ class MonolithicPianoDetector:
 
         white_keys = []
         min_key_width = self.params["white_min_width"]
+        gaps = np.diff(edges) if len(edges) > 1 else np.array([])
+        if gaps.size:
+            self.logger.info(
+                "White edge stats: edges=%d gaps(min/med/max)=%.1f/%.1f/%.1f min_key_width=%d",
+                len(edges),
+                float(np.min(gaps)),
+                float(np.median(gaps)),
+                float(np.max(gaps)),
+                int(min_key_width),
+            )
+        else:
+            self.logger.info(
+                "White edge stats: edges=%d gaps(none) min_key_width=%d",
+                len(edges),
+                int(min_key_width),
+            )
+        segments_passing = 0
 
         for i in range(len(edges) - 1):
             start_x = edges[i]
@@ -412,6 +429,7 @@ class MonolithicPianoDetector:
             key_width = end_x - start_x
 
             if key_width > min_key_width:
+                segments_passing += 1
                 initial_top = int(height * self.params["white_initial_top_ratio"])
                 initial_height = int(height * self.params["white_initial_height_ratio"])
 
@@ -428,6 +446,12 @@ class MonolithicPianoDetector:
                 )
                 white_keys.append(padded_overlay)
 
+        self.logger.info(
+            "White key result: segments_total=%d segments_passing=%d keys=%d",
+            max(0, len(edges) - 1),
+            segments_passing,
+            len(white_keys),
+        )
         return white_keys
 
     def _detect_black_keys(self, gray_img):
@@ -476,8 +500,17 @@ class MonolithicPianoDetector:
         # Find where columns have significant black pixels
         threshold = np.max(column_sums) * self.params["black_column_ratio"]  # Reduced threshold for better detection
         black_regions = column_sums > threshold
-        
+
         black_keys = self._extract_black_key_regions(black_regions, upper_region.shape[0])
+        self.logger.info(
+            "Black key stats: method=%s fixed_threshold=%s column_ratio=%.3f column_thr=%.1f columns_over=%d keys=%d",
+            threshold_method,
+            self.params.get("black_threshold", None),
+            float(self.params["black_column_ratio"]),
+            float(threshold),
+            int(np.sum(black_regions)) if hasattr(np, "sum") else 0,
+            len(black_keys),
+        )
 
         if (
             self.params["black_edge_fallback"]
@@ -554,7 +587,9 @@ class MonolithicPianoDetector:
     def assign_notes(self):
         """Assign musical notes using unified chromatic scanning from F# anchor"""
         if not self.black_keys or not self.white_keys:
-            raise ValueError("Must detect keys first")
+            raise ValueError(
+                f"Must detect keys first (black={len(self.black_keys)}, white={len(self.white_keys)})"
+            )
         
         self.logger.debug(f"\n=== Assigning Notes to {len(self.black_keys)} black + {len(self.white_keys)} white keys ===")
         

@@ -20,15 +20,26 @@ import numpy as np
 DEFAULT_DETECTION_PARAMS = {
     "black_upper_ratio": 0.6,
     "black_threshold": 70,
+    "black_threshold_method": "fixed",
+    "black_adaptive_block_size": 21,
+    "black_adaptive_c": 7,
     "black_column_ratio": 0.10,
+    "black_edge_column_ratio": 0.03,
     "black_min_width": 10,
     "black_max_width": 100,
+    "black_min_count_for_valid": 3,
+    "black_edge_fallback": False,
     "white_bottom_ratio": 0.85,
+    "white_edge_band_ratio": 0.12,
+    "white_edge_smooth_kernel": 5,
     "white_edge_std_factor": 2.0,
     "white_min_width": 15,
     "white_initial_top_ratio": 0.7,
     "white_initial_height_ratio": 0.3,
     "edge_boundary_padding_px": 3,
+    "white_gap_fill": False,
+    "white_gap_fill_max_ratio": 1.6,
+    "white_gap_fill_min_edges": 6,
     "padding_percent": 0.15,
     "trim_saturation_threshold": 45,
     "trim_gray_threshold": 140,
@@ -108,7 +119,97 @@ class MonolithicPianoDetector:
             self.logger.debug(f"  White key {i}: x={x}, y={y}, w={w}, h={h} (absolute x={left_x + x})")
         
         return len(self.black_keys), len(self.white_keys)
-    
+
+    def _extract_black_key_regions(self, regions, region_height):
+        """Convert a boolean region mask into black key overlays."""
+        black_keys = []
+        in_key = False
+        start_x = 0
+
+        for x in range(len(regions)):
+            if regions[x] and not in_key:
+                start_x = x
+                in_key = True
+            elif not regions[x] and in_key:
+                width = x - start_x
+                if (
+                    self.params["black_min_width"]
+                    < width
+                    < self.params["black_max_width"]
+                ):
+                    padded_overlay = self._add_overlay_padding(
+                        start_x, 0, width, region_height
+                    )
+                    black_keys.append(padded_overlay)
+                in_key = False
+
+        if in_key:
+            width = len(regions) - start_x
+            if self.params["black_min_width"] < width < self.params["black_max_width"]:
+                padded_overlay = self._add_overlay_padding(start_x, 0, width, region_height)
+                black_keys.append(padded_overlay)
+
+        return black_keys
+
+    def _compute_white_edge_profile(self, gray_img):
+        """Compute a robust edge-strength profile across a horizontal band."""
+        height, width = gray_img.shape
+        band_ratio = self.params["white_edge_band_ratio"]
+        center_ratio = self.params["white_bottom_ratio"]
+        half_band = band_ratio / 2.0
+
+        y_start = int(max(0, (center_ratio - half_band) * height))
+        y_end = int(min(height, (center_ratio + half_band) * height))
+        if y_end <= y_start:
+            y_start = max(0, int(center_ratio * height) - 1)
+            y_end = min(height, y_start + 2)
+
+        band = gray_img[y_start:y_end, :]
+        if band.shape[0] == 0:
+            band = gray_img[int(height * center_ratio):int(height * center_ratio) + 1, :]
+
+        band_blur = cv2.GaussianBlur(band, (3, 5), 0)
+        grad_x = cv2.Sobel(band_blur, cv2.CV_64F, 1, 0, ksize=3)
+        edge_profile = np.mean(np.abs(grad_x), axis=0)
+
+        smooth_kernel = int(self.params["white_edge_smooth_kernel"])
+        if smooth_kernel % 2 == 0:
+            smooth_kernel += 1
+        if smooth_kernel > 1:
+            edge_profile = cv2.GaussianBlur(
+                edge_profile.reshape(1, -1), (1, smooth_kernel), 0
+            ).flatten()
+
+        return edge_profile
+
+    def _fill_missing_white_edges(self, edges):
+        """Fill missing edges using a spacing prior."""
+        if len(edges) < self.params["white_gap_fill_min_edges"]:
+            return edges
+
+        edges = sorted(edges)
+        gaps = np.diff(edges)
+        if gaps.size == 0:
+            return edges
+
+        median_gap = np.median(gaps)
+        if median_gap <= 0:
+            return edges
+
+        max_ratio = self.params["white_gap_fill_max_ratio"]
+        filled_edges = [edges[0]]
+
+        for i, gap in enumerate(gaps):
+            if gap > median_gap * max_ratio:
+                missing_count = int(round(gap / median_gap)) - 1
+                for j in range(1, missing_count + 1):
+                    candidate = int(edges[i] + j * median_gap)
+                    if candidate < edges[i + 1]:
+                        filled_edges.append(candidate)
+            filled_edges.append(edges[i + 1])
+
+        return sorted(set(filled_edges))
+
     def _detect_black_keys(self, gray_img):
         """Detect black keys using column scanning"""
         height, width = gray_img.shape
@@ -116,14 +217,36 @@ class MonolithicPianoDetector:
         # Focus on upper portion where black keys are
         upper_ratio = self.params["black_upper_ratio"]
         upper_region = gray_img[:int(height * upper_ratio), :]
-        
-        # Create binary image - black keys are dark (conservative threshold to avoid shadowed white keys)
-        _, binary = cv2.threshold(
-            upper_region,
-            self.params["black_threshold"],
-            255,
-            cv2.THRESH_BINARY_INV,
-        )
+
+        threshold_method = self.params.get("black_threshold_method", "fixed")
+        if threshold_method == "adaptive":
+            block_size = int(self.params["black_adaptive_block_size"])
+            if block_size % 2 == 0:
+                block_size += 1
+            if block_size < 3:
+                block_size = 3
+            binary = cv2.adaptiveThreshold(
+                upper_region,
+                255,
+                cv2.ADAPTIVE_THRESH_MEAN_C,
+                cv2.THRESH_BINARY_INV,
+                block_size,
+                self.params["black_adaptive_c"],
+            )
+        elif threshold_method == "otsu" or self.params["black_threshold"] is None:
+            _, binary = cv2.threshold(
+                upper_region,
+                0,
+                255,
+                cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU,
+            )
+        else:
+            _, binary = cv2.threshold(
+                upper_region,
+                self.params["black_threshold"],
+                255,
+                cv2.THRESH_BINARY_INV,
+            )
         
         # Scan columns to find black key regions
         column_sums = np.sum(binary, axis=0)
@@ -132,62 +255,43 @@ class MonolithicPianoDetector:
         threshold = np.max(column_sums) * self.params["black_column_ratio"]  # Reduced threshold for better detection
         black_regions = column_sums > threshold
         
-        # Find start and end of each black key
-        black_keys = []
-        in_key = False
-        start_x = 0
-        
-        for x in range(len(black_regions)):
-            if black_regions[x] and not in_key:
-                start_x = x
-                in_key = True
-            elif not black_regions[x] and in_key:
-                width = x - start_x
-                if (
-                    self.params["black_min_width"]
-                    < width
-                    < self.params["black_max_width"]
-                ):  # Reasonable key width
-                    padded_overlay = self._add_overlay_padding(start_x, 0, width, upper_region.shape[0])
-                    black_keys.append(padded_overlay)
-                in_key = False
-        
-        # Handle last key
-        if in_key:
-            width = len(black_regions) - start_x
-            if self.params["black_min_width"] < width < self.params["black_max_width"]:
-                padded_overlay = self._add_overlay_padding(start_x, 0, width, upper_region.shape[0])
-                black_keys.append(padded_overlay)
-        
+        black_keys = self._extract_black_key_regions(black_regions, upper_region.shape[0])
+
+        if (
+            self.params["black_edge_fallback"]
+            and len(black_keys) < self.params["black_min_count_for_valid"]
+        ):
+            edges = cv2.Canny(upper_region, 50, 150)
+            edge_sums = np.sum(edges > 0, axis=0)
+            edge_threshold = np.max(edge_sums) * self.params["black_edge_column_ratio"]
+            edge_regions = edge_sums > edge_threshold
+            edge_keys = self._extract_black_key_regions(edge_regions, upper_region.shape[0])
+            if len(edge_keys) > len(black_keys):
+                black_keys = edge_keys
+
         return black_keys
     
     def _detect_white_keys(self, gray_img):
         """Detect white keys by finding vertical separations"""
         height, width = gray_img.shape
         
-        # Look at bottom portion where white keys are clearly separated
-        bottom_y = int(height * self.params["white_bottom_ratio"])
-        bottom_row = gray_img[bottom_y, :]
-        
-        # Apply smoothing
-        bottom_smooth = cv2.GaussianBlur(bottom_row.reshape(1, -1), (1, 5), 0).flatten()
-        
-        # Calculate gradient to find edges
-        gradient = np.gradient(bottom_smooth)
-        
+        # Look at a band near the bottom where white keys are clearly separated
+        edge_profile = self._compute_white_edge_profile(gray_img)
+
         # Find significant edges
         edges = []
-        edge_threshold = np.std(gradient) * self.params["white_edge_std_factor"]
-        
-        for i in range(1, len(gradient) - 1):
-            if abs(gradient[i]) > edge_threshold:
-                # Local extremum
-                if ((gradient[i-1] < gradient[i] > gradient[i+1]) or 
-                    (gradient[i-1] > gradient[i] < gradient[i+1])):
-                    edges.append(i)
-        
+        edge_threshold = np.std(edge_profile) * self.params["white_edge_std_factor"]
+
+        for i in range(1, len(edge_profile) - 1):
+            if (
+                edge_profile[i] > edge_threshold
+                and edge_profile[i] > edge_profile[i - 1]
+                and edge_profile[i] > edge_profile[i + 1]
+            ):
+                edges.append(i)
+
         self.logger.debug(f"DEBUG: White key edge detection:")
-        self.logger.debug(f"  Gradient std: {np.std(gradient):.2f}, edge_threshold: {edge_threshold:.2f}")
+        self.logger.debug(f"  Edge profile std: {np.std(edge_profile):.2f}, edge_threshold: {edge_threshold:.2f}")
         self.logger.debug(f"  Found {len(edges)} edges: {edges[:10]}...")  # Show first 10 edges
         
         # MISSING KEY FIX: Add left and right boundaries if not present
@@ -199,7 +303,10 @@ class MonolithicPianoDetector:
         if not edges or edges[-1] < width - boundary_pad:  # If last edge is far from right boundary (reduced from 20 to 3)
             edges.append(width - 1)  # Add right boundary
             self.logger.debug(f"DEBUG: Added right boundary edge at x={width-1}")
-        
+
+        if self.params["white_gap_fill"]:
+            edges = self._fill_missing_white_edges(edges)
+
         # Convert edges to key boundaries
         white_keys = []
         min_key_width = self.params["white_min_width"]

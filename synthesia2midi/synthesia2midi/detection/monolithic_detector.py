@@ -49,8 +49,15 @@ DEFAULT_DETECTION_PARAMS = {
     # White key boundary detection method:
     # - "edge": vertical edge strength (Sobel) across a horizontal band (default)
     # - "blackhat": emphasize dark vertical seams via morphological black-hat (more tolerant of blur)
+    # - "dark_columns": detect dark separator columns by robust per-column brightness (median) thresholding
     "white_seam_method": "edge",
     "white_blackhat_kernel_width": 15,
+    "white_dark_column_threshold": "otsu",  # "otsu" | int(0-255)
+    "white_separator_min_width": 2,
+    "white_auto_strip": False,  # attempt to crop out black-key region for dark_columns
+    "white_auto_strip_dark_threshold": 60,
+    "white_auto_strip_frac_threshold": 0.02,
+    "white_auto_strip_min_run": 6,
     "white_min_width": 15,
     "white_initial_top_ratio": 0.7,
     "white_initial_height_ratio": 0.3,
@@ -346,6 +353,61 @@ class MonolithicPianoDetector:
     def _compute_white_edge_profile(self, gray_img):
         """Compute a robust boundary profile across a horizontal band."""
         height, width = gray_img.shape
+        method = (self.params.get("white_seam_method") or "edge").lower()
+
+        response = None
+
+        if method == "dark_columns":
+            # Prefer the full "white-only" strip when possible; this is less sensitive
+            # to blur creating double edges and works well when separator lines become wide/gray.
+            strip = gray_img
+            strip_start = 0
+            if self.params.get("white_auto_strip"):
+                dark_thr = int(self.params.get("white_auto_strip_dark_threshold", 60) or 60)
+                frac_thr = float(self.params.get("white_auto_strip_frac_threshold", 0.02) or 0.02)
+                min_run = int(self.params.get("white_auto_strip_min_run", 6) or 6)
+
+                # Compute dark-pixel fraction per row, then find the first row after which the
+                # fraction stays near zero for a small run (indicating we're below black keys).
+                dark_frac = np.mean(strip < dark_thr, axis=1)
+                win = 5
+                if dark_frac.size >= win:
+                    kernel = np.ones(win, dtype=np.float32) / float(win)
+                    smooth = np.convolve(dark_frac.astype(np.float32), kernel, mode="same")
+                else:
+                    smooth = dark_frac.astype(np.float32)
+
+                cut = None
+                for y in range(0, max(0, len(smooth) - min_run)):
+                    if np.all(smooth[y : y + min_run] < frac_thr):
+                        cut = y
+                        break
+                if cut is not None and cut > 0 and cut < height:
+                    strip_start = int(cut)
+                    strip = gray_img[strip_start:, :]
+
+            col_stat = np.median(strip.astype(np.uint8), axis=0).astype(np.uint8)
+            # Return a "profile" where lower values indicate separators; edge finder will
+            # interpret this based on method.
+            edge_profile = col_stat.astype(np.float32)
+
+            debug_dir = self.params.get("debug_save_preprocess_dir")
+            if debug_dir:
+                try:
+                    base = Path(str(debug_dir))
+                    base.mkdir(parents=True, exist_ok=True)
+                    tag = str(self.params.get("debug_save_tag", ""))
+                    safe_tag = "".join(c if (c.isalnum() or c in ("-", "_")) else "_" for c in (tag or ""))
+                    prefix = safe_tag + "_" if safe_tag else ""
+
+                    cv2.imwrite(str(base / f"{prefix}white_strip_gray_y{strip_start}.png"), strip)
+                    col_img = np.repeat(col_stat.reshape(1, -1), 60, axis=0)
+                    cv2.imwrite(str(base / f"{prefix}white_col_median.png"), col_img)
+                except Exception as e:
+                    self.logger.warning("Failed saving dark-column debug images: %s", e, exc_info=True)
+
+            return edge_profile
+
         band_ratio = self.params["white_edge_band_ratio"]
         center_ratio = self.params["white_bottom_ratio"]
         half_band = band_ratio / 2.0
@@ -360,7 +422,6 @@ class MonolithicPianoDetector:
         if band.shape[0] == 0:
             band = gray_img[int(height * center_ratio):int(height * center_ratio) + 1, :]
 
-        method = (self.params.get("white_seam_method") or "edge").lower()
         band_blur = cv2.GaussianBlur(band, (3, 5), 0)
 
         if method == "blackhat":
@@ -374,7 +435,6 @@ class MonolithicPianoDetector:
             edge_profile = np.mean(response.astype(np.float32), axis=0)
         else:
             grad_x = cv2.Sobel(band_blur, cv2.CV_64F, 1, 0, ksize=3)
-            response = None
             edge_profile = np.mean(np.abs(grad_x), axis=0)
 
         smooth_kernel = int(self.params["white_edge_smooth_kernel"])      
@@ -420,6 +480,40 @@ class MonolithicPianoDetector:
     def _find_white_key_edges_from_profile(self, edge_profile):
         """Detect likely vertical boundaries from an edge-strength profile."""
         edges = []
+
+        method = (self.params.get("white_seam_method") or "edge").lower()
+        if method == "dark_columns":
+            col_med = edge_profile.astype(np.uint8)
+            thr = self.params.get("white_dark_column_threshold", "otsu")
+            if thr is None or (isinstance(thr, str) and thr.lower() == "otsu"):
+                _t, mask = cv2.threshold(col_med.reshape(1, -1), 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+                separator_cols = mask.flatten() > 0
+            else:
+                t_val = int(thr)
+                separator_cols = col_med < t_val
+
+            min_w = int(self.params.get("white_separator_min_width", 2) or 2)
+            in_seg = False
+            start = 0
+            for x, is_sep in enumerate(separator_cols):
+                if is_sep and not in_seg:
+                    in_seg = True
+                    start = x
+                elif (not is_sep) and in_seg:
+                    end = x
+                    width = end - start
+                    if width >= min_w:
+                        edges.append(int((start + end - 1) // 2))
+                    in_seg = False
+            if in_seg:
+                end = len(separator_cols)
+                width = end - start
+                if width >= min_w:
+                    edges.append(int((start + end - 1) // 2))
+
+            self.logger.debug("DEBUG: White key separator (dark_columns): found %d separators", len(edges))
+            return edges
+
         edge_threshold = np.std(edge_profile) * self.params["white_edge_std_factor"]
 
         for i in range(1, len(edge_profile) - 1):

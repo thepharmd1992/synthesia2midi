@@ -153,8 +153,10 @@ class AutoDetectAdapter:
                         "white_edge_band_ratio": 0.14,
                         "white_edge_smooth_kernel": 7,
                         "white_edge_std_factor": 1.6,
-                        "white_seam_method": "blackhat",
-                        "white_blackhat_kernel_width": 15,
+                        "white_seam_method": "dark_columns",
+                        "white_auto_strip": True,
+                        "white_dark_column_threshold": "otsu",
+                        "white_separator_min_width": 2,
                         "white_min_width": 12,
                     },
                 },
@@ -182,6 +184,8 @@ class AutoDetectAdapter:
                         "white_edge_band_ratio": 0.18,
                         "white_edge_smooth_kernel": 9,
                         "white_edge_std_factor": 1.4,
+                        # keep blackhat as the "last resort" alternative seam method
+                        # in case dark_columns doesn't separate well for a given video style.
                         "white_seam_method": "blackhat",
                         "white_blackhat_kernel_width": 15,
                         "white_min_width": 10,

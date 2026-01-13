@@ -8,8 +8,6 @@ conversion while preserving all existing overlay functionality.
 import logging
 import os
 import tempfile
-import datetime
-from pathlib import Path
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
@@ -46,18 +44,6 @@ class AutoDetectAdapter:
         self._detector = None
         self._temp_image_path = None
         self.last_failure_reason: Optional[str] = None
-        self._last_debug_dir: Optional[str] = None
-
-    def _default_debug_screenshots_dir(self) -> Path:
-        """
-        Locate the project root (checkout/zip) and return its screenshots dir.
-        Falls back to CWD/screenshots if the root cannot be found.
-        """
-        here = Path(__file__).resolve()
-        for parent in here.parents:
-            if (parent / ".git").exists() or (parent / "videos").exists():
-                return parent / "screenshots"
-        return Path.cwd() / "screenshots"
     
     def detect_from_frame(self, frame: np.ndarray, keyboard_region: Optional[Tuple[int, int, int, int]] = None) -> Optional[Dict]:
         """
@@ -89,7 +75,7 @@ class AutoDetectAdapter:
             self._save_frame_to_temp(frame)
             
             # Run detection pipeline
-            self.logger.info("=== STARTING MONOLITHIC PIANO DETECTION ===")     
+            self.logger.info("=== STARTING MONOLITHIC PIANO DETECTION ===")
             
             # A manual keyboard region is required.
             if not keyboard_region:
@@ -113,20 +99,6 @@ class AutoDetectAdapter:
             
             # Store original region for coordinate conversion back to absolute canvas coordinates
             detector_region = (roi_y, roi_y + roi_height, roi_x, roi_x + roi_width)
-
-            # Save the preprocessed ROI images used by each profile so the user can visually
-            # confirm what "clahe"/"clahe_unsharp"/upscaling look like on their ROI.
-            debug_root = self._default_debug_screenshots_dir()
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            debug_dir = debug_root / f"autodetect_preprocess_{timestamp}"
-            try:
-                debug_dir.mkdir(parents=True, exist_ok=True)
-                self._last_debug_dir = str(debug_dir)
-                self.logger.info("Auto-detect preprocess images will be saved under: %s", str(debug_dir))
-            except Exception as e:
-                debug_dir = None
-                self._last_debug_dir = None
-                self.logger.warning("Failed creating preprocess debug image dir: %s", e, exc_info=True)
             
             self.logger.info(f"Using manual keyboard region (original): y={roi_y}-{roi_y + roi_height}, x={roi_x}-{roi_x + roi_width}")
             self.logger.info(f"Cropped frame coordinates: y={top_y}-{bottom_y}, x={left_x}-{right_x}")
@@ -140,63 +112,25 @@ class AutoDetectAdapter:
                 {
                     "name": "lenient_1",
                     "params": {
-                        "preprocess_mode": "clahe",
-                        "preprocess_upscale": 1,
-                        "preprocess_clahe_clip": 2.0,
-                        "preprocess_clahe_tile": 8,
                         "black_threshold": 60,
                         "black_column_ratio": 0.08,
-                        "black_edge_fallback": True,
-                        "black_edge_column_ratio": 0.025,
                         "black_min_width": 8,
                         "black_max_width": 120,
-                        "white_edge_band_ratio": 0.14,
-                        "white_edge_smooth_kernel": 7,
                         "white_edge_std_factor": 1.6,
-                        "white_seam_method": "dark_columns",
-                        "white_auto_strip": True,
-                        "white_dark_column_threshold": "otsu",
-                        "white_dark_column_stat": "p90",
-                        "white_strip_exclude_bottom_ratio": 0.25,
-                        "white_separator_min_width": 2,
                         "white_min_width": 12,
                     },
                 },
                 {
                     "name": "lenient_2",
                     "params": {
-                        "preprocess_mode": "clahe_unsharp",
-                        "preprocess_upscale": 2,
-                        # White-edge detection is more sensitive to oversharpening/noise;
-                        # use a milder preprocessing path for white edges than for black keys.
-                        "preprocess_mode_white": "clahe",
-                        "preprocess_upscale_white": 1,
-                        "preprocess_clahe_clip": 2.0,
-                        "preprocess_clahe_tile": 8,
-                        "preprocess_unsharp_amount": 1.0,
-                        "preprocess_unsharp_sigma": 1.0,
-                        "black_threshold_method": "adaptive",
-                        "black_detection_method": "components",
-                        "black_adaptive_block_size": 25,
-                        "black_adaptive_c": 7,
+                        "black_threshold": 50,
                         "black_column_ratio": 0.06,
-                        "black_edge_fallback": True,
-                        "black_edge_column_ratio": 0.02,
                         "black_min_width": 6,
                         "black_max_width": 140,
-                        "white_edge_band_ratio": 0.18,
-                        "white_edge_smooth_kernel": 9,
                         "white_edge_std_factor": 1.4,
-                        # keep blackhat as the "last resort" alternative seam method
-                        # in case dark_columns doesn't separate well for a given video style.
-                        "white_seam_method": "blackhat",
-                        "white_blackhat_kernel_width": 15,
                         "white_min_width": 10,
                         "white_initial_top_ratio": 0.65,
                         "white_initial_height_ratio": 0.35,
-                        "white_gap_fill": True,
-                        "white_gap_fill_max_ratio": 1.5,
-                        "white_gap_fill_min_edges": 6,
                     },
                 },
             ]
@@ -205,34 +139,11 @@ class AutoDetectAdapter:
 
             for profile in detection_profiles:
                 try:
-                    preprocess_mode = profile["params"].get("preprocess_mode", "none")
-                    preprocess_upscale = profile["params"].get("preprocess_upscale", 1)
-                    black_method = profile["params"].get("black_threshold_method", "fixed")
-                    black_threshold = profile["params"].get("black_threshold", None)
-                    white_band = profile["params"].get("white_edge_band_ratio", None)
-                    white_smooth = profile["params"].get("white_edge_smooth_kernel", None)
-                    self.logger.info(
-                        "Attempting detection with profile '%s' (preprocess=%s, upscale=%s, black_method=%s, black_threshold=%s, white_band=%s, white_smooth=%s)",
-                        profile["name"],
-                        preprocess_mode,
-                        preprocess_upscale,
-                        black_method,
-                        black_threshold,
-                        white_band,
-                        white_smooth,
-                    )
+                    self.logger.info(f"Attempting detection with profile: {profile['name']}")
                     self._detector = MonolithicPianoDetector(
                         self._temp_image_path,
                         keyboard_region=cropped_region,
-                        detection_profile={
-                            **profile["params"],
-                            **(
-                                {
-                                    "debug_save_preprocess_dir": str(debug_dir) if debug_dir else None,
-                                    "debug_save_tag": profile["name"],
-                                }
-                            ),
-                        },
+                        detection_profile=profile["params"],
                     )
 
                     self.logger.info(f"Initialized detector with keyboard region: {cropped_region}")

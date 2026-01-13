@@ -16,76 +16,23 @@ import logging
 
 import cv2
 import numpy as np
-from pathlib import Path
-from typing import Tuple
 
 DEFAULT_DETECTION_PARAMS = {
-    "preprocess_mode": "none",  # none | clahe | clahe_unsharp
-    "preprocess_upscale": 1,  # 1 (off) or 2 (common)
-    # Optionally decouple preprocessing used for white-edge detection from black-key detection.
-    # - mode_white: "inherit" uses preprocess_mode; otherwise one of: none | clahe | clahe_unsharp
-    # - upscale_white: 0 uses preprocess_upscale; otherwise an integer >= 1
-    "preprocess_mode_white": "inherit",
-    "preprocess_upscale_white": 0,
-    "preprocess_clahe_clip": 2.0,
-    "preprocess_clahe_tile": 8,
-    "preprocess_unsharp_amount": 1.0,
-    "preprocess_unsharp_sigma": 1.0,
     "black_upper_ratio": 0.6,
-    "black_detection_method": "columns",  # "columns" | "components"
     "black_threshold": 70,
-    "black_threshold_method": "fixed",
-    "black_adaptive_block_size": 21,
-    "black_adaptive_c": 7,
     "black_column_ratio": 0.10,
-    "black_edge_column_ratio": 0.03,
     "black_min_width": 10,
     "black_max_width": 100,
-    "black_min_height_ratio": 0.4,
-    "black_max_height_ratio": 1.0,
-    "black_min_area_ratio": 0.001,
-    "black_min_count_for_valid": 3,
-    "black_edge_fallback": False,
     "white_bottom_ratio": 0.85,
-    "white_edge_band_ratio": 0.12,
-    "white_edge_smooth_kernel": 5,
     "white_edge_std_factor": 2.0,
-    # White key boundary detection method:
-    # - "edge": vertical edge strength (Sobel) across a horizontal band
-    # - "blackhat": emphasize dark vertical seams via morphological black-hat (more tolerant of blur)
-    # - "dark_columns": detect dark separator columns by robust per-column brightness thresholding
-    "white_seam_method": "dark_columns",
-    "white_blackhat_kernel_width": 15,
-    "white_dark_column_threshold": "otsu",  # "otsu" | "relative" | int(0-255)
-    # How to summarize brightness per x-column for dark-column seam detection.
-    # - "median": robust but can be polluted by dark note labels if they cover much of the column
-    # - "p90": robust to sparse dark labels; separator columns stay dark across most of the column
-    "white_dark_column_stat": "median",  # "median" | "p90" | "p95"
-    # Exclude bottom part of the white strip from the column statistic (helps ignore note labels).
-    "white_strip_exclude_bottom_ratio": 0.0,
-    "white_dark_column_white_percentile": 90,  # for "relative": baseline "white" estimate
-    "white_dark_column_dark_percentile": 20,  # for "relative": baseline "dark" estimate
-    "white_dark_column_relative_ratio": 0.5,  # threshold = white - ratio*(white-dark)
-    "white_separator_min_width": 2,
-    "white_auto_strip": True,  # attempt to crop out black-key region for dark_columns
-    "white_auto_strip_dark_threshold": 60,
-    "white_auto_strip_frac_threshold": 0.02,
-    "white_auto_strip_min_run": 6,
     "white_min_width": 15,
     "white_initial_top_ratio": 0.7,
     "white_initial_height_ratio": 0.3,
     "edge_boundary_padding_px": 3,
-    "white_gap_fill": False,
-    "white_gap_fill_max_ratio": 1.6,
-    "white_gap_fill_min_edges": 6,
     "padding_percent": 0.15,
     "trim_saturation_threshold": 45,
     "trim_gray_threshold": 140,
     "trim_row_height": 20,
-    # Optional debug: save the ROI + preprocessed grayscale images used for detection.
-    # Set by AutoDetectAdapter when the user runs "Calibrate Key Overlays".
-    "debug_save_preprocess_dir": None,  # directory path
-    "debug_save_tag": "",  # profile name or other identifier
 }
 
 class MonolithicPianoDetector:
@@ -118,50 +65,6 @@ class MonolithicPianoDetector:
         self.key_notes = {}
         # Detection parameters (allow overrides for low-quality fallbacks)
         self.params = {**DEFAULT_DETECTION_PARAMS, **(detection_profile or {})}
-        self._white_strip_start = None
-        self._white_separator_runs = None
-
-    def _save_preprocess_debug_images(
-        self,
-        base_dir: str,
-        tag: str,
-        keyboard_img_bgr: np.ndarray,
-        keyboard_gray: np.ndarray,
-        black_gray: np.ndarray,
-        white_gray: np.ndarray,
-        black_scale: Tuple[float, float],
-        white_scale: Tuple[float, float],
-        mode_black: str,
-        mode_white: str,
-        upscale_black: int,
-        upscale_white: int,
-    ) -> None:
-        try:
-            base = Path(base_dir)
-            base.mkdir(parents=True, exist_ok=True)
-
-            safe_tag = "".join(c if (c.isalnum() or c in ("-", "_")) else "_" for c in (tag or ""))
-            prefix = safe_tag + "_" if safe_tag else ""
-
-            cv2.imwrite(
-                str(base / f"{prefix}roi_bgr.png"),
-                keyboard_img_bgr,
-            )
-            cv2.imwrite(
-                str(base / f"{prefix}roi_gray.png"),
-                keyboard_gray,
-            )
-            cv2.imwrite(
-                str(base / f"{prefix}preprocessed_black_gray_{mode_black}_x{upscale_black}_sx{black_scale[0]:.2f}_sy{black_scale[1]:.2f}.png"),
-                black_gray,
-            )
-            cv2.imwrite(
-                str(base / f"{prefix}preprocessed_white_gray_{mode_white}_x{upscale_white}_sx{white_scale[0]:.2f}_sy{white_scale[1]:.2f}.png"),
-                white_gray,
-            )
-            self.logger.info("Saved detector preprocess debug images to: %s", str(base))
-        except Exception as e:
-            self.logger.warning("Failed saving detector preprocess debug images: %s", e, exc_info=True)
         
     def _add_overlay_padding(self, start_x, y, width, height, padding_percent=None):
         """Add padding to overlay by shrinking inward from left and right sides"""
@@ -181,74 +84,15 @@ class MonolithicPianoDetector:
         """Detect individual piano keys within the keyboard region"""
         if not self.keyboard_region:
             raise ValueError("Must detect keyboard region first")
-
+        
         top_y, bottom_y, left_x, right_x = self.keyboard_region
         keyboard_img = self.image[top_y:bottom_y, left_x:right_x]
-        keyboard_gray = cv2.cvtColor(keyboard_img, cv2.COLOR_BGR2GRAY)    
-        black_gray, black_x_scale, black_y_scale = self._preprocess_gray_for_detection(
-            keyboard_gray
-        )
-
-        mode_white = (self.params.get("preprocess_mode_white") or "inherit").lower()
-        if mode_white == "inherit":
-            mode_white = (self.params.get("preprocess_mode") or "none").lower()
-        upscale_white = int(self.params.get("preprocess_upscale_white", 0) or 0)
-        if upscale_white <= 0:
-            upscale_white = int(self.params.get("preprocess_upscale", 1) or 1)
-
-        white_gray, white_x_scale, white_y_scale = self._preprocess_gray_for_detection(
-            keyboard_gray,
-            mode_override=mode_white,
-            upscale_override=upscale_white,
-        )
-
-        debug_dir = self.params.get("debug_save_preprocess_dir")
-        if debug_dir:
-            self._save_preprocess_debug_images(
-                base_dir=str(debug_dir),
-                tag=str(self.params.get("debug_save_tag", "")),
-                keyboard_img_bgr=keyboard_img,
-                keyboard_gray=keyboard_gray,
-                black_gray=black_gray,
-                white_gray=white_gray,
-                black_scale=(black_x_scale, black_y_scale),
-                white_scale=(white_x_scale, white_y_scale),
-                mode_black=str(self.params.get("preprocess_mode", "none")),
-                mode_white=str(mode_white),
-                upscale_black=int(self.params.get("preprocess_upscale", 1) or 1),
-                upscale_white=int(upscale_white),
-            )
-        self.logger.info(
-            "Detector preprocessing: mode=%s upscale=%s x_scale=%.3f y_scale=%.3f",
-            self.params.get("preprocess_mode", "none"),
-            self.params.get("preprocess_upscale", 1),
-            black_x_scale,
-            black_y_scale,
-        )
-        self.logger.info(
-            "Detector preprocessing (white): mode=%s upscale=%s x_scale=%.3f y_scale=%.3f",
-            mode_white,
-            upscale_white,
-            white_x_scale,
-            white_y_scale,
-        )
-        self.logger.info(
-            "Detector params: black_method=%s black_threshold=%s black_edge_fallback=%s white_gap_fill=%s",
-            self.params.get("black_threshold_method", "fixed"),
-            self.params.get("black_threshold", None),
-            self.params.get("black_edge_fallback", False),
-            self.params.get("white_gap_fill", False),
-        )
+        keyboard_gray = cv2.cvtColor(keyboard_img, cv2.COLOR_BGR2GRAY)
         
         self.logger.debug(f"\n=== Detecting Keys in Region {right_x-left_x}x{bottom_y-top_y} ===")
-
+        
         # Detect black keys first (easier to identify)
-        self.black_keys = self._detect_black_keys(black_gray)
-        if black_x_scale != 1.0 or black_y_scale != 1.0:
-            self.black_keys = [
-                self._scale_overlay(box, black_x_scale, black_y_scale)
-                for box in self.black_keys
-            ]
+        self.black_keys = self._detect_black_keys(keyboard_gray)
         self.logger.debug(f"Detected {len(self.black_keys)} black keys")
         
         self.logger.debug("First 5 black keys detected:")
@@ -256,707 +100,30 @@ class MonolithicPianoDetector:
             self.logger.debug(f"  Black key {i}: x={x}, y={y}, w={w}, h={h} (absolute x={left_x + x})")
         
         # Detect white keys
-        if white_x_scale != 1.0 or white_y_scale != 1.0:
-            edge_profile = self._compute_white_edge_profile(white_gray)
-            self.white_keys = self._detect_white_keys_from_profile(
-                keyboard_gray,
-                edge_profile=edge_profile,
-                edge_profile_x_scale=white_x_scale,
-                edge_profile_y_scale=white_y_scale,
-            )
-        else:
-            self.white_keys = self._detect_white_keys(keyboard_gray)
-        self.logger.debug(f"Detected {len(self.white_keys)} white keys")        
+        self.white_keys = self._detect_white_keys(keyboard_gray)
+        self.logger.debug(f"Detected {len(self.white_keys)} white keys")
         
         self.logger.debug("First 5 white keys detected:")
         for i, (x, y, w, h) in enumerate(self.white_keys[:5]):
             self.logger.debug(f"  White key {i}: x={x}, y={y}, w={w}, h={h} (absolute x={left_x + x})")
         
         return len(self.black_keys), len(self.white_keys)
-
-    def _preprocess_gray_for_detection(
-        self,
-        gray_img: np.ndarray,
-        *,
-        mode_override=None,
-        upscale_override=None,
-    ):
-        """Preprocess ROI grayscale to improve detection on blurry footage."""
-        height, width = gray_img.shape
-
-        if upscale_override is None:
-            upscale = int(self.params.get("preprocess_upscale", 1) or 1)
-        else:
-            upscale = int(upscale_override or 1)
-        if upscale < 1:
-            upscale = 1
-
-        if mode_override is None:
-            mode = (self.params.get("preprocess_mode") or "none").lower()
-        else:
-            mode = (mode_override or "none").lower()
-
-        processed = gray_img
-        if upscale != 1:
-            processed = cv2.resize(
-                processed,
-                (width * upscale, height * upscale),
-                interpolation=cv2.INTER_CUBIC,
-            )
-
-        if mode in {"clahe", "clahe_unsharp"}:
-            tile = int(self.params.get("preprocess_clahe_tile", 8) or 8)
-            tile = max(2, tile)
-            clip = float(self.params.get("preprocess_clahe_clip", 2.0) or 2.0)
-            clahe = cv2.createCLAHE(clipLimit=clip, tileGridSize=(tile, tile))
-            processed = clahe.apply(processed)
-
-        if mode == "clahe_unsharp":
-            amount = float(self.params.get("preprocess_unsharp_amount", 1.0) or 1.0)
-            sigma = float(self.params.get("preprocess_unsharp_sigma", 1.0) or 1.0)
-            blurred = cv2.GaussianBlur(processed, (0, 0), sigma)
-            processed = cv2.addWeighted(processed, 1.0 + amount, blurred, -amount, 0)
-            processed = np.clip(processed, 0, 255).astype(np.uint8)
-
-        x_scale = processed.shape[1] / float(width) if width else 1.0
-        y_scale = processed.shape[0] / float(height) if height else 1.0
-        return processed, x_scale, y_scale
-
-    def _scale_overlay(self, box, x_scale: float, y_scale: float):
-        """Map overlay coordinates from a scaled detection image back to original."""
-        x, y, w, h = box
-        x = int(round(x / x_scale)) if x_scale else x
-        y = int(round(y / y_scale)) if y_scale else y
-        w = int(round(w / x_scale)) if x_scale else w
-        h = int(round(h / y_scale)) if y_scale else h
-        w = max(1, w)
-        h = max(1, h)
-        x = max(0, x)
-        y = max(0, y)
-        return (x, y, w, h)
-
-    def _extract_black_key_regions(self, regions, region_height):
-        """Convert a boolean region mask into black key overlays."""
-        black_keys = []
-        in_key = False
-        start_x = 0
-
-        for x in range(len(regions)):
-            if regions[x] and not in_key:
-                start_x = x
-                in_key = True
-            elif not regions[x] and in_key:
-                width = x - start_x
-                if (
-                    self.params["black_min_width"]
-                    < width
-                    < self.params["black_max_width"]
-                ):
-                    padded_overlay = self._add_overlay_padding(
-                        start_x, 0, width, region_height
-                    )
-                    black_keys.append(padded_overlay)
-                in_key = False
-
-        if in_key:
-            width = len(regions) - start_x
-            if self.params["black_min_width"] < width < self.params["black_max_width"]:
-                padded_overlay = self._add_overlay_padding(start_x, 0, width, region_height)
-                black_keys.append(padded_overlay)
-
-        return black_keys
-
-    def _compute_white_edge_profile(self, gray_img):
-        """Compute a robust boundary profile across a horizontal band."""
-        height, width = gray_img.shape
-        method = (self.params.get("white_seam_method") or "edge").lower()
-
-        response = None
-        self._white_strip_start = None
-        self._white_separator_runs = None
-
-        if method == "dark_columns":
-            # Prefer the full "white-only" strip when possible; this is less sensitive
-            # to blur creating double edges and works well when separator lines become wide/gray.
-            strip = gray_img
-            strip_start = 0
-            if self.params.get("white_auto_strip"):
-                dark_thr = int(self.params.get("white_auto_strip_dark_threshold", 60) or 60)
-                frac_thr = float(self.params.get("white_auto_strip_frac_threshold", 0.02) or 0.02)
-                min_run = int(self.params.get("white_auto_strip_min_run", 6) or 6)
-
-                # Compute dark-pixel fraction per row, then find the first row after which the
-                # fraction stays near zero for a small run (indicating we're below black keys).
-                dark_frac = np.mean(strip < dark_thr, axis=1)
-                win = 5
-                if dark_frac.size >= win:
-                    kernel = np.ones(win, dtype=np.float32) / float(win)
-                    smooth = np.convolve(dark_frac.astype(np.float32), kernel, mode="same")
-                else:
-                    smooth = dark_frac.astype(np.float32)
-
-                cut = None
-                for y in range(0, max(0, len(smooth) - min_run)):
-                    if np.all(smooth[y : y + min_run] < frac_thr):
-                        cut = y
-                        break
-                if cut is not None and cut > 0 and cut < height:
-                    strip_start = int(cut)
-                    strip = gray_img[strip_start:, :]
-
-            self._white_strip_start = int(strip_start)
-
-            exclude_ratio = float(self.params.get("white_strip_exclude_bottom_ratio", 0.0) or 0.0)
-            exclude_ratio = max(0.0, min(0.9, exclude_ratio))
-            exclude_px = int(round(strip.shape[0] * exclude_ratio)) if strip.size else 0
-            analysis_strip = strip[: max(1, strip.shape[0] - exclude_px), :] if strip.size else strip
-
-            stat_mode = (self.params.get("white_dark_column_stat") or "median").lower()
-            if stat_mode in {"p90", "p95"}:
-                pct = int(stat_mode[1:])
-                col_stat = np.percentile(analysis_strip.astype(np.uint8), pct, axis=0).astype(np.uint8)
-                stat_label = stat_mode
-            else:
-                col_stat = np.median(analysis_strip.astype(np.uint8), axis=0).astype(np.uint8)
-                stat_label = "median"
-            # Return a "profile" where lower values indicate separators; edge finder will
-            # interpret this based on method.
-            edge_profile = col_stat.astype(np.float32)
-
-            debug_dir = self.params.get("debug_save_preprocess_dir")
-            if debug_dir:
-                try:
-                    base = Path(str(debug_dir))
-                    base.mkdir(parents=True, exist_ok=True)
-                    tag = str(self.params.get("debug_save_tag", ""))
-                    safe_tag = "".join(c if (c.isalnum() or c in ("-", "_")) else "_" for c in (tag or ""))
-                    prefix = safe_tag + "_" if safe_tag else ""
-
-                    cv2.imwrite(str(base / f"{prefix}white_strip_gray_y{strip_start}.png"), strip)
-                    if analysis_strip is not strip:
-                        cv2.imwrite(
-                            str(base / f"{prefix}white_strip_gray_analysis_excl_bottom_{exclude_px}px.png"),
-                            analysis_strip,
-                        )
-                    col_img = np.repeat(col_stat.reshape(1, -1), 60, axis=0)
-                    cv2.imwrite(str(base / f"{prefix}white_col_{stat_label}.png"), col_img)
-
-                    # Also save a quick-look mask for separator columns based on the configured threshold mode.
-                    thr = self.params.get("white_dark_column_threshold", "otsu")
-                    thr_mode = thr.lower() if isinstance(thr, str) else None
-                    if thr is None or thr_mode == "otsu":
-                        _t, mask = cv2.threshold(
-                            col_stat.reshape(1, -1),
-                            0,
-                            255,
-                            cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU,
-                        )
-                        mask_img = np.repeat(mask.astype(np.uint8), 60, axis=0)
-                        cv2.imwrite(str(base / f"{prefix}white_separator_mask_otsu.png"), mask_img)
-                    elif thr_mode == "relative":
-                        white_p = int(self.params.get("white_dark_column_white_percentile", 90) or 90)
-                        dark_p = int(self.params.get("white_dark_column_dark_percentile", 20) or 20)
-                        ratio = float(self.params.get("white_dark_column_relative_ratio", 0.5) or 0.5)
-                        white_level = float(np.percentile(col_stat, white_p))
-                        dark_level = float(np.percentile(col_stat, dark_p))
-                        if white_level < dark_level:
-                            white_level, dark_level = dark_level, white_level
-                        chosen_threshold = int(round(white_level - ratio * (white_level - dark_level)))
-                        chosen_threshold = max(0, min(255, chosen_threshold))
-                        mask = (col_stat < chosen_threshold).astype(np.uint8) * 255
-                        mask_img = np.repeat(mask.reshape(1, -1), 60, axis=0)
-                        cv2.imwrite(str(base / f"{prefix}white_separator_mask_relative_t{chosen_threshold}.png"), mask_img)
-                    else:
-                        chosen_threshold = int(thr)
-                        mask = (col_stat < chosen_threshold).astype(np.uint8) * 255
-                        mask_img = np.repeat(mask.reshape(1, -1), 60, axis=0)
-                        cv2.imwrite(str(base / f"{prefix}white_separator_mask_t{chosen_threshold}.png"), mask_img)
-                except Exception as e:
-                    self.logger.warning("Failed saving dark-column debug images: %s", e, exc_info=True)
-
-            return edge_profile
-
-        band_ratio = self.params["white_edge_band_ratio"]
-        center_ratio = self.params["white_bottom_ratio"]
-        half_band = band_ratio / 2.0
-
-        y_start = int(max(0, (center_ratio - half_band) * height))
-        y_end = int(min(height, (center_ratio + half_band) * height))
-        if y_end <= y_start:
-            y_start = max(0, int(center_ratio * height) - 1)
-            y_end = min(height, y_start + 2)
-
-        band = gray_img[y_start:y_end, :]
-        if band.shape[0] == 0:
-            band = gray_img[int(height * center_ratio):int(height * center_ratio) + 1, :]
-
-        band_blur = cv2.GaussianBlur(band, (3, 5), 0)
-
-        if method == "blackhat":
-            k = int(self.params.get("white_blackhat_kernel_width", 15) or 15)
-            if k < 3:
-                k = 3
-            if k % 2 == 0:
-                k += 1
-            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (k, 1))
-            response = cv2.morphologyEx(band_blur, cv2.MORPH_BLACKHAT, kernel)
-            edge_profile = np.mean(response.astype(np.float32), axis=0)
-        else:
-            grad_x = cv2.Sobel(band_blur, cv2.CV_64F, 1, 0, ksize=3)
-            edge_profile = np.mean(np.abs(grad_x), axis=0)
-
-        smooth_kernel = int(self.params["white_edge_smooth_kernel"])      
-        if smooth_kernel % 2 == 0:
-            smooth_kernel += 1
-        if smooth_kernel > 1:
-            edge_profile = cv2.GaussianBlur(
-                edge_profile.reshape(1, -1), (smooth_kernel, 1), 0        
-            ).flatten()
-
-        debug_dir = self.params.get("debug_save_preprocess_dir")
-        if debug_dir:
-            try:
-                base = Path(str(debug_dir))
-                base.mkdir(parents=True, exist_ok=True)
-                tag = str(self.params.get("debug_save_tag", ""))
-                safe_tag = "".join(c if (c.isalnum() or c in ("-", "_")) else "_" for c in (tag or ""))
-                prefix = safe_tag + "_" if safe_tag else ""
-
-                cv2.imwrite(str(base / f"{prefix}white_band_gray.png"), band)
-                if response is not None:
-                    cv2.imwrite(
-                        str(base / f"{prefix}white_band_blackhat_k{int(self.params.get('white_blackhat_kernel_width', 15) or 15)}.png"),
-                        response,
-                    )
-
-                # Save a simple visualization of the 1D profile as an image for quick inspection.
-                prof = edge_profile.astype(np.float32)
-                pmin = float(np.min(prof)) if prof.size else 0.0
-                pmax = float(np.max(prof)) if prof.size else 0.0
-                if pmax > pmin:
-                    norm = (prof - pmin) / (pmax - pmin)
-                else:
-                    norm = np.zeros_like(prof)
-                profile_img = (norm * 255.0).clip(0, 255).astype(np.uint8)
-                profile_img = np.repeat(profile_img.reshape(1, -1), 60, axis=0)
-                cv2.imwrite(str(base / f"{prefix}white_profile_{method}.png"), profile_img)
-            except Exception as e:
-                self.logger.warning("Failed saving white-profile debug images: %s", e, exc_info=True)
-
-        return edge_profile
-
-    def _find_white_key_edges_from_profile(self, edge_profile):
-        """Detect likely vertical boundaries from an edge-strength profile."""
-        edges = []
-
-        method = (self.params.get("white_seam_method") or "edge").lower()
-        if method == "dark_columns":
-            col_med = edge_profile.astype(np.uint8)
-            thr = self.params.get("white_dark_column_threshold", "otsu")
-            thr_mode = thr.lower() if isinstance(thr, str) else None
-
-            if thr is None or thr_mode == "otsu":
-                _t, mask = cv2.threshold(
-                    col_med.reshape(1, -1),
-                    0,
-                    255,
-                    cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU,
-                )
-                separator_cols = mask.flatten() > 0
-                chosen_threshold = None
-            elif thr_mode == "relative":
-                white_p = int(self.params.get("white_dark_column_white_percentile", 90) or 90)
-                dark_p = int(self.params.get("white_dark_column_dark_percentile", 20) or 20)
-                ratio = float(self.params.get("white_dark_column_relative_ratio", 0.5) or 0.5)
-
-                white_level = float(np.percentile(col_med, white_p))
-                dark_level = float(np.percentile(col_med, dark_p))
-                if white_level < dark_level:
-                    white_level, dark_level = dark_level, white_level
-
-                chosen_threshold = int(round(white_level - ratio * (white_level - dark_level)))
-                chosen_threshold = max(0, min(255, chosen_threshold))
-                separator_cols = col_med < chosen_threshold
-            else:
-                chosen_threshold = int(thr)
-                separator_cols = col_med < chosen_threshold
-
-            min_w = int(self.params.get("white_separator_min_width", 2) or 2)
-            runs = []
-            in_seg = False
-            start = 0
-            for x, is_sep in enumerate(separator_cols):
-                if is_sep and not in_seg:
-                    in_seg = True
-                    start = x
-                elif (not is_sep) and in_seg:
-                    end = x - 1
-                    width = end - start + 1
-                    if width >= min_w:
-                        runs.append((start, end))
-                    in_seg = False
-            if in_seg:
-                end = len(separator_cols) - 1
-                width = end - start + 1
-                if width >= min_w:
-                    runs.append((start, end))
-
-            self.logger.debug(
-                "DEBUG: White key separator (dark_columns): found %d runs (threshold=%s)",
-                len(runs),
-                chosen_threshold if chosen_threshold is not None else "otsu",
-            )
-            self._white_separator_runs = runs
-            return runs
-
-        edge_threshold = np.std(edge_profile) * self.params["white_edge_std_factor"]
-
-        for i in range(1, len(edge_profile) - 1):
-            if (
-                edge_profile[i] > edge_threshold
-                and edge_profile[i] > edge_profile[i - 1]
-                and edge_profile[i] > edge_profile[i + 1]
-            ):
-                edges.append(i)
-
-        self.logger.debug("DEBUG: White key edge detection:")
-        self.logger.debug(
-            f"  Edge profile std: {np.std(edge_profile):.2f}, edge_threshold: {edge_threshold:.2f}"
-        )
-        self.logger.debug(f"  Found {len(edges)} edges: {edges[:10]}...")
-        return edges
-
-    def _suppress_dense_edges(self, edges, edge_profile, min_sep_px: int):
-        """Suppress overly-dense edge candidates by keeping stronger peaks."""
-        if min_sep_px <= 1:
-            return edges
-
-        strengths = {int(e): float(edge_profile[int(e)]) for e in edges if 0 <= int(e) < len(edge_profile)}
-        ranked = sorted(strengths.items(), key=lambda kv: kv[1], reverse=True)
-
-        kept = []
-        for pos, _strength in ranked:
-            if all(abs(pos - k) >= min_sep_px for k in kept):
-                kept.append(pos)
-
-        return sorted(kept)
-
-    def _fill_missing_white_edges(self, edges):
-        """Fill missing edges using a spacing prior."""
-        if len(edges) < self.params["white_gap_fill_min_edges"]:
-            return edges
-
-        edges = sorted(edges)
-        gaps = np.diff(edges)
-        if gaps.size == 0:
-            return edges
-
-        median_gap = np.median(gaps)
-        if median_gap <= 0:
-            return edges
-
-        max_ratio = self.params["white_gap_fill_max_ratio"]
-        filled_edges = [edges[0]]
-
-        for i, gap in enumerate(gaps):
-            if gap > median_gap * max_ratio:
-                missing_count = int(round(gap / median_gap)) - 1
-                for j in range(1, missing_count + 1):
-                    candidate = int(edges[i] + j * median_gap)
-                    if candidate < edges[i + 1]:
-                        filled_edges.append(candidate)
-            filled_edges.append(edges[i + 1])
-
-        return sorted(set(filled_edges))
-
-    def _detect_white_keys_from_profile(
-        self,
-        gray_img,
-        edge_profile,
-        edge_profile_x_scale: float = 1.0,
-        edge_profile_y_scale: float = 1.0,
-    ):
-        """Detect white keys using an externally computed edge profile."""
-        height, width = gray_img.shape
-        method = (self.params.get("white_seam_method") or "edge").lower()
-        edges_scaled = self._find_white_key_edges_from_profile(edge_profile)
-
-        if method == "dark_columns":
-            if not edges_scaled:
-                self.logger.info("White separator runs: none detected (dark_columns)")
-                return []
-            if not isinstance(edges_scaled[0], tuple):
-                self.logger.info("White separator runs: unexpected edge format; falling back to edge logic")
-            else:
-                runs_scaled = edges_scaled
-                if edge_profile_x_scale and edge_profile_x_scale != 1.0:
-                    runs = [
-                        (
-                            int(round(s / edge_profile_x_scale)),
-                            int(round(e / edge_profile_x_scale)),
-                        )
-                        for s, e in runs_scaled
-                    ]
-                else:
-                    runs = list(runs_scaled)
-
-                runs = [
-                    (max(0, min(width - 1, s)), max(0, min(width - 1, e)))
-                    for s, e in runs
-                    if width > 0
-                ]
-                runs = [(s, e) for s, e in runs if e >= s]
-                runs.sort(key=lambda r: r[0])
-
-                min_key_width = int(self.params.get("white_min_width", 1) or 1)
-                strip_start = self._white_strip_start
-                if strip_start is not None and edge_profile_y_scale and edge_profile_y_scale != 1.0:
-                    strip_start = int(round(strip_start / edge_profile_y_scale))
-
-                use_strip_top = strip_start is not None and self.params.get("white_auto_strip")
-                if use_strip_top:
-                    trimmed_top = max(0, min(height - 1, int(strip_start)))
-                    trimmed_height = max(1, height - trimmed_top)
-
-                white_keys = []
-                segments_passing = 0
-                gaps = []
-
-                cursor = 0
-                for start, end in runs:
-                    gap_start = cursor
-                    gap_end = start - 1
-                    if gap_end >= gap_start:
-                        gaps.append(gap_end - gap_start + 1)
-                        if (gap_end - gap_start + 1) >= min_key_width:
-                            segments_passing += 1
-                            key_width = gap_end - gap_start + 1
-                            if use_strip_top:
-                                padded_overlay = self._add_overlay_padding(
-                                    gap_start, trimmed_top, key_width, trimmed_height
-                                )
-                            else:
-                                initial_top = int(height * self.params["white_initial_top_ratio"])
-                                initial_height = int(height * self.params["white_initial_height_ratio"])
-                                trimmed_top, trimmed_height = self._trim_white_key_top(
-                                    gray_img,
-                                    gap_start,
-                                    gap_end,
-                                    initial_top,
-                                    initial_height,
-                                )
-                                padded_overlay = self._add_overlay_padding(
-                                    gap_start, trimmed_top, key_width, trimmed_height
-                                )
-                            white_keys.append(padded_overlay)
-                    cursor = end + 1
-
-                if cursor <= width - 1:
-                    gap_start = cursor
-                    gap_end = width - 1
-                    gaps.append(gap_end - gap_start + 1)
-                    if (gap_end - gap_start + 1) >= min_key_width:
-                        segments_passing += 1
-                        key_width = gap_end - gap_start + 1
-                        if use_strip_top:
-                            padded_overlay = self._add_overlay_padding(
-                                gap_start, trimmed_top, key_width, trimmed_height
-                            )
-                        else:
-                            initial_top = int(height * self.params["white_initial_top_ratio"])
-                            initial_height = int(height * self.params["white_initial_height_ratio"])
-                            trimmed_top, trimmed_height = self._trim_white_key_top(
-                                gray_img,
-                                gap_start,
-                                gap_end,
-                                initial_top,
-                                initial_height,
-                            )
-                            padded_overlay = self._add_overlay_padding(
-                                gap_start, trimmed_top, key_width, trimmed_height
-                            )
-                        white_keys.append(padded_overlay)
-
-                if gaps:
-                    self.logger.info(
-                        "White separator runs: runs=%d gaps(min/med/max)=%.1f/%.1f/%.1f min_key_width=%d",
-                        len(runs),
-                        float(np.min(gaps)),
-                        float(np.median(gaps)),
-                        float(np.max(gaps)),
-                        int(min_key_width),
-                    )
-                else:
-                    self.logger.info(
-                        "White separator runs: runs=%d gaps(none) min_key_width=%d",
-                        len(runs),
-                        int(min_key_width),
-                    )
-                self.logger.info(
-                    "White key result: segments_total=%d segments_passing=%d keys=%d",
-                    max(0, len(gaps)),
-                    segments_passing,
-                    len(white_keys),
-                )
-                return white_keys
-
-        if edge_profile_x_scale and edge_profile_x_scale != 1.0:
-            edges = [
-                int(round(e / edge_profile_x_scale))
-                for e in edges_scaled
-            ]
-        else:
-            edges = edges_scaled
-
-        edges = [max(0, min(width - 1, e)) for e in edges] if width else []
-        edges = sorted(set(edges))
-
-        estimated_white_keys = None
-        expected_edges = None
-        min_sep_px = None
-        try:
-            black_count = len(self.black_keys or [])
-            if black_count >= 5 and width > 0:
-                estimated_white_keys = max(1, int(round((black_count * 7) / 5)))
-                expected_edges = estimated_white_keys + 1
-                expected_white_width = width / float(estimated_white_keys)
-                min_sep_px = max(2, int(round(expected_white_width * 0.5)))
-        except Exception:
-            pass
-
-        boundary_pad = self.params["edge_boundary_padding_px"]
-        if not edges or edges[0] > boundary_pad:
-            edges.insert(0, 0)
-        if not edges or edges[-1] < width - boundary_pad:
-            edges.append(width - 1)
-
-        # If we have far too many edges (common on blurry/noisy footage), suppress dense peaks.
-        if expected_edges and len(edges) > int(expected_edges * 1.5):
-            self.logger.info(
-                "White key edge suppression: edges=%d expected~%d (black=%s) min_sep=%s",
-                len(edges),
-                expected_edges,
-                len(self.black_keys or []),
-                min_sep_px,
-            )
-            fixed_boundaries = {0, max(0, width - 1)}
-            inner = [e for e in edges if e not in fixed_boundaries]
-            inner_suppressed = self._suppress_dense_edges(
-                inner,
-                edge_profile if edge_profile_x_scale == 1.0 else cv2.resize(edge_profile.reshape(1, -1), (width, 1), interpolation=cv2.INTER_LINEAR).flatten(),
-                min_sep_px or self.params["white_min_width"],
-            )
-            edges = sorted(set(list(fixed_boundaries) + inner_suppressed))
-            self.logger.info("White key edge suppression result: edges=%d", len(edges))
-
-        if self.params["white_gap_fill"]:
-            # Only gap-fill if edges are too sparse; if they are already dense,
-            # gap-filling will make the result worse (tiny segments that get filtered out).
-            if expected_edges and len(edges) >= expected_edges:
-                self.logger.info(
-                    "White key edge gap fill skipped (edges=%d >= expected~%d)",
-                    len(edges),
-                    expected_edges,
-                )
-            else:
-                before = len(edges)
-                edges = self._fill_missing_white_edges(edges)
-                self.logger.info("White key edge gap fill: edges %d -> %d", before, len(edges))
-
-        white_keys = []
-        min_key_width = self.params["white_min_width"]
-        gaps = np.diff(edges) if len(edges) > 1 else np.array([])
-        if gaps.size:
-            self.logger.info(
-                "White edge stats: edges=%d gaps(min/med/max)=%.1f/%.1f/%.1f min_key_width=%d",
-                len(edges),
-                float(np.min(gaps)),
-                float(np.median(gaps)),
-                float(np.max(gaps)),
-                int(min_key_width),
-            )
-        else:
-            self.logger.info(
-                "White edge stats: edges=%d gaps(none) min_key_width=%d",
-                len(edges),
-                int(min_key_width),
-            )
-        segments_passing = 0
-
-        for i in range(len(edges) - 1):
-            start_x = edges[i]
-            end_x = edges[i + 1]
-            key_width = end_x - start_x
-
-            if key_width > min_key_width:
-                segments_passing += 1
-                initial_top = int(height * self.params["white_initial_top_ratio"])
-                initial_height = int(height * self.params["white_initial_height_ratio"])
-
-                trimmed_top, trimmed_height = self._trim_white_key_top(
-                    gray_img,
-                    start_x,
-                    end_x,
-                    initial_top,
-                    initial_height,
-                )
-
-                padded_overlay = self._add_overlay_padding(
-                    start_x, trimmed_top, key_width, trimmed_height
-                )
-                white_keys.append(padded_overlay)
-
-        self.logger.info(
-            "White key result: segments_total=%d segments_passing=%d keys=%d",
-            max(0, len(edges) - 1),
-            segments_passing,
-            len(white_keys),
-        )
-        return white_keys
-
+    
     def _detect_black_keys(self, gray_img):
-        """Detect black keys using column scanning or connected components."""
+        """Detect black keys using column scanning"""
         height, width = gray_img.shape
-
+        
         # Focus on upper portion where black keys are
         upper_ratio = self.params["black_upper_ratio"]
         upper_region = gray_img[:int(height * upper_ratio), :]
-
-        detection_method = (self.params.get("black_detection_method") or "columns").lower()
-        if detection_method == "components":
-            return self._detect_black_keys_components(upper_region)
-
-        threshold_method = self.params.get("black_threshold_method", "fixed")
-        self.logger.debug("Black key detection: threshold_method=%s", threshold_method)
-        if threshold_method == "adaptive":
-            block_size = int(self.params["black_adaptive_block_size"])
-            if block_size % 2 == 0:
-                block_size += 1
-            if block_size < 3:
-                block_size = 3
-            binary = cv2.adaptiveThreshold(
-                upper_region,
-                255,
-                cv2.ADAPTIVE_THRESH_MEAN_C,
-                cv2.THRESH_BINARY_INV,
-                block_size,
-                self.params["black_adaptive_c"],
-            )
-        elif threshold_method == "otsu" or self.params["black_threshold"] is None:
-            otsu_val, binary = cv2.threshold(
-                upper_region,
-                0,
-                255,
-                cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU,
-            )
-            self.logger.debug("Black key detection: Otsu threshold=%.2f", otsu_val)
-        else:
-            _, binary = cv2.threshold(
-                upper_region,
-                self.params["black_threshold"],
-                255,
-                cv2.THRESH_BINARY_INV,
-            )
+        
+        # Create binary image - black keys are dark (conservative threshold to avoid shadowed white keys)
+        _, binary = cv2.threshold(
+            upper_region,
+            self.params["black_threshold"],
+            255,
+            cv2.THRESH_BINARY_INV,
+        )
         
         # Scan columns to find black key regions
         column_sums = np.sum(binary, axis=0)
@@ -964,109 +131,98 @@ class MonolithicPianoDetector:
         # Find where columns have significant black pixels
         threshold = np.max(column_sums) * self.params["black_column_ratio"]  # Reduced threshold for better detection
         black_regions = column_sums > threshold
-
-        black_keys = self._extract_black_key_regions(black_regions, upper_region.shape[0])
-        self.logger.info(
-            "Black key stats: method=%s fixed_threshold=%s column_ratio=%.3f column_thr=%.1f columns_over=%d keys=%d",
-            threshold_method,
-            self.params.get("black_threshold", None),
-            float(self.params["black_column_ratio"]),
-            float(threshold),
-            int(np.sum(black_regions)) if hasattr(np, "sum") else 0,
-            len(black_keys),
-        )
-
-        if (
-            self.params["black_edge_fallback"]
-            and len(black_keys) < self.params["black_min_count_for_valid"]
-        ):
-            self.logger.info(
-                "Black key edge fallback enabled: base_detected=%d (<%d), attempting edge-based fallback",
-                len(black_keys),
-                self.params["black_min_count_for_valid"],
-            )
-            edges = cv2.Canny(upper_region, 50, 150)
-            edge_sums = np.sum(edges > 0, axis=0)
-            edge_threshold = np.max(edge_sums) * self.params["black_edge_column_ratio"]
-            edge_regions = edge_sums > edge_threshold
-            edge_keys = self._extract_black_key_regions(edge_regions, upper_region.shape[0])
-            if len(edge_keys) > len(black_keys):
-                black_keys = edge_keys
-                self.logger.info("Black key edge fallback improved count to %d", len(black_keys))
-            else:
-                self.logger.info(
-                    "Black key edge fallback did not improve count (edge=%d, base=%d)",
-                    len(edge_keys),
-                    len(black_keys),
-                )
-
-        return black_keys
-
-    def _detect_black_keys_components(self, upper_region):
-        """Detect black keys using connected components on a thresholded upper band."""
-        height, width = upper_region.shape
-        threshold_method = self.params.get("black_threshold_method", "fixed")
-
-        if threshold_method == "adaptive":
-            block_size = int(self.params["black_adaptive_block_size"])
-            if block_size % 2 == 0:
-                block_size += 1
-            if block_size < 3:
-                block_size = 3
-            binary = cv2.adaptiveThreshold(
-                upper_region,
-                255,
-                cv2.ADAPTIVE_THRESH_MEAN_C,
-                cv2.THRESH_BINARY_INV,
-                block_size,
-                self.params["black_adaptive_c"],
-            )
-        elif threshold_method == "otsu" or self.params["black_threshold"] is None:
-            _, binary = cv2.threshold(
-                upper_region,
-                0,
-                255,
-                cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU,
-            )
-        else:
-            _, binary = cv2.threshold(
-                upper_region,
-                self.params["black_threshold"],
-                255,
-                cv2.THRESH_BINARY_INV,
-            )
-
-        num_labels, labels, stats, _centroids = cv2.connectedComponentsWithStats(binary, connectivity=8)
-        min_w = int(self.params["black_min_width"])
-        max_w = int(self.params["black_max_width"])
-        min_h = max(1, int(height * float(self.params.get("black_min_height_ratio", 0.4))))
-        max_h = max(1, int(height * float(self.params.get("black_max_height_ratio", 1.0))))
-        min_area = max(1, int(width * height * float(self.params.get("black_min_area_ratio", 0.001))))
-
+        
+        # Find start and end of each black key
         black_keys = []
-        for label in range(1, num_labels):
-            x, y, w, h, area = stats[label]
-            if w < min_w or w > max_w:
-                continue
-            if h < min_h or h > max_h:
-                continue
-            if area < min_area:
-                continue
-
-            padded_overlay = self._add_overlay_padding(x, 0, w, height)
-            black_keys.append(padded_overlay)
-
+        in_key = False
+        start_x = 0
+        
+        for x in range(len(black_regions)):
+            if black_regions[x] and not in_key:
+                start_x = x
+                in_key = True
+            elif not black_regions[x] and in_key:
+                width = x - start_x
+                if (
+                    self.params["black_min_width"]
+                    < width
+                    < self.params["black_max_width"]
+                ):  # Reasonable key width
+                    padded_overlay = self._add_overlay_padding(start_x, 0, width, upper_region.shape[0])
+                    black_keys.append(padded_overlay)
+                in_key = False
+        
+        # Handle last key
+        if in_key:
+            width = len(black_regions) - start_x
+            if self.params["black_min_width"] < width < self.params["black_max_width"]:
+                padded_overlay = self._add_overlay_padding(start_x, 0, width, upper_region.shape[0])
+                black_keys.append(padded_overlay)
+        
         return black_keys
     
     def _detect_white_keys(self, gray_img):
         """Detect white keys by finding vertical separations"""
-        edge_profile = self._compute_white_edge_profile(gray_img)
-        return self._detect_white_keys_from_profile(
-            gray_img,
-            edge_profile=edge_profile,
-            edge_profile_x_scale=1.0,
-            edge_profile_y_scale=1.0,
-        )
+        height, width = gray_img.shape
+        
+        # Look at bottom portion where white keys are clearly separated
+        bottom_y = int(height * self.params["white_bottom_ratio"])
+        bottom_row = gray_img[bottom_y, :]
+        
+        # Apply smoothing
+        bottom_smooth = cv2.GaussianBlur(bottom_row.reshape(1, -1), (1, 5), 0).flatten()
+        
+        # Calculate gradient to find edges
+        gradient = np.gradient(bottom_smooth)
+        
+        # Find significant edges
+        edges = []
+        edge_threshold = np.std(gradient) * self.params["white_edge_std_factor"]
+        
+        for i in range(1, len(gradient) - 1):
+            if abs(gradient[i]) > edge_threshold:
+                # Local extremum
+                if ((gradient[i-1] < gradient[i] > gradient[i+1]) or 
+                    (gradient[i-1] > gradient[i] < gradient[i+1])):
+                    edges.append(i)
+        
+        self.logger.debug(f"DEBUG: White key edge detection:")
+        self.logger.debug(f"  Gradient std: {np.std(gradient):.2f}, edge_threshold: {edge_threshold:.2f}")
+        self.logger.debug(f"  Found {len(edges)} edges: {edges[:10]}...")  # Show first 10 edges
+        
+        # MISSING KEY FIX: Add left and right boundaries if not present
+        boundary_pad = self.params["edge_boundary_padding_px"]
+        if not edges or edges[0] > boundary_pad:  # If first edge is far from left boundary (reduced from 20 to 3)
+            edges.insert(0, 0)  # Add left boundary at x=0
+            self.logger.debug(f"DEBUG: Added left boundary edge at x=0")
+
+        if not edges or edges[-1] < width - boundary_pad:  # If last edge is far from right boundary (reduced from 20 to 3)
+            edges.append(width - 1)  # Add right boundary
+            self.logger.debug(f"DEBUG: Added right boundary edge at x={width-1}")
+        
+        # Convert edges to key boundaries
+        white_keys = []
+        min_key_width = self.params["white_min_width"]
+        
+        for i in range(len(edges) - 1):
+            start_x = edges[i]
+            end_x = edges[i + 1]
+            key_width = end_x - start_x
+            
+            if key_width > min_key_width:
+                # Initial white key region - start lower to avoid black keys
+                initial_top = int(height * self.params["white_initial_top_ratio"])  # Start at 70% instead of 60%
+                initial_height = int(height * self.params["white_initial_height_ratio"])  # 30% height instead of 40%
+                
+                # Trim top of white key if it dips into black key area
+                trimmed_top, trimmed_height = self._trim_white_key_top(
+                    gray_img, start_x, end_x, initial_top, initial_height)
+                
+                # Add padding to white key overlay
+                padded_overlay = self._add_overlay_padding(start_x, trimmed_top, key_width, trimmed_height)
+                white_keys.append(padded_overlay)
+        
+        return white_keys
     
     def _trim_white_key_top(self, gray_img, start_x, end_x, initial_top, initial_height):
         """Trim white key overlay top when it dips into black key area"""
@@ -1108,9 +264,7 @@ class MonolithicPianoDetector:
     def assign_notes(self):
         """Assign musical notes using unified chromatic scanning from F# anchor"""
         if not self.black_keys or not self.white_keys:
-            raise ValueError(
-                f"Must detect keys first (black={len(self.black_keys)}, white={len(self.white_keys)})"
-            )
+            raise ValueError("Must detect keys first")
         
         self.logger.debug(f"\n=== Assigning Notes to {len(self.black_keys)} black + {len(self.white_keys)} white keys ===")
         

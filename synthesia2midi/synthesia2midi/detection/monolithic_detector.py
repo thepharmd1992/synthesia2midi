@@ -107,17 +107,6 @@ class MonolithicPianoDetector:
         keyboard_gray = cv2.cvtColor(keyboard_img, cv2.COLOR_BGR2GRAY)
 
         self.logger.debug(f"\n=== Detecting Keys in Region {right_x-left_x}x{bottom_y-top_y} ===")
-        self.logger.info(
-            "Detection params: black_threshold_method=%s, black_threshold=%s, "
-            "black_column_ratio=%s, white_strip_dark_threshold=%s, "
-            "white_strip_dark_fraction=%s, white_sep_ratio=%s",
-            self.params.get("black_threshold_method", "otsu"),
-            self.params.get("black_threshold"),
-            self.params.get("black_column_ratio"),
-            self.params.get("white_strip_dark_threshold"),
-            self.params.get("white_strip_dark_fraction"),
-            self.params.get("white_sep_ratio"),
-        )
         
         # Detect black keys first (easier to identify)
         self.black_keys = self._detect_black_keys(keyboard_gray)
@@ -250,13 +239,6 @@ class MonolithicPianoDetector:
 
         recovered = self._detect_black_keys(gray_img, recovery=True)
         if len(recovered) > len(self.black_keys):
-            self.logger.info(
-                "Recovered black keys: %s -> %s (expected=%s, min=%s)",
-                len(self.black_keys),
-                len(recovered),
-                expected_black,
-                min_black,
-            )
             self.black_keys = recovered
 
     def _threshold_black_region(self, upper_region):
@@ -276,11 +258,6 @@ class MonolithicPianoDetector:
                 block_size,
                 c,
             )
-            self.logger.info(
-                "Black key threshold: adaptive (block_size=%s, C=%s)",
-                block_size,
-                c,
-            )
             return binary
 
         if method == "otsu":
@@ -290,7 +267,6 @@ class MonolithicPianoDetector:
                 255,
                 cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU,
             )
-            self.logger.info("Black key threshold: otsu")
             return binary
 
         threshold = self.params["black_threshold"]
@@ -300,7 +276,6 @@ class MonolithicPianoDetector:
             255,
             cv2.THRESH_BINARY_INV,
         )
-        self.logger.info("Black key threshold: fixed (threshold=%s)", threshold)
         return binary
 
     def _find_white_strip_start(
@@ -376,13 +351,6 @@ class MonolithicPianoDetector:
             ratio = float(self.params.get("white_sep_ratio", 0.55))
             thresh = white_level - (ratio * dyn)
             sep_cols = col_med < thresh
-            self.logger.info(
-                "White separator threshold: relative (white=%.1f dark=%.1f dyn=%.1f T=%.1f)",
-                white_level,
-                dark_level,
-                dyn,
-                thresh,
-            )
         else:
             _, mask = cv2.threshold(
                 col_med_u8.reshape(1, -1),
@@ -391,12 +359,6 @@ class MonolithicPianoDetector:
                 cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU,
             )
             sep_cols = (mask.flatten() > 0)
-            self.logger.info(
-                "White separator threshold: otsu (white=%.1f dark=%.1f dyn=%.1f)",
-                white_level,
-                dark_level,
-                dyn,
-            )
 
         close_k = int(self.params.get("white_sep_close_kernel", 5))
         if close_k > 1:
@@ -438,9 +400,6 @@ class MonolithicPianoDetector:
                 )
                 sep_cols = (sep_u8.flatten() > 0)
             runs = self._runs_from_mask(sep_cols, min_width=min_sep_width)
-            self.logger.info("White separator fallback to otsu (runs=%s)", len(runs))
-
-        self.logger.info("White separator runs=%s (strip_start=%s)", len(runs), strip_start)
 
         gaps = []
         for i in range(len(runs) - 1):
@@ -699,17 +658,12 @@ class MonolithicPianoDetector:
                 if i not in candidates:
                     candidates.append(i)
 
-        self.logger.debug(
-            "F# anchor candidates (indices): %s",
-            candidates if candidates else "none",
-        )
         return candidates
 
     def _assign_notes_type_aware(self):
         """Assign notes by key type, using black-key anchors and white-key scanning."""
         candidates = self._find_f_sharp_anchor_candidates()
         if not candidates:
-            self.logger.debug("No F# anchor candidates - using fallback assignment")
             return self._fallback_note_assignment()
 
         fallback_notes = None
@@ -726,17 +680,9 @@ class MonolithicPianoDetector:
 
             combined = {**black_notes, **white_notes}
             if not used_fallback:
-                self.logger.debug(
-                    "Type-aware assignment using F# index %s (no white fallback)",
-                    f_sharp_idx,
-                )
                 return combined
 
             if fallback_notes is None:
-                self.logger.debug(
-                    "Type-aware assignment using F# index %s (white fallback)",
-                    f_sharp_idx,
-                )
                 fallback_notes = combined
 
         if fallback_notes:

@@ -156,6 +156,8 @@ class AutoDetectAdapter:
                         "white_seam_method": "dark_columns",
                         "white_auto_strip": True,
                         "white_dark_column_threshold": "relative",
+                        "white_dark_column_stat": "p90",
+                        "white_strip_exclude_bottom_ratio": 0.25,
                         "white_dark_column_white_percentile": 90,
                         "white_dark_column_dark_percentile": 20,
                         "white_dark_column_relative_ratio": 0.5,

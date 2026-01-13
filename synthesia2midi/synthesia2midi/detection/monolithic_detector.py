@@ -53,6 +53,12 @@ DEFAULT_DETECTION_PARAMS = {
     "white_seam_method": "edge",
     "white_blackhat_kernel_width": 15,
     "white_dark_column_threshold": "otsu",  # "otsu" | "relative" | int(0-255)
+    # How to summarize brightness per x-column for dark-column seam detection.
+    # - "median": robust but can be polluted by dark note labels if they cover much of the column
+    # - "p90": robust to sparse dark labels; separator columns stay dark across most of the column
+    "white_dark_column_stat": "median",  # "median" | "p90" | "p95"
+    # Exclude bottom part of the white strip from the column statistic (helps ignore note labels).
+    "white_strip_exclude_bottom_ratio": 0.0,
     "white_dark_column_white_percentile": 90,  # for "relative": baseline "white" estimate
     "white_dark_column_dark_percentile": 20,  # for "relative": baseline "dark" estimate
     "white_dark_column_relative_ratio": 0.5,  # threshold = white - ratio*(white-dark)
@@ -389,7 +395,19 @@ class MonolithicPianoDetector:
                     strip_start = int(cut)
                     strip = gray_img[strip_start:, :]
 
-            col_stat = np.median(strip.astype(np.uint8), axis=0).astype(np.uint8)
+            exclude_ratio = float(self.params.get("white_strip_exclude_bottom_ratio", 0.0) or 0.0)
+            exclude_ratio = max(0.0, min(0.9, exclude_ratio))
+            exclude_px = int(round(strip.shape[0] * exclude_ratio)) if strip.size else 0
+            analysis_strip = strip[: max(1, strip.shape[0] - exclude_px), :] if strip.size else strip
+
+            stat_mode = (self.params.get("white_dark_column_stat") or "median").lower()
+            if stat_mode in {"p90", "p95"}:
+                pct = int(stat_mode[1:])
+                col_stat = np.percentile(analysis_strip.astype(np.uint8), pct, axis=0).astype(np.uint8)
+                stat_label = stat_mode
+            else:
+                col_stat = np.median(analysis_strip.astype(np.uint8), axis=0).astype(np.uint8)
+                stat_label = "median"
             # Return a "profile" where lower values indicate separators; edge finder will
             # interpret this based on method.
             edge_profile = col_stat.astype(np.float32)
@@ -404,8 +422,13 @@ class MonolithicPianoDetector:
                     prefix = safe_tag + "_" if safe_tag else ""
 
                     cv2.imwrite(str(base / f"{prefix}white_strip_gray_y{strip_start}.png"), strip)
+                    if analysis_strip is not strip:
+                        cv2.imwrite(
+                            str(base / f"{prefix}white_strip_gray_analysis_excl_bottom_{exclude_px}px.png"),
+                            analysis_strip,
+                        )
                     col_img = np.repeat(col_stat.reshape(1, -1), 60, axis=0)
-                    cv2.imwrite(str(base / f"{prefix}white_col_median.png"), col_img)
+                    cv2.imwrite(str(base / f"{prefix}white_col_{stat_label}.png"), col_img)
 
                     # Also save a quick-look mask for separator columns based on the configured threshold mode.
                     thr = self.params.get("white_dark_column_threshold", "otsu")

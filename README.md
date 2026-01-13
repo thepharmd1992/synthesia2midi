@@ -1,6 +1,6 @@
 # Synthesia2MIDI
 
-Synthesia2MIDI is a PySide6 desktop app that analyzes piano performance videos, detects key presses frame-by-frame, and exports a MIDI file.
+Synthesia2MIDI is a PySide6 desktop app that analyzes Synthesia videos, detects key presses frame-by-frame, and exports a MIDI file.
 
 This project is **not affiliated with Synthesia**.
 

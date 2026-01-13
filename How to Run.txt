@@ -1,6 +1,4 @@
-How to Run Synthesia2MIDI (non-technical)
-
-This file is for people who just want to use the app.
+How to Run Synthesia2MIDI
 
 Windows 10 and Windows 11
 1) If you downloaded a zip, right-click it and choose Extract All. On Windows 11, if you do not see it, click "Show more options".
@@ -18,7 +16,7 @@ If you see a permissions error:
 - On Windows 11, right-click setup_windows.bat, choose "Show more options", then "Run as administrator" if needed.
 
 If you see "FFmpeg is missing":
-- This is only needed for YouTube downloads and some video conversions. If you are not using those, you can skip this.
+- FFmpeg is required for this app. Please install it using the steps below.
 1) Download FFmpeg from https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
 2) Open the zip, go into the "bin" folder, and copy ffmpeg.exe
 3) In this app folder, create a folder named "ffmpeg" inside "synthesia2midi"
@@ -43,7 +41,7 @@ If you see "Python 3 was not found":
 - The setup window will tell you how to install Python. Follow its instructions, then run setup.sh again.
 
 If you see "FFmpeg not found":
-- This is only needed for YouTube downloads and some video conversions. If you are not using those, you can skip this.
+- FFmpeg is required for this app. Please install it using the steps below.
 1) Open Terminal (you can use the same Terminal window).
 2) Copy and paste this:
    brew install ffmpeg

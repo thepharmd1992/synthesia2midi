@@ -11,9 +11,8 @@ from typing import List, Optional, Tuple
 import numpy as np
 from PySide6.QtCore import Qt, Signal, QTimer
 from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QDialog, QDoubleSpinBox, QFormLayout, QGridLayout,
-    QGroupBox, QHBoxLayout, QLabel, QMessageBox, QPushButton, QSpinBox,
-    QVBoxLayout
+    QComboBox, QDialog, QFormLayout, QGridLayout, QGroupBox, QHBoxLayout, QLabel,
+    QMessageBox, QPushButton, QSlider, QSpinBox, QVBoxLayout, QWidget
 )
 
 # Local imports
@@ -33,26 +32,12 @@ class AutoDetectTuningDialog(QDialog):
 
     DEFAULT_PARAMS = {
         "type_aware_assignment": True,
-        "black_threshold_method": "otsu",
-        "black_threshold": 60,
         "black_column_ratio": 0.06,
         "black_min_width": 6,
-        "black_max_width": 140,
-        "black_adaptive_block_size": 31,
-        "black_adaptive_c": 5,
         "black_recovery_enabled": True,
-        "black_recovery_ratio": 0.5,
-        "black_recovery_column_ratio_scale": 0.45,
-        "black_split_max_factor": 1.6,
         "white_strip_dark_threshold": 75,
         "white_strip_dark_fraction": 0.03,
-        "white_strip_min_run": 8,
-        "white_strip_allow_failures": 1,
         "white_sep_ratio": 0.55,
-        "white_sep_dyn_min": 8,
-        "white_sep_close_kernel": 5,
-        "white_sep_open_kernel": 3,
-        "white_sep_min_width": 2,
         "white_initial_top_ratio": 0.65,
     }
 
@@ -81,17 +66,18 @@ class AutoDetectTuningDialog(QDialog):
         self._timer.timeout.connect(self._run_detection)
 
         self._controls = {}
+        self._base_params = {}
 
         layout = QVBoxLayout()
-        layout.addWidget(QLabel("Adjust parameters to refine auto-detection. Changes rerun detection automatically."))
+        layout.addWidget(QLabel("Adjust sliders to refine lenient auto-detection. Changes rerun detection automatically."))
 
         params = self.DEFAULT_PARAMS.copy()
         if initial_params:
             params.update(initial_params)
+        self._base_params = params.copy()
 
         layout.addWidget(self._build_black_group(params))
         layout.addWidget(self._build_white_group(params))
-        layout.addWidget(self._build_general_group(params))
 
         if initial_results:
             status_text = (
@@ -120,23 +106,8 @@ class AutoDetectTuningDialog(QDialog):
         group = QGroupBox("Black Key Detection")
         form = QFormLayout()
 
-        self._add_combo(
-            form,
-            "black_threshold_method",
-            "Threshold method",
-            ["fixed", "adaptive", "otsu"],
-            params,
-        )
-        self._add_spin(form, "black_threshold", "Threshold", 0, 255, 1, params)
-        self._add_double(form, "black_column_ratio", "Column ratio", 0.01, 0.5, 0.01, 3, params)
-        self._add_spin(form, "black_min_width", "Min width", 1, 50, 1, params)
-        self._add_spin(form, "black_max_width", "Max width", 20, 300, 1, params)
-        self._add_spin(form, "black_adaptive_block_size", "Adaptive block size", 3, 101, 2, params)
-        self._add_spin(form, "black_adaptive_c", "Adaptive C", -50, 50, 1, params)
-        self._add_checkbox(form, "black_recovery_enabled", "Recovery enabled", params)
-        self._add_double(form, "black_recovery_ratio", "Recovery ratio", 0.2, 0.9, 0.05, 2, params)
-        self._add_double(form, "black_recovery_column_ratio_scale", "Recovery column scale", 0.2, 1.0, 0.05, 2, params)
-        self._add_double(form, "black_split_max_factor", "Split max factor", 1.2, 3.0, 0.1, 2, params)
+        self._add_slider(form, "black_column_ratio", "Column ratio", 0.02, 0.15, 0.001, 3, params)
+        self._add_slider(form, "black_min_width", "Min width", 4, 20, 1, 0, params)
 
         group.setLayout(form)
         return group
@@ -145,63 +116,48 @@ class AutoDetectTuningDialog(QDialog):
         group = QGroupBox("White Key Detection")
         form = QFormLayout()
 
-        self._add_spin(form, "white_strip_dark_threshold", "Strip dark threshold", 0, 255, 1, params)
-        self._add_double(form, "white_strip_dark_fraction", "Strip dark fraction", 0.0, 0.2, 0.01, 3, params)
-        self._add_spin(form, "white_strip_min_run", "Strip min run", 2, 30, 1, params)
-        self._add_spin(form, "white_strip_allow_failures", "Strip allow failures", 0, 5, 1, params)
-        self._add_double(form, "white_sep_ratio", "Separator ratio", 0.3, 0.8, 0.05, 2, params)
-        self._add_spin(form, "white_sep_dyn_min", "Separator dyn min", 0, 30, 1, params)
-        self._add_spin(form, "white_sep_close_kernel", "Separator close kernel", 1, 15, 1, params)
-        self._add_spin(form, "white_sep_open_kernel", "Separator open kernel", 1, 15, 1, params)
-        self._add_spin(form, "white_sep_min_width", "Separator min width", 1, 10, 1, params)
-        self._add_double(form, "white_initial_top_ratio", "Top ratio", 0.4, 0.9, 0.01, 2, params)
+        self._add_slider(form, "white_strip_dark_threshold", "Strip dark threshold", 40, 120, 1, 0, params)
+        self._add_slider(form, "white_strip_dark_fraction", "Strip dark fraction", 0.01, 0.08, 0.001, 3, params)
+        self._add_slider(form, "white_sep_ratio", "Separator ratio", 0.35, 0.75, 0.01, 2, params)
 
         group.setLayout(form)
         return group
 
-    def _build_general_group(self, params: dict):
-        group = QGroupBox("General")
-        form = QFormLayout()
-        self._add_checkbox(form, "type_aware_assignment", "Type-aware assignment", params)
-        group.setLayout(form)
-        return group
+    def _add_slider(self, form, key, label, min_val, max_val, step, decimals, params):
+        scale = 10 ** decimals
+        slider = QSlider(Qt.Horizontal)
+        slider.setRange(int(round(min_val * scale)), int(round(max_val * scale)))
+        slider.setSingleStep(int(round(step * scale)))
+        value = float(params.get(key, self.DEFAULT_PARAMS.get(key, min_val)))
+        slider.setValue(int(round(value * scale)))
 
-    def _add_spin(self, form, key, label, min_val, max_val, step, params):
-        spin = QSpinBox()
-        spin.setRange(min_val, max_val)
-        spin.setSingleStep(step)
-        spin.setValue(int(params.get(key, self.DEFAULT_PARAMS.get(key, min_val))))
-        install_spinbox_wheel_filter(spin)
-        spin.valueChanged.connect(self._schedule_detection)
-        form.addRow(QLabel(label), spin)
-        self._controls[key] = spin
+        value_label = QLabel()
 
-    def _add_double(self, form, key, label, min_val, max_val, step, decimals, params):
-        spin = QDoubleSpinBox()
-        spin.setRange(min_val, max_val)
-        spin.setSingleStep(step)
-        spin.setDecimals(decimals)
-        spin.setValue(float(params.get(key, self.DEFAULT_PARAMS.get(key, min_val))))
-        spin.valueChanged.connect(self._schedule_detection)
-        form.addRow(QLabel(label), spin)
-        self._controls[key] = spin
+        def update_label(val):
+            display = val / scale
+            if decimals > 0:
+                value_label.setText(f"{display:.{decimals}f}")
+            else:
+                value_label.setText(str(int(display)))
 
-    def _add_combo(self, form, key, label, items, params):
-        combo = QComboBox()
-        combo.addItems(items)
-        value = params.get(key, self.DEFAULT_PARAMS.get(key, items[0]))
-        if value in items:
-            combo.setCurrentText(value)
-        combo.currentTextChanged.connect(self._schedule_detection)
-        form.addRow(QLabel(label), combo)
-        self._controls[key] = combo
+        update_label(slider.value())
 
-    def _add_checkbox(self, form, key, label, params):
-        checkbox = QCheckBox()
-        checkbox.setChecked(bool(params.get(key, self.DEFAULT_PARAMS.get(key, False))))
-        checkbox.stateChanged.connect(self._schedule_detection)
-        form.addRow(QLabel(label), checkbox)
-        self._controls[key] = checkbox
+        slider.valueChanged.connect(update_label)
+        slider.valueChanged.connect(self._schedule_detection)
+
+        row = QWidget()
+        row_layout = QHBoxLayout()
+        row_layout.setContentsMargins(0, 0, 0, 0)
+        row_layout.addWidget(slider)
+        row_layout.addWidget(value_label)
+        row.setLayout(row_layout)
+
+        form.addRow(QLabel(label), row)
+        self._controls[key] = {
+            "slider": slider,
+            "scale": scale,
+            "decimals": decimals,
+        }
 
     def _schedule_detection(self):
         if self._suppress_updates:
@@ -210,16 +166,15 @@ class AutoDetectTuningDialog(QDialog):
         self._timer.start(200)
 
     def _gather_params(self):
-        params = {}
-        for key, widget in self._controls.items():
-            if isinstance(widget, QDoubleSpinBox):
-                params[key] = float(widget.value())
-            elif isinstance(widget, QSpinBox):
-                params[key] = int(widget.value())
-            elif isinstance(widget, QComboBox):
-                params[key] = widget.currentText()
-            elif isinstance(widget, QCheckBox):
-                params[key] = widget.isChecked()
+        params = self._base_params.copy()
+        for key, meta in self._controls.items():
+            raw = meta["slider"].value()
+            value = raw / meta["scale"]
+            if meta["decimals"] == 0:
+                value = int(value)
+            params[key] = value
+        params["black_recovery_enabled"] = True
+        params["type_aware_assignment"] = True
         block_size = params.get("black_adaptive_block_size")
         if block_size is not None and block_size % 2 == 0:
             params["black_adaptive_block_size"] = block_size + 1
@@ -263,6 +218,7 @@ class CalibrationWizard(QDialog):
         self.parent_app = parent  # Store reference to access video frame
         self.result: Optional[bool] = None # True if submitted, False/None if cancelled
         self.detected_overlays: Optional[List[OverlayConfig]] = None  # Store auto-detected overlays
+        self._pending_tuning_state: Optional[dict] = None
 
         # Set wider window size
         self.setMinimumWidth(600)  # Make window twice as wide
@@ -435,25 +391,25 @@ class CalibrationWizard(QDialog):
             
             logging.info(f"Detection successful: {detection_results['total_keys']} keys detected")
 
+            if adapter.last_successful_profile_name == "default":
+                self._apply_detection_results(detection_results, adapter, mark_unsaved=True)
+                self.result = True
+                return
+
             original_state = self._snapshot_state()
             self._apply_detection_results(detection_results, adapter, mark_unsaved=False)
 
             initial_params = adapter.last_successful_profile_params or {}
-            tuning_dialog = AutoDetectTuningDialog(
-                self,
-                adapter,
-                cropped_frame,
-                (x, y, width, height),
-                lambda results, adapt=adapter: self._apply_detection_results(results, adapt, mark_unsaved=False),
-                initial_params=initial_params,
-                initial_results=detection_results,
-            )
-            dialog_result = tuning_dialog.exec()
-            if dialog_result == QDialog.Accepted:
-                self.app_state.unsaved_changes = True
-                self.result = True
-            else:
-                self._restore_state(original_state)
+            self._pending_tuning_state = {
+                "adapter": adapter,
+                "cropped_frame": cropped_frame,
+                "keyboard_region": (x, y, width, height),
+                "initial_params": initial_params,
+                "initial_results": detection_results,
+                "original_state": original_state,
+            }
+            QTimer.singleShot(50, self._open_tuning_dialog)
+            return
             
         except Exception as e:
             logging.error(f"=== KEYBOARD DETECTION FAILED ===")
@@ -527,6 +483,7 @@ class CalibrationWizard(QDialog):
         self.app_state.unsaved_changes = snapshot["unsaved_changes"]
         self.detected_overlays = None
         self._refresh_canvas()
+        self._refresh_ui()
 
     def _refresh_canvas(self):
         if not self.parent_app or not hasattr(self.parent_app, 'keyboard_canvas'):
@@ -536,6 +493,39 @@ class CalibrationWizard(QDialog):
             canvas.display_frame(self.app_state.video.current_frame_index)
         else:
             canvas.update()
+
+    def _refresh_ui(self):
+        if not self.parent_app:
+            return
+        if hasattr(self.parent_app, "control_panel"):
+            self.parent_app.control_panel.update_controls_from_state()
+            self.parent_app.control_panel.update_trim_controls_from_state()
+            self.parent_app.control_panel.update_selected_overlay_display()
+        if hasattr(self.parent_app, "keyboard_canvas"):
+            self.parent_app.keyboard_canvas.draw_overlays()
+
+    def _open_tuning_dialog(self):
+        if not self._pending_tuning_state:
+            return
+
+        state = self._pending_tuning_state
+        self._pending_tuning_state = None
+
+        tuning_dialog = AutoDetectTuningDialog(
+            self,
+            state["adapter"],
+            state["cropped_frame"],
+            state["keyboard_region"],
+            lambda results, adapt=state["adapter"]: self._apply_detection_results(results, adapt, mark_unsaved=False),
+            initial_params=state["initial_params"],
+            initial_results=state["initial_results"],
+        )
+        dialog_result = tuning_dialog.exec()
+        if dialog_result == QDialog.Accepted:
+            self.app_state.unsaved_changes = True
+            self.result = True
+        else:
+            self._restore_state(state["original_state"])
 
     def _generate_initial_overlays(self):
         """Generates an idealized piano keyboard layout based on hardcoded stylistic constants."""

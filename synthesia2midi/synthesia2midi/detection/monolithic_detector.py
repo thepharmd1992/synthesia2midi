@@ -287,6 +287,21 @@ class MonolithicPianoDetector:
         self.logger.debug(f"  Found {len(edges)} edges: {edges[:10]}...")
         return edges
 
+    def _suppress_dense_edges(self, edges, edge_profile, min_sep_px: int):
+        """Suppress overly-dense edge candidates by keeping stronger peaks."""
+        if min_sep_px <= 1:
+            return edges
+
+        strengths = {int(e): float(edge_profile[int(e)]) for e in edges if 0 <= int(e) < len(edge_profile)}
+        ranked = sorted(strengths.items(), key=lambda kv: kv[1], reverse=True)
+
+        kept = []
+        for pos, _strength in ranked:
+            if all(abs(pos - k) >= min_sep_px for k in kept):
+                kept.append(pos)
+
+        return sorted(kept)
+
     def _fill_missing_white_edges(self, edges):
         """Fill missing edges using a spacing prior."""
         if len(edges) < self.params["white_gap_fill_min_edges"]:
@@ -336,16 +351,57 @@ class MonolithicPianoDetector:
         edges = [max(0, min(width - 1, e)) for e in edges] if width else []
         edges = sorted(set(edges))
 
+        estimated_white_keys = None
+        expected_edges = None
+        min_sep_px = None
+        try:
+            black_count = len(self.black_keys or [])
+            if black_count >= 5 and width > 0:
+                estimated_white_keys = max(1, int(round((black_count * 7) / 5)))
+                expected_edges = estimated_white_keys + 1
+                expected_white_width = width / float(estimated_white_keys)
+                min_sep_px = max(2, int(round(expected_white_width * 0.5)))
+        except Exception:
+            pass
+
         boundary_pad = self.params["edge_boundary_padding_px"]
         if not edges or edges[0] > boundary_pad:
             edges.insert(0, 0)
         if not edges or edges[-1] < width - boundary_pad:
             edges.append(width - 1)
 
+        # If we have far too many edges (common on blurry/noisy footage), suppress dense peaks.
+        if expected_edges and len(edges) > int(expected_edges * 1.5):
+            self.logger.info(
+                "White key edge suppression: edges=%d expected~%d (black=%s) min_sep=%s",
+                len(edges),
+                expected_edges,
+                len(self.black_keys or []),
+                min_sep_px,
+            )
+            fixed_boundaries = {0, max(0, width - 1)}
+            inner = [e for e in edges if e not in fixed_boundaries]
+            inner_suppressed = self._suppress_dense_edges(
+                inner,
+                edge_profile if edge_profile_x_scale == 1.0 else cv2.resize(edge_profile.reshape(1, -1), (width, 1), interpolation=cv2.INTER_LINEAR).flatten(),
+                min_sep_px or self.params["white_min_width"],
+            )
+            edges = sorted(set(list(fixed_boundaries) + inner_suppressed))
+            self.logger.info("White key edge suppression result: edges=%d", len(edges))
+
         if self.params["white_gap_fill"]:
-            before = len(edges)
-            edges = self._fill_missing_white_edges(edges)
-            self.logger.info("White key edge gap fill: edges %d -> %d", before, len(edges))
+            # Only gap-fill if edges are too sparse; if they are already dense,
+            # gap-filling will make the result worse (tiny segments that get filtered out).
+            if expected_edges and len(edges) >= expected_edges:
+                self.logger.info(
+                    "White key edge gap fill skipped (edges=%d >= expected~%d)",
+                    len(edges),
+                    expected_edges,
+                )
+            else:
+                before = len(edges)
+                edges = self._fill_missing_white_edges(edges)
+                self.logger.info("White key edge gap fill: edges %d -> %d", before, len(edges))
 
         white_keys = []
         min_key_width = self.params["white_min_width"]

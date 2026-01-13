@@ -176,6 +176,7 @@ class AutoDetectAdapter:
                         "preprocess_unsharp_amount": 1.0,
                         "preprocess_unsharp_sigma": 1.0,
                         "black_threshold_method": "adaptive",
+                        "black_detection_method": "components",
                         "black_adaptive_block_size": 25,
                         "black_adaptive_c": 7,
                         "black_column_ratio": 0.06,

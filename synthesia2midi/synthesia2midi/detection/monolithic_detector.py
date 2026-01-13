@@ -32,6 +32,7 @@ DEFAULT_DETECTION_PARAMS = {
     "preprocess_unsharp_amount": 1.0,
     "preprocess_unsharp_sigma": 1.0,
     "black_upper_ratio": 0.6,
+    "black_detection_method": "columns",  # "columns" | "components"
     "black_threshold": 70,
     "black_threshold_method": "fixed",
     "black_adaptive_block_size": 21,
@@ -40,6 +41,9 @@ DEFAULT_DETECTION_PARAMS = {
     "black_edge_column_ratio": 0.03,
     "black_min_width": 10,
     "black_max_width": 100,
+    "black_min_height_ratio": 0.4,
+    "black_max_height_ratio": 1.0,
+    "black_min_area_ratio": 0.001,
     "black_min_count_for_valid": 3,
     "black_edge_fallback": False,
     "white_bottom_ratio": 0.85,
@@ -911,12 +915,16 @@ class MonolithicPianoDetector:
         return white_keys
 
     def _detect_black_keys(self, gray_img):
-        """Detect black keys using column scanning"""
+        """Detect black keys using column scanning or connected components."""
         height, width = gray_img.shape
-        
+
         # Focus on upper portion where black keys are
         upper_ratio = self.params["black_upper_ratio"]
         upper_region = gray_img[:int(height * upper_ratio), :]
+
+        detection_method = (self.params.get("black_detection_method") or "columns").lower()
+        if detection_method == "components":
+            return self._detect_black_keys_components(upper_region)
 
         threshold_method = self.params.get("black_threshold_method", "fixed")
         self.logger.debug("Black key detection: threshold_method=%s", threshold_method)
@@ -991,6 +999,62 @@ class MonolithicPianoDetector:
                     len(edge_keys),
                     len(black_keys),
                 )
+
+        return black_keys
+
+    def _detect_black_keys_components(self, upper_region):
+        """Detect black keys using connected components on a thresholded upper band."""
+        height, width = upper_region.shape
+        threshold_method = self.params.get("black_threshold_method", "fixed")
+
+        if threshold_method == "adaptive":
+            block_size = int(self.params["black_adaptive_block_size"])
+            if block_size % 2 == 0:
+                block_size += 1
+            if block_size < 3:
+                block_size = 3
+            binary = cv2.adaptiveThreshold(
+                upper_region,
+                255,
+                cv2.ADAPTIVE_THRESH_MEAN_C,
+                cv2.THRESH_BINARY_INV,
+                block_size,
+                self.params["black_adaptive_c"],
+            )
+        elif threshold_method == "otsu" or self.params["black_threshold"] is None:
+            _, binary = cv2.threshold(
+                upper_region,
+                0,
+                255,
+                cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU,
+            )
+        else:
+            _, binary = cv2.threshold(
+                upper_region,
+                self.params["black_threshold"],
+                255,
+                cv2.THRESH_BINARY_INV,
+            )
+
+        num_labels, labels, stats, _centroids = cv2.connectedComponentsWithStats(binary, connectivity=8)
+        min_w = int(self.params["black_min_width"])
+        max_w = int(self.params["black_max_width"])
+        min_h = max(1, int(height * float(self.params.get("black_min_height_ratio", 0.4))))
+        max_h = max(1, int(height * float(self.params.get("black_max_height_ratio", 1.0))))
+        min_area = max(1, int(width * height * float(self.params.get("black_min_area_ratio", 0.001))))
+
+        black_keys = []
+        for label in range(1, num_labels):
+            x, y, w, h, area = stats[label]
+            if w < min_w or w > max_w:
+                continue
+            if h < min_h or h > max_h:
+                continue
+            if area < min_area:
+                continue
+
+            padded_overlay = self._add_overlay_padding(x, 0, w, height)
+            black_keys.append(padded_overlay)
 
         return black_keys
     

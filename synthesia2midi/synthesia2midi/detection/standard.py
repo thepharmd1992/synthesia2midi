@@ -50,7 +50,7 @@ class StandardDetection(DetectionMethod):
                     detection_threshold: float,
                     hist_ratio_threshold: float = 0.8,
                     rise_delta_threshold: float = 0.15,
-                    fall_delta_threshold: float = 0.15,
+                    fall_delta_threshold: float = 0.05,
                     use_histogram_detection: bool = False,
                     use_delta_detection: bool = True,
                     similarity_ratio: float = SIMILARITY_RATIO_DEFAULT,

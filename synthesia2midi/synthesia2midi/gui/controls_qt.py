@@ -657,7 +657,7 @@ class ControlPanelQt(QWidget):
         self.fall_delta_slider = QSlider(Qt.Horizontal)
         self.fall_delta_slider.setMaximumWidth(150)
         self.fall_delta_slider.setRange(1, 50)  # 0.01 to 0.50
-        self.fall_delta_slider.setValue(15)  # Default 0.15
+        self.fall_delta_slider.setValue(5)  # Default 0.05
         self.fall_delta_slider.valueChanged.connect(self._handle_fall_delta_change)
         self.fall_delta_slider.setEnabled(False)  # Initially disabled
         self.fall_delta_slider.setToolTip(
@@ -665,7 +665,7 @@ class ControlPanelQt(QWidget):
         )
         fall_layout.addWidget(self.fall_delta_slider)
         
-        self.fall_delta_label = QLabel("0.15")
+        self.fall_delta_label = QLabel("0.05")
         self.fall_delta_label.setMinimumWidth(40)
         self.fall_delta_label.setToolTip(
             "How big the change must be to count as a release (only used when Delta Detection is enabled)."

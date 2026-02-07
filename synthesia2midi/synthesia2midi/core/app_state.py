@@ -18,7 +18,7 @@ class DetectionConfig:
     detection_threshold: float = 0.8
     hist_ratio_threshold: float = 0.8
     rise_delta_threshold: float = 0.15
-    fall_delta_threshold: float = 0.15
+    fall_delta_threshold: float = 0.05
     
     # Detection method toggles
     use_histogram_detection: bool = False

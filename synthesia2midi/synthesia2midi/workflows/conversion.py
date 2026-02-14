@@ -180,12 +180,17 @@ class ConversionWorkflow:
                         + ". Please calibrate unlit keys before conversion."
                     )
         
-        # Validate exemplar colors are calibrated - standard mode only (4 exemplars)
-        required_exemplars = ["LW", "LB", "RW", "RB"]
+        required_exemplars = self.app_state.detection.get_required_base_exemplar_types()
+        if not required_exemplars:
+            errors.append(
+                "No exemplar key types are enabled. Enable at least one 'Present in Video' key type "
+                "in Calibration > Lit Key Exemplars."
+            )
+
         missing_exemplars = []
+        effective_exemplar_colors = self.app_state.detection.get_effective_exemplar_lit_colors()
         for exemplar in required_exemplars:
-            if (exemplar not in self.app_state.detection.exemplar_lit_colors or 
-                self.app_state.detection.exemplar_lit_colors[exemplar] is None):
+            if effective_exemplar_colors.get(exemplar) is None:
                 missing_exemplars.append(exemplar)
         
         if missing_exemplars:
@@ -193,7 +198,7 @@ class ConversionWorkflow:
                             "RW": "Right White", "RB": "Right Black"}
             missing_names = [exemplar_names[e] for e in missing_exemplars]
             errors.append(f"Missing exemplar colors: {', '.join(missing_names)}. "
-                        f"Please calibrate all exemplar colors before conversion.")
+                        f"Calibrate those key types or disable them with 'Present in Video' before conversion.")
         
         # Basic validation of critical settings
         if not 0.1 <= self.app_state.detection.detection_threshold <= 0.99:
@@ -286,6 +291,12 @@ class ConversionWorkflow:
         # Use original video session and overlays at full resolution
         video_session = self.video_session
         detection_overlays = self.app_state.overlays
+        effective_exemplar_lit_colors = self.app_state.detection.get_effective_exemplar_lit_colors()
+        effective_exemplar_lit_histograms = self.app_state.detection.get_effective_exemplar_lit_histograms()
+        effective_hand_detection_calibrated = (
+            self.app_state.detection.hand_detection_calibrated
+            and self.app_state.detection.has_enabled_left_and_right_for_hand_detection()
+        )
         
         self.logger.warning("[FRAME-PROCESS] *** USING ORIGINAL VIDEO AT FULL RESOLUTION ***")
         # Handle both VideoSession (has filepath) and ImageSequenceSession (has image_pattern)
@@ -418,8 +429,8 @@ class ConversionWorkflow:
                 pressed_key_ids = detector.detect_frame(
                     detection_frame,  # Use full resolution frame for detection
                     detection_overlays,  # Use original overlays at full resolution
-                    self.app_state.detection.exemplar_lit_colors,
-                    self.app_state.detection.exemplar_lit_histograms,
+                    effective_exemplar_lit_colors,
+                    effective_exemplar_lit_histograms,
                     self.app_state.detection.detection_threshold,
                     hist_ratio_threshold=self.app_state.detection.hist_ratio_threshold,
                     rise_delta_threshold=self.app_state.detection.rise_delta_threshold,
@@ -430,7 +441,7 @@ class ConversionWorkflow:
                     apply_black_filter=self.app_state.detection.winner_takes_black_enabled,
                     # Pass hand detection parameters for exemplar selection
                     hand_assignment_enabled=self.app_state.detection.hand_assignment_enabled,
-                    hand_detection_calibrated=self.app_state.detection.hand_detection_calibrated,
+                    hand_detection_calibrated=effective_hand_detection_calibrated,
                     left_hand_hue_mean=self.app_state.detection.left_hand_hue_mean,
                     right_hand_hue_mean=self.app_state.detection.right_hand_hue_mean,
                 )
@@ -605,9 +616,10 @@ class ConversionWorkflow:
         
         # Debug logging for hand assignment
         self.logger.warning(f"[HAND-ASSIGNMENT] Key {overlay.key_id}: current_color={current_color}")
-        self.logger.warning(f"[HAND-ASSIGNMENT] Available exemplars: {list(self.app_state.detection.exemplar_lit_colors.keys())}")
+        effective_exemplar_lit_colors = self.app_state.detection.get_effective_exemplar_lit_colors()
+        self.logger.warning(f"[HAND-ASSIGNMENT] Available exemplars: {list(effective_exemplar_lit_colors.keys())}")
         
-        for exemplar_type, exemplar_color in self.app_state.detection.exemplar_lit_colors.items():
+        for exemplar_type, exemplar_color in effective_exemplar_lit_colors.items():
             if exemplar_color is not None:
                 distance = euclidean_distance(current_color, exemplar_color)
                 self.logger.warning(f"[HAND-ASSIGNMENT] {exemplar_type}: color={exemplar_color}, distance={distance:.2f}")
@@ -722,6 +734,12 @@ class ConversionWorkflow:
                             "rh_dimmest_sparks": serialize_for_json(self.app_state.detection.spark_calibration_rh_dimmest_sparks),
                             "rh_brightest_sparks": serialize_for_json(self.app_state.detection.spark_calibration_rh_brightest_sparks)
                         }
+                    },
+                    "exemplar_key_type_enabled": {
+                        "LW": self.app_state.detection.exemplar_key_type_enabled.get("LW", True),
+                        "LB": self.app_state.detection.exemplar_key_type_enabled.get("LB", True),
+                        "RW": self.app_state.detection.exemplar_key_type_enabled.get("RW", True),
+                        "RB": self.app_state.detection.exemplar_key_type_enabled.get("RB", True)
                     },
                     "exemplar_lit_colors": {
                         "LW": serialize_for_json(self.app_state.detection.exemplar_lit_colors.get("LW")),

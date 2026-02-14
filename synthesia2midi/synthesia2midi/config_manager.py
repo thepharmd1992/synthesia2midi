@@ -238,6 +238,12 @@ class ConfigManager:
                 self.app_state.detection.hand_detection_calibrated = settings_data.getboolean('hand_detection_calibrated', self.app_state.detection.hand_detection_calibrated)
                 # Octave transpose setting
                 self.app_state.midi.octave_transpose = settings_data.getint('octave_transpose', self.app_state.midi.octave_transpose)
+                # Exemplar key-type availability (default enabled for backward compatibility)
+                exemplar_enabled = self.app_state.detection.exemplar_key_type_enabled
+                exemplar_enabled["LW"] = settings_data.getboolean('exemplar_enabled_lw', exemplar_enabled.get("LW", True))
+                exemplar_enabled["LB"] = settings_data.getboolean('exemplar_enabled_lb', exemplar_enabled.get("LB", True))
+                exemplar_enabled["RW"] = settings_data.getboolean('exemplar_enabled_rw', exemplar_enabled.get("RW", True))
+                exemplar_enabled["RB"] = settings_data.getboolean('exemplar_enabled_rb', exemplar_enabled.get("RB", True))
                 
                 # Log loaded hand detection values
                 logging.debug(f"[CONFIG-LOAD] Loaded hand detection calibration:")
@@ -512,7 +518,12 @@ class ConfigManager:
             'right_hand_hue_mean': str(self.app_state.detection.right_hand_hue_mean),
             'hand_detection_calibrated': str(self.app_state.detection.hand_detection_calibrated),
             # Octave transpose
-            'octave_transpose': str(self.app_state.midi.octave_transpose)
+            'octave_transpose': str(self.app_state.midi.octave_transpose),
+            # Exemplar key-type availability
+            'exemplar_enabled_lw': str(self.app_state.detection.exemplar_key_type_enabled.get("LW", True)),
+            'exemplar_enabled_lb': str(self.app_state.detection.exemplar_key_type_enabled.get("LB", True)),
+            'exemplar_enabled_rw': str(self.app_state.detection.exemplar_key_type_enabled.get("RW", True)),
+            'exemplar_enabled_rb': str(self.app_state.detection.exemplar_key_type_enabled.get("RB", True))
         }
         
         # Log hand detection values being saved

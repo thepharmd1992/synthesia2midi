@@ -580,12 +580,8 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
             # Start at processing start frame if set, otherwise use saved frame index
             initial_frame = self.app_state.video.processing_start_frame if self.app_state.video.processing_start_frame > 0 else self.app_state.video.current_frame_index
             self._display_frame_with_slider_update(initial_frame)
-            if self.app_state.overlays:
-                 self.control_panel.convert_button.setEnabled(True)
-                 self.control_panel.wizard_button.setEnabled(True) # Allow re-running wizard
-            else:
-                 self.control_panel.convert_button.setEnabled(False)
-                 self.control_panel.wizard_button.setEnabled(True) # Allow running wizard
+            self.control_panel.convert_button.setEnabled(self.control_panel._can_convert())
+            self.control_panel.wizard_button.setEnabled(True) # Allow running/re-running wizard
             
             # Resize window based on screen size to ensure everything is visible
             self._resize_and_position_window()
@@ -693,12 +689,8 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
             # Start at processing start frame if set, otherwise use saved frame index
             initial_frame = self.app_state.video.processing_start_frame if self.app_state.video.processing_start_frame > 0 else self.app_state.video.current_frame_index
             self._display_frame_with_slider_update(initial_frame)
-            if self.app_state.overlays:
-                 self.control_panel.convert_button.setEnabled(True)
-                 self.control_panel.wizard_button.setEnabled(True) # Allow re-running wizard
-            else:
-                 self.control_panel.convert_button.setEnabled(False)
-                 self.control_panel.wizard_button.setEnabled(True) # Allow running wizard
+            self.control_panel.convert_button.setEnabled(self.control_panel._can_convert())
+            self.control_panel.wizard_button.setEnabled(True) # Allow running/re-running wizard
             
             # Resize window based on screen size to ensure everything is visible
             self._resize_and_position_window()
@@ -959,6 +951,20 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
                 sampled_color = self.keyboard_canvas.get_average_color_for_overlay(self.keyboard_canvas.current_frame_rgb, overlay_to_sample)
                 if sampled_color:
                     key_type_to_cal = self.app_state.calibration.current_calibration_key_type
+                    if (
+                        key_type_to_cal in {"LW", "LB", "RW", "RB"}
+                        and not self.app_state.detection.exemplar_key_type_enabled.get(key_type_to_cal, True)
+                    ):
+                        logging.info(f"Skipping exemplar calibration for disabled key type {key_type_to_cal}")
+                        QMessageBox.warning(
+                            self,
+                            "Calibration Disabled",
+                            f"{key_type_to_cal} is marked as not present in this video. Re-enable 'Present in Video' first."
+                        )
+                        self.app_state.calibration.calibration_mode = None
+                        self.app_state.calibration.current_calibration_key_type = None
+                        self.control_panel.update_controls_from_state()
+                        return
                     self.app_state.detection.exemplar_lit_colors[key_type_to_cal] = sampled_color
                     logging.info(f"Calibrated exemplar lit color for {key_type_to_cal} to {sampled_color} from overlay {selected_key_id}.")
                     
@@ -1968,7 +1974,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
             self._apply_template_styles_to_overlays()
             
             
-            self.control_panel.convert_button.setEnabled(True)
+            self.control_panel.convert_button.setEnabled(self.control_panel._can_convert())
             self.keyboard_canvas.draw_overlays() # Explicitly redraw overlays
         else:
             logging.info("Wizard was cancelled or did not generate overlays. Convert button remains disabled.")
@@ -2046,9 +2052,9 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
                 if self.app_state.overlays:
                     logging.info(f"Successfully created {len(self.app_state.overlays)} overlays")
                     
-                    # Enable convert button since we have overlays
-                    self.control_panel.convert_button.setEnabled(True)
-                    logging.info("Enabled convert button")
+                    # Update convert availability using full prerequisites
+                    self.control_panel.convert_button.setEnabled(self.control_panel._can_convert())
+                    logging.info("Updated convert button availability")
                     
                     # Apply template styles to the new overlays
                     self._apply_template_styles_to_overlays()
@@ -2112,6 +2118,29 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.app_state.detection.winner_takes_black_enabled = enabled
         self.app_state.unsaved_changes = True
         logging.info(f"Black key filter (winner takes black) is now {enabled}")
+
+    def _handle_exemplar_key_type_enabled_change(self, key_type: str, enabled: bool):
+        """Handle per-key-type exemplar availability changes from the control panel."""
+        if key_type not in {"LW", "LB", "RW", "RB"}:
+            logging.warning(f"Ignoring invalid exemplar key type toggle: {key_type}")
+            return
+
+        self.app_state.detection.exemplar_key_type_enabled[key_type] = enabled
+        self.app_state.unsaved_changes = True
+        logging.info(f"Exemplar key type {key_type} availability set to {enabled}")
+
+        # If user disabled the key type currently being calibrated, cancel that calibration.
+        if (
+            not enabled
+            and self.app_state.calibration.calibration_mode == "lit_exemplar"
+            and self.app_state.calibration.current_calibration_key_type == key_type
+        ):
+            self.app_state.calibration.calibration_mode = None
+            self.app_state.calibration.current_calibration_key_type = None
+            logging.info(f"Cancelled lit exemplar calibration for disabled key type {key_type}")
+
+        if self.control_panel:
+            self.control_panel.update_controls_from_state()
     
     def _handle_hand_assignment_toggle(self, enabled: bool):
         """Toggle hand assignment mode for MIDI channel separation."""

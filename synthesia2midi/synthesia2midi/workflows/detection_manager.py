@@ -152,6 +152,8 @@ class DetectionManager:
                 detector = self._cached_detector
                 
                 # Use the unified detection interface
+                effective_exemplar_lit_colors = self.app_state.detection.get_effective_exemplar_lit_colors()
+                effective_exemplar_lit_histograms = self.app_state.detection.get_effective_exemplar_lit_histograms()
                 # Build kwargs dict to conditionally include hand detection parameters
                 kwargs = {
                     'hist_ratio_threshold': hist_thresh,
@@ -168,15 +170,19 @@ class DetectionManager:
                 # Only include hand detection parameters during conversion mode (not navigation)
                 # This improves performance during frame navigation
                 if not self._is_navigation_mode:
+                    effective_hand_detection_calibrated = (
+                        self.app_state.detection.hand_detection_calibrated
+                        and self.app_state.detection.has_enabled_left_and_right_for_hand_detection()
+                    )
                     kwargs.update({
                         'hand_assignment_enabled': self.app_state.detection.hand_assignment_enabled,
-                        'hand_detection_calibrated': self.app_state.detection.hand_detection_calibrated,
+                        'hand_detection_calibrated': effective_hand_detection_calibrated,
                         'left_hand_hue_mean': self.app_state.detection.left_hand_hue_mean,
                         'right_hand_hue_mean': self.app_state.detection.right_hand_hue_mean,
                     })
                 
                 return detector.detect_frame(
-                    frame, overlays, exemplars, exemplar_histograms, thresh,
+                    frame, overlays, effective_exemplar_lit_colors, effective_exemplar_lit_histograms, thresh,
                     **kwargs
                 )
             except Exception as e:

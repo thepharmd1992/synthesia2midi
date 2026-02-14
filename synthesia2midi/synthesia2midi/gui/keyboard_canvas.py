@@ -365,12 +365,14 @@ class KeyboardCanvas(QWidget):
                 # Use full detection parameters when live detection feedback is enabled
                 # Otherwise use lightweight detection for performance during navigation
                 use_full_detection = self.app_state.ui.live_detection_feedback
+                effective_exemplar_lit_colors = self.app_state.detection.get_effective_exemplar_lit_colors()
+                effective_exemplar_lit_histograms = self.app_state.detection.get_effective_exemplar_lit_histograms()
                 
                 pressed_key_ids_for_display = self.detect_pressed_func(
                     frame_bgr, # Pass original BGR frame
                     adjusted_overlays_for_display, # Pass overlays potentially adjusted for crop
-                    self.app_state.detection.exemplar_lit_colors,
-                    self.app_state.detection.exemplar_lit_histograms,
+                    effective_exemplar_lit_colors,
+                    effective_exemplar_lit_histograms,
                     self.app_state.detection.detection_threshold,
                     self.app_state.detection.hist_ratio_threshold,
                     self.app_state.detection.rise_delta_threshold, 
@@ -1108,7 +1110,7 @@ class KeyboardCanvas(QWidget):
             overlay=overlay,
             current_avg_rgb_color=current_avg_rgb_color,
             unlit_ref_color=overlay.unlit_reference_color,
-            exemplar_lit_colors=self.app_state.detection.exemplar_lit_colors,
+            exemplar_lit_colors=self.app_state.detection.get_effective_exemplar_lit_colors(),
             detection_threshold=self.app_state.detection.detection_threshold,
             hist_ratio_threshold=self.app_state.detection.hist_ratio_threshold,
             use_histogram_detection=False,  # Simple progression ratio doesn't use histogram
@@ -1203,7 +1205,7 @@ class KeyboardCanvas(QWidget):
             overlay=overlay,
             current_avg_rgb_color=current_avg_rgb_color,
             unlit_ref_color=unlit_ref_color,
-            exemplar_lit_colors=self.app_state.detection.exemplar_lit_colors,
+            exemplar_lit_colors=self.app_state.detection.get_effective_exemplar_lit_colors(),
             detection_threshold=self.app_state.detection.detection_threshold,
             hist_ratio_threshold=self.app_state.detection.hist_ratio_threshold,
             use_histogram_detection=self.app_state.detection.use_histogram_detection,
@@ -1328,8 +1330,8 @@ class KeyboardCanvas(QWidget):
                         pressed_key_ids = self.detect_pressed_func(
                             frame_bgr, # This should be the potentially cropped frame if crop is active
                             all_adjusted_overlays_for_fallback_detection,
-                            self.app_state.detection.exemplar_lit_colors,
-                            self.app_state.detection.exemplar_lit_histograms,
+                            self.app_state.detection.get_effective_exemplar_lit_colors(),
+                            self.app_state.detection.get_effective_exemplar_lit_histograms(),
                             self.app_state.detection.detection_threshold,
                             self.app_state.detection.hist_ratio_threshold,
                             self.app_state.detection.rise_delta_threshold,

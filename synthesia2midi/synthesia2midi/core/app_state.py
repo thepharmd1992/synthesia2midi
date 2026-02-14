@@ -3,7 +3,7 @@ Organized application state with validation and clear ownership.
 """
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, ClassVar, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -13,6 +13,7 @@ from synthesia2midi.app_config import DEFAULT_MIDI_TEMPO, FRAME_NAV_INTERVALS, O
 @dataclass
 class DetectionConfig:
     """All detection-related settings grouped together."""
+    BASE_EXEMPLAR_KEY_TYPES: ClassVar[Tuple[str, ...]] = ("LW", "LB", "RW", "RB")
     
     # Core detection parameters
     detection_threshold: float = 0.8
@@ -38,6 +39,9 @@ class DetectionConfig:
     # then "COLOR_3", "COLOR_4", etc. for additional colors
     exemplar_lit_colors: Dict[str, Optional[Tuple[int, int, int]]] = field(
         default_factory=lambda: {"LW": None, "LB": None, "RW": None, "RB": None}
+    )
+    exemplar_key_type_enabled: Dict[str, bool] = field(
+        default_factory=lambda: {"LW": True, "LB": True, "RW": True, "RB": True}
     )
     
     # Exemplar histograms for lit state detection
@@ -87,6 +91,42 @@ class DetectionConfig:
     spark_brightness_threshold: float = 0.7  # Threshold between bar-only and spark states
     spark_detection_sensitivity: float = 0.5  # Sensitivity for spark-off detection (0.0=conservative, 1.0=aggressive)
     spark_detection_confidence: float = 0.0  # Quality metric for calibration data
+    
+    def get_required_base_exemplar_types(self) -> List[str]:
+        """Return enabled base exemplar key types required for conversion."""
+        required = []
+        for key_type in self.BASE_EXEMPLAR_KEY_TYPES:
+            if self.exemplar_key_type_enabled.get(key_type, True):
+                required.append(key_type)
+        return required
+
+    def get_effective_exemplar_lit_colors(self) -> Dict[str, Optional[Tuple[int, int, int]]]:
+        """Return lit colors map with disabled base key types masked to None."""
+        effective_colors = dict(self.exemplar_lit_colors)
+        for key_type in self.BASE_EXEMPLAR_KEY_TYPES:
+            if not self.exemplar_key_type_enabled.get(key_type, True):
+                effective_colors[key_type] = None
+        return effective_colors
+
+    def get_effective_exemplar_lit_histograms(self) -> Dict[str, Optional[Any]]:
+        """Return lit histogram map with disabled base key types masked to None."""
+        effective_histograms = dict(self.exemplar_lit_histograms)
+        for key_type in self.BASE_EXEMPLAR_KEY_TYPES:
+            if not self.exemplar_key_type_enabled.get(key_type, True):
+                effective_histograms[key_type] = None
+        return effective_histograms
+
+    def has_enabled_left_and_right_for_hand_detection(self) -> bool:
+        """Return True if both left and right exemplar sides are enabled."""
+        left_enabled = (
+            self.exemplar_key_type_enabled.get("LW", True)
+            or self.exemplar_key_type_enabled.get("LB", True)
+        )
+        right_enabled = (
+            self.exemplar_key_type_enabled.get("RW", True)
+            or self.exemplar_key_type_enabled.get("RB", True)
+        )
+        return left_enabled and right_enabled
     
     
     def validate(self) -> List[str]:

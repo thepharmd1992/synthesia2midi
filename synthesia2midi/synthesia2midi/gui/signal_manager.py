@@ -85,6 +85,7 @@ class ControlSignalManager(QObject):
         # Basic calibration actions
         cp.calibrate_unlit_requested.connect(mw._handle_calibrate_unlit_all_keys)
         cp.calibrate_lit_exemplar_requested.connect(mw._handle_calibrate_lit_exemplar_key_start)
+        cp.exemplar_key_type_enabled_changed.connect(mw._handle_exemplar_key_type_enabled_change)
         cp.calibration_wizard_requested.connect(mw._invoke_calibration_wizard)
         
         # Overlay management actions

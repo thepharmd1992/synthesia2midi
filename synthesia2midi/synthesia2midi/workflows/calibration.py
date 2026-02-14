@@ -243,6 +243,14 @@ class CalibrationWorkflow:
             self._show_error("Calibration Error", f"Invalid key type: {key_type}")
             self.logger.error(f"[CALIBRATION] ERROR: Invalid key type: {key_type}. Valid types: {KEY_TYPES + ['W', 'B']} or COLOR_N_W/B")
             return
+
+        if key_type in KEY_TYPES and not self.app_state.detection.exemplar_key_type_enabled.get(key_type, True):
+            self._show_error(
+                "Calibration Error",
+                f"{key_type} is marked as not present in this video. Re-enable 'Present in Video' to calibrate it."
+            )
+            self.logger.info(f"[CALIBRATION] Skipping calibration start for disabled exemplar key type {key_type}")
+            return
         
         self.logger.debug(f"[MONO-DEBUG] Calibration workflow received key type: {key_type}")
         self.logger.debug(f"[MONO-DEBUG] Valid key types check passed")

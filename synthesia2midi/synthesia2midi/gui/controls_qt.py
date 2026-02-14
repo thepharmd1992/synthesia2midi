@@ -70,6 +70,7 @@ class ControlPanelQt(QWidget):
     # ==================== Calibration Signals ====================
     calibrate_unlit_requested = Signal()
     calibrate_lit_exemplar_requested = Signal(str)  # key_type
+    exemplar_key_type_enabled_changed = Signal(str, bool)  # key_type, enabled
     calibration_wizard_requested = Signal()
     align_white_keys_requested = Signal()
     align_black_keys_requested = Signal()
@@ -221,6 +222,7 @@ class ControlPanelQt(QWidget):
             ("3) Lit Key Exemplars: for each button you need (Left/Right x White/Black), pause on a frame "
              "where that kind of overlay is highlighted, click the button, then click that highlighted "
              "overlay in the video."),
+            "If a key type is not present in this video, uncheck its 'Present in Video' box.",
             "Octave Transpose: shifts the generated MIDI up/down by octaves."
         ]
         for line in help_lines:
@@ -252,6 +254,7 @@ class ControlPanelQt(QWidget):
         self.octave_transpose_spin = QSpinBox()
         self.octave_transpose_spin.setRange(-5, 5)
         self.octave_transpose_spin.setValue(0)
+        self.octave_transpose_spin.setFixedWidth(110)  # Increased width for value visibility at 14pt font
         self.octave_transpose_spin.valueChanged.connect(self.octave_transpose_changed.emit)
         self.octave_transpose_spin.setToolTip("Shifts the MIDI output up/down by octaves.")
         overlay_layout.addWidget(self.octave_transpose_spin)
@@ -292,21 +295,18 @@ class ControlPanelQt(QWidget):
         exemplar_label.setStyleSheet("font-weight: bold; font-size: 11pt;")
         layout.addWidget(exemplar_label)
         
-        # Create horizontal layout for exemplar buttons
-        exemplar_container = QHBoxLayout()
+        # Create vertical layout for exemplar buttons
+        exemplar_container = QVBoxLayout()
+        exemplar_container.setSpacing(10)
         
         self.exemplar_buttons = {}
         self.exemplar_swatches = {}
+        self.exemplar_presence_checkboxes = {}
         
-        # Left column container
-        left_column = QVBoxLayout()
-        left_column.setSpacing(10)
-        
-        # Left column - LW and LB
-        for key_type, label in [("LW", "Left White"), ("LB", "Left Black")]:
+        # Single column order: LW, LB, RW, RB
+        for key_type, label in [("LW", "Left White"), ("LB", "Left Black"), ("RW", "Right White"), ("RB", "Right Black")]:
             button = QPushButton(f"Calibrate {label}")
-            button.setMinimumWidth(180)
-            button.setMaximumWidth(240)
+            button.setFixedWidth(270)  # 1.5x wider than previous 180 minimum width
             button.clicked.connect(lambda checked, kt=key_type: self.calibrate_lit_exemplar_requested.emit(kt))
             button.setToolTip(
                 "Captures a pressed-overlay example for this type. "
@@ -320,51 +320,24 @@ class ControlPanelQt(QWidget):
             color_swatch.setFixedSize(20, 20)
             color_swatch.setStyleSheet("border: 1px solid black; background-color: gray;")
             self.exemplar_swatches[key_type] = color_swatch
-            
-            # Add to left column
-            button_layout = QHBoxLayout()
-            button_layout.setContentsMargins(0, 0, 0, 0)
-            button_layout.addWidget(button)
-            button_layout.addSpacing(10)  # Add spacing between button and color swatch
-            button_layout.addWidget(color_swatch)
-            left_column.addLayout(button_layout)
-        
-        # Right column container
-        right_column = QVBoxLayout()
-        right_column.setSpacing(10)
-        
-        # Right column - RW and RB
-        for key_type, label in [("RW", "Right White"), ("RB", "Right Black")]:
-            button = QPushButton(f"Calibrate {label}")
-            button.setMinimumWidth(180)
-            button.setMaximumWidth(240)
-            button.clicked.connect(lambda checked, kt=key_type: self.calibrate_lit_exemplar_requested.emit(kt))
-            button.setToolTip(
-                "Captures a pressed-overlay example for this type. "
-                "Pause on a frame where that type is highlighted, click the button, "
-                "then click that highlighted overlay."
+            presence_cb = QCheckBox("Present in Video")
+            presence_cb.setChecked(True)
+            presence_cb.setToolTip("Uncheck if this key type never appears in this video.")
+            presence_cb.toggled.connect(
+                lambda checked, kt=key_type: self._handle_exemplar_key_type_presence_toggled(kt, checked)
             )
-            self.exemplar_buttons[key_type] = button
-            
-            # Color swatch next to button
-            color_swatch = QLabel("")
-            color_swatch.setFixedSize(20, 20)
-            color_swatch.setStyleSheet("border: 1px solid black; background-color: gray;")
-            self.exemplar_swatches[key_type] = color_swatch
+            self.exemplar_presence_checkboxes[key_type] = presence_cb
             
             # Add to right column
             button_layout = QHBoxLayout()
             button_layout.setContentsMargins(0, 0, 0, 0)
             button_layout.addWidget(button)
-            button_layout.addSpacing(10)  # Add spacing between button and color swatch
+            button_layout.addSpacing(30)  # Push swatch to the right
             button_layout.addWidget(color_swatch)
-            right_column.addLayout(button_layout)
-        
-        # Add columns to container with spacing
-        exemplar_container.addLayout(left_column)
-        exemplar_container.addSpacing(50)  # 50 pixels between left and right columns
-        exemplar_container.addLayout(right_column)
-        exemplar_container.addStretch()  # Push everything to the left
+            button_layout.addSpacing(18)  # Push checkbox to the right
+            button_layout.addWidget(presence_cb)
+            button_layout.addStretch()
+            exemplar_container.addLayout(button_layout)
         
         layout.addLayout(exemplar_container)
         
@@ -1180,6 +1153,38 @@ class ControlPanelQt(QWidget):
         self.convert_button.setEnabled(False)
         self.conversion_status.setText("Converting video to MIDI...")
         self.conversion_requested.emit()
+
+    def _handle_exemplar_key_type_presence_toggled(self, key_type: str, checked: bool):
+        """Handle per-key-type exemplar availability toggle."""
+        self._update_exemplar_key_type_ui_state(key_type)
+        self.exemplar_key_type_enabled_changed.emit(key_type, checked)
+
+    def _update_exemplar_key_type_ui_state(self, key_type: str):
+        """Update button and swatch styling for one exemplar key type."""
+        button = self.exemplar_buttons.get(key_type)
+        swatch = self.exemplar_swatches.get(key_type)
+        checkbox = self.exemplar_presence_checkboxes.get(key_type)
+        if button is None or swatch is None or checkbox is None:
+            return
+
+        is_enabled = checkbox.isChecked()
+        button.setEnabled(is_enabled)
+
+        color_tuple = None
+        if hasattr(self.app_state, "detection") and hasattr(self.app_state.detection, "exemplar_lit_colors"):
+            color_tuple = self.app_state.detection.exemplar_lit_colors.get(key_type)
+
+        if not is_enabled:
+            swatch.setStyleSheet("border: 1px dashed #888; background-color: #d0d0d0;")
+            return
+
+        if color_tuple is None:
+            swatch.setStyleSheet("border: 1px solid #666; background-color: #9e9e9e;")
+            return
+
+        r, g, b = color_tuple
+        hex_color = f"#{r:02x}{g:02x}{b:02x}"
+        swatch.setStyleSheet(f"border: 1px solid black; background-color: {hex_color};")
     
     def _handle_detection_threshold_change(self, value):
         """Handle detection threshold slider change."""
@@ -1515,14 +1520,16 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
                     self.unlit_status_label.setText("Not Set")
                     self.unlit_status_label.setStyleSheet("color: #888; font-style: italic;")
             
-            # Update exemplar color swatches
+            # Update exemplar availability controls and swatches
             if hasattr(self.app_state, 'detection') and hasattr(self.app_state.detection, 'exemplar_lit_colors'):
-                for key_type, color_tuple in self.app_state.detection.exemplar_lit_colors.items():
-                    if key_type in self.exemplar_swatches and color_tuple is not None:
-                        # Convert RGB tuple to hex color
-                        r, g, b = color_tuple
-                        hex_color = f"#{r:02x}{g:02x}{b:02x}"
-                        self.exemplar_swatches[key_type].setStyleSheet(f"border: 1px solid black; background-color: {hex_color};")
+                enabled_map = getattr(self.app_state.detection, 'exemplar_key_type_enabled', {})
+                for key_type in KEY_TYPES:
+                    checkbox = self.exemplar_presence_checkboxes.get(key_type)
+                    if checkbox:
+                        old_block_state = checkbox.blockSignals(True)
+                        checkbox.setChecked(enabled_map.get(key_type, True))
+                        checkbox.blockSignals(old_block_state)
+                    self._update_exemplar_key_type_ui_state(key_type)
             
             # Update spark ROI visibility button state
             if hasattr(self.app_state, 'detection') and hasattr(self, 'spark_roi_toggle_button'):
@@ -1688,8 +1695,11 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
             if missing_hist:
                 return False
 
-        required_exemplars = ["LW", "LB", "RW", "RB"]
-        exemplar_colors = getattr(self.app_state.detection, 'exemplar_lit_colors', {})
+        required_exemplars = self.app_state.detection.get_required_base_exemplar_types()
+        if not required_exemplars:
+            return False
+
+        exemplar_colors = self.app_state.detection.get_effective_exemplar_lit_colors()
         for exemplar in required_exemplars:
             if exemplar_colors.get(exemplar) is None:
                 return False

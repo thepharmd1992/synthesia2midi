@@ -8,6 +8,7 @@ from typing import Any, Dict, Iterable, List, Mapping
 
 ACTIVE_AUTO_DETECT_PARAM_KEYS: List[str] = [
     "black_upper_ratio",
+    "black_bottom_ratio",
     "black_threshold_method",
     "black_threshold",
     "black_adaptive_block_size",
@@ -44,6 +45,7 @@ AUTO_DETECT_PARAM_CATEGORIES: List[str] = [
 
 AUTO_DETECT_PARAM_SPECS: Dict[str, Dict[str, Any]] = {
     "black_upper_ratio": {"type": "float", "min": 0.20, "max": 0.90, "step": 0.01, "category": "Black Key Detection"},
+    "black_bottom_ratio": {"type": "float", "min": 0.05, "max": 1.00, "step": 0.01, "category": "Black Key Detection"},
     "black_threshold_method": {"type": "enum", "options": ["fixed", "otsu", "adaptive"], "category": "Black Key Detection"},
     "black_threshold": {"type": "int", "min": 0, "max": 255, "step": 1, "category": "Black Key Detection"},
     "black_adaptive_block_size": {

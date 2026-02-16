@@ -6,7 +6,6 @@ Provides comprehensive piano keyboard detection functionality including:
 - Manual ROI-based key detection (requires a user-specified keyboard region)
 - Black and white key identification using computer vision
 - Musical note assignment with chromatic scanning from F# anchor
-- Edge key validation ensuring leftmost/rightmost keys are white
 - Final visualization generation with overlay annotations
 
 This detector requires manual ROI specification and focuses on accuracy
@@ -19,6 +18,7 @@ import numpy as np
 
 DEFAULT_DETECTION_PARAMS = {
     "black_upper_ratio": 0.6,
+    "black_bottom_ratio": 0.5,
     "black_threshold": 70,
     "black_threshold_method": "otsu",
     "black_adaptive_block_size": 31,
@@ -134,13 +134,20 @@ class MonolithicPianoDetector:
 
         # Focus on upper portion where black keys are
         upper_ratio = self.params["black_upper_ratio"]
+        max_bottom_ratio = float(self.params.get("black_bottom_ratio", 1.0))
+        max_bottom_ratio = max(0.05, min(1.0, max_bottom_ratio))
+        max_bottom_y = max(1, min(height, int(round(height * max_bottom_ratio))))
         strip_start = self._find_white_strip_start(gray_img)
+        fallback_bottom_y = max(1, min(height, int(round(height * upper_ratio))))
         if strip_start <= 0 or strip_start > height:
-            upper_region = gray_img[:int(height * upper_ratio), :]
+            upper_bottom_y = fallback_bottom_y
         else:
-            upper_region = gray_img[:strip_start, :]
-            if upper_region.size == 0:
-                upper_region = gray_img[:int(height * upper_ratio), :]
+            upper_bottom_y = max(1, min(height, int(strip_start)))
+        upper_bottom_y = max(1, min(upper_bottom_y, max_bottom_y))
+
+        upper_region = gray_img[:upper_bottom_y, :]
+        if upper_region.size == 0:
+            upper_region = gray_img[:max(1, min(fallback_bottom_y, max_bottom_y)), :]
 
         binary = self._threshold_black_region(upper_region)
         
@@ -330,6 +337,132 @@ class MonolithicPianoDetector:
                 runs.append((start, end))
         return runs
 
+    def _estimate_white_key_width(self, keyboard_width, candidate_widths):
+        """Estimate typical white-key width for recovery heuristics."""
+        estimates = []
+
+        if self.black_keys:
+            approx_white_count = max(7, int(round(len(self.black_keys) * 7.0 / 5.0)))
+            estimates.append(float(keyboard_width) / float(approx_white_count))
+
+        if candidate_widths:
+            sorted_widths = sorted(candidate_widths)
+            lower_count = max(1, int(len(sorted_widths) * 0.6))
+            estimates.append(float(np.median(sorted_widths[:lower_count])))
+
+        if estimates:
+            return max(8.0, min(estimates))
+
+        return max(8.0, float(keyboard_width) / 26.0)
+
+    def _find_white_valley_centers(self, col_profile, x_left, x_right, min_sep_width):
+        """Find likely separator valleys inside a white span."""
+        if x_left >= x_right:
+            return []
+
+        segment = col_profile[x_left:x_right + 1]
+        if segment.size < 4:
+            return []
+
+        hi = float(np.percentile(segment, 85))
+        lo = float(np.percentile(segment, 15))
+        dyn = hi - lo
+        if dyn < 6.0:
+            return []
+
+        valley_threshold = hi - (0.7 * dyn)
+        valley_mask = segment < valley_threshold
+        valley_runs = self._runs_from_mask(
+            valley_mask,
+            min_width=max(1, int(min_sep_width)),
+        )
+        if valley_runs:
+            return [x_left + ((a + b) // 2) for a, b in valley_runs]
+
+        # Fallback: find gentle local minima on a smoothed profile.
+        smooth_window = max(5, min(31, (segment.size // 12) | 1))
+        kernel = np.ones(smooth_window, dtype=np.float32) / float(smooth_window)
+        smoothed = np.convolve(segment.astype(np.float32), kernel, mode="same")
+        baseline = float(np.median(smoothed))
+        min_depth = max(1.0, dyn * 0.08)
+
+        minima = []
+        for i in range(1, smoothed.size - 1):
+            if smoothed[i] <= smoothed[i - 1] and smoothed[i] <= smoothed[i + 1]:
+                depth = baseline - float(smoothed[i])
+                if depth >= min_depth:
+                    minima.append((depth, x_left + i))
+
+        if not minima:
+            return []
+
+        minima.sort(reverse=True)
+        capped = minima[:12]
+        return sorted(x for _, x in capped)
+
+    def _guided_split_white_span(
+        self,
+        col_profile,
+        x_left,
+        x_right,
+        expected_width,
+        min_key_width,
+        min_sep_width,
+    ):
+        """Split oversized white spans by placing cuts on local separator valleys."""
+        initial_width = x_right - x_left + 1
+        if initial_width < min_key_width:
+            return []
+
+        split_trigger = max(
+            int(round(expected_width * 2.2)),
+            int(min_key_width * 2),
+        )
+        if initial_width <= split_trigger:
+            return [(x_left, x_right)]
+
+        spans = [(x_left, x_right)]
+        max_iterations = 12
+
+        for _ in range(max_iterations):
+            widths = [b - a + 1 for a, b in spans]
+            max_index = int(np.argmax(widths))
+            span_left, span_right = spans[max_index]
+            span_width = span_right - span_left + 1
+
+            if span_width <= split_trigger:
+                break
+
+            margin = max(min_key_width, int(round(expected_width * 0.55)))
+            valleys = self._find_white_valley_centers(
+                col_profile,
+                span_left,
+                span_right,
+                min_sep_width,
+            )
+            valleys = [
+                v for v in valleys
+                if (v - span_left) >= margin and (span_right - v) >= margin
+            ]
+            if not valleys:
+                break
+
+            midpoint = (span_left + span_right) // 2
+            split_x = min(valleys, key=lambda v: abs(v - midpoint))
+
+            left_span = (span_left, split_x)
+            right_span = (split_x + 1, span_right)
+            if (
+                (left_span[1] - left_span[0] + 1) < min_key_width
+                or (right_span[1] - right_span[0] + 1) < min_key_width
+            ):
+                break
+
+            spans[max_index:max_index + 1] = [left_span, right_span]
+
+        spans.sort(key=lambda span: span[0])
+        return spans
+
     def _detect_white_keys(self, gray_img):
         """Detect white keys by finding vertical separations"""
         height, width = gray_img.shape
@@ -341,25 +474,54 @@ class MonolithicPianoDetector:
 
         col_med = np.median(strip, axis=0).astype(np.float32)
         col_med_u8 = np.clip(col_med, 0, 255).astype(np.uint8)
-        white_level = float(np.percentile(col_med, 90))
-        dark_level = float(np.percentile(col_med, 10))
+
+        # Ignore extreme edge columns for global separator stats.
+        edge_trim = max(4, int(round(width * 0.02)))
+        if width - (2 * edge_trim) < 40:
+            edge_trim = 0
+
+        if edge_trim > 0:
+            stats_col_med = col_med[edge_trim:width - edge_trim]
+            stats_col_med_u8 = col_med_u8[edge_trim:width - edge_trim]
+        else:
+            stats_col_med = col_med
+            stats_col_med_u8 = col_med_u8
+
+        white_level = float(np.percentile(stats_col_med, 90))
+        dark_level = float(np.percentile(stats_col_med, 10))
         dyn = white_level - dark_level
 
         sep_cols = None
         dyn_min = float(self.params.get("white_sep_dyn_min", 8))
+        otsu_threshold = None
+        if stats_col_med_u8.size >= 2:
+            otsu_threshold, _ = cv2.threshold(
+                stats_col_med_u8.reshape(1, -1),
+                0,
+                255,
+                cv2.THRESH_BINARY + cv2.THRESH_OTSU,
+            )
+            otsu_threshold = float(otsu_threshold)
+        elif col_med_u8.size >= 2:
+            otsu_threshold, _ = cv2.threshold(
+                col_med_u8.reshape(1, -1),
+                0,
+                255,
+                cv2.THRESH_BINARY + cv2.THRESH_OTSU,
+            )
+            otsu_threshold = float(otsu_threshold)
+
         if dyn >= dyn_min:
             ratio = float(self.params.get("white_sep_ratio", 0.55))
             thresh = white_level - (ratio * dyn)
             sep_cols = col_med < thresh
         else:
-            _, mask = cv2.threshold(
-                col_med_u8.reshape(1, -1),
-                0,
-                255,
-                cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU,
-            )
-            sep_cols = (mask.flatten() > 0)
+            if otsu_threshold is None:
+                sep_cols = (col_med < np.median(col_med))
+            else:
+                sep_cols = (col_med < otsu_threshold)
 
+        raw_sep_cols = sep_cols.copy()
         close_k = int(self.params.get("white_sep_close_kernel", 5))
         if close_k > 1:
             sep_u8 = (sep_cols.astype(np.uint8) * 255).reshape(1, -1)
@@ -383,14 +545,28 @@ class MonolithicPianoDetector:
         min_sep_width = int(self.params.get("white_sep_min_width", 2))
         runs = self._runs_from_mask(sep_cols, min_width=min_sep_width)
 
+        # If morphology over-merged separators, retry with a gentler pass.
+        if len(runs) < 8:
+            relaxed_sep_cols = raw_sep_cols.copy()
+            relaxed_close_k = min(close_k, 3)
+            if relaxed_close_k > 1:
+                relaxed_u8 = (relaxed_sep_cols.astype(np.uint8) * 255).reshape(1, -1)
+                relaxed_u8 = cv2.morphologyEx(
+                    relaxed_u8,
+                    cv2.MORPH_CLOSE,
+                    np.ones((1, relaxed_close_k), np.uint8),
+                )
+                relaxed_sep_cols = (relaxed_u8.flatten() > 0)
+            relaxed_runs = self._runs_from_mask(relaxed_sep_cols, min_width=min_sep_width)
+            if len(relaxed_runs) > len(runs):
+                sep_cols = relaxed_sep_cols
+                runs = relaxed_runs
+
         if len(runs) < 5:
-            _, mask = cv2.threshold(
-                col_med_u8.reshape(1, -1),
-                0,
-                255,
-                cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU,
-            )
-            sep_cols = (mask.flatten() > 0)
+            if otsu_threshold is None:
+                sep_cols = (col_med < np.median(col_med))
+            else:
+                sep_cols = (col_med < otsu_threshold)
             if close_k > 1:
                 sep_u8 = (sep_cols.astype(np.uint8) * 255).reshape(1, -1)
                 sep_u8 = cv2.morphologyEx(
@@ -412,26 +588,51 @@ class MonolithicPianoDetector:
         else:
             min_key_width = max(6, int(width / 150))
 
-        white_keys = []
+        candidate_spans = []
         walls = [(-1, -1)] + runs + [(width, width)]
         for i in range(len(walls) - 1):
             x_left = walls[i][1] + 1
             x_right = walls[i + 1][0] - 1
             key_width = x_right - x_left + 1
             if key_width >= min_key_width:
-                y_top = max(
-                    strip_start,
-                    int(height * self.params.get("white_initial_top_ratio", 0.7)),
-                )
-                y_bottom = height - 1
-                key_height = y_bottom - y_top + 1
-                padded_overlay = self._add_overlay_padding(
-                    x_left,
-                    y_top,
-                    key_width,
-                    key_height,
-                )
-                white_keys.append(padded_overlay)
+                candidate_spans.append((x_left, x_right))
+
+        expected_width = self._estimate_white_key_width(
+            width,
+            [x_right - x_left + 1 for x_left, x_right in candidate_spans],
+        )
+
+        white_spans = []
+        for x_left, x_right in candidate_spans:
+            split_spans = self._guided_split_white_span(
+                col_med,
+                x_left,
+                x_right,
+                expected_width,
+                min_key_width,
+                min_sep_width,
+            )
+            if split_spans:
+                white_spans.extend(split_spans)
+
+        white_keys = []
+        y_top = max(
+            strip_start,
+            int(height * self.params.get("white_initial_top_ratio", 0.7)),
+        )
+        y_bottom = height - 1
+        key_height = y_bottom - y_top + 1
+        for x_left, x_right in white_spans:
+            key_width = x_right - x_left + 1
+            if key_width < min_key_width:
+                continue
+            padded_overlay = self._add_overlay_padding(
+                x_left,
+                y_top,
+                key_width,
+                key_height,
+            )
+            white_keys.append(padded_overlay)
 
         return white_keys
     
@@ -500,72 +701,8 @@ class MonolithicPianoDetector:
             for i, (center_x, note_info) in enumerate(sorted_notes[:10]):
                 self.logger.debug(f"  Key {i}: center_x={center_x}, note={note_info['note']}, type={note_info['type']}")
         
-        # UNIVERSAL VALIDATION: Leftmost and rightmost keys must ALWAYS be white
-        self._validate_edge_keys()
-        
         self.logger.debug(f"Assigned notes to {len(self.key_notes)} keys")
         return self.key_notes
-    
-    def _validate_edge_keys(self):
-        """Validate and enforce absolute rule: leftmost and rightmost keys must be white"""
-        if not self.key_notes:
-            return
-        
-        # Get leftmost and rightmost keys
-        sorted_positions = sorted(self.key_notes.keys())
-        leftmost_pos = sorted_positions[0]
-        rightmost_pos = sorted_positions[-1]
-        
-        leftmost_key = self.key_notes[leftmost_pos]
-        rightmost_key = self.key_notes[rightmost_pos]
-        
-        self.logger.debug(f"\n=== EDGE KEY VALIDATION & ENFORCEMENT ===")
-        self.logger.debug(f"Leftmost key: {leftmost_key['note']} (type: {leftmost_key['type']})")
-        self.logger.debug(f"Rightmost key: {rightmost_key['note']} (type: {rightmost_key['type']})")
-        
-        # ABSOLUTE RULE ENFORCEMENT: Remove black keys from edges
-        keys_removed = False
-        
-        self.logger.debug(f"DEBUG: All keys before edge validation ({len(sorted_positions)} total):")
-        for i, pos in enumerate(sorted_positions[:10]):  # Show first 10
-            key_info = self.key_notes[pos]
-            self.logger.debug(f"  Position {i}: center_x={pos}, note={key_info['note']}, type={key_info['type']}")
-        
-        # Remove leftmost keys until we find a white key
-        while sorted_positions and self.key_notes[sorted_positions[0]]['type'] != 'white':
-            removed_pos = sorted_positions.pop(0)
-            removed_key = self.key_notes.pop(removed_pos)
-            self.logger.debug(f"🔧 REMOVED leftmost black key: {removed_key['note']} at position {removed_pos}")
-            keys_removed = True
-        
-        # Remove rightmost keys until we find a white key
-        while sorted_positions and self.key_notes[sorted_positions[-1]]['type'] != 'white':
-            removed_pos = sorted_positions.pop(-1)
-            removed_key = self.key_notes.pop(removed_pos)
-            self.logger.debug(f"🔧 REMOVED rightmost black key: {removed_key['note']} at position {removed_pos}")
-            keys_removed = True
-        
-        if keys_removed:
-            self.logger.debug(f"✅ ABSOLUTE RULE ENFORCED: Removed edge black keys to ensure white keys at boundaries")
-            
-            # Update leftmost and rightmost after removal
-            if sorted_positions:
-                leftmost_key = self.key_notes[sorted_positions[0]]
-                rightmost_key = self.key_notes[sorted_positions[-1]]
-                self.logger.debug(f"NEW Leftmost key: {leftmost_key['note']} (type: {leftmost_key['type']})")
-                self.logger.debug(f"NEW Rightmost key: {rightmost_key['note']} (type: {rightmost_key['type']})")
-        
-        # Final validation
-        if sorted_positions:
-            final_leftmost = self.key_notes[sorted_positions[0]]
-            final_rightmost = self.key_notes[sorted_positions[-1]]
-            
-            if final_leftmost['type'] == 'white' and final_rightmost['type'] == 'white':
-                self.logger.debug("✅ ABSOLUTE RULE SATISFIED: Both leftmost and rightmost are white keys")
-            else:
-                self.logger.debug("❌ ABSOLUTE RULE VIOLATION: Could not ensure white edge keys")
-        else:
-            self.logger.debug("❌ ERROR: No keys remaining after edge removal")
     
     def _find_confident_f_sharp_anchor(self):
         """Find F# anchor by locating confident LSSL pattern (3-black-key group)"""
@@ -821,28 +958,15 @@ class MonolithicPianoDetector:
         # F# is the 3rd black key in the pattern (index 2)
         pattern_position = 2  # F# position in pattern
         
-        # Estimate octave based on position with edge key adjustment
+        # Estimate octave based on anchor position in black-key groups
         base_octave = max(0, (f_sharp_idx - pattern_position) // 5)
-        
-        # Check if leftmost key would be black with current octave
-        leftmost_pattern_idx = (0 - f_sharp_idx + pattern_position) % 5
-        leftmost_note = black_key_pattern[leftmost_pattern_idx]
-        
-        # If leftmost key would be C# or D#, we need to start with a white key instead
-        # Adjust octave to ensure leftmost key is white (universal piano rule)
-        if leftmost_note in ['C#', 'D#'] and base_octave == 0:
-            # If we would start with C#0 or D#0, adjust so we start with C0 instead
-            estimated_octave = 0  # Keep same octave but notes will be shifted appropriately
-            self.logger.debug(f"Adjusted octave calculation: leftmost would be {leftmost_note}{base_octave}, ensuring white key start")
-        else:
-            estimated_octave = base_octave
         
         for i, black_key in enumerate(self.black_keys):
             # Calculate pattern index
             pattern_idx = (i - f_sharp_idx + pattern_position) % 5
             
             # Calculate octave
-            octave = estimated_octave + ((i - f_sharp_idx + pattern_position) // 5)
+            octave = base_octave + ((i - f_sharp_idx + pattern_position) // 5)
             
             # Get note name
             note_name = black_key_pattern[pattern_idx]

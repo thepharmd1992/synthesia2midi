@@ -356,46 +356,15 @@ class AutoDetectAdapter:
             
             new_overlays.append(overlay)
         
-        # Post-process: Adjust octaves so leftmost key is appropriate for piano type
+        # Preserve detector-assigned octaves. ROI-based auto-detect may begin mid-keyboard,
+        # so leftmost-note rebasing can introduce labeling drift.
         if new_overlays:
-            # Find the leftmost overlay
             leftmost = min(new_overlays, key=lambda o: o.x)
-            num_keys = len(new_overlays)
-            
-            # Determine target starting note based on number of keys
-            # 88-key piano: A0 to C8
-            # 76-key piano: E0 to G7  
-            # 61-key piano: C1 to C6
-            # But for simplicity, if we detect A as leftmost, assume it should be A0
-            
-            # Calculate octave adjustment needed
-            if leftmost.note_name_in_octave == "A":
-                # For pianos starting with A, use A0 as the target
-                octave_adjustment = 0 - leftmost.note_octave
-            elif leftmost.note_name_in_octave in ["A♯", "A#"]:
-                # If leftmost is A#, then A would be in the previous octave
-                octave_adjustment = -1 - leftmost.note_octave
-            elif leftmost.note_name_in_octave == "B":
-                # If leftmost is B, then A would be in the same octave  
-                octave_adjustment = 0 - leftmost.note_octave
-            elif leftmost.note_name_in_octave == "C":
-                # For pianos starting with C
-                if num_keys <= 61:
-                    # 61-key piano starts at C1
-                    octave_adjustment = 1 - leftmost.note_octave
-                else:
-                    # Larger pianos with C as leftmost, keep as is
-                    octave_adjustment = 0
-            else:
-                # For other starting notes, try to make a reasonable guess
-                self.logger.warning(f"Unexpected leftmost note: {leftmost.note_name_in_octave}")
-                octave_adjustment = 0
-            
-            # Apply adjustment to all overlays
-            if octave_adjustment != 0:
-                self.logger.info(f"Adjusting all octaves by {octave_adjustment} (leftmost: {leftmost.note_name_in_octave}{leftmost.note_octave} -> {leftmost.note_name_in_octave}{leftmost.note_octave + octave_adjustment})")
-                for overlay in new_overlays:
-                    overlay.note_octave += octave_adjustment
+            self.logger.debug(
+                "Skipping octave rebasing for ROI detection (leftmost=%s%d)",
+                leftmost.note_name_in_octave,
+                leftmost.note_octave,
+            )
         
         self.logger.info(f"Created {len(new_overlays)} overlays from detection results")
         return new_overlays

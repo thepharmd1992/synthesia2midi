@@ -605,17 +605,24 @@ class CanvasInteraction(QObject):
                 
                 self.logger.info(f"=== EMITTING KEYBOARD REGION SIGNAL ===")
                 self.logger.info(f"Final region: x={x}, y={y}, width={width}, height={height}")
-                
+
+                # Clean up selection visuals BEFORE emitting. The connected handler may open
+                # a modal dialog, and synchronous signal delivery would otherwise keep the
+                # rubber-band visible until that dialog closes.
+                self.logger.info("Exiting keyboard region selection mode before signal emission")
+                self.exit_keyboard_region_selection_mode()
+
                 # Emit signal with selected region
                 self.keyboard_region_selected.emit(x, y, width, height)
                 self.logger.info("Signal emitted successfully")
             else:
                 self.logger.warning("Failed to convert keyboard region selection to image coordinates")
                 self.logger.warning(f"coord_manager dimensions: image={self.coord_manager.image_width}x{self.coord_manager.image_height}")
-            
-            # Clean up and exit keyboard region selection mode
-            self.logger.info("Exiting keyboard region selection mode")
-            self.exit_keyboard_region_selection_mode()
+
+            # Ensure selection mode is exited even if coordinate conversion failed.
+            if self._keyboard_region_selection_mode or self._keyboard_region_selecting:
+                self.logger.info("Exiting keyboard region selection mode")
+                self.exit_keyboard_region_selection_mode()
         else:
             self.logger.debug(f"Ignoring release: selecting={self._keyboard_region_selecting}, button={event.button()}")
 

@@ -9,12 +9,62 @@ import logging
 import os
 import tempfile
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import cv2
 import numpy as np
 
 from synthesia2midi.app_config import NOTE_NAMES_SHARP, OverlayConfig
+from synthesia2midi.detection.auto_detect_param_specs import coerce_auto_detect_params
+
+
+BUILTIN_DETECTION_PROFILES = [
+    {"name": "default", "params": {}},
+    {
+        "name": "lenient_1",
+        "params": {
+            "type_aware_assignment": True,
+            "black_recovery_enabled": True,
+            "black_recovery_ratio": 0.5,
+            "black_recovery_column_ratio_scale": 0.45,
+            "black_threshold_method": "adaptive",
+            "black_adaptive_block_size": 31,
+            "black_adaptive_c": 5,
+            "black_threshold": 60,
+            "black_column_ratio": 0.05,
+            "black_min_width": 6,
+            "black_max_width": 120,
+            "white_strip_dark_threshold": 75,
+            "white_strip_dark_fraction": 0.03,
+            "white_sep_min_width": 1,
+            "white_edge_std_factor": 1.6,
+            "white_min_width": 12,
+        },
+    },
+    {
+        "name": "lenient_2",
+        "params": {
+            "type_aware_assignment": True,
+            "black_recovery_enabled": True,
+            "black_recovery_ratio": 0.5,
+            "black_recovery_column_ratio_scale": 0.45,
+            "black_threshold_method": "otsu",
+            "black_threshold": 50,
+            "black_column_ratio": 0.04,
+            "black_min_width": 5,
+            "black_max_width": 140,
+            "white_strip_dark_threshold": 85,
+            "white_strip_dark_fraction": 0.04,
+            "white_sep_ratio": 0.50,
+            "white_sep_close_kernel": 7,
+            "white_sep_min_width": 1,
+            "white_edge_std_factor": 1.4,
+            "white_min_width": 10,
+            "white_initial_top_ratio": 0.8,
+            "white_initial_height_ratio": 0.35,
+        },
+    },
+]
 
 
 @dataclass
@@ -45,13 +95,21 @@ class AutoDetectAdapter:
         self._temp_image_path = None
         self.last_failure_reason: Optional[str] = None
     
-    def detect_from_frame(self, frame: np.ndarray, keyboard_region: Optional[Tuple[int, int, int, int]] = None) -> Optional[Dict]:
+    def detect_from_frame(
+        self,
+        frame: np.ndarray,
+        keyboard_region: Optional[Tuple[int, int, int, int]] = None,
+        tuning_params: Optional[Dict[str, Any]] = None,
+        use_profile_fallback: bool = True,
+    ) -> Optional[Dict]:
         """
         Run auto-detection on a video frame.
         
         Args:
             frame: Video frame as numpy array (RGB format)
             keyboard_region: Optional manual keyboard region (x, y, width, height)
+            tuning_params: Optional tuned monolithic detector parameters
+            use_profile_fallback: Whether built-in profile fallback attempts are allowed
             
         Returns:
             Dictionary with detection results or None if detection fails:
@@ -106,58 +164,14 @@ class AutoDetectAdapter:
             
             self.last_failure_reason = None
             cropped_region = (top_y, bottom_y, left_x, right_x)
-
-            detection_profiles = [
-                {"name": "default", "params": {}},
-                {
-                    "name": "lenient_1",
-                    "params": {
-                        "type_aware_assignment": True,
-                        "black_recovery_enabled": True,
-                        "black_recovery_ratio": 0.5,
-                        "black_recovery_column_ratio_scale": 0.45,
-                        "black_threshold_method": "adaptive",
-                        "black_adaptive_block_size": 31,
-                        "black_adaptive_c": 5,
-                        "black_threshold": 60,
-                        "black_column_ratio": 0.05,
-                        "black_min_width": 6,
-                        "black_max_width": 120,
-                        "white_strip_dark_threshold": 75,
-                        "white_strip_dark_fraction": 0.03,
-                        "white_sep_min_width": 1,
-                        "white_edge_std_factor": 1.6,
-                        "white_min_width": 12,
-                    },
-                },
-                {
-                    "name": "lenient_2",
-                    "params": {
-                        "type_aware_assignment": True,
-                        "black_recovery_enabled": True,
-                        "black_recovery_ratio": 0.5,
-                        "black_recovery_column_ratio_scale": 0.45,
-                        "black_threshold_method": "otsu",
-                        "black_threshold": 50,
-                        "black_column_ratio": 0.04,
-                        "black_min_width": 5,
-                        "black_max_width": 140,
-                        "white_strip_dark_threshold": 85,
-                        "white_strip_dark_fraction": 0.04,
-                        "white_sep_ratio": 0.50,
-                        "white_sep_close_kernel": 7,
-                        "white_sep_min_width": 1,
-                        "white_edge_std_factor": 1.4,
-                        "white_min_width": 10,
-                        "white_initial_top_ratio": 0.8,
-                        "white_initial_height_ratio": 0.35,
-                    },
-                },
-            ]
+            detection_profiles = self._get_detection_profiles(
+                tuning_params=tuning_params,
+                use_profile_fallback=use_profile_fallback,
+            )
 
             last_error: Optional[Exception] = None
 
-            for profile in detection_profiles:
+            for attempt_index, profile in enumerate(detection_profiles):
                 try:
                     self.logger.info(f"Attempting detection with profile: {profile['name']}")
                     self._detector = MonolithicPianoDetector(
@@ -169,7 +183,7 @@ class AutoDetectAdapter:
                     self.logger.info(f"Initialized detector with keyboard region: {cropped_region}")
 
                     num_black, num_white = self._detector.detect_keys()
-                    total_keys = num_black + num_white
+                    total_keys_raw = num_black + num_white
                     self.logger.info(f"[{profile['name']}] Detected {num_white} white keys, {num_black} black keys")
 
                     key_notes = self._detector.assign_notes()
@@ -178,16 +192,27 @@ class AutoDetectAdapter:
 
                     conversion_region = detector_region
                     detected_keys = self._convert_detector_results(key_notes, conversion_region)
+                    detected_white_count = sum(1 for key in detected_keys if key.key_type == "white")
+                    detected_black_count = sum(1 for key in detected_keys if key.key_type == "black")
+                    total_keys = len(detected_keys)
 
                     leftmost_note, leftmost_octave = self._get_leftmost_note_info(detected_keys)
 
-                    self.logger.info(f"[{profile['name']}] Detection complete: {total_keys} keys, leftmost: {leftmost_note}{leftmost_octave}")
+                    self.logger.info(
+                        f"[{profile['name']}] Detection complete: {total_keys} keys (raw={total_keys_raw}), "
+                        f"leftmost: {leftmost_note}{leftmost_octave}"
+                    )
                     return {
                         'total_keys': total_keys,
                         'leftmost_note': leftmost_note,
                         'leftmost_octave': leftmost_octave,
                         'detected_keys': detected_keys,
-                        'keyboard_region': detector_region
+                        'keyboard_region': detector_region,
+                        'detected_white_count': detected_white_count,
+                        'detected_black_count': detected_black_count,
+                        'profile_name': profile['name'],
+                        'fallback_used': attempt_index > 0,
+                        'used_tuning_params': bool(profile.get('uses_tuning_params', False)),
                     }
                 except Exception as e:
                     last_error = e
@@ -207,6 +232,44 @@ class AutoDetectAdapter:
             return None
         finally:
             self._cleanup_temp_file()
+
+    def _get_detection_profiles(
+        self,
+        *,
+        tuning_params: Optional[Dict[str, Any]],
+        use_profile_fallback: bool,
+    ) -> List[Dict[str, Any]]:
+        profiles: List[Dict[str, Any]] = []
+
+        if tuning_params is not None:
+            profiles.append(
+                {
+                    "name": "tuned",
+                    "params": coerce_auto_detect_params(tuning_params),
+                    "uses_tuning_params": True,
+                }
+            )
+
+        if use_profile_fallback:
+            profiles.extend(
+                {
+                    "name": profile["name"],
+                    "params": dict(profile["params"]),
+                    "uses_tuning_params": False,
+                }
+                for profile in BUILTIN_DETECTION_PROFILES
+            )
+        elif not profiles:
+            default_profile = BUILTIN_DETECTION_PROFILES[0]
+            profiles.append(
+                {
+                    "name": default_profile["name"],
+                    "params": dict(default_profile["params"]),
+                    "uses_tuning_params": False,
+                }
+            )
+
+        return profiles
 
     def create_overlays_from_detection(self, detection_results: Dict, 
                                      existing_overlays: List[OverlayConfig]) -> List[OverlayConfig]:

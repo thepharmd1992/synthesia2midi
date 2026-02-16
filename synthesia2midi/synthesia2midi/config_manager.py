@@ -23,6 +23,10 @@ import numpy as np
 
 from synthesia2midi.app_config import NOTE_NAMES_SHARP, OverlayConfig
 from synthesia2midi.core.app_state import AppState
+from synthesia2midi.detection.auto_detect_param_specs import (
+    ACTIVE_AUTO_DETECT_PARAM_KEYS,
+    coerce_auto_detect_params,
+)
 
 
 class ConfigManager:
@@ -244,6 +248,13 @@ class ConfigManager:
                 exemplar_enabled["LB"] = settings_data.getboolean('exemplar_enabled_lb', exemplar_enabled.get("LB", True))
                 exemplar_enabled["RW"] = settings_data.getboolean('exemplar_enabled_rw', exemplar_enabled.get("RW", True))
                 exemplar_enabled["RB"] = settings_data.getboolean('exemplar_enabled_rb', exemplar_enabled.get("RB", True))
+
+                auto_detect_loaded = {}
+                for param_key in ACTIVE_AUTO_DETECT_PARAM_KEYS:
+                    settings_key = f"autodetect_{param_key}"
+                    if settings_key in settings_data:
+                        auto_detect_loaded[param_key] = settings_data.get(settings_key)
+                self.app_state.calibration.auto_detect_params = coerce_auto_detect_params(auto_detect_loaded)
                 
                 # Log loaded hand detection values
                 logging.debug(f"[CONFIG-LOAD] Loaded hand detection calibration:")
@@ -525,6 +536,11 @@ class ConfigManager:
             'exemplar_enabled_rw': str(self.app_state.detection.exemplar_key_type_enabled.get("RW", True)),
             'exemplar_enabled_rb': str(self.app_state.detection.exemplar_key_type_enabled.get("RB", True))
         }
+
+        normalized_auto_detect_params = coerce_auto_detect_params(self.app_state.calibration.auto_detect_params)
+        self.app_state.calibration.auto_detect_params = normalized_auto_detect_params
+        for param_key, param_value in normalized_auto_detect_params.items():
+            config['Settings'][f"autodetect_{param_key}"] = str(param_value)
         
         # Log hand detection values being saved
         logging.debug(f"[CONFIG-SAVE] Saving hand detection calibration:")

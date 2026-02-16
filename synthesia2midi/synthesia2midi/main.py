@@ -23,7 +23,7 @@ import logging
 import os
 import subprocess
 import sys
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import cv2  # For HSV color space conversion
 import numpy as np  # For image data
@@ -48,6 +48,7 @@ from synthesia2midi.detection.roi_utils import get_hist_feature
 from synthesia2midi.gui.controls_qt import ControlPanelQt, KEY_TYPES
 from synthesia2midi.gui.display_manager import DisplayManager
 from synthesia2midi.gui.keyboard_canvas import KeyboardCanvas
+from synthesia2midi.gui.auto_detect_tuning_dialog import AutoDetectTuningDialog
 from synthesia2midi.gui.signal_manager import ControlSignalManager
 from synthesia2midi.gui.startup_dialog import StartupDialog
 from synthesia2midi.gui.youtube_download_dialog import YouTubeDownloadDialog
@@ -2037,65 +2038,105 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         # Reset cursor
         self.keyboard_canvas.setCursor(Qt.ArrowCursor)
         logging.debug("Reset cursor to arrow")
-        
-        # Call the wizard's handler if it exists
-        if self.calibration_wizard:
-            logging.info(f"Calibration wizard exists, calling handle_keyboard_region_selected")
-            try:
-                self.calibration_wizard.handle_keyboard_region_selected(x, y, width, height)
-                logging.info("Successfully called wizard's keyboard region handler")
-                
-                # Force canvas refresh to show the new overlays
-                logging.info("Forcing canvas refresh to display new overlays")
-                
-                # Check if overlays were created successfully
-                if self.app_state.overlays:
-                    logging.info(f"Successfully created {len(self.app_state.overlays)} overlays")
-                    
-                    # Update convert availability using full prerequisites
-                    self.control_panel.convert_button.setEnabled(self.control_panel._can_convert())
-                    logging.info("Updated convert button availability")
-                    
-                    # Apply template styles to the new overlays
-                    self._apply_template_styles_to_overlays()
-                    logging.info("Applied template styles to overlays")
-                    
-                    # Ensure overlays are visible
-                    self.app_state.ui.show_overlays = True
-                    self.show_overlays_action.setChecked(True)
-                    logging.info("Ensured show_overlays is True")
-                    
-                    # Cleanup the wizard instance
-                    self.calibration_wizard = None
-                    logging.info("Cleaned up calibration wizard instance")
-                
-                # Update canvas to show overlays
-                if self.keyboard_canvas:
-                    # Force immediate full canvas update
-                    logging.info("Forcing immediate full canvas update")
-                    self.keyboard_canvas.update()  # Schedule full repaint
-                    
-                    # Use QTimer to do a second update with display_frame
-                    def delayed_full_redraw():
-                        current_frame = self.app_state.video.current_frame_index
-                        if current_frame is not None:
-                            logging.info(f"Delayed full redraw: Redisplaying frame {current_frame} with overlays")
-                            # Call display_frame which recreates the base pixmap
-                            self.keyboard_canvas.display_frame(current_frame)
-                    
-                    # Schedule full redraw after 100ms to ensure UI has settled
-                    from PySide6.QtCore import QTimer
-                    QTimer.singleShot(100, delayed_full_redraw)
-                    logging.info("Scheduled delayed full redraw")
-            except Exception as e:
-                logging.error(f"Error calling wizard's keyboard region handler: {e}", exc_info=True)
-        else:
+
+        if not self.calibration_wizard:
             logging.error("No calibration wizard available to handle keyboard region selection")
             logging.error(f"calibration_wizard is: {self.calibration_wizard}")
-        
+            return
+
+        logging.info("Calibration wizard exists, calling handle_keyboard_region_selected")
+        try:
+            detection_success = self.calibration_wizard.handle_keyboard_region_selected(x, y, width, height)
+            if detection_success and self.app_state.overlays:
+                logging.info(f"Successfully created {len(self.app_state.overlays)} overlays")
+
+                self._apply_template_styles_to_overlays()
+                self.app_state.ui.show_overlays = True
+                self.show_overlays_action.setChecked(True)
+                self.control_panel.convert_button.setEnabled(self.control_panel._can_convert())
+
+                current_frame = self.app_state.video.current_frame_index
+                if current_frame is not None:
+                    self.keyboard_canvas.display_frame(current_frame)
+                else:
+                    self.keyboard_canvas.update()
+
+                self._open_auto_detect_tuning_dialog()
+            else:
+                logging.info("Auto-detect did not produce overlays; skipping tuning dialog")
+
+            # Cleanup wizard after auto-detect flow (including tuning dialog) finishes.
+            self.calibration_wizard = None
+            logging.info("Cleaned up calibration wizard instance")
+        except Exception as e:
+            logging.error(f"Error calling wizard's keyboard region handler: {e}", exc_info=True)
+
         self.control_panel.update_controls_from_state() # Reflect any changes
         self.control_panel.update_trim_controls_from_state() # Update frame range controls
         self.control_panel.update_selected_overlay_display() # Refresh selected overlay info
+
+    def _apply_auto_detect_preview_result(self, detection_results: Dict[str, Any]) -> bool:
+        if not self.calibration_wizard:
+            return False
+
+        applied = self.calibration_wizard.apply_auto_detect_results(detection_results)
+        if not applied:
+            return False
+
+        self._apply_template_styles_to_overlays()
+        self.app_state.ui.show_overlays = True
+        self.show_overlays_action.setChecked(True)
+        self.control_panel.convert_button.setEnabled(self.control_panel._can_convert())
+
+        current_frame = self.app_state.video.current_frame_index
+        if current_frame is not None:
+            self.keyboard_canvas.display_frame(current_frame)
+        else:
+            self.keyboard_canvas.update()
+
+        self.control_panel.update_controls_from_state()
+        self.control_panel.update_selected_overlay_display()
+        return True
+
+    def _open_auto_detect_tuning_dialog(self) -> None:
+        if not self.calibration_wizard:
+            return
+
+        context = self.calibration_wizard.get_auto_detect_tuning_context()
+        if not context:
+            logging.warning("Missing auto-detect tuning context; skipping tuning dialog")
+            return
+
+        dialog = AutoDetectTuningDialog(
+            self,
+            self.app_state,
+            context["frame_rgb"],
+            context["keyboard_roi"],
+            initial_detection_results=context.get("detection_results"),
+            fallback_used=bool(context.get("fallback_used", False)),
+            apply_detection_callback=self._apply_auto_detect_preview_result,
+        )
+
+        # Position dialog toward the right side so it does not cover the keyboard area.
+        screen = self.screen() if hasattr(self, "screen") else None
+        if screen is not None:
+            available = screen.availableGeometry()
+            frame = dialog.frameGeometry()
+            x = max(
+                available.left() + 10,
+                available.right() - frame.width() - 20,
+            )
+            y = min(
+                max(available.top() + 40, self.geometry().top() + 20),
+                max(available.top() + 10, available.bottom() - frame.height() - 20),
+            )
+            dialog.move(x, y)
+
+        dialog.exec()
+
+        # Persist tuned params/overlays with the existing per-video save flow.
+        if self.app_state.unsaved_changes and self.video_loading_workflow:
+            self.video_loading_workflow.save_current_config()
     
     def _apply_template_styles_to_overlays(self):
         """Delegate template style application to CalibrationWorkflow."""

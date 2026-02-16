@@ -10,6 +10,14 @@ import numpy as np
 from synthesia2midi.app_config import DEFAULT_MIDI_TEMPO, FRAME_NAV_INTERVALS, OverlayConfig
 
 
+def _default_auto_detect_params() -> Dict[str, Any]:
+    from synthesia2midi.detection.auto_detect_param_specs import (
+        get_active_auto_detect_defaults,
+    )
+
+    return get_active_auto_detect_defaults()
+
+
 @dataclass
 class DetectionConfig:
     """All detection-related settings grouped together."""
@@ -307,6 +315,9 @@ class CalibrationConfig:
     # Calibration frame range
     calib_start_frame: int = 0
     calib_end_frame: int = 0
+
+    # Per-video monolithic auto-detect tuning
+    auto_detect_params: Dict[str, Any] = field(default_factory=_default_auto_detect_params)
     
     
     def validate(self) -> List[str]:
@@ -325,6 +336,16 @@ class CalibrationConfig:
             if (self.current_calibration_key_type not in valid_base_types and 
                 not is_additional_color):
                 errors.append(f"Calibration key type '{self.current_calibration_key_type}' must be one of {valid_base_types} or COLOR_N_W/COLOR_N_B format")
+
+        # Normalize auto-detect parameter map so only active keys remain and all values are typed/clamped.
+        try:
+            from synthesia2midi.detection.auto_detect_param_specs import (
+                coerce_auto_detect_params,
+            )
+
+            self.auto_detect_params = coerce_auto_detect_params(self.auto_detect_params)
+        except Exception as exc:
+            errors.append(f"Invalid auto detect parameter configuration: {exc}")
         
         return errors
 

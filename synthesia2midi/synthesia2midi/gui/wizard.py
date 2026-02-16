@@ -4,7 +4,7 @@ Calibration wizard for setting up initial key overlays.
 # Standard library imports
 import logging
 import os
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 # Third-party imports
 import numpy as np
@@ -22,8 +22,9 @@ from synthesia2midi.app_config import (
     IDEALIZED_WHITE_KEY_Y, NOTE_NAMES_SHARP, OverlayConfig
 )
 from synthesia2midi.core.app_state import AppState
-from synthesia2midi.detection.auto_detect_adapter import AutoDetectAdapter      
-from synthesia2midi.gui.spinbox_utils import install_spinbox_wheel_filter       
+from synthesia2midi.detection.auto_detect_adapter import AutoDetectAdapter
+from synthesia2midi.detection.auto_detect_param_specs import coerce_auto_detect_params
+from synthesia2midi.gui.spinbox_utils import install_spinbox_wheel_filter
 
 class CalibrationWizard(QDialog):
     """Modal dialog for initial keyboard calibration."""
@@ -39,6 +40,10 @@ class CalibrationWizard(QDialog):
         self.parent_app = parent  # Store reference to access video frame
         self.result: Optional[bool] = None # True if submitted, False/None if cancelled
         self.detected_overlays: Optional[List[OverlayConfig]] = None  # Store auto-detected overlays
+        self.auto_detect_source_frame_rgb: Optional[np.ndarray] = None
+        self.auto_detect_keyboard_roi: Optional[Tuple[int, int, int, int]] = None
+        self.auto_detect_saved_params_fallback_used: bool = False
+        self.auto_detect_latest_detection_result: Optional[Dict[str, Any]] = None
 
         # Set wider window size
         self.setMinimumWidth(600)  # Make window twice as wide
@@ -171,33 +176,57 @@ class CalibrationWizard(QDialog):
         logging.info("Accepting dialog (closing wizard)")
         self.accept()  # Close dialog with success
     
-    def handle_keyboard_region_selected(self, x: int, y: int, width: int, height: int):
+    def handle_keyboard_region_selected(self, x: int, y: int, width: int, height: int) -> bool:
         """Handle the keyboard region selection from the canvas."""
         logging.info("=== WIZARD HANDLING KEYBOARD REGION ===")
         logging.info(f"Received region: x={x}, y={y}, width={width}, height={height}")
-        
+
         try:
-            # Get current video frame
-            logging.debug("Getting current video frame")
             current_frame = self._get_current_frame()
             if current_frame is None:
                 logging.error("No video frame available")
-                QMessageBox.warning(self, "Detection Error", 
-                                  "No video frame available. Please ensure a video is loaded.")
-                return
+                QMessageBox.warning(
+                    self,
+                    "Detection Error",
+                    "No video frame available. Please ensure a video is loaded.",
+                )
+                return False
             logging.info(f"Got video frame with shape: {current_frame.shape}")
-            
-            # Crop the frame to the selected region
-            logging.info(f"Cropping frame from y:{y} to y:{y+height}, x:{x} to x:{x+width}")
-            cropped_frame = current_frame[y:y+height, x:x+width]
-            logging.info(f"Cropped frame shape: {cropped_frame.shape}")
-            
-            # Create adapter and run detection on the cropped region
-            logging.info("Creating AutoDetectAdapter")
+
+            # Keep a stable source frame/ROI for live tuning reruns.
+            self.auto_detect_source_frame_rgb = np.copy(current_frame)
+            self.auto_detect_keyboard_roi = (x, y, width, height)
+
+            cropped_frame = current_frame[y:y + height, x:x + width]
+            if cropped_frame.size == 0:
+                QMessageBox.warning(
+                    self,
+                    "Detection Error",
+                    "Selected region is empty. Please draw a valid keyboard region.",
+                )
+                return False
+
             adapter = AutoDetectAdapter()
-            logging.info("Running detection on cropped frame")
-            # FIXED: Pass original ROI coordinates, not (0,0), so coordinate conversion works correctly
-            detection_results = adapter.detect_from_frame(cropped_frame, keyboard_region=(x, y, width, height))
+            saved_params = coerce_auto_detect_params(self.app_state.calibration.auto_detect_params)
+
+            # First attempt: exact saved tuning (no profile chain).
+            detection_results = adapter.detect_from_frame(
+                cropped_frame,
+                keyboard_region=(x, y, width, height),
+                tuning_params=saved_params,
+                use_profile_fallback=False,
+            )
+            fallback_used = False
+
+            # If tuned attempt fails, retry using built-in profile chain.
+            if detection_results is None:
+                fallback_used = True
+                detection_results = adapter.detect_from_frame(
+                    cropped_frame,
+                    keyboard_region=(x, y, width, height),
+                    tuning_params=None,
+                    use_profile_fallback=True,
+                )
 
             if detection_results is None:
                 logging.error("Detection returned None")
@@ -207,41 +236,35 @@ class CalibrationWizard(QDialog):
                 else:
                     message = "Failed to detect keys in the selected region. Please try again."
                 QMessageBox.warning(self, "Detection Error", message)
-                return
-            
-            logging.info(f"Detection successful: {detection_results['total_keys']} keys detected")
+                self.auto_detect_saved_params_fallback_used = False
+                return False
 
-            # Update app state with detected values
-            logging.info("Updating app state with detection results")
-            self.app_state.midi.total_keys = detection_results['total_keys']
-            self.app_state.midi.leftmost_note_name = detection_results['leftmost_note']
-            self.app_state.midi.leftmost_note_octave = detection_results['leftmost_octave']
+            self.auto_detect_saved_params_fallback_used = fallback_used
+            self.auto_detect_latest_detection_result = detection_results
             logging.info(
-                "App state updated: %s keys, leftmost: %s%s",
-                detection_results['total_keys'],
-                detection_results['leftmost_note'],
-                detection_results['leftmost_octave'],
+                "Detection successful with profile '%s' (fallback_used=%s): %s keys detected",
+                detection_results.get("profile_name", "unknown"),
+                fallback_used,
+                detection_results["total_keys"],
             )
 
-            # Store detected overlays for use in _generate_initial_overlays
-            logging.info("Creating overlays from detection results")
-            self.detected_overlays = adapter.create_overlays_from_detection(
-                detection_results, self.app_state.overlays)
-            logging.info(
-                "Created %s overlays",
-                len(self.detected_overlays) if self.detected_overlays else 0,
-            )
+            applied = self.apply_auto_detect_results(detection_results, adapter=adapter)
+            if not applied:
+                QMessageBox.warning(
+                    self,
+                    "Detection Error",
+                    "Autodetection produced no overlays. Please try another region.",
+                )
+                return False
 
-            # Update app state and generate overlays
-            logging.info("Calling _submit to generate overlays")
-            self._submit()
-            logging.info("Submit completed")
-            
+            self.result = True
+            return True
+
         except Exception as e:
-            logging.error(f"=== KEYBOARD DETECTION FAILED ===")
+            logging.error("=== KEYBOARD DETECTION FAILED ===")
             logging.error(f"Error: {e}", exc_info=True)
-            QMessageBox.critical(self, "Detection Error", 
-                               f"Key detection failed: {str(e)}")
+            QMessageBox.critical(self, "Detection Error", f"Key detection failed: {str(e)}")
+            return False
 
     def _get_current_frame(self) -> Optional[np.ndarray]:
         """Get the current video frame from the parent application."""
@@ -267,83 +290,132 @@ class CalibrationWizard(QDialog):
             logging.error(f"Failed to get current frame: {e}")
             return None
 
+    def get_auto_detect_tuning_context(self) -> Optional[Dict[str, Any]]:
+        if self.auto_detect_source_frame_rgb is None or self.auto_detect_keyboard_roi is None:
+            return None
+
+        return {
+            "frame_rgb": np.copy(self.auto_detect_source_frame_rgb),
+            "keyboard_roi": self.auto_detect_keyboard_roi,
+            "fallback_used": bool(self.auto_detect_saved_params_fallback_used),
+            "detection_results": self.auto_detect_latest_detection_result,
+        }
+
+    def apply_auto_detect_results(
+        self,
+        detection_results: Dict[str, Any],
+        *,
+        adapter: Optional[AutoDetectAdapter] = None,
+    ) -> bool:
+        detector_adapter = adapter or AutoDetectAdapter()
+        detected_overlays = detector_adapter.create_overlays_from_detection(
+            detection_results,
+            self.app_state.overlays,
+        )
+        if not detected_overlays:
+            return False
+
+        self.app_state.midi.total_keys = detection_results["total_keys"]
+        self.app_state.midi.leftmost_note_name = detection_results["leftmost_note"]
+        self.app_state.midi.leftmost_note_octave = detection_results["leftmost_octave"]
+        self.auto_detect_latest_detection_result = detection_results
+        self.detected_overlays = detected_overlays
+
+        self._apply_detected_overlays(detected_overlays)
+
+        self.app_state.unsaved_changes = True
+        logging.info(
+            "Applied autodetect overlays: %s overlays, leftmost=%s%s",
+            len(detected_overlays),
+            detection_results["leftmost_note"],
+            detection_results["leftmost_octave"],
+        )
+        return True
+
+    def _capture_unlit_calibration_data(self) -> Tuple[Dict[int, Dict[str, Any]], Dict[Tuple[int, int, int, int], Dict[str, Any]]]:
+        unlit_calibration_by_id: Dict[int, Dict[str, Any]] = {}
+        unlit_calibration_by_position: Dict[Tuple[int, int, int, int], Dict[str, Any]] = {}
+        for overlay in self.app_state.overlays:
+            if overlay.unlit_hist is None and overlay.unlit_reference_color is None:
+                continue
+            calib_data = {
+                "unlit_hist": overlay.unlit_hist.copy() if overlay.unlit_hist is not None else None,
+                "unlit_reference_color": overlay.unlit_reference_color,
+            }
+            unlit_calibration_by_id[overlay.key_id] = calib_data
+            pos_key = (
+                round(overlay.x),
+                round(overlay.y),
+                round(overlay.width),
+                round(overlay.height),
+            )
+            unlit_calibration_by_position[pos_key] = calib_data
+        return unlit_calibration_by_id, unlit_calibration_by_position
+
+    def _restore_unlit_calibration_data(
+        self,
+        overlays: List[OverlayConfig],
+        unlit_calibration_by_id: Dict[int, Dict[str, Any]],
+        unlit_calibration_by_position: Dict[Tuple[int, int, int, int], Dict[str, Any]],
+    ) -> int:
+        restored_count = 0
+        for overlay in overlays:
+            calib_data = unlit_calibration_by_id.get(overlay.key_id)
+            if calib_data is None:
+                for dx in [-2, -1, 0, 1, 2]:
+                    for dy in [-2, -1, 0, 1, 2]:
+                        pos_key = (
+                            round(overlay.x + dx),
+                            round(overlay.y + dy),
+                            round(overlay.width),
+                            round(overlay.height),
+                        )
+                        if pos_key in unlit_calibration_by_position:
+                            calib_data = unlit_calibration_by_position[pos_key]
+                            break
+                    if calib_data is not None:
+                        break
+
+            if calib_data is None:
+                continue
+
+            overlay.unlit_hist = calib_data["unlit_hist"]
+            overlay.unlit_reference_color = calib_data["unlit_reference_color"]
+            restored_count += 1
+
+        return restored_count
+
+    def _apply_detected_overlays(self, detected_overlays: List[OverlayConfig]) -> None:
+        unlit_calibration_by_id, unlit_calibration_by_position = self._capture_unlit_calibration_data()
+
+        self.app_state.overlays.clear()
+        self.app_state.overlays.extend(detected_overlays)
+
+        restored_count = self._restore_unlit_calibration_data(
+            self.app_state.overlays,
+            unlit_calibration_by_id,
+            unlit_calibration_by_position,
+        )
+        if restored_count > 0:
+            logging.info(
+                "[WIZARD] Restored unlit calibration for %s overlays after autodetect apply",
+                restored_count,
+            )
+
     def _generate_initial_overlays(self):
         """Generates an idealized piano keyboard layout based on hardcoded stylistic constants."""
         logging.info("=== _GENERATE_INITIAL_OVERLAYS CALLED ===")
         logging.info(f"Current overlays count: {len(self.app_state.overlays)}")
         logging.info(f"Detected overlays available: {self.detected_overlays is not None}")
-        
-        # Preserve unlit calibration data from existing overlays
-        # Store by both key_id and position for better matching
-        unlit_calibration_by_id = {}
-        unlit_calibration_by_position = {}
-        for overlay in self.app_state.overlays:
-            if overlay.unlit_hist is not None or overlay.unlit_reference_color is not None:
-                calib_data = {
-                    'unlit_hist': overlay.unlit_hist.copy() if overlay.unlit_hist is not None else None,
-                    'unlit_reference_color': overlay.unlit_reference_color
-                }
-                unlit_calibration_by_id[overlay.key_id] = calib_data
-                # Create a position key for matching by location
-                pos_key = (round(overlay.x), round(overlay.y), round(overlay.width), round(overlay.height))
-                unlit_calibration_by_position[pos_key] = calib_data
-                logging.info(f"[WIZARD] Preserving unlit calibration for key {overlay.key_id} at position {pos_key}")
-        
-        self.app_state.overlays.clear()
-        
-        # Use detected overlays if available
+
         if self.detected_overlays:
             logging.info(f"Using {len(self.detected_overlays)} auto-detected overlays")
-            
-            logging.info("=== FINAL WHITE KEY OVERLAY POSITIONS DEBUG ===")
-            white_key_count = 0
-            for i, overlay in enumerate(self.detected_overlays):
-                if 'W' in overlay.key_type:  # White key
-                    white_key_count += 1
-                    logging.info(f"WHITE KEY OVERLAY {white_key_count} (key_id={overlay.key_id}): x={overlay.x}, y={overlay.y}, w={overlay.width}, h={overlay.height}")
-                    logging.info(f"  Note: {overlay.note_name_in_octave}{overlay.note_octave}, Key Type: {overlay.key_type}")
-                elif i < 5:  # Also log first few keys regardless of type
-                    logging.info(f"Overlay {i} (key_id={overlay.key_id}): x={overlay.x}, y={overlay.y}, w={overlay.width}, h={overlay.height}, type={overlay.key_type}")
-            
-            logging.info(f"Total white key overlays: {white_key_count}")
-            logging.info("=== END FINAL WHITE KEY OVERLAY DEBUG ===")
-            
-            self.app_state.overlays.extend(self.detected_overlays)
-            logging.info(f"App state now has {len(self.app_state.overlays)} overlays")
-            
-            # Restore unlit calibration data
-            restored_count = 0
-            for overlay in self.app_state.overlays:
-                calib_data = None
-                
-                # First try to match by key_id
-                if overlay.key_id in unlit_calibration_by_id:
-                    calib_data = unlit_calibration_by_id[overlay.key_id]
-                    logging.info(f"[WIZARD] Found calibration by key_id for key {overlay.key_id}")
-                else:
-                    # Try to match by position (with small tolerance)
-                    for dx in [-2, -1, 0, 1, 2]:  # Allow small position variations
-                        for dy in [-2, -1, 0, 1, 2]:
-                            pos_key = (round(overlay.x + dx), round(overlay.y + dy), round(overlay.width), round(overlay.height))
-                            if pos_key in unlit_calibration_by_position:
-                                calib_data = unlit_calibration_by_position[pos_key]
-                                logging.info(f"[WIZARD] Found calibration by position for key {overlay.key_id} at {pos_key}")
-                                break
-                        if calib_data:
-                            break
-                
-                # Restore calibration data if found
-                if calib_data:
-                    overlay.unlit_hist = calib_data['unlit_hist']
-                    overlay.unlit_reference_color = calib_data['unlit_reference_color']
-                    restored_count += 1
-                    logging.info(f"[WIZARD] Restored unlit calibration for key {overlay.key_id}")
-            
-            if restored_count > 0:
-                logging.info(f"[WIZARD] Successfully restored unlit calibration for {restored_count} out of {len(self.app_state.overlays)} overlays")
-            
+            self._apply_detected_overlays(self.detected_overlays)
             return
-        
+
+        unlit_calibration_by_id, unlit_calibration_by_position = self._capture_unlit_calibration_data()
+        self.app_state.overlays.clear()
+
         logging.info("Generating idealized piano layout for wizard.")
 
         num_keys_to_generate = self.app_state.midi.total_keys
@@ -480,14 +552,14 @@ class CalibrationWizard(QDialog):
                 current_octave += 1
 
         logging.info(f"Generated {len(self.app_state.overlays)} overlays for the wizard.")
-        
-        # Restore unlit calibration data for manually generated overlays
-        for overlay in self.app_state.overlays:
-            if overlay.key_id in unlit_calibration_by_id:
-                calib_data = unlit_calibration_by_id[overlay.key_id]
-                overlay.unlit_hist = calib_data['unlit_hist']
-                overlay.unlit_reference_color = calib_data['unlit_reference_color']
-                logging.info(f"[WIZARD] Restored unlit calibration for key {overlay.key_id}")
+
+        restored = self._restore_unlit_calibration_data(
+            self.app_state.overlays,
+            unlit_calibration_by_id,
+            unlit_calibration_by_position,
+        )
+        if restored > 0:
+            logging.info(f"[WIZARD] Restored unlit calibration for {restored} manually generated overlays")
 
 
 def show_calibration_wizard(parent, app_state: AppState) -> bool:

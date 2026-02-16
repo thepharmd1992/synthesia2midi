@@ -23,7 +23,6 @@ from synthesia2midi.app_config import (
 )
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.detection.auto_detect_adapter import AutoDetectAdapter
-from synthesia2midi.detection.auto_detect_param_specs import coerce_auto_detect_params
 from synthesia2midi.gui.spinbox_utils import install_spinbox_wheel_filter
 
 class CalibrationWizard(QDialog):
@@ -207,26 +206,14 @@ class CalibrationWizard(QDialog):
                 return False
 
             adapter = AutoDetectAdapter()
-            saved_params = coerce_auto_detect_params(self.app_state.calibration.auto_detect_params)
 
-            # First attempt: exact saved tuning (no profile chain).
+            # Always run a clean built-in profile chain for each new overlay calibration pass.
             detection_results = adapter.detect_from_frame(
                 cropped_frame,
                 keyboard_region=(x, y, width, height),
-                tuning_params=saved_params,
-                use_profile_fallback=False,
+                tuning_params=None,
+                use_profile_fallback=True,
             )
-            fallback_used = False
-
-            # If tuned attempt fails, retry using built-in profile chain.
-            if detection_results is None:
-                fallback_used = True
-                detection_results = adapter.detect_from_frame(
-                    cropped_frame,
-                    keyboard_region=(x, y, width, height),
-                    tuning_params=None,
-                    use_profile_fallback=True,
-                )
 
             if detection_results is None:
                 logging.error("Detection returned None")
@@ -239,10 +226,11 @@ class CalibrationWizard(QDialog):
                 self.auto_detect_saved_params_fallback_used = False
                 return False
 
+            fallback_used = bool(detection_results.get("fallback_used", False))
             self.auto_detect_saved_params_fallback_used = fallback_used
             self.auto_detect_latest_detection_result = detection_results
             logging.info(
-                "Detection successful with profile '%s' (fallback_used=%s): %s keys detected",
+                "Detection successful with clean profile '%s' (fallback_used=%s): %s keys detected",
                 detection_results.get("profile_name", "unknown"),
                 fallback_used,
                 detection_results["total_keys"],

@@ -7,7 +7,7 @@ import logging
 from typing import Any, Callable, Dict, Optional, Tuple
 
 import numpy as np
-from PySide6.QtCore import QTimer, Qt
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -67,15 +67,12 @@ class AutoDetectTuningDialog(QDialog):
         self._apply_detection_callback = apply_detection_callback
         self._initial_detection_results = initial_detection_results or {}
         self._defaults = get_active_auto_detect_defaults()
-        self._current_params = coerce_auto_detect_params(self.app_state.calibration.auto_detect_params)
+        # Start each tuning session from active defaults for a clean calibration run.
+        self._current_params = dict(self._defaults)
         self._control_widgets: Dict[str, Dict[str, Any]] = {}
         self._suppress_events = False
 
         self._adapter = AutoDetectAdapter()
-        self._debounce_timer = QTimer(self)
-        self._debounce_timer.setSingleShot(True)
-        self._debounce_timer.setInterval(120)
-        self._debounce_timer.timeout.connect(self._run_preview_detection)
 
         self._status_labels: Dict[str, QLabel] = {}
         self._warning_label: Optional[QLabel] = None
@@ -91,12 +88,12 @@ class AutoDetectTuningDialog(QDialog):
         banner.setWordWrap(True)
         if self._fallback_used:
             banner.setText(
-                "Saved auto-detect params failed on initial run. Built-in fallback profile was used. "
-                "Tune and save to update this video's parameters."
+                "Initial auto-detect needed a fallback profile (not the default profile). "
+                "Tune parameters if you want to refine this result."
             )
             banner.setStyleSheet("color: #8a6d00; background: #fff8db; border: 1px solid #e6d390; padding: 6px;")
         else:
-            banner.setText("Initial auto-detect used saved parameters.")
+            banner.setText("Initial auto-detect used the default built-in profile.")
             banner.setStyleSheet("color: #2f5d2f; background: #eaf7ea; border: 1px solid #bcdcbc; padding: 6px;")
         layout.addWidget(banner)
 
@@ -161,7 +158,7 @@ class AutoDetectTuningDialog(QDialog):
         status_layout.addWidget(self._status_labels["overlays"], 1, 3)
         status_layout.addWidget(QLabel("Leftmost Note/Octave:"), 2, 0)
         status_layout.addWidget(self._status_labels["leftmost"], 2, 1)
-        status_layout.addWidget(QLabel("Saved Fallback Used:"), 2, 2)
+        status_layout.addWidget(QLabel("Fallback Profile Used:"), 2, 2)
         status_layout.addWidget(self._status_labels["fallback"], 2, 3)
         layout.addWidget(status_group)
 
@@ -293,7 +290,7 @@ class AutoDetectTuningDialog(QDialog):
         self._current_params[key] = coerced
         self._set_widget_value(key, coerced)
         self._persist_params_to_state()
-        self._debounce_timer.start()
+        self._run_preview_detection()
 
     def _persist_params_to_state(self) -> None:
         normalized = coerce_auto_detect_params(self._current_params)
@@ -306,14 +303,14 @@ class AutoDetectTuningDialog(QDialog):
             self._current_params[key] = self._defaults[key]
             self._set_widget_value(key, self._defaults[key])
         self._persist_params_to_state()
-        self._debounce_timer.start()
+        self._run_preview_detection()
 
     def _reset_all_to_defaults(self) -> None:
         self._current_params = dict(self._defaults)
         for key, value in self._current_params.items():
             self._set_widget_value(key, value)
         self._persist_params_to_state()
-        self._debounce_timer.start()
+        self._run_preview_detection()
 
     def _set_warning(self, message: str) -> None:
         if self._warning_label is None:

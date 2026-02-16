@@ -32,7 +32,7 @@ DEFAULT_DETECTION_PARAMS = {
     "white_initial_top_ratio": 0.8,
     "white_initial_height_ratio": 0.3,
     "edge_boundary_padding_px": 3,
-    "padding_percent": 0.15,
+    "padding_percent": 0.25,
     "trim_saturation_threshold": 45,
     "trim_gray_threshold": 140,
     "trim_row_height": 20,
@@ -40,6 +40,8 @@ DEFAULT_DETECTION_PARAMS = {
     "white_strip_dark_fraction": 0.02,
     "white_strip_min_run": 8,
     "white_strip_allow_failures": 1,
+    "white_edge_left_shift_ticks": 0,
+    "white_edge_right_shift_ticks": 0,
     "white_sep_ratio": 0.55,
     "white_sep_dyn_min": 8,
     "white_sep_close_kernel": 5,
@@ -86,7 +88,7 @@ class MonolithicPianoDetector:
     def _add_overlay_padding(self, start_x, y, width, height, padding_percent=None):
         """Add padding to overlay by shrinking inward from left and right sides"""
         if padding_percent is None:
-            padding_percent = self.params.get("padding_percent", 0.15)
+            padding_percent = self.params.get("padding_percent", 0.25)
         padding_pixels = int(width * padding_percent)
         new_start_x = start_x + padding_pixels
         new_width = width - (2 * padding_pixels)
@@ -116,8 +118,11 @@ class MonolithicPianoDetector:
         for i, (x, y, w, h) in enumerate(self.black_keys[:5]):
             self.logger.debug(f"  Black key {i}: x={x}, y={y}, w={w}, h={h} (absolute x={left_x + x})")
         
-        # Detect white keys
-        self.white_keys = self._detect_white_keys(keyboard_gray)
+        # Detect white keys from black-key geometry by default.
+        self.white_keys = self._detect_white_keys_from_black(keyboard_gray)
+        # If geometry reconstruction under-detects badly, retry separator scan.
+        if len(self.white_keys) < 4:
+            self.white_keys = self._detect_white_keys(keyboard_gray)
         self.logger.debug(f"Detected {len(self.white_keys)} white keys")        
         
         self.logger.debug("First 5 white keys detected:")
@@ -463,6 +468,786 @@ class MonolithicPianoDetector:
         spans.sort(key=lambda span: span[0])
         return spans
 
+    def _classify_large_center_gaps(self, center_diffs):
+        """Classify center-to-center gaps as single-white or double-white spans."""
+        if not center_diffs:
+            return []
+
+        diffs = np.asarray(center_diffs, dtype=np.float32)
+        median_diff = float(np.median(diffs))
+        if len(diffs) < 3:
+            threshold = max(median_diff * 1.35, median_diff + 4.0)
+            return [bool(val >= threshold) for val in diffs]
+
+        sorted_diffs = np.sort(diffs)
+        jumps = np.diff(sorted_diffs)
+        largest_jump = float(np.max(jumps)) if jumps.size > 0 else 0.0
+
+        if largest_jump >= max(2.0, median_diff * 0.12):
+            jump_idx = int(np.argmax(jumps))
+            threshold = float((sorted_diffs[jump_idx] + sorted_diffs[jump_idx + 1]) / 2.0)
+        else:
+            threshold = max(median_diff * 1.35, median_diff + 4.0)
+
+        large_mask = [bool(val >= threshold) for val in diffs]
+        if any(large_mask) and not all(large_mask):
+            return large_mask
+
+        fallback_threshold = max(median_diff * 1.30, median_diff + 3.0)
+        return [bool(val >= fallback_threshold) for val in diffs]
+
+    def _split_span_evenly(self, x_left, x_right, count, min_key_width):
+        """Split an overly wide span into evenly sized key candidates."""
+        if count <= 1:
+            return [(x_left, x_right)]
+
+        span_width = x_right - x_left + 1
+        if span_width <= 0:
+            return []
+
+        count = max(1, int(count))
+        spans = []
+        for idx in range(count):
+            seg_left = x_left + int(round((idx * span_width) / count))
+            seg_right = x_left + int(round(((idx + 1) * span_width) / count)) - 1
+            if seg_right < seg_left:
+                continue
+            if (seg_right - seg_left + 1) >= min_key_width:
+                spans.append((seg_left, seg_right))
+        return spans
+
+    def _score_black_note_center_map(self, note_centers):
+        """Score black-note maps by how many complete D-anchored octave segments they provide."""
+        if not note_centers:
+            return 0.0
+
+        octaves = set()
+        for note in note_centers.keys():
+            octave = self._extract_note_octave(note)
+            if octave is not None:
+                octaves.add(octave)
+
+        pair_count = 0
+        full_segment_count = 0
+        for octave in sorted(octaves):
+            has_pair = f"C#{octave}" in note_centers and f"D#{octave}" in note_centers
+            if has_pair:
+                pair_count += 1
+            has_full = (
+                has_pair
+                and f"F#{octave}" in note_centers
+                and f"G#{octave}" in note_centers
+                and f"A#{octave}" in note_centers
+                and f"C#{octave + 1}" in note_centers
+                and f"D#{octave + 1}" in note_centers
+            )
+            if has_full:
+                full_segment_count += 1
+
+        return (full_segment_count * 10.0) + pair_count + (len(note_centers) * 0.01)
+
+    def _build_black_note_center_map(self):
+        """Assign black-note labels for geometry solving and return note->center map."""
+        if not self.black_keys:
+            return {}
+
+        self.black_keys = sorted(self.black_keys, key=lambda key: key[0])
+        candidates = self._find_f_sharp_anchor_candidates()
+        if not candidates:
+            return {}
+
+        best_map = {}
+        best_score = -1.0
+        for f_sharp_idx in candidates:
+            try:
+                black_notes = self._assign_black_key_notes(f_sharp_idx)
+            except Exception:
+                continue
+
+            note_centers = {}
+            for center_x, note_info in black_notes.items():
+                note = str(note_info.get("note", "")).strip()
+                if not note:
+                    continue
+                note_centers[note] = float(center_x)
+
+            score = self._score_black_note_center_map(note_centers)
+            if score > best_score:
+                best_score = score
+                best_map = note_centers
+
+        return best_map
+
+    def _estimate_black_residual_samples(self, black_note_centers, white_center_by_note):
+        """Collect black-key residual samples: observed black center minus predicted center."""
+        if not black_note_centers or not white_center_by_note:
+            return []
+
+        black_to_white_neighbors = {
+            "C#": ("C", "D"),
+            "D#": ("D", "E"),
+            "F#": ("F", "G"),
+            "G#": ("G", "A"),
+            "A#": ("A", "B"),
+        }
+
+        raw_samples = []
+        for black_note, observed_center in black_note_centers.items():
+            black_name = self._extract_note_name(black_note)
+            octave = self._extract_note_octave(black_note)
+            if octave is None or black_name not in black_to_white_neighbors:
+                continue
+
+            left_white_name, right_white_name = black_to_white_neighbors[black_name]
+            left_white_note = f"{left_white_name}{octave}"
+            right_white_note = f"{right_white_name}{octave}"
+            if left_white_note not in white_center_by_note or right_white_note not in white_center_by_note:
+                continue
+
+            predicted_center = (white_center_by_note[left_white_note] + white_center_by_note[right_white_note]) / 2.0
+            residual = float(observed_center) - float(predicted_center)
+            raw_samples.append((float(predicted_center), residual, black_name))
+
+        if len(raw_samples) < 3:
+            return []
+
+        class_values = {}
+        for _, residual, black_name in raw_samples:
+            class_values.setdefault(black_name, []).append(residual)
+        class_bias = {
+            black_name: float(np.median(values))
+            for black_name, values in class_values.items()
+            if values
+        }
+
+        # Remove note-class bias so the fit captures global edge trend rather than
+        # intrinsic keyboard asymmetry (e.g., C#/D# vs F#/G# midpoint offsets).
+        samples = [
+            (x_pos, residual - class_bias.get(black_name, 0.0))
+            for x_pos, residual, black_name in raw_samples
+        ]
+        return samples
+
+    def _apply_black_residual_edge_warp(
+        self,
+        centers,
+        width,
+        step_estimate,
+        black_note_centers,
+        white_center_by_note,
+    ):
+        """
+        Apply a smooth edge warp learned from black-key residuals.
+
+        The correction is forced near zero in the center and grows toward edges.
+        """
+        if not centers or width <= 2 or step_estimate <= 0:
+            return centers
+
+        samples = self._estimate_black_residual_samples(black_note_centers, white_center_by_note)
+        if len(samples) < 3:
+            return centers
+
+        x_samples = np.asarray([pt[0] for pt in samples], dtype=np.float64)
+        residual_samples = np.asarray([pt[1] for pt in samples], dtype=np.float64)
+
+        x_mid = (float(width) - 1.0) / 2.0
+        half_width = max(1.0, (float(width) - 1.0) / 2.0)
+        x_norm = (x_samples - x_mid) / half_width
+
+        if len(samples) >= 5:
+            degree = 2
+        else:
+            degree = 1
+
+        try:
+            coeffs = np.polyfit(x_norm, residual_samples, degree)
+        except Exception:
+            return centers
+
+        poly = np.poly1d(coeffs)
+        center_bias = float(poly(0.0))
+        max_correction = min(6.0, max(2.0, step_estimate * 0.22))
+
+        corrected = []
+        for center in centers:
+            x_n = (float(center) - x_mid) / half_width
+            raw_delta = float(poly(x_n) - center_bias)
+            edge_gain = min(1.0, abs(x_n) ** 1.15)
+            delta = raw_delta * edge_gain
+            delta = float(np.clip(delta, -max_correction, max_correction))
+            corrected.append(float(center) + delta)
+
+        # Enforce strict ordering and a minimum spacing to avoid post-warp inversions.
+        min_gap = max(3.0, step_estimate * 0.35)
+        corrected = sorted(corrected)
+        for idx in range(1, len(corrected)):
+            corrected[idx] = max(corrected[idx], corrected[idx - 1] + min_gap)
+
+        right_limit = float(width - 1)
+        overflow = corrected[-1] - right_limit
+        if overflow > 0:
+            corrected = [val - overflow for val in corrected]
+
+        if corrected[0] < 0:
+            shift = -corrected[0]
+            corrected = [val + shift for val in corrected]
+
+        for idx in range(1, len(corrected)):
+            corrected[idx] = max(corrected[idx], corrected[idx - 1] + min_gap)
+
+        if corrected[-1] > right_limit:
+            compression = corrected[-1] - right_limit
+            corrected[-1] = right_limit
+            if len(corrected) > 1:
+                spread = len(corrected) - 1
+                for idx in range(spread):
+                    backshift = compression * ((spread - idx) / spread)
+                    corrected[idx] = max(0.0, corrected[idx] - backshift)
+
+        final_centers = [float(np.clip(val, 0.0, right_limit)) for val in corrected]
+        self.logger.debug(
+            "Applied black residual edge warp: samples=%d degree=%d max_corr=%.2f",
+            len(samples),
+            degree,
+            max_correction,
+        )
+        return final_centers
+
+    def _estimate_white_centers_from_d_lattice(self, black_note_centers, width):
+        """
+        Estimate white-key centers from D anchors.
+
+        For each D(o)->D(o+1) span:
+        - derive local 3-step D->G and A->D spacing from black geometry
+        - place E/F/G and A/B/C as normalized local fractions of the span
+        """
+        c_sharp_by_octave = {}
+        d_sharp_by_octave = {}
+        f_sharp_by_octave = {}
+        g_sharp_by_octave = {}
+        a_sharp_by_octave = {}
+
+        for note, center in black_note_centers.items():
+            note_name = self._extract_note_name(note)
+            octave = self._extract_note_octave(note)
+            if octave is None:
+                continue
+            if note_name == "C#":
+                c_sharp_by_octave[octave] = float(center)
+            elif note_name == "D#":
+                d_sharp_by_octave[octave] = float(center)
+            elif note_name == "F#":
+                f_sharp_by_octave[octave] = float(center)
+            elif note_name == "G#":
+                g_sharp_by_octave[octave] = float(center)
+            elif note_name == "A#":
+                a_sharp_by_octave[octave] = float(center)
+
+        d_anchor_by_octave = {}
+        for octave in sorted(set(c_sharp_by_octave.keys()) & set(d_sharp_by_octave.keys())):
+            d_anchor_by_octave[octave] = (c_sharp_by_octave[octave] + d_sharp_by_octave[octave]) / 2.0
+
+        segment_data = []
+        for octave in sorted(d_anchor_by_octave.keys()):
+            next_octave = octave + 1
+            if next_octave not in d_anchor_by_octave:
+                continue
+
+            d0 = float(d_anchor_by_octave[octave])
+            d1 = float(d_anchor_by_octave[next_octave])
+            span = d1 - d0
+            if span < 12.0:
+                continue
+
+            if octave in f_sharp_by_octave and octave in g_sharp_by_octave:
+                g_anchor = (f_sharp_by_octave[octave] + g_sharp_by_octave[octave]) / 2.0
+            else:
+                g_anchor = d0 + (span * (3.0 / 7.0))
+
+            if octave in g_sharp_by_octave and octave in a_sharp_by_octave:
+                a_anchor = (g_sharp_by_octave[octave] + a_sharp_by_octave[octave]) / 2.0
+            else:
+                a_anchor = d0 + (span * (4.0 / 7.0))
+
+            # Keep anchors in plausible octave-relative windows.
+            g_anchor = float(np.clip(g_anchor, d0 + (span * 0.25), d0 + (span * 0.60)))
+            a_anchor = float(np.clip(a_anchor, d0 + (span * 0.40), d0 + (span * 0.82)))
+            if a_anchor <= g_anchor + (span * 0.08):
+                a_anchor = min(d1 - (span * 0.10), g_anchor + (span * 0.16))
+
+            left_step_raw = (g_anchor - d0) / 3.0
+            right_step_raw = (d1 - a_anchor) / 3.0
+            if left_step_raw <= 0:
+                left_step_raw = span / 7.0
+            if right_step_raw <= 0:
+                right_step_raw = span / 7.0
+
+            segment_data.append(
+                {
+                    "octave": octave,
+                    "d0": d0,
+                    "d1": d1,
+                    "span": span,
+                    "left_raw": left_step_raw,
+                    "right_raw": right_step_raw,
+                }
+            )
+
+        if not segment_data:
+            return [], 0.0, {}
+
+        left_raw_values = [seg["left_raw"] for seg in segment_data]
+        right_raw_values = [seg["right_raw"] for seg in segment_data]
+        left_median = float(np.median(left_raw_values)) if left_raw_values else 0.0
+        right_median = float(np.median(right_raw_values)) if right_raw_values else 0.0
+
+        white_center_by_note = {}
+
+        def set_center(note_key, value):
+            val = float(value)
+            if note_key in white_center_by_note:
+                white_center_by_note[note_key] = (white_center_by_note[note_key] + val) / 2.0
+            else:
+                white_center_by_note[note_key] = val
+
+        for octave, d_center in d_anchor_by_octave.items():
+            set_center(f"D{octave}", d_center)
+
+        for seg in segment_data:
+            octave = int(seg["octave"])
+            span = float(seg["span"])
+            d0 = float(seg["d0"])
+            d1 = float(seg["d1"])
+
+            left_step = float(seg["left_raw"])
+            right_step = float(seg["right_raw"])
+            if left_median > 0:
+                left_step = float(np.clip(left_step, left_median * 0.78, left_median * 1.22))
+            if right_median > 0:
+                right_step = float(np.clip(right_step, right_median * 0.78, right_median * 1.22))
+
+            # Physical guard rails for 7 white steps inside one D->D octave span.
+            min_step = span * 0.10
+            max_step = span * 0.20
+            left_step = float(np.clip(left_step, min_step, max_step))
+            right_step = float(np.clip(right_step, min_step, max_step))
+
+            # If either side is too distorted, fall back to equal 1/7 spacing.
+            if (left_step * 3.0) + (right_step * 3.0) > (span * 0.95):
+                equal_step = span / 7.0
+                left_step = equal_step
+                right_step = equal_step
+
+            e_center = d0 + left_step
+            f_center = d0 + (left_step * 2.0)
+            g_center = d0 + (left_step * 3.0)
+            a_center = d1 - (right_step * 3.0)
+            b_center = a_center + right_step
+            c_next_center = a_center + (right_step * 2.0)
+
+            if not (d0 < e_center < f_center < g_center < a_center < b_center < c_next_center < d1):
+                equal_step = span / 7.0
+                e_center = d0 + equal_step
+                f_center = d0 + (equal_step * 2.0)
+                g_center = d0 + (equal_step * 3.0)
+                a_center = d0 + (equal_step * 4.0)
+                b_center = d0 + (equal_step * 5.0)
+                c_next_center = d0 + (equal_step * 6.0)
+
+            set_center(f"E{octave}", e_center)
+            set_center(f"F{octave}", f_center)
+            set_center(f"G{octave}", g_center)
+            set_center(f"A{octave}", a_center)
+            set_center(f"B{octave}", b_center)
+            set_center(f"C{octave + 1}", c_next_center)
+
+        raw_centers = sorted(white_center_by_note.values())
+        if len(raw_centers) < 4:
+            return [], 0.0, {}
+
+        center_diffs = [raw_centers[i + 1] - raw_centers[i] for i in range(len(raw_centers) - 1)]
+        center_diffs = [diff for diff in center_diffs if diff > 1.0]
+        step_estimate = float(np.median(center_diffs)) if center_diffs else 0.0
+        if step_estimate <= 0:
+            return [], 0.0, {}
+
+        min_center_gap = max(3.0, step_estimate * 0.40)
+        deduped_centers = []
+        for center in raw_centers:
+            if deduped_centers and abs(center - deduped_centers[-1]) < min_center_gap:
+                deduped_centers[-1] = (deduped_centers[-1] + center) / 2.0
+            else:
+                deduped_centers.append(center)
+
+        if len(deduped_centers) < 3:
+            return [], 0.0, {}
+
+        # Extend to ROI edges if D-anchored spans do not cover cropped ends.
+        # Use ceil (not round) so edge gaps don't leave a large unsolved span,
+        # which can trigger unstable guided splits and indexing drift.
+        left_room = deduped_centers[0] - (step_estimate * 0.5)
+        right_room = (float(width - 1) - deduped_centers[-1]) - (step_estimate * 0.5)
+        extra_left = max(0, int(np.ceil(left_room / step_estimate)))
+        extra_right = max(0, int(np.ceil(right_room / step_estimate)))
+        max_extra = max(0, int(np.ceil(float(width) / max(step_estimate, 1.0))) + 2)
+        extra_left = min(extra_left, max_extra)
+        extra_right = min(extra_right, max_extra)
+
+        for _ in range(extra_left):
+            deduped_centers.insert(0, deduped_centers[0] - step_estimate)
+        for _ in range(extra_right):
+            deduped_centers.append(deduped_centers[-1] + step_estimate)
+
+        final_centers = []
+        for center in deduped_centers:
+            clamped = float(np.clip(center, 0.0, float(width - 1)))
+            if final_centers and abs(clamped - final_centers[-1]) < min_center_gap:
+                continue
+            final_centers.append(clamped)
+
+        return final_centers, step_estimate, dict(white_center_by_note)
+
+    def _build_white_spans_from_centers(
+        self,
+        centers,
+        width,
+        col_med,
+        expected_white_width,
+        min_key_width,
+        min_sep_width,
+    ):
+        """Convert sorted white-key centers into key spans, splitting overly-wide regions."""
+        if len(centers) < 2:
+            return []
+
+        centers = sorted(float(c) for c in centers if 0.0 <= c <= float(width - 1))
+        if len(centers) < 2:
+            return []
+
+        boundaries = [0.0]
+        for idx in range(len(centers) - 1):
+            boundaries.append((centers[idx] + centers[idx + 1]) / 2.0)
+        boundaries.append(float(width))
+
+        spans = []
+        split_trigger = max(expected_white_width * 1.75, float(min_key_width * 2))
+        for idx in range(len(boundaries) - 1):
+            x_left = int(round(boundaries[idx]))
+            x_right = int(round(boundaries[idx + 1])) - 1
+            if x_right < x_left:
+                continue
+
+            x_left = max(0, min(width - 1, x_left))
+            x_right = max(0, min(width - 1, x_right))
+            span_width = x_right - x_left + 1
+            if span_width < min_key_width:
+                continue
+
+            if span_width <= split_trigger:
+                spans.append((x_left, x_right))
+                continue
+
+            split_spans = self._guided_split_white_span(
+                col_med,
+                x_left,
+                x_right,
+                expected_white_width,
+                min_key_width,
+                min_sep_width,
+            )
+            if split_spans and len(split_spans) > 1:
+                spans.extend(split_spans)
+                continue
+
+            split_count = max(2, int(round(span_width / max(1.0, expected_white_width))))
+            split_count = min(6, split_count)
+            spans.extend(
+                self._split_span_evenly(
+                    x_left,
+                    x_right,
+                    split_count,
+                    min_key_width,
+                )
+            )
+
+        if not spans:
+            return []
+
+        spans.sort(key=lambda span: span[0])
+        deduped_spans = []
+        for x_left, x_right in spans:
+            if deduped_spans and x_left <= deduped_spans[-1][1]:
+                prev_left, prev_right = deduped_spans[-1]
+                deduped_spans[-1] = (prev_left, max(prev_right, x_right))
+            else:
+                deduped_spans.append((x_left, x_right))
+
+        return deduped_spans
+
+    def _detect_white_keys_from_black_d_lattice(self, gray_img):
+        """Primary white-key solver: derive white centers from D anchors and local octave spacing."""
+        height, width = gray_img.shape
+        if not self.black_keys:
+            return []
+
+        black_note_centers = self._build_black_note_center_map()
+        if not black_note_centers:
+            return []
+
+        white_centers, step_estimate, white_center_by_note = self._estimate_white_centers_from_d_lattice(
+            black_note_centers,
+            width,
+        )
+        if len(white_centers) < 4 or step_estimate <= 0:
+            return []
+
+        white_centers = self._apply_black_residual_edge_warp(
+            white_centers,
+            width,
+            step_estimate,
+            black_note_centers,
+            white_center_by_note,
+        )
+
+        strip_start = self._find_white_strip_start(gray_img)
+        if strip_start < 0 or strip_start >= height:
+            strip_start = int(height * self.params.get("white_bottom_ratio", 0.85))
+        y_top = max(
+            strip_start,
+            int(height * self.params.get("white_initial_top_ratio", 0.7)),
+        )
+        y_bottom = height - 1
+        key_height = max(1, y_bottom - y_top + 1)
+
+        strip = gray_img[strip_start:, :] if 0 <= strip_start < height else gray_img
+        if strip.size == 0:
+            strip = gray_img
+        col_med = np.median(strip, axis=0).astype(np.float32)
+
+        expected_white_width = max(8.0, float(step_estimate))
+        min_key_width = max(6, int(round(expected_white_width * 0.45)))
+        min_sep_width = int(self.params.get("white_sep_min_width", 1))
+
+        white_spans = self._build_white_spans_from_centers(
+            white_centers,
+            width,
+            col_med,
+            expected_white_width,
+            min_key_width,
+            min_sep_width,
+        )
+        if not white_spans:
+            return []
+
+        white_keys = []
+        for x_left, x_right in white_spans:
+            key_width = x_right - x_left + 1
+            if key_width < min_key_width:
+                continue
+            padded_overlay = self._add_overlay_padding(
+                x_left,
+                y_top,
+                key_width,
+                key_height,
+            )
+            if padded_overlay[2] > 1:
+                white_keys.append(padded_overlay)
+
+        self.logger.debug(
+            "white-from-black D-lattice solve: centers=%d spans=%d step=%.2f",
+            len(white_centers),
+            len(white_keys),
+            step_estimate,
+        )
+
+        return white_keys
+
+    def _detect_white_keys_from_black_boundary_solver(self, gray_img):
+        """Fallback white solver using boundary inference from black-key center gaps."""
+        height, width = gray_img.shape
+        if not self.black_keys:
+            return []
+
+        sorted_black = sorted(self.black_keys, key=lambda key: key[0])
+        black_centers = [
+            float(black_key[0] + (black_key[2] / 2.0))
+            for black_key in sorted_black
+            if black_key[2] > 0
+        ]
+        if len(black_centers) < 2:
+            return []
+
+        strip_start = self._find_white_strip_start(gray_img)
+        if strip_start < 0 or strip_start >= height:
+            strip_start = int(height * self.params.get("white_bottom_ratio", 0.85))
+        y_top = max(
+            strip_start,
+            int(height * self.params.get("white_initial_top_ratio", 0.7)),
+        )
+        y_bottom = height - 1
+        key_height = max(1, y_bottom - y_top + 1)
+
+        center_diffs = [black_centers[i + 1] - black_centers[i] for i in range(len(black_centers) - 1)]
+        if not center_diffs:
+            return []
+
+        large_gap_mask = self._classify_large_center_gaps(center_diffs)
+        single_white_diffs = [
+            gap
+            for gap, is_large in zip(center_diffs, large_gap_mask)
+            if not is_large
+        ]
+        if not single_white_diffs:
+            single_white_diffs = center_diffs
+
+        expected_white_width = max(8.0, float(np.median(single_white_diffs)))
+        min_key_width = max(6, int(round(expected_white_width * 0.45)))
+        min_sep_width = int(self.params.get("white_sep_min_width", 1))
+
+        # Build a full white-key boundary set:
+        # - all black-key centers (C|D, D|E, F|G, G|A, A|B)
+        # - inferred inner split for each large center gap (E|F or B|C)
+        boundary_positions = [black_centers[0]]
+        inferred_boundary_count = 0
+        for idx, gap in enumerate(center_diffs):
+            if large_gap_mask[idx]:
+                left_est = expected_white_width
+                right_est = expected_white_width
+
+                if idx > 0:
+                    prev_gap = center_diffs[idx - 1]
+                    left_est = prev_gap if not large_gap_mask[idx - 1] else min(prev_gap, expected_white_width)
+                if idx + 1 < len(center_diffs):
+                    next_gap = center_diffs[idx + 1]
+                    right_est = next_gap if not large_gap_mask[idx + 1] else min(next_gap, expected_white_width)
+
+                min_est = max(4.0, expected_white_width * 0.55)
+                max_est = max(min_est + 1.0, expected_white_width * 1.45)
+                left_est = float(np.clip(left_est, min_est, max_est))
+                right_est = float(np.clip(right_est, min_est, max_est))
+
+                if (left_est + right_est) <= 0:
+                    split_ratio = 0.5
+                else:
+                    split_ratio = left_est / (left_est + right_est)
+                inferred_boundary = black_centers[idx] + (gap * split_ratio)
+
+                margin = max(2.0, expected_white_width * 0.20)
+                inferred_boundary = float(np.clip(
+                    inferred_boundary,
+                    black_centers[idx] + margin,
+                    black_centers[idx + 1] - margin,
+                ))
+                boundary_positions.append(inferred_boundary)
+                inferred_boundary_count += 1
+
+            boundary_positions.append(black_centers[idx + 1])
+
+        boundary_positions.sort()
+        deduped_boundaries = []
+        min_boundary_gap = max(2, int(round(expected_white_width * 0.18)))
+        for boundary in boundary_positions:
+            boundary_x = int(round(boundary))
+            boundary_x = max(1, min(width - 1, boundary_x))
+            if deduped_boundaries and abs(boundary_x - deduped_boundaries[-1]) < min_boundary_gap:
+                deduped_boundaries[-1] = int(round((deduped_boundaries[-1] + boundary_x) / 2.0))
+            else:
+                deduped_boundaries.append(boundary_x)
+
+        if not deduped_boundaries:
+            return []
+
+        strip = gray_img[strip_start:, :] if 0 <= strip_start < height else gray_img
+        if strip.size == 0:
+            strip = gray_img
+        col_med = np.median(strip, axis=0).astype(np.float32)
+
+        white_spans = []
+        walls = [0] + deduped_boundaries + [width]
+        split_trigger = max(expected_white_width * 1.75, float(min_key_width * 2))
+        for idx in range(len(walls) - 1):
+            x_left = int(walls[idx])
+            x_right = int(walls[idx + 1]) - 1
+            span_width = x_right - x_left + 1
+            if span_width < min_key_width:
+                continue
+
+            if span_width <= split_trigger:
+                white_spans.append((x_left, x_right))
+                continue
+
+            split_spans = self._guided_split_white_span(
+                col_med,
+                x_left,
+                x_right,
+                expected_white_width,
+                min_key_width,
+                min_sep_width,
+            )
+            if split_spans and len(split_spans) > 1:
+                white_spans.extend(split_spans)
+                continue
+
+            split_count = max(2, int(round(span_width / max(1.0, expected_white_width))))
+            split_count = min(6, split_count)
+            white_spans.extend(
+                self._split_span_evenly(
+                    x_left,
+                    x_right,
+                    split_count,
+                    min_key_width,
+                )
+            )
+
+        if not white_spans:
+            return []
+
+        white_spans.sort(key=lambda span: span[0])
+        deduped_spans = []
+        for x_left, x_right in white_spans:
+            if deduped_spans and x_left <= deduped_spans[-1][1]:
+                prev_left, prev_right = deduped_spans[-1]
+                deduped_spans[-1] = (prev_left, max(prev_right, x_right))
+            else:
+                deduped_spans.append((x_left, x_right))
+
+        white_keys = []
+        for x_left, x_right in deduped_spans:
+            key_width = x_right - x_left + 1
+            if key_width < min_key_width:
+                continue
+            padded_overlay = self._add_overlay_padding(
+                x_left,
+                y_top,
+                key_width,
+                key_height,
+            )
+            if padded_overlay[2] > 1:
+                white_keys.append(padded_overlay)
+
+        self.logger.debug(
+            "white-from-black boundary solve: black=%d inferred=%d boundaries=%d spans=%d",
+            len(sorted_black),
+            inferred_boundary_count,
+            len(deduped_boundaries),
+            len(white_keys),
+        )
+
+        return white_keys
+
+    def _detect_white_keys_from_black(self, gray_img):
+        """Reconstruct white keys from black geometry, preferring D-lattice normalization."""
+        white_keys = self._detect_white_keys_from_black_d_lattice(gray_img)
+        if len(white_keys) >= 4:
+            return white_keys
+
+        self.logger.debug(
+            "white-from-black D-lattice solver under-detected (%d). Falling back to boundary solver.",
+            len(white_keys),
+        )
+        return self._detect_white_keys_from_black_boundary_solver(gray_img)
+
     def _detect_white_keys(self, gray_img):
         """Detect white keys by finding vertical separations"""
         height, width = gray_img.shape
@@ -688,10 +1473,12 @@ class MonolithicPianoDetector:
 
             if f_sharp_position is None:
                 self.logger.debug("Could not find confident F# anchor - using fallback assignment")
-                return self._fallback_note_assignment()
+                self.key_notes = self._fallback_note_assignment()
+            else:
+                # Unified chromatic assignment using pixel-by-pixel scanning
+                self.key_notes = self._assign_notes_chromatically_from_anchor(f_sharp_position)
 
-            # Unified chromatic assignment using pixel-by-pixel scanning
-            self.key_notes = self._assign_notes_chromatically_from_anchor(f_sharp_position)
+        self._apply_white_post_assignment_adjustments()
         
         self.logger.debug(f"DEBUG: Total assigned keys: {len(self.key_notes)}")
         
@@ -703,6 +1490,202 @@ class MonolithicPianoDetector:
         
         self.logger.debug(f"Assigned notes to {len(self.key_notes)} keys")
         return self.key_notes
+
+    def _extract_note_name(self, full_note):
+        """Extract note class (e.g. C, F#, B) from note+octave string."""
+        if not full_note:
+            return ""
+        idx = 0
+        while idx < len(full_note) and not (full_note[idx].isdigit() or full_note[idx] == "-"):
+            idx += 1
+        return full_note[:idx]
+
+    def _extract_note_octave(self, full_note):
+        """Extract octave number from note+octave string."""
+        if not full_note:
+            return None
+        idx = 0
+        while idx < len(full_note) and not (full_note[idx].isdigit() or full_note[idx] == "-"):
+            idx += 1
+        if idx >= len(full_note):
+            return None
+        try:
+            return int(full_note[idx:])
+        except ValueError:
+            return None
+
+    def _apply_white_post_assignment_adjustments(self):
+        """Apply post-assignment geometry adjustments for white-key overlays."""
+        if not self.key_notes or not self.keyboard_region:
+            return
+
+        # Use current white key ordering to clamp shifts between neighboring keys.
+        sorted_whites = sorted(
+            (
+                {
+                    "center_x": center_x,
+                    "note_info": note_info,
+                    "x": int(note_info["box"][0]),
+                    "y": int(note_info["box"][1]),
+                    "w": int(note_info["box"][2]),
+                    "h": int(note_info["box"][3]),
+                    "note_name": self._extract_note_name(note_info.get("note", "")),
+                }
+                for center_x, note_info in self.key_notes.items()
+                if note_info.get("type") == "white" and note_info.get("box")
+            ),
+            key=lambda item: item["x"],
+        )
+
+        if not sorted_whites:
+            return
+
+        _, _, roi_left_x, roi_right_x = self.keyboard_region
+        roi_width = max(1, int(roi_right_x - roi_left_x))
+
+        # Lock D/G/A onto midpoint between adjacent black keys.
+        midpoint_pairs = {
+            "D": ("C#", "D#"),
+            "G": ("F#", "G#"),
+            "A": ("G#", "A#"),
+        }
+        black_center_by_note = {
+            str(note_info.get("note", "")): int(center_x)
+            for center_x, note_info in self.key_notes.items()
+            if note_info.get("type") == "black"
+        }
+
+        midpoint_count = 0
+        for idx, item in enumerate(sorted_whites):
+            note_name = item["note_name"]
+            if note_name not in midpoint_pairs:
+                continue
+
+            octave = self._extract_note_octave(item["note_info"].get("note", ""))
+            if octave is None:
+                continue
+
+            left_note, right_note = midpoint_pairs[note_name]
+            left_note = f"{left_note}{octave}"
+            right_note = f"{right_note}{octave}"
+            if left_note not in black_center_by_note or right_note not in black_center_by_note:
+                continue
+
+            target_center = int(round((black_center_by_note[left_note] + black_center_by_note[right_note]) / 2.0))
+            desired_x = target_center - (item["w"] // 2)
+
+            min_x = 0
+            max_x = max(0, roi_width - item["w"])
+            if idx > 0:
+                prev = sorted_whites[idx - 1]
+                min_x = max(min_x, prev["x"] + prev["w"] + 1)
+            if idx < (len(sorted_whites) - 1):
+                nxt = sorted_whites[idx + 1]
+                max_x = min(max_x, nxt["x"] - item["w"] - 1)
+
+            if max_x < min_x:
+                continue
+
+            new_x = int(max(min_x, min(max_x, desired_x)))
+            if new_x == item["x"]:
+                continue
+
+            note_info = item["note_info"]
+            note_info["box"] = (new_x, item["y"], item["w"], item["h"])
+            item["x"] = new_x
+            midpoint_count += 1
+
+        # Re-sort after midpoint locking before manual edge-tail shift.
+        sorted_whites.sort(key=lambda item: item["x"])
+
+        left_ticks = int(round(float(self.params.get("white_edge_left_shift_ticks", 0))))
+        right_ticks = int(round(float(self.params.get("white_edge_right_shift_ticks", 0))))
+        edge_shift_count = 0
+        if (left_ticks != 0 or right_ticks != 0) and len(sorted_whites) >= 3:
+            edge_count = max(1, int(round(len(sorted_whites) * 0.20)))
+            if (2 * edge_count) >= len(sorted_whites):
+                edge_count = max(1, (len(sorted_whites) - 1) // 2)
+
+            median_width = float(np.median([item["w"] for item in sorted_whites]))
+            px_per_tick = median_width * 0.05
+            left_edge_delta_px = -float(left_ticks) * px_per_tick
+            right_edge_delta_px = float(right_ticks) * px_per_tick
+            inner_weight_floor = 0.01
+            edge_falloff_power = 6.0
+
+            def _edge_weight(edge_progress: float) -> float:
+                """Map edge progress to shift weight with a 1% floor at inner tail edge."""
+                base_min = 1.0 / float(max(1, edge_count))
+                if edge_progress <= base_min:
+                    return inner_weight_floor
+                normalized = (edge_progress - base_min) / max(1e-6, 1.0 - base_min)
+                normalized = float(np.clip(normalized, 0.0, 1.0))
+                curved = normalized ** edge_falloff_power
+                return inner_weight_floor + ((1.0 - inner_weight_floor) * curved)
+
+            desired_positions = []
+            for idx, item in enumerate(sorted_whites):
+                shift_px = 0.0
+
+                if idx < edge_count:
+                    edge_progress = (edge_count - idx) / float(max(1, edge_count))
+                    shift_px += left_edge_delta_px * _edge_weight(edge_progress)
+
+                if idx >= len(sorted_whites) - edge_count:
+                    right_idx = (len(sorted_whites) - 1) - idx
+                    edge_progress = (edge_count - right_idx) / float(max(1, edge_count))
+                    shift_px += right_edge_delta_px * _edge_weight(edge_progress)
+
+                desired_x = int(round(item["x"] + shift_px))
+                max_x = max(0, roi_width - item["w"])
+                desired_x = max(0, min(max_x, desired_x))
+                desired_positions.append(desired_x)
+
+            adjusted_positions = list(desired_positions)
+            for idx in range(1, len(sorted_whites)):
+                prev_item = sorted_whites[idx - 1]
+                min_x = adjusted_positions[idx - 1] + prev_item["w"] + 1
+                if adjusted_positions[idx] < min_x:
+                    adjusted_positions[idx] = min_x
+
+            for idx in range(len(sorted_whites) - 2, -1, -1):
+                cur_item = sorted_whites[idx]
+                max_x = adjusted_positions[idx + 1] - cur_item["w"] - 1
+                if adjusted_positions[idx] > max_x:
+                    adjusted_positions[idx] = max_x
+
+            for idx, item in enumerate(sorted_whites):
+                max_x = max(0, roi_width - item["w"])
+                adjusted_positions[idx] = max(0, min(max_x, adjusted_positions[idx]))
+
+            for idx in range(1, len(sorted_whites)):
+                prev_item = sorted_whites[idx - 1]
+                min_x = adjusted_positions[idx - 1] + prev_item["w"] + 1
+                if adjusted_positions[idx] < min_x:
+                    adjusted_positions[idx] = min_x
+
+            for idx in range(len(sorted_whites) - 2, -1, -1):
+                cur_item = sorted_whites[idx]
+                max_x = adjusted_positions[idx + 1] - cur_item["w"] - 1
+                if adjusted_positions[idx] > max_x:
+                    adjusted_positions[idx] = max_x
+
+            for idx, item in enumerate(sorted_whites):
+                new_x = adjusted_positions[idx]
+                if new_x == item["x"]:
+                    continue
+                item["x"] = new_x
+                item["note_info"]["box"] = (new_x, item["y"], item["w"], item["h"])
+                edge_shift_count += 1
+
+        if midpoint_count > 0 or edge_shift_count > 0:
+            self.logger.debug(
+                "Applied white post-adjustments: midpoint=%d edge_shift=%d left_ticks=%d right_ticks=%d",
+                midpoint_count,
+                edge_shift_count,
+                left_ticks,
+                right_ticks,
+            )
     
     def _find_confident_f_sharp_anchor(self):
         """Find F# anchor by locating confident LSSL pattern (3-black-key group)"""

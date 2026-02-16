@@ -33,9 +33,22 @@ ACTIVE_AUTO_DETECT_PARAM_KEYS: List[str] = [
     "black_recovery_column_ratio_scale",
     "black_split_max_factor",
     "padding_percent",
+    "white_edge_left_shift_ticks",
+    "white_edge_right_shift_ticks",
+]
+
+BASIC_AUTO_DETECT_PARAM_KEYS: List[str] = [
+    "white_edge_left_shift_ticks",
+    "white_edge_right_shift_ticks",
+    "black_upper_ratio",
+    "black_bottom_ratio",
+    "white_bottom_ratio",
+    "white_initial_top_ratio",
+    "padding_percent",
 ]
 
 AUTO_DETECT_PARAM_CATEGORIES: List[str] = [
+    "Edge Drift Correction",
     "Black Key Detection",
     "White Strip Selection",
     "White Separator Extraction",
@@ -97,6 +110,20 @@ AUTO_DETECT_PARAM_SPECS: Dict[str, Dict[str, Any]] = {
     },
     "black_split_max_factor": {"type": "float", "min": 1.00, "max": 3.00, "step": 0.05, "category": "Assignment and Recovery"},
     "padding_percent": {"type": "float", "min": 0.00, "max": 0.45, "step": 0.01, "category": "Geometry and Padding"},
+    "white_edge_left_shift_ticks": {
+        "type": "int",
+        "min": 0,
+        "max": 20,
+        "step": 1,
+        "category": "Edge Drift Correction",
+    },
+    "white_edge_right_shift_ticks": {
+        "type": "int",
+        "min": 0,
+        "max": 20,
+        "step": 1,
+        "category": "Edge Drift Correction",
+    },
 }
 
 
@@ -220,3 +247,12 @@ def get_category_param_keys(category: str) -> List[str]:
         for key in ACTIVE_AUTO_DETECT_PARAM_KEYS
         if AUTO_DETECT_PARAM_SPECS[key]["category"] == category
     ]
+
+
+def get_basic_auto_detect_param_keys() -> List[str]:
+    return list(BASIC_AUTO_DETECT_PARAM_KEYS)
+
+
+def get_advanced_auto_detect_param_keys() -> List[str]:
+    basic_keys = set(BASIC_AUTO_DETECT_PARAM_KEYS)
+    return [key for key in ACTIVE_AUTO_DETECT_PARAM_KEYS if key not in basic_keys]

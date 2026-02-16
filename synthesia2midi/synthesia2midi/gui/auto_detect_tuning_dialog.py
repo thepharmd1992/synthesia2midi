@@ -4,7 +4,7 @@ Modal tuning dialog for monolithic auto-detect parameters.
 from __future__ import annotations
 
 import logging
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 from PySide6.QtCore import Qt
@@ -22,6 +22,8 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QSlider,
     QSpinBox,
+    QStyle,
+    QTabWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -33,7 +35,9 @@ from synthesia2midi.detection.auto_detect_param_specs import (
     AUTO_DETECT_PARAM_SPECS,
     coerce_auto_detect_param_value,
     coerce_auto_detect_params,
+    get_advanced_auto_detect_param_keys,
     get_active_auto_detect_defaults,
+    get_basic_auto_detect_param_keys,
     get_category_param_keys,
     humanize_auto_detect_param_name,
 )
@@ -97,6 +101,10 @@ class AutoDetectTuningDialog(QDialog):
             banner.setStyleSheet("color: #2f5d2f; background: #eaf7ea; border: 1px solid #bcdcbc; padding: 6px;")
         layout.addWidget(banner)
 
+        mode_label = QLabel("White-from-black geometry mode is always enabled.")
+        mode_label.setStyleSheet("color: #2c3e50;")
+        layout.addWidget(mode_label)
+
         controls_row = QHBoxLayout()
         reset_all_btn = QPushButton("Reset All to Active Defaults")
         reset_all_btn.clicked.connect(self._reset_all_to_defaults)
@@ -104,37 +112,16 @@ class AutoDetectTuningDialog(QDialog):
         controls_row.addStretch()
         layout.addLayout(controls_row)
 
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        sections_container = QWidget()
-        sections_layout = QVBoxLayout(sections_container)
-        sections_layout.setContentsMargins(0, 0, 0, 0)
-        sections_layout.setSpacing(8)
-
-        for idx, category in enumerate(AUTO_DETECT_PARAM_CATEGORIES):
-            section = CollapsibleSection(category, expanded=(idx == 0))
-            content_layout = section.content_layout()
-            grid = QGridLayout()
-            grid.setContentsMargins(0, 0, 0, 0)
-            grid.setHorizontalSpacing(10)
-            grid.setVerticalSpacing(6)
-
-            row = 0
-            for param_key in get_category_param_keys(category):
-                row = self._add_parameter_control(grid, row, param_key)
-
-            content_layout.addLayout(grid)
-            reset_section_btn = QPushButton("Reset Section")
-            reset_section_btn.clicked.connect(
-                lambda _checked=False, cat=category: self._reset_category_to_defaults(cat)
-            )
-            content_layout.addWidget(reset_section_btn)
-            sections_layout.addWidget(section)
-
-        sections_layout.addStretch(1)
-        scroll_area.setWidget(sections_container)
-        layout.addWidget(scroll_area, 1)
+        tabs = QTabWidget()
+        tabs.addTab(
+            self._build_param_tab(get_basic_auto_detect_param_keys()),
+            "Basic",
+        )
+        tabs.addTab(
+            self._build_param_tab(get_advanced_auto_detect_param_keys()),
+            "Advanced",
+        )
+        layout.addWidget(tabs, 1)
 
         status_group = QGroupBox("Preview Status")
         status_layout = QGridLayout(status_group)
@@ -167,21 +154,177 @@ class AutoDetectTuningDialog(QDialog):
         self._warning_label.setStyleSheet("color: #b05400;")
         layout.addWidget(self._warning_label)
 
-        buttons = QDialogButtonBox(QDialogButtonBox.Close | QDialogButtonBox.Cancel)
-        close_btn = buttons.button(QDialogButtonBox.Close)
-        cancel_btn = buttons.button(QDialogButtonBox.Cancel)
-        if close_btn:
-            close_btn.clicked.connect(self.accept)
+        buttons = QDialogButtonBox()
+        save_btn = buttons.addButton("Save", QDialogButtonBox.AcceptRole)
+        save_btn.setIcon(self.style().standardIcon(QStyle.SP_DialogApplyButton))
+        save_btn.setAutoDefault(True)
+        save_btn.setDefault(True)
+        save_btn.setStyleSheet(
+            "QPushButton {"
+            "background-color: #2e7d32;"
+            "color: #ffffff;"
+            "border: 1px solid #1b5e20;"
+            "padding: 6px 14px;"
+            "font-weight: 600;"
+            "}"
+            "QPushButton:hover { background-color: #388e3c; }"
+            "QPushButton:pressed { background-color: #2c6e30; }"
+        )
+        save_btn.clicked.connect(self.accept)
+        cancel_btn = buttons.addButton(QDialogButtonBox.Cancel)
         if cancel_btn:
             cancel_btn.clicked.connect(self.reject)
         layout.addWidget(buttons)
 
-    def _add_parameter_control(self, grid: QGridLayout, row: int, key: str) -> int:
+    def _build_param_tab(self, param_keys: List[str]) -> QWidget:
+        tab = QWidget()
+        tab_layout = QVBoxLayout(tab)
+        tab_layout.setContentsMargins(0, 0, 0, 0)
+        tab_layout.setSpacing(0)
+
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        sections_container = QWidget()
+        sections_layout = QVBoxLayout(sections_container)
+        sections_layout.setContentsMargins(0, 0, 0, 0)
+        sections_layout.setSpacing(8)
+
+        first_section = True
+        param_key_set = set(param_keys)
+        for category in AUTO_DETECT_PARAM_CATEGORIES:
+            category_keys = [
+                key
+                for key in get_category_param_keys(category)
+                if key in param_key_set
+            ]
+            if not category_keys:
+                continue
+
+            section = CollapsibleSection(category, expanded=first_section)
+            first_section = False
+            content_layout = section.content_layout()
+
+            if category == "Edge Drift Correction":
+                edge_row = QHBoxLayout()
+                edge_row.setContentsMargins(0, 0, 0, 0)
+                edge_row.setSpacing(14)
+
+                left_column = QWidget()
+                left_column_layout = QVBoxLayout(left_column)
+                left_column_layout.setContentsMargins(0, 0, 0, 0)
+                self._add_directional_edge_control(
+                    left_column_layout,
+                    key="white_edge_left_shift_ticks",
+                    title="Left Edge Outward",
+                    hint="outward <-",
+                    title_alignment=Qt.AlignRight,
+                    hint_alignment=Qt.AlignRight,
+                    slider_inverted=True,
+                )
+                edge_row.addWidget(left_column, 1)
+
+                right_column = QWidget()
+                right_column_layout = QVBoxLayout(right_column)
+                right_column_layout.setContentsMargins(0, 0, 0, 0)
+                self._add_directional_edge_control(
+                    right_column_layout,
+                    key="white_edge_right_shift_ticks",
+                    title="Right Edge Outward",
+                    hint="-> outward",
+                    title_alignment=Qt.AlignLeft,
+                    hint_alignment=Qt.AlignLeft,
+                    slider_inverted=False,
+                )
+                edge_row.addWidget(right_column, 1)
+
+                content_layout.addLayout(edge_row)
+            else:
+                grid = QGridLayout()
+                grid.setContentsMargins(0, 0, 0, 0)
+                grid.setHorizontalSpacing(10)
+                grid.setVerticalSpacing(6)
+
+                row = 0
+                for param_key in category_keys:
+                    row = self._add_parameter_control(grid, row, param_key)
+
+                content_layout.addLayout(grid)
+
+            reset_section_btn = QPushButton("Reset Section")
+            reset_section_btn.clicked.connect(
+                lambda _checked=False, keys=tuple(category_keys): self._reset_keys_to_defaults(keys)
+            )
+            content_layout.addWidget(reset_section_btn)
+            sections_layout.addWidget(section)
+
+        if first_section:
+            empty_label = QLabel("No parameters available.")
+            empty_label.setStyleSheet("color: #666;")
+            sections_layout.addWidget(empty_label)
+
+        sections_layout.addStretch(1)
+        scroll_area.setWidget(sections_container)
+        tab_layout.addWidget(scroll_area)
+        return tab
+
+    def _add_directional_edge_control(
+        self,
+        layout: QVBoxLayout,
+        *,
+        key: str,
+        title: str,
+        hint: str,
+        title_alignment: Qt.AlignmentFlag,
+        hint_alignment: Qt.AlignmentFlag,
+        slider_inverted: bool,
+    ) -> None:
+        spec = AUTO_DETECT_PARAM_SPECS[key]
+        current_value = int(self._current_params[key])
+
+        title_label = QLabel(title)
+        title_label.setAlignment(title_alignment)
+        layout.addWidget(title_label)
+
+        hint_label = QLabel(hint)
+        hint_label.setAlignment(hint_alignment)
+        hint_label.setStyleSheet("color: #666; font-size: 11px;")
+        layout.addWidget(hint_label)
+
+        slider = QSlider(Qt.Horizontal)
+        slider.setTracking(True)
+        slider.setInvertedAppearance(slider_inverted)
+        slider.setInvertedControls(slider_inverted)
+        slider.setMinimum(int(spec["min"]))
+        slider.setMaximum(int(spec["max"]))
+        slider.setSingleStep(int(spec.get("step", 1)))
+        slider.setValue(current_value)
+        slider.valueChanged.connect(lambda val, k=key: self._on_param_changed(k, val))
+        layout.addWidget(slider)
+
+        self._control_widgets[key] = {
+            "type": "int",
+            "spec": spec,
+            "slider": slider,
+            "spin": None,
+            "factor": 1,
+        }
+
+    def _add_parameter_control(
+        self,
+        grid: QGridLayout,
+        row: int,
+        key: str,
+        *,
+        label_override: Optional[str] = None,
+        slider_inverted: bool = False,
+    ) -> int:
         spec = AUTO_DETECT_PARAM_SPECS[key]
         key_type = spec["type"]
         current_value = self._current_params[key]
 
-        label = QLabel(humanize_auto_detect_param_name(key))
+        label = QLabel(label_override or humanize_auto_detect_param_name(key))
         grid.addWidget(label, row, 0)
 
         if key_type == "bool":
@@ -204,6 +347,8 @@ class AutoDetectTuningDialog(QDialog):
 
         slider = QSlider(Qt.Horizontal)
         slider.setTracking(True)
+        slider.setInvertedAppearance(slider_inverted)
+        slider.setInvertedControls(slider_inverted)
 
         if key_type == "int":
             spin = QSpinBox()
@@ -272,12 +417,20 @@ class AutoDetectTuningDialog(QDialog):
                 info["combo"].setCurrentText(str(value))
                 return
             if key_type == "int":
-                info["slider"].setValue(int(value))
-                info["spin"].setValue(int(value))
+                slider = info.get("slider")
+                spin = info.get("spin")
+                if slider is not None:
+                    slider.setValue(int(value))
+                if spin is not None:
+                    spin.setValue(int(value))
                 return
             factor = int(info["factor"])
-            info["slider"].setValue(int(round(float(value) * factor)))
-            info["spin"].setValue(float(value))
+            slider = info.get("slider")
+            spin = info.get("spin")
+            if slider is not None:
+                slider.setValue(int(round(float(value) * factor)))
+            if spin is not None:
+                spin.setValue(float(value))
         finally:
             self._suppress_events = False
 
@@ -298,8 +451,8 @@ class AutoDetectTuningDialog(QDialog):
         self.app_state.calibration.auto_detect_params = dict(normalized)
         self.app_state.unsaved_changes = True
 
-    def _reset_category_to_defaults(self, category: str) -> None:
-        for key in get_category_param_keys(category):
+    def _reset_keys_to_defaults(self, keys: Tuple[str, ...]) -> None:
+        for key in keys:
             self._current_params[key] = self._defaults[key]
             self._set_widget_value(key, self._defaults[key])
         self._persist_params_to_state()

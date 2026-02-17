@@ -472,6 +472,12 @@ class InstallerApp(App):
         self.test_sequence_index = (self.test_sequence_index + 1) % len(self.test_sequence_steps)
         return self.test_sequence_steps[self.test_sequence_index]
 
+    def _is_pip_cache_permission_error(self, output: List[str]) -> bool:
+        joined = "\n".join(output).lower()
+        if "permission denied" not in joined and "access is denied" not in joined:
+            return False
+        return "pip\\cache" in joined or "pip/cache" in joined or "pip cache" in joined
+
     async def _fix_retry(self) -> None:
         await self.action_retry()
 
@@ -497,6 +503,53 @@ class InstallerApp(App):
             self.main_hint.update("Homebrew installed. Press R to retry.")
         else:
             self.main_hint.update("Homebrew install failed. Press D for details or Open help page.")
+
+    async def _fix_clear_pip_cache_and_retry(self) -> None:
+        self.main_hint.update("Clearing pip cache for all users...")
+        await self._clear_pip_cache_all_users()
+        self.main_hint.update("Cache cleared. Retrying this step...")
+        await self.action_retry()
+
+    async def _clear_pip_cache_all_users(self) -> None:
+        # Clear current user's cache via pip, then delete common cache paths for all users.
+        try:
+            await self._run_command(
+                [str(self.venv_python), "-m", "pip", "cache", "purge"],
+                cwd=self.repo_root,
+                log_label="Clear pip cache (current user)",
+            )
+        except Exception as exc:
+            self._log(f"Failed to clear pip cache via pip: {exc}")
+
+        system = platform.system().lower()
+        candidate_dirs: List[Path] = []
+
+        if system.startswith("win"):
+            users_root = Path("C:/Users")
+            if users_root.exists():
+                for user_dir in users_root.iterdir():
+                    cache_dir = user_dir / "AppData" / "Local" / "pip" / "Cache"
+                    cache_dir_lower = user_dir / "AppData" / "Local" / "pip" / "cache"
+                    candidate_dirs.extend([cache_dir, cache_dir_lower])
+        elif system == "darwin":
+            users_root = Path("/Users")
+            if users_root.exists():
+                for user_dir in users_root.iterdir():
+                    candidate_dirs.append(user_dir / "Library" / "Caches" / "pip")
+        else:
+            users_root = Path("/home")
+            if users_root.exists():
+                for user_dir in users_root.iterdir():
+                    candidate_dirs.append(user_dir / ".cache" / "pip")
+
+        for path in candidate_dirs:
+            if not path.exists():
+                continue
+            try:
+                shutil.rmtree(path)
+                self._log(f"Cleared pip cache: {path}")
+            except Exception as exc:
+                self._log(f"Could not clear cache {path}: {exc}")
 
     def _log(self, message: str) -> None:
         timestamp = time.strftime("%H:%M:%S")
@@ -611,6 +664,36 @@ class InstallerApp(App):
                 self._log(text)
         return await proc.wait()
 
+    async def _run_command_collect(
+        self,
+        cmd: List[str],
+        cwd: Optional[Path] = None,
+        env: Optional[dict] = None,
+        log_label: Optional[str] = None,
+    ) -> tuple[int, List[str]]:
+        if log_label:
+            self._log(f"Running: {log_label}")
+        else:
+            self._log("Running command: " + " ".join(cmd))
+        proc = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.STDOUT,
+            cwd=str(cwd) if cwd else None,
+            env=env,
+        )
+        assert proc.stdout is not None
+        output: List[str] = []
+        while True:
+            line = await proc.stdout.readline()
+            if not line:
+                break
+            text = line.decode(errors="replace").rstrip()
+            if text:
+                output.append(text)
+                self._log(text)
+        return await proc.wait(), output
+
     def _resolve_venv_python(self) -> Path:
         if platform.system().lower().startswith("win"):
             return self.repo_root / ".venv" / "Scripts" / "python.exe"
@@ -708,18 +791,39 @@ class InstallerApp(App):
         ]
         for label, cmd in commands:
             self._set_step_progress(self.step_bar.total, self.step_bar.progress, label)
-            code = await self._run_command(cmd, cwd=self.repo_root)
+            if "install -r" in " ".join(cmd):
+                code, output = await self._run_command_collect(cmd, cwd=self.repo_root)
+            else:
+                code = await self._run_command(cmd, cwd=self.repo_root)
+                output = []
             if code != 0:
-                raise StepFailure(
-                    "Python packages failed",
-                    "We could not install the required Python packages.",
-                    [
-                        "Press R to try again.",
+                fix_options: List[FixOption] = []
+                instructions = [
+                    "Press R to try again.",
+                    "If it still fails, press I to reinstall everything.",
+                    "If you use antivirus or company security, allow this folder.",
+                    "If it fails again, press D to show details.",
+                    "Open the file logs/installer_tui.log (in this folder) and share it for help.",
+                ]
+                if self._is_pip_cache_permission_error(output):
+                    fix_options.append(
+                        FixOption(
+                            "Clear pip cache for all users and retry",
+                            self._fix_clear_pip_cache_and_retry,
+                        )
+                    )
+                    instructions = [
+                        "Select 'Clear pip cache for all users and retry' below.",
                         "If it still fails, press I to reinstall everything.",
                         "If you use antivirus or company security, allow this folder.",
                         "If it fails again, press D to show details.",
                         "Open the file logs/installer_tui.log (in this folder) and share it for help.",
-                    ],
+                    ]
+                raise StepFailure(
+                    "Python packages failed",
+                    "We could not install the required Python packages.",
+                    instructions,
+                    fix_options=fix_options,
                 )
             self._advance_step_progress(label)
 

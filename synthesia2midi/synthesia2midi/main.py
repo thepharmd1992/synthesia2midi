@@ -1270,6 +1270,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
 
     def _show_midi_touchup_setup_dialog(self, midi_path: str) -> None:
         repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        setup_cmd = "setup_windows.bat" if os.name == "nt" else "./setup.sh"
         expected_rel = os.path.join(
             "tools",
             "midi_touchup_editor_rust",
@@ -1285,7 +1286,9 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
                 "Rust touch-up editor binary was not found.\n\n"
                 f"MIDI requested: {midi_path}\n"
                 f"Expected binary: {os.path.join(repo_root, expected_rel)}\n\n"
-                "Build it with:\n"
+                "Run setup first (it can install/build Rust touch-up):\n"
+                f"{setup_cmd}\n\n"
+                "Or build manually with:\n"
                 f"{build_cmd}\n\n"
                 "Then retry Edit MIDI."
             ),

@@ -35,7 +35,8 @@ Acknowledgments: see [ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md).
 - macOS/Linux: run `./setup.sh` (or `bash setup.sh`)
 
 The setup scripts install Python dependencies and attempt to build the Rust Touch-Up Editor.  
-If Rust is missing, setup continues with a warning and `Edit MIDI` will show a guided build prompt until the Rust binary is built.
+If Rust is missing, setup now auto-installs Rust and then builds the editor. If auto-install fails, `Edit MIDI` will show a guided build prompt until the Rust binary is built.
+The launchers `run.bat` and `run_mac.command` now auto-run setup on first launch if `.venv` or the Rust touch-up binary is missing.
 
 ### Manual install (optional)
 

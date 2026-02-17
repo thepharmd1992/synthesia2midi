@@ -216,6 +216,31 @@ if not defined CARGO_EXE (
   echo Rust toolchain (cargo) was not found.
   echo MIDI Touch-Up Editor now requires Rust.
   echo.
+  where winget >nul 2>&1
+  if errorlevel 1 (
+    echo ERROR: winget was not found; cannot auto-install Rust in this environment.
+    echo Install Rust manually:
+    echo   https://www.rust-lang.org/tools/install
+    echo Then re-run setup_windows.bat.
+    exit /b 1
+  )
+  echo Installing Rust with winget...
+  winget install --id Rustlang.Rustup -e --scope user --accept-source-agreements --accept-package-agreements
+  if errorlevel 1 (
+    echo ERROR: Rust auto-install failed.
+    echo Install Rust manually:
+    echo   https://www.rust-lang.org/tools/install
+    echo Then re-run setup_windows.bat.
+    exit /b 1
+  )
+  if exist "%USERPROFILE%\.cargo\bin\cargo.exe" (
+    set "CARGO_EXE=%USERPROFILE%\.cargo\bin\cargo.exe"
+  )
+)
+
+if not defined CARGO_EXE (
+  echo.
+  echo Rust toolchain (cargo) is still unavailable.
   echo Install Rust on Windows:
   echo   winget install --id Rustlang.Rustup -e
   echo Then restart terminal and re-run setup_windows.bat

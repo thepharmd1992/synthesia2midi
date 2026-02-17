@@ -56,15 +56,43 @@ python -m pip install --upgrade yt-dlp
 RUST_EDITOR_DIR="tools/midi_touchup_editor_rust"
 RUST_EDITOR_BIN="${RUST_EDITOR_DIR}/target/release/midi-touchup-editor"
 
+ensure_cargo_on_path() {
+  if command -v cargo >/dev/null 2>&1; then
+    return 0
+  fi
+  if [[ -x "$HOME/.cargo/bin/cargo" ]]; then
+    export PATH="$HOME/.cargo/bin:$PATH"
+  fi
+  if command -v cargo >/dev/null 2>&1; then
+    return 0
+  fi
+  if [[ -f "$HOME/.cargo/env" ]]; then
+    # shellcheck disable=SC1090
+    source "$HOME/.cargo/env" >/dev/null 2>&1 || true
+  fi
+  command -v cargo >/dev/null 2>&1
+}
+
+maybe_install_rust_toolchain() {
+  if ! command -v curl >/dev/null 2>&1; then
+    echo "ERROR: curl is required to install Rust automatically."
+    return 1
+  fi
+
+  echo "Installing Rust toolchain (rustup)..."
+  if curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal; then
+    return 0
+  fi
+  echo "ERROR: Rust installation failed."
+  return 1
+}
+
 if [[ -d "$RUST_EDITOR_DIR" ]]; then
   echo "Checking Rust MIDI Touch-Up Editor..."
 
-  # rustup commonly installs cargo under ~/.cargo/bin without shell profile reload.
-  if ! command -v cargo >/dev/null 2>&1 && [[ -x "$HOME/.cargo/bin/cargo" ]]; then
-    export PATH="$HOME/.cargo/bin:$PATH"
-  fi
-
-  if command -v cargo >/dev/null 2>&1; then
+  if ensure_cargo_on_path || maybe_install_rust_toolchain; then
+    # rustup install may add cargo after setup shell startup.
+    ensure_cargo_on_path || true
     echo "Building Rust MIDI Touch-Up Editor..."
     if (cd "$RUST_EDITOR_DIR" && cargo build --release); then
       echo "Rust touch-up editor ready: $RUST_EDITOR_BIN"
@@ -79,7 +107,7 @@ if [[ -d "$RUST_EDITOR_DIR" ]]; then
   else
     echo
     echo "NOTE: Rust toolchain (cargo) was not found."
-    echo "The core app will run, but MIDI Touch-Up Editor requires a Rust build."
+    echo "The core app will run, but MIDI Touch-Up Editor requires Rust."
     echo "Install Rust and re-run setup, or build manually:"
     echo "  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y"
     echo "  source \"$HOME/.cargo/env\""

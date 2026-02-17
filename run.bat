@@ -12,6 +12,19 @@ if defined MSYSTEM (
 
 REM Prefer the repo virtual environment if present.
 set "VENV_PY=%SCRIPT_DIR%\.venv\Scripts\python.exe"
+set "RUST_EDITOR_DIR=%SCRIPT_DIR%\tools\midi_touchup_editor_rust"
+set "RUST_EDITOR_BIN=%RUST_EDITOR_DIR%\target\release\midi-touchup-editor.exe"
+set "NEED_SETUP=0"
+
+if not exist "%VENV_PY%" set "NEED_SETUP=1"
+if exist "%RUST_EDITOR_DIR%" if not exist "%RUST_EDITOR_BIN%" set "NEED_SETUP=1"
+
+if "%NEED_SETUP%"=="1" (
+    echo Missing first-run components. Running setup_windows.bat...
+    call "%SCRIPT_DIR%\setup_windows.bat" launched
+    exit /b %errorlevel%
+)
+
 if exist "%VENV_PY%" (
     "%VENV_PY%" run.py
     goto :done

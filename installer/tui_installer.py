@@ -84,9 +84,10 @@ class InstallerApp(App):
     #header {{
         height: 3;
         background: {PALETTE['panel']};
-        color: {PALETTE['accent']};
+        color: {PALETTE['accent_soft']};
         content-align: center middle;
         border-bottom: tall {PALETTE['border']};
+        text-style: bold;
     }}
 
     #footer {{
@@ -211,11 +212,12 @@ class InstallerApp(App):
         self.log_file = self.repo_root / "logs" / "installer_tui.log"
         self.log_file.parent.mkdir(parents=True, exist_ok=True)
         self.details_visible = False
+        self._working_timer = None
+        self._working_frames = (".", "..", "...")
+        self._working_index = 0
+        self._working_prefix = "Working"
 
-        header_text = "Synthesia2MIDI Setup"
-        if self.test_mode:
-            header_text = "Synthesia2MIDI Setup (Test Mode)"
-        self.header = Static(header_text, id="header")
+        self.header = Static(self._build_brand_banner(), id="header")
         self.steps_panel = Static(id="steps")
         self.overall_label = Static("Overall progress", id="progress_label")
         self.overall_bar = ProgressBar(total=1, show_eta=False, id="progress_bar")
@@ -257,7 +259,18 @@ class InstallerApp(App):
         self._build_steps()
         self._render_steps()
         self._set_overall_progress(0)
-        await self._run_steps(0)
+        self.call_after_refresh(self._start_steps)
+
+    def _build_brand_banner(self) -> Text:
+        banner = Text("\nSYNTHESIA", style=f"bold {PALETTE['accent_soft']}")
+        banner.append("2", style="bold #8B5CF6")
+        banner.append("MIDI", style=f"bold {PALETTE['accent_soft']}")
+        if self.test_mode:
+            banner.append(" [TEST MODE]", style=PALETTE["dim"])
+        return banner
+
+    def _start_steps(self) -> None:
+        asyncio.create_task(self._run_steps(0))
 
     def _footer_text(self) -> str:
         base = "R: Retry    I: Reinstall    O: Open Link    D: Details    Q: Quit"
@@ -349,11 +362,14 @@ class InstallerApp(App):
         if not option:
             return
         self.fix_running = True
-        self.main_hint.update("Working on that now...")
-        await option.action()
-        if option.post_hint and not self.running:
-            self.main_hint.update(option.post_hint)
-        self.fix_running = False
+        self._start_working_indicator("Working on that now")
+        try:
+            await option.action()
+            if option.post_hint and not self.running:
+                self.main_hint.update(option.post_hint)
+        finally:
+            self._stop_working_indicator()
+            self.fix_running = False
 
     def _build_steps(self) -> None:
         self.steps = [
@@ -492,13 +508,30 @@ class InstallerApp(App):
     async def _run_blocking(self, func: Callable[..., None], *args) -> None:
         await asyncio.to_thread(func, *args)
 
+    def _start_working_indicator(self, prefix: str = "Working") -> None:
+        self._stop_working_indicator()
+        self._working_prefix = prefix
+        self._working_index = 0
+        self.main_hint.update(f"{self._working_prefix}{self._working_frames[self._working_index]}")
+        self._working_timer = self.set_interval(0.35, self._tick_working_indicator)
+
+    def _tick_working_indicator(self) -> None:
+        self._working_index = (self._working_index + 1) % len(self._working_frames)
+        self.main_hint.update(f"{self._working_prefix}{self._working_frames[self._working_index]}")
+
+    def _stop_working_indicator(self) -> None:
+        if self._working_timer is not None:
+            self._working_timer.stop()
+            self._working_timer = None
+
     async def _run_steps(self, start_index: int) -> None:
         self.running = True
         for idx, step in enumerate(self.steps[start_index:], start=start_index):
             self.failure_url = None
             self.step_state[step.key] = "running"
             self._render_steps()
-            self._set_main(step.title, step.description, "Working...")
+            self._set_main(step.title, step.description, "")
+            self._start_working_indicator("Working")
             self.open_link_button.display = False
             self._clear_fix_options()
             self._set_overall_progress(idx)
@@ -507,6 +540,7 @@ class InstallerApp(App):
             try:
                 await step.action()
             except StepFailure as exc:
+                self._stop_working_indicator()
                 self.step_state[step.key] = "failed"
                 self.failed_index = idx
                 self.failure_url = exc.help_url
@@ -529,6 +563,7 @@ class InstallerApp(App):
                 self.running = False
                 return
             except Exception as exc:
+                self._stop_working_indicator()
                 self.step_state[step.key] = "failed"
                 self.failed_index = idx
                 self.failure_url = None
@@ -541,6 +576,7 @@ class InstallerApp(App):
                 self._log(f"Unexpected error: {exc}")
                 self.running = False
                 return
+            self._stop_working_indicator()
             self.step_state[step.key] = "done"
             self._render_steps()
             self._set_overall_progress(idx + 1)
@@ -580,7 +616,7 @@ class InstallerApp(App):
             return self.repo_root / ".venv" / "Scripts" / "python.exe"
         return self.repo_root / ".venv" / "bin" / "python"
 
-    def _ensure_venv(self) -> None:
+    def _ensure_venv_sync(self) -> None:
         if self.venv_python.exists():
             return
         self._log("Virtual environment missing. Creating .venv...")
@@ -617,7 +653,7 @@ class InstallerApp(App):
             self._log("Test mode: skipped environment checks.")
             return
         self._set_step_progress(2, 0, "Checking environment")
-        self._ensure_venv()
+        await self._run_blocking(self._ensure_venv_sync)
         self._advance_step_progress("Validating Python")
         if not self.venv_python.exists():
             raise StepFailure(

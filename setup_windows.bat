@@ -13,6 +13,7 @@ if "%~1"=="" (
 if /I "%~1"=="launched" (
   echo == Synthesia2MIDI setup ==
   echo Starting the guided installer...
+  echo.
 ) else (
   echo == Synthesia2MIDI setup ==
 )
@@ -22,9 +23,10 @@ if errorlevel 1 exit /b 1
 
 if not exist "logs" mkdir "logs"
 set "BOOT_LOG=%SCRIPT_DIR%logs\\installer_bootstrap.log"
+echo == bootstrap started at %DATE% %TIME% ==>> "%BOOT_LOG%"
 
 if not exist ".venv" (
-  echo Creating Python environment...
+  echo [1/3] Creating Python environment...
   "%PY_EXE%" %PY_ARGS% -m venv .venv
   if errorlevel 1 (
     echo.
@@ -33,10 +35,14 @@ if not exist ".venv" (
     pause
     exit /b 1
   )
+ ) else (
+  echo [1/3] Python environment already exists.
 )
 
-echo Installing installer UI... (first time can take a few minutes)
-".venv\Scripts\python.exe" -m pip install --disable-pip-version-check --upgrade textual > "%BOOT_LOG%" 2>&1
+echo [2/3] Installing installer UI ^(textual^).
+echo       First run can take several minutes while pip resolves/downloads packages.
+echo       Live output is shown below.
+".venv\Scripts\python.exe" -m pip install --disable-pip-version-check --upgrade textual
 if errorlevel 1 (
   echo.
   echo ERROR: Could not install the installer UI.
@@ -45,8 +51,8 @@ if errorlevel 1 (
   exit /b 1
 )
 
-echo Launching installer...
-".venv\Scripts\python.exe" "installer\tui_installer.py"
+echo [3/3] Launching guided installer UI...
+".venv\Scripts\python.exe" -u "installer\tui_installer.py"
 
 echo.
 echo Installer finished.

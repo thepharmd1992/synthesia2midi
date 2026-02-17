@@ -6,6 +6,7 @@ cd "$ROOT_DIR"
 
 echo "== Synthesia2MIDI setup =="
 echo "Starting the guided installer..."
+echo
 
 fail() {
   echo
@@ -17,6 +18,9 @@ fail() {
 
 BOOT_LOG="$ROOT_DIR/logs/installer_bootstrap.log"
 mkdir -p "$ROOT_DIR/logs"
+{
+  echo "== bootstrap started at $(date) =="
+} >> "$BOOT_LOG"
 
 PYTHON_BIN="python3"
 if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
@@ -36,15 +40,19 @@ if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
 fi
 
 if [[ ! -d ".venv" ]]; then
-  echo "Creating Python environment..."
+  echo "[1/3] Creating Python environment..."
   "$PYTHON_BIN" -m venv .venv || fail
+else
+  echo "[1/3] Python environment already exists."
 fi
 
 # shellcheck disable=SC1091
 source .venv/bin/activate
 
-echo "Installing installer UI... (first time can take a few minutes)"
-python -m pip install --disable-pip-version-check --upgrade textual >> "$BOOT_LOG" 2>&1 || fail
+echo "[2/3] Installing installer UI (textual)."
+echo "      First run can take several minutes while pip resolves/downloads packages."
+echo "      Live output is shown below and also logged to: $BOOT_LOG"
+python -m pip install --disable-pip-version-check --upgrade textual 2>&1 | tee -a "$BOOT_LOG" || fail
 
-echo "Launching installer..."
-python "installer/tui_installer.py" || fail
+echo "[3/3] Launching guided installer UI..."
+python -u "installer/tui_installer.py" || fail

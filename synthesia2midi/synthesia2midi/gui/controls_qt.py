@@ -127,6 +127,7 @@ class ControlPanelQt(QWidget):
     
     # ==================== Main Action Signals ====================
     conversion_requested = Signal()
+    midi_touchup_requested = Signal()
     trim_video_requested = Signal(int, int)  # start_frame, end_frame
     
     def __init__(self, parent=None, app_state: AppState = None, state_manager=None):
@@ -194,6 +195,15 @@ class ControlPanelQt(QWidget):
         convert_layout.addLayout(status_layout)
         
         always_visible_layout.addLayout(convert_layout)
+
+        touchup_layout = QHBoxLayout()
+        self.midi_touchup_button = QPushButton("Edit MIDI")
+        self.midi_touchup_button.setObjectName("midi_touchup_button")
+        self.midi_touchup_button.setMinimumHeight(34)
+        self.midi_touchup_button.clicked.connect(self._handle_midi_touchup_request)
+        touchup_layout.addWidget(self.midi_touchup_button)
+        touchup_layout.addStretch()
+        always_visible_layout.addLayout(touchup_layout)
         
         # Keyboard selection (if needed)
         keyboard_layout = QHBoxLayout()
@@ -1153,6 +1163,10 @@ class ControlPanelQt(QWidget):
         self.convert_button.setEnabled(False)
         self.conversion_status.setText("Converting video to MIDI...")
         self.conversion_requested.emit()
+
+    def _handle_midi_touchup_request(self):
+        """Open MIDI touch-up editor from the main UI action."""
+        self.midi_touchup_requested.emit()
 
     def _handle_exemplar_key_type_presence_toggled(self, key_type: str, checked: bool):
         """Handle per-key-type exemplar availability toggle."""

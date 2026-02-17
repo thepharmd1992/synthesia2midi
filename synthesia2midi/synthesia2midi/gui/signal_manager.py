@@ -98,6 +98,7 @@ class ControlSignalManager(QObject):
         
         # Conversion and testing actions
         cp.conversion_requested.connect(mw._start_conversion_process)
+        cp.midi_touchup_requested.connect(mw._open_midi_touchup_editor_from_picker)
         
         # Video trimming action
         cp.trim_video_requested.connect(mw._handle_trim_video_request)

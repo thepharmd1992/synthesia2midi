@@ -136,8 +136,16 @@ if errorlevel 1 (
   exit /b 1
 )
 
+call :ensure_rust_touchup
+if errorlevel 1 (
+  echo.
+  echo NOTE: Rust touch-up editor is not ready yet.
+  echo The core app will run, but Edit MIDI touch-up may prompt setup instructions.
+  echo.
+)
+
 echo Launching app...
-".venv\\Scripts\\python.exe" "synthesia2midi\\run.py"
+".venv\\Scripts\\python.exe" "run.py"
 
 rem Final FFmpeg check for visibility (so users see it last)
 set "FFMPEG_FINAL="
@@ -180,4 +188,65 @@ echo      %CD%\\synthesia2midi\\ffmpeg\\ffmpeg.exe
 echo      (create the ffmpeg folder if it does not exist)
 echo   4) Re-run setup_windows.bat
 echo.
+exit /b 1
+
+:ensure_rust_touchup
+set "RUST_EDITOR_DIR=%CD%\\tools\\midi_touchup_editor_rust"
+set "RUST_EDITOR_BIN=%RUST_EDITOR_DIR%\\target\\release\\midi-touchup-editor.exe"
+
+if not exist "%RUST_EDITOR_DIR%" (
+  exit /b 0
+)
+
+if exist "%RUST_EDITOR_BIN%" (
+  echo Rust touch-up editor already present.
+  exit /b 0
+)
+
+set "CARGO_EXE="
+for /f "delims=" %%I in ('where cargo 2^>nul') do (
+  if not defined CARGO_EXE set "CARGO_EXE=%%I"
+)
+if not defined CARGO_EXE if exist "%USERPROFILE%\.cargo\bin\cargo.exe" (
+  set "CARGO_EXE=%USERPROFILE%\.cargo\bin\cargo.exe"
+)
+
+if not defined CARGO_EXE (
+  echo.
+  echo Rust toolchain (cargo) was not found.
+  echo MIDI Touch-Up Editor now requires Rust.
+  echo.
+  echo Install Rust on Windows:
+  echo   winget install --id Rustlang.Rustup -e
+  echo Then restart terminal and re-run setup_windows.bat
+  echo.
+  exit /b 1
+)
+
+echo Building Rust MIDI Touch-Up Editor...
+pushd "%RUST_EDITOR_DIR%" >nul 2>&1
+if %errorlevel% neq 0 (
+  echo WARNING: Could not open Rust editor directory:
+  echo   %RUST_EDITOR_DIR%
+  exit /b 1
+)
+
+"%CARGO_EXE%" build --release
+if %errorlevel% neq 0 (
+  echo WARNING: Rust build failed.
+  echo Retry manually:
+  echo   cd tools\midi_touchup_editor_rust
+  echo   cargo build --release
+  popd
+  exit /b 1
+)
+popd
+
+if exist "%RUST_EDITOR_BIN%" (
+  echo Rust touch-up editor ready: %RUST_EDITOR_BIN%
+  exit /b 0
+)
+
+echo WARNING: Rust build completed but binary was not found:
+echo   %RUST_EDITOR_BIN%
 exit /b 1

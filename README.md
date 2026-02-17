@@ -25,11 +25,17 @@ Acknowledgments: see [ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md).
   - Windows: https://ffmpeg.org/download.html
   - macOS: `brew install ffmpeg`
   - Linux: install via your package manager (e.g., `sudo apt install ffmpeg`)
+- Rust toolchain (`cargo`) is needed to build the MIDI Touch-Up Editor binary
+  - Windows: `winget install --id Rustlang.Rustup -e`
+  - macOS/Linux: `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
 
 ### Setup (recommended)
 
 - Windows: run `setup_windows.bat`
 - macOS/Linux: run `./setup.sh` (or `bash setup.sh`)
+
+The setup scripts install Python dependencies and attempt to build the Rust Touch-Up Editor.  
+If Rust is missing, setup continues with a warning and `Edit MIDI` will show a guided build prompt until the Rust binary is built.
 
 ### Manual install (optional)
 
@@ -47,12 +53,23 @@ pip install -r synthesia2midi/requirements.txt
 ### Run (GUI)
 
 ```bash
-python synthesia2midi/run.py
+python run.py
 ```
+
+### Touch-Up Editor (Rust binary)
+
+If needed, build manually:
+
+```bash
+cd tools/midi_touchup_editor_rust
+cargo build --release
+```
+
+See `docs/midi_touchup_editor_rust_setup.md` for details.
 
 ### Windows convenience launcher
 
-On Windows you can also run `synthesia2midi\\run.bat`.
+On Windows you can also run `run.bat`.
 
 ## Architecture (High-Level)
 

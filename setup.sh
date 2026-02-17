@@ -53,6 +53,41 @@ python -m pip install -r synthesia2midi/requirements.txt
 # Always grab the latest yt-dlp (YouTube changes frequently)
 python -m pip install --upgrade yt-dlp
 
+RUST_EDITOR_DIR="tools/midi_touchup_editor_rust"
+RUST_EDITOR_BIN="${RUST_EDITOR_DIR}/target/release/midi-touchup-editor"
+
+if [[ -d "$RUST_EDITOR_DIR" ]]; then
+  echo "Checking Rust MIDI Touch-Up Editor..."
+
+  # rustup commonly installs cargo under ~/.cargo/bin without shell profile reload.
+  if ! command -v cargo >/dev/null 2>&1 && [[ -x "$HOME/.cargo/bin/cargo" ]]; then
+    export PATH="$HOME/.cargo/bin:$PATH"
+  fi
+
+  if command -v cargo >/dev/null 2>&1; then
+    echo "Building Rust MIDI Touch-Up Editor..."
+    if (cd "$RUST_EDITOR_DIR" && cargo build --release); then
+      echo "Rust touch-up editor ready: $RUST_EDITOR_BIN"
+    else
+      echo
+      echo "WARNING: Rust touch-up editor build failed."
+      echo "The core app will run, but Edit MIDI touch-up may be unavailable until this succeeds."
+      echo "Retry manually:"
+      echo "  cd $RUST_EDITOR_DIR && cargo build --release"
+      echo
+    fi
+  else
+    echo
+    echo "NOTE: Rust toolchain (cargo) was not found."
+    echo "The core app will run, but MIDI Touch-Up Editor requires a Rust build."
+    echo "Install Rust and re-run setup, or build manually:"
+    echo "  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y"
+    echo "  source \"$HOME/.cargo/env\""
+    echo "  cd $RUST_EDITOR_DIR && cargo build --release"
+    echo
+  fi
+fi
+
 if ! command -v ffmpeg >/dev/null 2>&1; then
   echo
   echo "NOTE: FFmpeg was not found."
@@ -63,4 +98,4 @@ if ! command -v ffmpeg >/dev/null 2>&1; then
 fi
 
 echo "Launching app..."
-python synthesia2midi/run.py
+python run.py

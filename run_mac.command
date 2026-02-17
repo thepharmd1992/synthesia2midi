@@ -10,4 +10,4 @@ if [ -f ".venv/bin/activate" ]; then
 fi
 
 # Launch the app
-exec python3 synthesia2midi/run.py
+exec python3 run.py

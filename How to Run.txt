@@ -7,9 +7,10 @@ Windows 10 and Windows 11
    - If a blue "Windows protected your PC" screen appears, click "More info" then "Run anyway".
    - If you are asked for permission, click Yes.
 4) Wait. A black window will show setup messages. Do not close it.
+   - Setup now also checks/builds the MIDI Touch-Up Editor (Rust).
 5) The app should open. If it does not open, look at the black window for errors and use the fixes below.
 6) When the app opens, click "Open Local Video File" to pick a video, or "Download from YouTube" to paste a link.
-7) Next time, you can double-click synthesia2midi\run.bat to start faster. If that fails, run setup_windows.bat again.
+7) Next time, you can double-click run.bat to start faster. If that fails, run setup_windows.bat again.
 
 If you see a permissions error:
 - Move the folder to Documents or Desktop and run setup_windows.bat again.
@@ -24,6 +25,12 @@ If you see "FFmpeg is missing":
    synthesia2midi\ffmpeg\ffmpeg.exe
 5) Run setup_windows.bat again.
 
+If you see "Rust toolchain (cargo) was not found":
+- MIDI Touch-Up Editor needs Rust.
+- Install Rust in Windows terminal:
+  winget install --id Rustlang.Rustup -e
+- Close/reopen terminal, then run setup_windows.bat again.
+
 Mac (macOS)
 1) If you downloaded a zip, double-click it to extract.
 2) Open the extracted folder. Keep all files together.
@@ -31,6 +38,7 @@ Mac (macOS)
    - If macOS blocks it, right-click setup.sh, choose Open, then click Open.
    - You might have to allow it in System Settings -> Privacy and Security -> Open Anyway.
 4) Wait. A Terminal window will show setup messages. Do not close it.
+   - Setup now also checks/builds the MIDI Touch-Up Editor (Rust).
 5) The app should open. If it does not open, use the fixes below.
 6) When the app opens, click "Open Local Video File" to pick a video, or "Download from YouTube" to paste a link.
 
@@ -46,3 +54,9 @@ If you see "FFmpeg not found":
 2) Copy and paste this:
    brew install ffmpeg
 3) If it says "brew: command not found", install Homebrew from https://brew.sh, then run the command again.
+
+If you see "Rust toolchain (cargo) was not found":
+- MIDI Touch-Up Editor needs Rust.
+- In Terminal, run:
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+- Restart Terminal, then run setup.sh again.

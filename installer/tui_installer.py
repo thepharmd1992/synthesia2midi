@@ -193,6 +193,7 @@ class InstallerApp(App):
         self.failure_url: Optional[str] = None
         self.fix_option_map: dict[str, FixOption] = {}
         self.fix_running = False
+        self.retry_clear_pip_cache = False
         self.running = False
         self.force_reinstall = False
         self.test_mode = os.environ.get("S2M_TEST_MODE", "").strip().lower() in {"1", "true", "yes"}
@@ -227,7 +228,7 @@ class InstallerApp(App):
         self.main_body = Static(id="main_body")
         self.main_hint = Static(id="main_hint")
         self.open_link_button = Button("Open help page", id="open_link_button")
-        self.fix_options_label = Static("Fix options (use arrows + Enter):", id="fix_options_label")
+        self.fix_options_label = Static("Actions (use arrows + Enter):", id="fix_options_label")
         self.fix_options_list = OptionList(id="fix_options")
         self.details = RichLog(id="details", wrap=True, highlight=False)
         self.footer = Static(self._footer_text(), id="footer")
@@ -297,6 +298,10 @@ class InstallerApp(App):
         self.force_reinstall = False
         self.open_link_button.display = False
         self._clear_fix_options()
+        if self.retry_clear_pip_cache:
+            self.retry_clear_pip_cache = False
+            self.main_hint.update("Clearing pip cache for all users...")
+            await self._clear_pip_cache_all_users()
         await self._run_steps(start)
 
     async def action_reinstall(self) -> None:
@@ -432,13 +437,14 @@ class InstallerApp(App):
         self.fix_options_label.display = False
         self.fix_options_list.display = False
 
-    def _set_fix_options(self, options: List[FixOption]) -> None:
+    def _set_action_options(self, label: str, options: List[FixOption]) -> None:
         self.fix_option_map.clear()
         self.fix_options_list.clear_options()
         if not options:
             self.fix_options_label.display = False
             self.fix_options_list.display = False
             return
+        self.fix_options_label.update(label)
         for idx, option in enumerate(options):
             option_id = f"fix_{idx}"
             self.fix_option_map[option_id] = option
@@ -486,6 +492,36 @@ class InstallerApp(App):
 
     async def _fix_open_link(self) -> None:
         self.action_open_link()
+
+    async def _quit_setup(self) -> None:
+        self.exit()
+
+    async def _launch_app_and_exit(self) -> None:
+        self.main_hint.update("Launching Synthesia2MIDI...")
+        self._launch_app()
+        self.exit()
+
+    def _launch_app(self) -> None:
+        system = platform.system().lower()
+        try:
+            if system.startswith("win"):
+                subprocess.Popen(
+                    ["cmd", "/c", "start", "", "run.bat"],
+                    cwd=str(self.repo_root),
+                )
+            elif system == "darwin":
+                subprocess.Popen(
+                    ["open", "run_mac.command"],
+                    cwd=str(self.repo_root),
+                )
+            else:
+                subprocess.Popen(
+                    [str(self.venv_python), str(self.repo_root / "run.py")],
+                    cwd=str(self.repo_root),
+                )
+        except Exception as exc:
+            self._log(f"Failed to launch app: {exc}")
+            self.main_hint.update("Could not launch the app. Please run it manually.")
 
     async def _fix_install_homebrew(self) -> None:
         self._set_step_progress(100, 0, "Installing Homebrew")
@@ -606,7 +642,10 @@ class InstallerApp(App):
                     self.open_link_button.display = True
                 else:
                     hint = "Use the Fix Options below (arrows + Enter), or press R or I. Press D for details."
-                self._set_fix_options(self._build_default_fix_options(exc))
+                self._set_action_options(
+                    "Fix options (use arrows + Enter):",
+                    self._build_default_fix_options(exc),
+                )
                 self._set_main(
                     exc.title,
                     f"{exc.message}\n\nWhat to do next:\n{instructions}",
@@ -797,7 +836,12 @@ class InstallerApp(App):
                 code = await self._run_command(cmd, cwd=self.repo_root)
                 output = []
             if code != 0:
-                fix_options: List[FixOption] = []
+                fix_options: List[FixOption] = [
+                    FixOption(
+                        "Clear pip cache for all users and retry",
+                        self._fix_clear_pip_cache_and_retry,
+                    )
+                ]
                 instructions = [
                     "Press R to try again.",
                     "If it still fails, press I to reinstall everything.",
@@ -806,13 +850,9 @@ class InstallerApp(App):
                     "Open the file logs/installer_tui.log (in this folder) and share it for help.",
                 ]
                 if self._is_pip_cache_permission_error(output):
-                    fix_options.append(
-                        FixOption(
-                            "Clear pip cache for all users and retry",
-                            self._fix_clear_pip_cache_and_retry,
-                        )
-                    )
+                    self.retry_clear_pip_cache = True
                     instructions = [
+                        "We could not write to the pip cache folder.",
                         "Select 'Clear pip cache for all users and retry' below.",
                         "If it still fails, press I to reinstall everything.",
                         "If you use antivirus or company security, allow this folder.",
@@ -1197,6 +1237,13 @@ class InstallerApp(App):
             "Setup complete",
             "Everything is installed and ready to use.",
             "You can now close this window and start the app.",
+        )
+        self._set_action_options(
+            "Actions (use arrows + Enter):",
+            [
+                FixOption("Run Synthesia2MIDI", self._launch_app_and_exit),
+                FixOption("Quit setup", self._quit_setup),
+            ],
         )
         self._log("Setup completed successfully.")
 

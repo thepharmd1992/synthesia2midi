@@ -1,1 +1,3 @@
 I came across svsdval's video2midi project (https://github.com/svsdval/video2midi) in early 2025 and was blown away that someone took the time to open-source such an ambitious project. Their repo was one of the first GitHub pages I ever visited, and I knew absolutely nothing about developing applications (and still don't know jack shit). svsdval's work (https://github.com/svsdval) inspired me to start creating tools that would be useful to others.
+
+The visual direction and interaction patterns for the Rust MIDI Touch-Up Editor were inspired by Neothesia (https://github.com/PolyMeilex/Neothesia).

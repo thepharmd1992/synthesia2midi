@@ -100,7 +100,11 @@ The code is organized with one-way dependencies:
 
 ## Third-Party Licenses
 
-See `THIRD_PARTY_NOTICES.md` for a list of direct Python dependencies and their licenses.
+See `THIRD_PARTY_NOTICES.md` for a list of third-party dependencies, included tools, and assets.
+
+## License
+
+This repository is licensed under GPL-3.0-only. See `LICENSE`.
 
 ## Known Limitations / Notes
 

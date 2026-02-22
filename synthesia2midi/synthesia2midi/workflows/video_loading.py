@@ -12,6 +12,7 @@ import traceback
 import re
 import threading
 import time
+from collections import deque
 from typing import Optional, Tuple
 
 from PySide6.QtWidgets import QMessageBox, QProgressDialog, QApplication
@@ -496,17 +497,13 @@ class VideoLoadingWorkflow:
                 total_frames = None
                 frames_created = 0
                 fps = None
-                stderr_output = []  # Store all stderr for error reporting
+                stderr_output = deque(maxlen=200)  # Keep only recent stderr for diagnostics
                 
-                # Parse FFmpeg stderr for video info (runs once at start)
-                def parse_video_info():
+                # Parse FFmpeg stderr continuously to avoid pipe backpressure deadlocks.
+                def parse_stderr_output():
                     nonlocal duration_ms, total_frames, fps, stderr_output
                     try:
-                        # Read initial stderr for video information
-                        while True:
-                            line = process.stderr.readline()
-                            if not line:
-                                break
+                        for line in process.stderr:
                             stderr_output.append(line)  # Store for later error reporting
                         
                             # Extract duration
@@ -522,15 +519,15 @@ class VideoLoadingWorkflow:
                                 fps_match = re.search(r'(\d+(?:\.\d+)?)\s*fps', line)
                                 if fps_match:
                                     fps = float(fps_match.group(1))
-                                    if duration_ms:
-                                        total_frames = int((duration_ms / 1000.0) * fps)
-                                        self.logger.info(f"[PROGRESS] Estimated total frames: {total_frames} (at {fps} fps)")
-                                        break
+                            
+                            if duration_ms and fps and not total_frames:
+                                total_frames = int((duration_ms / 1000.0) * fps)
+                                self.logger.info(f"[PROGRESS] Estimated total frames: {total_frames} (at {fps} fps)")
                     except Exception as e:
                         self.logger.error(f"[PROGRESS] Error parsing video info: {e}")
                 
-                # Start thread to parse video info
-                info_thread = threading.Thread(target=parse_video_info)
+                # Start thread to parse stderr
+                info_thread = threading.Thread(target=parse_stderr_output)
                 info_thread.daemon = True
                 info_thread.start()
                 
@@ -637,7 +634,7 @@ class VideoLoadingWorkflow:
                     
                     # Log error from stored stderr if available
                     if stderr_output:
-                        stderr_text = ''.join(stderr_output[-20:])  # Last 20 lines
+                        stderr_text = ''.join(list(stderr_output)[-20:])  # Last 20 lines
                         self.logger.error(f"[FRAME-CONVERT] FFmpeg error output:\n{stderr_text}")
                     
                     # Log specific failure reason

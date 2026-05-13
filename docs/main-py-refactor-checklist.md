@@ -295,7 +295,7 @@ Add one row per meaningful checkpoint commit.
 | 2026-05-12 | `a65a395` | Removed no-live-caller thin wrappers | 1,135 | `git diff --check`; compileall; pytest | Deleted stale wrappers and no-op detection logging callback; hotkeys now target `VideoControls` directly. |
 | 2026-05-12 | `496dfd0` | Extracted user-triggered MIDI conversion UI flow | 1,077 | `git diff --check`; compileall; pytest; ruff critical selectors | Added `MidiConversionController`; conversion signals/hotkey no longer target `main.py`. |
 | 2026-05-12 | `e7387ad` | Extracted video/session UI and frame-range handlers | 797 | `git diff --check`; compileall; pytest; ruff critical selectors | Added `VideoSessionUiController`; video/session signals and coordinator no longer call `main.py` wrappers. |
-| 2026-05-12 | pending | Extracted action/calibration/detection wrappers | 562 | pending | Added `MainActionController`; removed final calibration/effects/detection/overlay wrapper layer from `main.py`. |
+| 2026-05-12 | `f54be67` | Extracted action/calibration/detection wrappers | 562 | `git diff --check`; compileall; pytest; offscreen app smoke; ruff critical selectors | Added `MainActionController`; removed final calibration/effects/detection/overlay wrapper layer from `main.py`. |
 
 ## Next Recommended Checkpoints
 

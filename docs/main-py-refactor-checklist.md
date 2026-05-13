@@ -14,7 +14,7 @@ Measured 2026-05-12:
 
 | Metric | Before refactor (`HEAD`/`origin/main`) | Current working tree | Target guardrail |
 |---|---:|---:|---:|
-| `main.py` lines | 2,867 | 1,272 | ~500-700 if remaining code is UI composition only |
+| `main.py` lines | 2,867 | 1,244 | ~500-700 if remaining code is UI composition only |
 | `Video2MidiApp` methods | 121 | 117 | materially fewer; remaining methods should be shell/wiring or documented public API |
 | `Video2MidiApp` classes | 2 | 1 | 1 |
 
@@ -238,14 +238,14 @@ Goal: all Rust editor process lifecycle stays in `MidiTouchupController`; remove
 
 Remaining wrappers:
 
-- [ ] `_open_midi_touchup_editor_from_picker`
-- [ ] `_open_midi_touchup_editor`
-- [ ] `_resolve_midi_touchup_binary_path`
-- [ ] `_show_midi_touchup_setup_dialog`
-- [ ] `_handle_midi_touchup_process_finished`
-- [ ] `_cleanup_midi_touchup_process`
-- [ ] `_remove_midi_touchup_process_ref`
-- [ ] `_shutdown_midi_touchup_processes`
+- [x] `_open_midi_touchup_editor_from_picker` — deleted; `ControlSignalManager` connects directly to `midi_touchup_controller.open_from_picker`.
+- [x] `_open_midi_touchup_editor` — deleted; no live callers.
+- [x] `_resolve_midi_touchup_binary_path` — deleted; no live callers.
+- [x] `_show_midi_touchup_setup_dialog` — deleted; no live callers.
+- [x] `_handle_midi_touchup_process_finished` — deleted; no live callers.
+- [x] `_cleanup_midi_touchup_process` — deleted; no live callers.
+- [x] `_remove_midi_touchup_process_ref` — deleted; no live callers.
+- [x] `_shutdown_midi_touchup_processes` — deleted; `closeEvent` calls `midi_touchup_controller.shutdown_processes()` directly.
 
 Verification:
 
@@ -290,7 +290,8 @@ Add one row per meaningful checkpoint commit.
 
 | Date | Commit | Scope | `main.py` lines | Verification | Notes |
 |---|---|---|---:|---|---|
-| 2026-05-12 | uncommitted | First extraction wave + setup cleanup | 1,272 | pytest/setup gates passed during session | Still many wrappers; needs subsystem-by-subsystem wrapper deletion. |
+| 2026-05-12 | `e987c9c` | First extraction wave + setup cleanup | 1,272 | compileall, pytest, ruff critical selectors, cargo check | Still many wrappers; needs subsystem-by-subsystem wrapper deletion. |
+| 2026-05-12 | `0e7baef` | Removed MIDI touch-up wrappers from `main.py` | 1,244 | `git diff --check`; compileall; pytest | `ControlSignalManager` and `closeEvent` now target `MidiTouchupController` directly. |
 
 ## Next Recommended Checkpoints
 

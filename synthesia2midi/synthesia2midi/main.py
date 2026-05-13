@@ -499,7 +499,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
             # If No or save complete, proceed to close
 
         self._is_closing = True
-        self._shutdown_midi_touchup_processes()
+        self.midi_touchup_controller.shutdown_processes()
 
         # Clean up canvas resources
         if hasattr(self, 'keyboard_canvas') and self.keyboard_canvas:
@@ -624,34 +624,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
     def _show_conversion_complete_dialog_with_touchup(self, midi_output_path: str) -> None:
         return self.midi_touchup_controller.show_conversion_complete_dialog(midi_output_path)
 
-    def _open_midi_touchup_editor_from_picker(self) -> None:
-        return self.midi_touchup_controller.open_from_picker()
-
-    def _open_midi_touchup_editor(self, midi_path: str) -> None:
-        return self.midi_touchup_controller.open_editor(midi_path)
-
-    def _resolve_midi_touchup_binary_path(self) -> Optional[str]:
-        return self.midi_touchup_controller.resolve_binary_path()
-
-    def _show_midi_touchup_setup_dialog(self, midi_path: str) -> None:
-        return self.midi_touchup_controller.show_setup_dialog(midi_path)
-
-    def _handle_midi_touchup_process_finished(
-        self,
-        process: Any,
-        source_midi_path: str,
-        exit_code: int,
-    ) -> None:
-        return self.midi_touchup_controller.handle_process_finished(process, source_midi_path, exit_code)
-
-    def _cleanup_midi_touchup_process(self, process: Any) -> None:
-        return self.midi_touchup_controller.cleanup_process(process)
-
-    def _remove_midi_touchup_process_ref(self, process: Any) -> None:
-        return self.midi_touchup_controller.remove_process_ref(process)
-
-    def _shutdown_midi_touchup_processes(self) -> None:
-        return self.midi_touchup_controller.shutdown_processes()
 
     def _toggle_overlays(self):
         """Delegate overlay visibility toggle to DisplayManager."""

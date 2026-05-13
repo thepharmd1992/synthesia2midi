@@ -17,6 +17,7 @@ def test_main_window_uses_splitter_with_video_priority(monkeypatch):
         assert isinstance(app.content_splitter, QSplitter)
         assert app.content_splitter.count() == 2
         assert app.control_panel.minimumWidth() <= 320
+        assert app.control_panel.tab_widget.maximumWidth() <= 520
         assert app._settings_splitter_sizes[0] > app._settings_splitter_sizes[1]
     finally:
         app.close()

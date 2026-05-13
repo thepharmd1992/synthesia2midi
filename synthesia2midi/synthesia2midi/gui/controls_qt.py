@@ -155,7 +155,7 @@ class ControlPanelQt(QWidget):
         self.tab_widget = QTabWidget()
         self.tab_widget.setObjectName("main_tabs")
         self.tab_widget.setMaximumHeight(600)  # Constrain height to force scrolling in tabs
-        self.tab_widget.setMaximumWidth(850)  # Increased for 14pt font
+        self.tab_widget.setMaximumWidth(520)  # Keep settings compact on laptop screens
         
         # Create all tabs
         self._create_mandatory_calibration_tab()
@@ -174,7 +174,7 @@ class ControlPanelQt(QWidget):
     def _create_always_visible_section(self, parent_layout):
         """Create elements that are always visible regardless of tab."""
         always_visible_group = QGroupBox("Main Actions")
-        always_visible_group.setMaximumWidth(720)  # Increased for 14pt font
+        always_visible_group.setMaximumWidth(520)  # Keep settings compact on laptop screens
         always_visible_layout = QVBoxLayout(always_visible_group)
         always_visible_layout.setContentsMargins(10, 5, 10, 10)  # Reduce top margin inside group box
         
@@ -244,13 +244,13 @@ class ControlPanelQt(QWidget):
         
         # Key Overlay Calibration - inline layout
         overlay_layout = QHBoxLayout()
-        overlay_label = QLabel("Key Overlay Calibration")
+        overlay_label = QLabel("Overlays")
         overlay_label.setStyleSheet("font-weight: bold; font-size: 11pt;")
-        overlay_label.setFixedWidth(216)  # Scaled for 14pt font
+        overlay_label.setFixedWidth(90)
         overlay_layout.addWidget(overlay_label)
         
-        self.calibration_wizard_button = QPushButton("Calibrate Key Overlays")
-        self.calibration_wizard_button.setFixedWidth(264)
+        self.calibration_wizard_button = QPushButton("Calibrate")
+        self.calibration_wizard_button.setFixedWidth(120)
         # Center-aligned text (default for QPushButton)
         self.calibration_wizard_button.clicked.connect(self.calibration_wizard_requested.emit)
         self.calibration_wizard_button.setToolTip(
@@ -260,11 +260,11 @@ class ControlPanelQt(QWidget):
         
         # Octave transpose control
         overlay_layout.addSpacing(20)
-        overlay_layout.addWidget(QLabel("Octave Transpose:"))
+        overlay_layout.addWidget(QLabel("Octave:"))
         self.octave_transpose_spin = QSpinBox()
         self.octave_transpose_spin.setRange(-5, 5)
         self.octave_transpose_spin.setValue(0)
-        self.octave_transpose_spin.setFixedWidth(110)  # Increased width for value visibility at 14pt font
+        self.octave_transpose_spin.setFixedWidth(70)
         self.octave_transpose_spin.valueChanged.connect(self.octave_transpose_changed.emit)
         self.octave_transpose_spin.setToolTip("Shifts the MIDI output up/down by octaves.")
         overlay_layout.addWidget(self.octave_transpose_spin)
@@ -276,13 +276,13 @@ class ControlPanelQt(QWidget):
         
         # Unlit key calibration - inline layout with status
         unlit_layout = QHBoxLayout()
-        unlit_label = QLabel("Unlit Key Calibration")
+        unlit_label = QLabel("Unlit")
         unlit_label.setStyleSheet("font-weight: bold; font-size: 11pt;")
-        unlit_label.setFixedWidth(216)  # Scaled for 14pt font - same as above
+        unlit_label.setFixedWidth(90)
         unlit_layout.addWidget(unlit_label)
         
         self.calibrate_unlit_button = QPushButton("Calibrate")
-        self.calibrate_unlit_button.setFixedWidth(180)
+        self.calibrate_unlit_button.setFixedWidth(120)
         # Center-aligned text (default for QPushButton)
         self.calibrate_unlit_button.clicked.connect(self.calibrate_unlit_requested.emit)
         self.calibrate_unlit_button.setToolTip(
@@ -316,7 +316,7 @@ class ControlPanelQt(QWidget):
         # Single column order: LW, LB, RW, RB
         for key_type, label in [("LW", "Left White"), ("LB", "Left Black"), ("RW", "Right White"), ("RB", "Right Black")]:
             button = QPushButton(f"Calibrate {label}")
-            button.setFixedWidth(270)  # 1.5x wider than previous 180 minimum width
+            button.setFixedWidth(180)
             button.clicked.connect(lambda checked, kt=key_type: self.calibrate_lit_exemplar_requested.emit(kt))
             button.setToolTip(
                 "Captures a pressed-overlay example for this type. "
@@ -330,7 +330,7 @@ class ControlPanelQt(QWidget):
             color_swatch.setFixedSize(20, 20)
             color_swatch.setStyleSheet("border: 1px solid black; background-color: gray;")
             self.exemplar_swatches[key_type] = color_swatch
-            presence_cb = QCheckBox("Present in Video")
+            presence_cb = QCheckBox("Present")
             presence_cb.setChecked(True)
             presence_cb.setToolTip("Uncheck if this key type never appears in this video.")
             presence_cb.toggled.connect(
@@ -342,9 +342,9 @@ class ControlPanelQt(QWidget):
             button_layout = QHBoxLayout()
             button_layout.setContentsMargins(0, 0, 0, 0)
             button_layout.addWidget(button)
-            button_layout.addSpacing(30)  # Push swatch to the right
+            button_layout.addSpacing(8)
             button_layout.addWidget(color_swatch)
-            button_layout.addSpacing(18)  # Push checkbox to the right
+            button_layout.addSpacing(8)
             button_layout.addWidget(presence_cb)
             button_layout.addStretch()
             exemplar_container.addLayout(button_layout)

@@ -35,20 +35,20 @@ class ControlSignalManager(QObject):
         mw = self.main_window
         
         # Frame navigation interval
-        cp.nav_interval_changed.connect(mw._update_nav_interval)
+        cp.nav_interval_changed.connect(mw.video_session_ui_controller.update_nav_interval)
         
         # Frame slider (owned by main window, not control panel)
         mw.frame_slider.valueChanged.connect(mw.video_controls.on_frame_slider_changed)
         
         # YouTube video download
-        cp.youtube_video_downloaded.connect(mw._handle_youtube_video_downloaded)
+        cp.youtube_video_downloaded.connect(mw.video_session_ui_controller.handle_youtube_video_downloaded)
         
         # Video to frame series conversion
-        cp.video_to_frames_requested.connect(mw._handle_video_to_frames_request)
+        cp.video_to_frames_requested.connect(mw.video_session_ui_controller.handle_video_to_frames_request)
         
         # Video trim frame controls
-        cp.start_frame_changed.connect(mw._handle_start_frame_change)
-        cp.end_frame_changed.connect(mw._handle_end_frame_change)
+        cp.start_frame_changed.connect(mw.video_session_ui_controller.handle_start_frame_change)
+        cp.end_frame_changed.connect(mw.video_session_ui_controller.handle_end_frame_change)
         
         self.logger.debug("Video signals connected")
     
@@ -101,7 +101,7 @@ class ControlSignalManager(QObject):
         cp.midi_touchup_requested.connect(mw.midi_touchup_controller.open_from_picker)
         
         # Video trimming action
-        cp.trim_video_requested.connect(mw._handle_trim_video_request)
+        cp.trim_video_requested.connect(mw.video_session_ui_controller.handle_trim_video_request)
         
         # Spark ROI selection
         cp.spark_roi_selection_requested.connect(mw._handle_spark_roi_selection_request)
@@ -140,8 +140,8 @@ class ControlSignalManager(QObject):
         cp.fps_override_changed.connect(mw._handle_fps_override_change)
         
         # Custom MIDI processing range
-        cp.processing_start_frame_changed.connect(mw._handle_processing_start_frame_change)
-        cp.processing_end_frame_changed.connect(mw._handle_processing_end_frame_change)
+        cp.processing_start_frame_changed.connect(mw.video_session_ui_controller.handle_processing_start_frame_change)
+        cp.processing_end_frame_changed.connect(mw.video_session_ui_controller.handle_processing_end_frame_change)
         
         self.logger.debug("MIDI signals connected")
     

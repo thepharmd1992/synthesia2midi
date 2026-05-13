@@ -25,11 +25,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QAction, QPixmap
-from PySide6.QtWidgets import (
-    QAbstractItemView, QApplication, QDialog, QFileDialog, QHBoxLayout,
-    QLabel, QListView, QMainWindow, QMessageBox, QSlider,
-    QTreeView, QVBoxLayout, QWidget
-)
+from PySide6.QtWidgets import QApplication, QDialog, QHBoxLayout, QLabel, QMainWindow, QMessageBox, QSlider, QVBoxLayout, QWidget
 
 from .app_config import APP_NAME, FRAME_NAV_INTERVALS
 from synthesia2midi.config_manager import ConfigManager
@@ -48,8 +44,8 @@ from synthesia2midi.gui.midi_conversion_controller import MidiConversionControll
 from synthesia2midi.gui.midi_touchup_controller import MidiTouchupController
 from synthesia2midi.gui.signal_manager import ControlSignalManager
 from synthesia2midi.gui.startup_dialog import StartupDialog
-from synthesia2midi.gui.youtube_download_dialog import YouTubeDownloadDialog
 from synthesia2midi.gui.ui_update_interface import UIUpdateInterface
+from synthesia2midi.gui.video_session_ui_controller import VideoSessionUiController
 from synthesia2midi.gui.video_controls import VideoControls
 from synthesia2midi.gui.window_manager import WindowManager
 from synthesia2midi.video_loader import VideoSession
@@ -103,6 +99,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         # Video to frames conversion controller
         self.video_to_frames_worker = None
         self.video_to_frames_controller = VideoToFramesController(self)
+        self.video_session_ui_controller = VideoSessionUiController(self)
         self.calibration_interaction_controller = CalibrationInteractionController(self)
         self.calibration_effects_controller = CalibrationEffectsController(self)
         self.calibration_wizard_controller = CalibrationWizardController(self)
@@ -131,11 +128,11 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         # File menu
         filemenu = menubar.addMenu("File")
         open_action = QAction("Open Video (MP4)...", self)
-        open_action.triggered.connect(self._open_video_file)
+        open_action.triggered.connect(self.video_session_ui_controller.open_video_file)
         filemenu.addAction(open_action)
 
         youtube_action = QAction("Download Youtube Video...", self)
-        youtube_action.triggered.connect(self._show_youtube_download_dialog)
+        youtube_action.triggered.connect(self.video_session_ui_controller.show_youtube_download_dialog)
         filemenu.addAction(youtube_action)
 
         save_action = QAction("Save Settings (Ctrl+S)", self)
@@ -178,7 +175,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
             action = QAction(f"{interval} frame{'s' if interval != 1 else ''}", self)
             action.setCheckable(True)
             action.setChecked(self.app_state.video.current_nav_interval == interval)
-            action.triggered.connect(lambda checked, val=interval: self._handle_frame_nav_interval(val))
+            action.triggered.connect(lambda checked, val=interval: self.video_session_ui_controller.handle_frame_nav_interval(val))
             frame_nav_menu.addAction(action)
             self.frame_nav_actions[interval] = action
 
@@ -343,119 +340,17 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         logging.info("_show_startup_dialog: Showing startup dialog.")
 
         dialog = StartupDialog(self)
-        dialog.open_local_file.connect(self._open_video_file)
-        dialog.download_from_youtube.connect(self._show_youtube_download_dialog)
+        dialog.open_local_file.connect(self.video_session_ui_controller.open_video_file)
+        dialog.download_from_youtube.connect(self.video_session_ui_controller.show_youtube_download_dialog)
 
         # If user cancels, just continue with empty application
         if dialog.exec() != QDialog.Accepted:
             logging.info("_show_startup_dialog: User cancelled startup dialog, continuing with empty application.")
             # No video loaded, but app remains open
 
-    def _show_youtube_download_dialog(self):
-        """Show the YouTube download dialog."""
-        logging.info("_show_youtube_download_dialog: Showing YouTube download dialog.")
-
-        # Get the project root directory
-        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        videos_dir = os.path.join(project_root, 'videos')
-
-        dialog = YouTubeDownloadDialog(self, default_output_dir=videos_dir)
-        dialog.video_downloaded.connect(self._handle_youtube_video_downloaded)
-
-        if dialog.exec() != QDialog.Accepted:
-            # If user cancels YouTube dialog, just continue with empty application
-            logging.info("_show_youtube_download_dialog: User cancelled YouTube dialog, continuing with empty application.")
             # No video loaded, but app remains open
 
-    def _open_video_file(self):
-        """Open a video file or image sequence directory using VideoLoadingWorkflow."""
-        logging.info("_open_video_file: Method started.")
 
-        # Get the project root directory as starting location
-        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-        # Custom dialog that shows both files and directories
-        dialog = QFileDialog(self)
-        dialog.setWindowTitle("Select Video File or Image Sequence Directory")
-        dialog.setFileMode(QFileDialog.AnyFile)
-        dialog.setOption(QFileDialog.ShowDirsOnly, False)
-        dialog.setNameFilter("Video/Images (*.mp4 *.avi *.mov *.jpg *.png);;All files (*.*)")
-
-        # Set dialog size - expand width by factor of 2
-        dialog.resize(1200, 800)  # Default QFileDialog is typically around 600x400
-
-        # Set default directory to project root
-        if os.path.exists(project_root):
-            dialog.setDirectory(project_root)
-            logging.info(f"_open_video_file: Set default directory to: {project_root}")
-        else:
-            logging.warning(f"_open_video_file: Project root directory not found: {project_root}")
-
-        # Try non-native dialog first for better file/directory selection
-        use_native = False
-        try:
-            dialog.setOption(QFileDialog.DontUseNativeDialog, True)
-            file_view = dialog.findChild(QListView)
-            if file_view:
-                file_view.setSelectionMode(QAbstractItemView.SingleSelection)
-            tree_view = dialog.findChild(QTreeView)
-            if tree_view:
-                tree_view.setSelectionMode(QAbstractItemView.SingleSelection)
-        except Exception as e:
-            logging.warning(f"_open_video_file: Non-native dialog setup failed: {e}")
-            use_native = True
-
-        # Show dialog
-        if not dialog.exec():
-            logging.info("_open_video_file: Dialog cancelled.")
-            # If non-native dialog failed and user cancelled, try native dialog
-            if not use_native:
-                logging.info("_open_video_file: Trying native Windows dialog as fallback...")
-                filepath, _ = QFileDialog.getOpenFileName(
-                    self,
-                    "Select Video File",
-                    project_root if os.path.exists(project_root) else "",
-                    "Video/Images (*.mp4 *.avi *.mov *.jpg *.png);;All files (*.*)"
-                )
-                if not filepath:
-                    logging.info("_open_video_file: Native dialog also cancelled.")
-                    return
-            else:
-                return
-        else:
-            selected = dialog.selectedFiles()
-            if not selected:
-                logging.info("_open_video_file: No file selected.")
-                return
-            filepath = selected[0]
-        logging.info(
-            f"_open_video_file: filedialog returned: '{filepath if filepath else 'Dialog cancelled or no file selected'}'"
-        )
-        if not filepath:
-            logging.info("_open_video_file: No filepath selected, returning.")
-            return
-
-        logging.info("_open_video_file: Proceeding with filepath.")
-        self.video_session_coordinator.load_path(
-            filepath,
-            log_prefix="_open_video_file",
-            update_fps_display=True,
-        )
-
-
-    def _handle_youtube_video_downloaded(self, filepath: str):
-        """Handle a video downloaded from YouTube."""
-        logging.info(f"_handle_youtube_video_downloaded: Loading YouTube video from {filepath}")
-        logging.info(f"_handle_youtube_video_downloaded: Auto-convert setting: {self.app_state.ui.auto_convert_to_frames}")
-        self.video_session_coordinator.load_path(
-            filepath,
-            log_prefix="_handle_youtube_video_downloaded",
-            update_fps_display=False,
-        )
-
-    def _handle_video_to_frames_request(self):
-        """Handle request to convert current video to frame series."""
-        return self.video_to_frames_controller.handle_request()
 
     def _save_settings(self):
         if not self.app_state.video.filepath:
@@ -493,24 +388,9 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         logging.info(f"{APP_NAME} closing.")
         event.accept()
 
-    def _update_nav_interval(self, value: int):
-        """Delegate navigation interval update to ParameterManager and update menu."""
-        self.parameter_manager.update_nav_interval(value)
 
-        # Update menu check states when interval changes from other sources
-        if hasattr(self, 'frame_nav_actions'):
-            for nav_interval, action in self.frame_nav_actions.items():
-                action.setChecked(nav_interval == value)
-
-    def _update_frame_slider_for_video(self):
-        """Update frame slider range and state when video is loaded."""
-        self.video_controls.update_frame_slider_for_video()
 
     # Frame slider events are handled by VideoControls via ControlSignalManager.
-
-    def _display_frame_with_slider_update(self, frame_index: int) -> bool:
-        """Wrapper for display_frame that also updates the frame slider."""
-        return self.video_controls.display_frame_with_slider_update(frame_index)
 
     def _update_current_frame_display(self):
         """Centralized function to reprocess and redisplay the current frame."""
@@ -534,22 +414,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         if self.display_manager:
             self.display_manager.toggle_live_detection_feedback()
 
-
-    def _handle_frame_nav_interval(self, interval: int):
-        """Handle frame navigation interval selection from menu."""
-        # Update state
-        self.app_state.video.current_nav_interval = interval
-        self.app_state.unsaved_changes = True
-
-        # Update menu check states (mutual exclusivity)
-        for nav_interval, action in self.frame_nav_actions.items():
-            action.setChecked(nav_interval == interval)
-
-        # Emit signal to update control panel and other components
-        if hasattr(self.control_panel, 'nav_interval_changed'):
-            self.control_panel.nav_interval_changed.emit(interval)
-
-        logging.info(f"Frame navigation interval changed to: {interval}")
 
     def _handle_visual_threshold_monitor_menu(self, checked: bool):
         """Handle visual threshold monitor toggle from menu."""
@@ -698,26 +562,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
     def _handle_fall_delta_threshold_change(self, threshold: float):
         """Handle fall delta threshold change."""
         self.app_state.detection.fall_delta_threshold = threshold
-        self.app_state.unsaved_changes = True
-
-    def _handle_start_frame_change(self, frame: int):
-        """Compatibility handler for start-frame signals.
-
-        The app uses `processing_start_frame` for non-destructive processing ranges. This
-        handler keeps `video.start_frame` and the processing range in sync.
-        """
-        self.app_state.video.start_frame = frame
-        self.app_state.video.processing_start_frame = frame  # Keep in sync with processing range
-        self.app_state.unsaved_changes = True
-
-    def _handle_end_frame_change(self, frame: int):
-        """Compatibility handler for end-frame signals.
-
-        The app uses `processing_end_frame` for non-destructive processing ranges. This
-        handler keeps `video.end_frame` and the processing range in sync.
-        """
-        self.app_state.video.end_frame = frame
-        self.app_state.video.processing_end_frame = frame  # Keep in sync with processing range
         self.app_state.unsaved_changes = True
 
     def _handle_refresh_selected_overlay_display(self):
@@ -876,130 +720,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
 
         # Mark state as changed
         self.app_state.mark_unsaved()
-
-    def _handle_processing_start_frame_change(self, frame_value: int):
-        """Handle processing start frame change from control panel.
-
-        Args:
-            frame_value: The new start frame for MIDI processing
-        """
-        if hasattr(self.app_state, 'video'):
-            video = self.app_state.video
-
-            # If video is trimmed, constrain to trim range
-            if video.video_is_trimmed:
-                min_frame = video.trim_start_frame
-                max_frame = video.trim_end_frame
-                frame_value = max(min_frame, min(frame_value, max_frame))
-            else:
-                # Validate bounds (0 to total frames)
-                total_frames = getattr(video, 'total_frames', 0)
-                if total_frames > 0:
-                    frame_value = max(0, min(frame_value, total_frames - 1))
-
-            # Validate that start < end (if end is set)
-            if (video.processing_end_frame > 0 and
-                frame_value >= video.processing_end_frame):
-                logging.warning(f"Processing start frame {frame_value} must be less than end frame {video.processing_end_frame}")
-                return
-
-            video.processing_start_frame = frame_value
-            self.app_state.mark_unsaved()
-            logging.info(f"Set MIDI processing start frame to: {frame_value}")
-
-    def _handle_processing_end_frame_change(self, frame_value: int):
-        """Handle processing end frame change from control panel.
-
-        Args:
-            frame_value: The new end frame for MIDI processing
-        """
-        if hasattr(self.app_state, 'video'):
-            video = self.app_state.video
-
-            # If video is trimmed, constrain to trim range
-            if video.video_is_trimmed:
-                min_frame = video.trim_start_frame
-                max_frame = video.trim_end_frame
-                frame_value = max(min_frame, min(frame_value, max_frame))
-            else:
-                # Validate bounds (0 to total frames)
-                total_frames = getattr(video, 'total_frames', 0)
-                if total_frames > 0:
-                    frame_value = max(0, min(frame_value, total_frames - 1))
-
-            # Validate that end > start (if start is set)
-            if (video.processing_start_frame > 0 and
-                frame_value <= video.processing_start_frame):
-                logging.warning(f"Processing end frame {frame_value} must be greater than start frame {video.processing_start_frame}")
-                return
-
-            video.processing_end_frame = frame_value
-            self.app_state.mark_unsaved()
-            logging.info(f"Set MIDI processing end frame to: {frame_value}")
-
-    def _handle_trim_video_request(self, start_frame: int, end_frame: int):
-        """Handle video trimming request - makes trim range permanent for session."""
-        if not hasattr(self.app_state, 'video'):
-            return
-
-        video = self.app_state.video
-
-        # Set trim parameters
-        video.trim_start_frame = start_frame
-        video.trim_end_frame = end_frame if end_frame != -1 else video.total_frames - 1
-        video.video_is_trimmed = True
-
-        # Update MIDI processing range to match trim range
-        video.processing_start_frame = video.trim_start_frame
-        video.processing_end_frame = video.trim_end_frame
-
-        # Update UI controls to reflect new ranges
-        self.control_panel.update_controls_from_state()
-        self.control_panel.update_video_frame_limits()
-
-        # Update frame slider to respect new trim range
-        self._update_frame_slider_for_video()
-
-        # Navigate to start of trimmed range
-        self._display_frame_with_slider_update(start_frame)
-
-        # Save the changes
-        self.app_state.mark_unsaved()
-
-        # Auto-save trim settings
-        if hasattr(self, 'video_loading_workflow') and self.video_loading_workflow:
-            success = self.video_loading_workflow.save_current_config()
-            if success:
-                logging.info("Video trim settings automatically saved to config file.")
-            else:
-                logging.warning("Auto-save of video trim settings failed.")
-
-        logging.info(f"Video trimmed to frames {start_frame} to {video.trim_end_frame}. MIDI processing range updated accordingly.")
-
-    def _initialize_processing_range_defaults(self):
-        """Initialize processing range defaults based on trim range if not already set."""
-        if not hasattr(self.app_state, 'video'):
-            return
-
-        video = self.app_state.video
-
-        # If processing range is not set (both are 0), set defaults based on trim range
-        if video.processing_start_frame == 0 and video.processing_end_frame == 0:
-            if video.video_is_trimmed and video.trim_start_frame > 0:
-                # Use trim range as default
-                video.processing_start_frame = video.trim_start_frame
-                video.processing_end_frame = video.trim_end_frame if video.trim_end_frame > 0 else video.total_frames - 1
-                logging.info(f"Set processing range defaults from trim range: {video.processing_start_frame} to {video.processing_end_frame}")
-            else:
-                # Use full video range as default
-                video.processing_start_frame = 0
-                video.processing_end_frame = video.total_frames - 1 if video.total_frames > 0 else 0
-                logging.info(f"Set processing range defaults to full video: {video.processing_start_frame} to {video.processing_end_frame}")
-
-            # Update the UI controls
-            if hasattr(self.control_panel, 'processing_start_frame_spin'):
-                self.control_panel.processing_start_frame_spin.setValue(video.processing_start_frame)
-                self.control_panel.processing_end_frame_spin.setValue(video.processing_end_frame)
 
     def _resize_and_position_window(self):
         """Delegate window resize and positioning to WindowManager."""

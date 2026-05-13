@@ -65,7 +65,7 @@ class VideoSessionCoordinator:
         app.video_controls.set_video_session(video_session)
         self._set_canvas_video_session(video_session, log_prefix)
 
-        app._update_frame_slider_for_video()
+        app.video_controls.update_frame_slider_for_video()
         app.control_panel.update_video_frame_limits()
 
         if update_fps_display and app.video_session:
@@ -121,16 +121,16 @@ class VideoSessionCoordinator:
         if config_loaded_from_specific_ini:
             app.control_panel.update_controls_from_state()
             app.control_panel.update_trim_controls_from_state()
-            app._initialize_processing_range_defaults()
+            app.video_session_ui_controller.initialize_processing_range_defaults()
             initial_frame = (
                 app.app_state.video.processing_start_frame
                 if app.app_state.video.processing_start_frame > 0
                 else app.app_state.video.current_frame_index
             )
-            app._display_frame_with_slider_update(initial_frame)
+            app.video_controls.display_frame_with_slider_update(initial_frame)
             app.control_panel.convert_button.setEnabled(app.control_panel._can_convert())
             app.control_panel.wizard_button.setEnabled(True)
-            app._resize_and_position_window()
+            app.window_manager.resize_and_position_window()
             return
 
         logging.info("Video-specific INI not found or failed to load. User must run calibration wizard.")
@@ -139,7 +139,7 @@ class VideoSessionCoordinator:
         app.control_panel.update_controls_from_state()
         app.control_panel.update_trim_controls_from_state()
         initial_frame = app.app_state.video.trim_start_frame if app.app_state.video.video_is_trimmed else 0
-        app._display_frame_with_slider_update(initial_frame)
+        app.video_controls.display_frame_with_slider_update(initial_frame)
         app.control_panel.convert_button.setEnabled(False)
         app.control_panel.wizard_button.setEnabled(True)
-        app._resize_and_position_window()
+        app.window_manager.resize_and_position_window()

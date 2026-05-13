@@ -14,7 +14,7 @@ Measured 2026-05-12:
 
 | Metric | Before refactor (`HEAD`/`origin/main`) | Current working tree | Target guardrail |
 |---|---:|---:|---:|
-| `main.py` lines | 2,867 | 1,077 | ~500-700 if remaining code is UI composition only |
+| `main.py` lines | 2,867 | 797 | ~500-700 if remaining code is UI composition only |
 | `Video2MidiApp` methods | 121 | 117 | materially fewer; remaining methods should be shell/wiring or documented public API |
 | `Video2MidiApp` classes | 2 | 1 | 1 |
 
@@ -99,19 +99,19 @@ Goal: all video/session operations live in `VideoLoadingWorkflow`, `VideoSession
 
 Remaining methods to classify/extract/delete wrappers:
 
-- [ ] `_open_video_file` — 74 lines; likely should be moved almost entirely to video session workflow/controller.
-- [ ] `_show_youtube_download_dialog` — 14 lines.
-- [ ] `_handle_youtube_video_downloaded` — 9 lines.
-- [ ] `_handle_video_to_frames_request` — 3 lines.
-- [ ] `_update_frame_nav_interval` — 8 lines.
-- [ ] `_handle_frame_nav_interval` — 15 lines.
-- [ ] `_update_frame_slider_for_video` — 3 lines.
-- [ ] `_handle_start_frame_change` — 9 lines.
-- [ ] `_handle_end_frame_change` — 9 lines.
-- [ ] `_handle_processing_start_frame_change` — 29 lines.
-- [ ] `_handle_processing_end_frame_change` — 29 lines.
-- [ ] `_handle_trim_video_request` — 38 lines.
-- [ ] `_initialize_processing_range_defaults` — 24 lines.
+- [x] `_open_video_file` — deleted; file dialog flow moved to `VideoSessionUiController.open_video_file`.
+- [x] `_show_youtube_download_dialog` — deleted; moved to `VideoSessionUiController.show_youtube_download_dialog`.
+- [x] `_handle_youtube_video_downloaded` — deleted; moved to `VideoSessionUiController.handle_youtube_video_downloaded`.
+- [x] `_handle_video_to_frames_request` — deleted; signal now targets `VideoSessionUiController.handle_video_to_frames_request`.
+- [x] `_update_frame_nav_interval` — stale checklist name; actual `_update_nav_interval` deleted and moved to `VideoSessionUiController.update_nav_interval`.
+- [x] `_handle_frame_nav_interval` — deleted; frame-nav menu targets `VideoSessionUiController.handle_frame_nav_interval`.
+- [x] `_update_frame_slider_for_video` — deleted; coordinator now calls `video_controls.update_frame_slider_for_video` directly.
+- [x] `_handle_start_frame_change` — deleted; signal now targets `VideoSessionUiController.handle_start_frame_change`.
+- [x] `_handle_end_frame_change` — deleted; signal now targets `VideoSessionUiController.handle_end_frame_change`.
+- [x] `_handle_processing_start_frame_change` — deleted; moved to `VideoSessionUiController` with coverage.
+- [x] `_handle_processing_end_frame_change` — deleted; moved to `VideoSessionUiController` with coverage.
+- [x] `_handle_trim_video_request` — deleted; moved to `VideoSessionUiController` with coverage.
+- [x] `_initialize_processing_range_defaults` — deleted; moved to `VideoSessionUiController` with coverage.
 - [ ] `get_video_session` — 3 lines; keep only if external callers need it.
 - [ ] `has_video_loaded` — 3 lines; keep only if external callers need it.
 - [ ] `get_total_frames` — 3 lines; keep only if external callers need it.
@@ -294,6 +294,7 @@ Add one row per meaningful checkpoint commit.
 | 2026-05-12 | `5036152` | Removed MIDI touch-up wrappers from `main.py` | 1,244 | `git diff --check`; compileall; pytest | `ControlSignalManager` and `closeEvent` now target `MidiTouchupController` directly. |
 | 2026-05-12 | `a65a395` | Removed no-live-caller thin wrappers | 1,135 | `git diff --check`; compileall; pytest | Deleted stale wrappers and no-op detection logging callback; hotkeys now target `VideoControls` directly. |
 | 2026-05-12 | pending | Extracted user-triggered MIDI conversion UI flow | 1,077 | pending | Added `MidiConversionController`; conversion signals/hotkey no longer target `main.py`. |
+| 2026-05-12 | pending | Extracted video/session UI and frame-range handlers | 797 | pending | Added `VideoSessionUiController`; video/session signals and coordinator no longer call `main.py` wrappers. |
 
 ## Next Recommended Checkpoints
 

@@ -9,10 +9,18 @@ __pycache__/
 *.so
 .Python
 .pip-cache/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
 env/
 venv/
 .venv/
 .env
+.env.*
+!.env.example
 
 # IDE
 .idea/
@@ -31,10 +39,22 @@ Thumbs.db
 # AGENTS.md is intentionally tracked as the public agent contract for this repo.
 agents.md
 !AGENTS.md
+.hermes/
+.hermes-*/
+.honcho/
 .claude/
 .claude.json
+CLAUDE.local.md
 .codex/
+.opencode/
+.aider*
+.continue/
+.roo/
+.serena/
 .mcp.json
+HANDOFF_DELETE_AFTER_READING.md
+*_handoff*.md
+*handoff_delete*.md
 
 # Logs
 *.log

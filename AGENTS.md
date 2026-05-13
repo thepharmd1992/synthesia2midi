@@ -14,7 +14,7 @@ Coding-agent instructions for this repo.
 - Preserve per-video config/calibration compatibility unless the task explicitly includes a migration.
 - Do not commit generated media, logs, extracted frames, MIDI files, `.venv`, or Rust `target/` output.
 - Start every task with `git status --short --branch` and protect unrelated user/agent changes.
-- For multi-step refactors or setup changes, make frequent small commits after passing relevant verification.
+- For multi-step refactors, setup changes, and UI/layout work, make frequent small checkpoint commits after each coherent slice passes relevant verification; do not stockpile large uncommitted batches.
 - Keep changes bounded. Do not opportunistically refactor neighboring systems.
 - Add or update tests before behavior changes and before risky refactors.
 - Keep docs focused on stable contracts, commands, decisions, and boundaries.

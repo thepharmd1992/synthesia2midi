@@ -28,8 +28,9 @@ venv/
 Thumbs.db
 
 # Local agent / assistant files (keep out of public repo)
-AGENTS.md
+# AGENTS.md is intentionally tracked as the public agent contract for this repo.
 agents.md
+!AGENTS.md
 .claude/
 .claude.json
 .codex/

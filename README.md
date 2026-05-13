@@ -20,57 +20,46 @@ Acknowledgments: see [ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md).
 
 ### Requirements
 
-- Python 3.12+ recommended
-- FFmpeg is recommended (used for YouTube downloads and optional video-to-frames conversion)
-  - Windows: https://ffmpeg.org/download.html
+- Python 3.12+ recommended.
+- FFmpeg is required and must be available on `PATH`.
+  - Windows: `winget install Gyan.FFmpeg`
   - macOS: `brew install ffmpeg`
-  - Linux: install via your package manager (e.g., `sudo apt install ffmpeg`)
-- Rust toolchain (`cargo`) is needed to build the MIDI Touch-Up Editor binary
+  - Linux: install via your package manager, e.g. `sudo apt install ffmpeg`
+- Rust toolchain (`cargo`) is optional for the main app, but needed to build the MIDI Touch-Up Editor binary.
   - Windows: `winget install --id Rustlang.Rustup -e`
   - macOS/Linux: `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
 
-### Setup (recommended)
+### Setup
 
-- Windows: run `setup_windows.bat`
-- macOS/Linux: run `./setup.sh` (or `bash setup.sh`)
+Run from the repo root.
 
-The setup scripts install Python dependencies and attempt to build the Rust Touch-Up Editor.  
-If Rust is missing, setup now auto-installs Rust and then builds the editor. If auto-install fails, `Edit MIDI` will show a guided build prompt until the Rust binary is built.
-The launchers `run.bat` and `run_mac.command` now auto-run setup on first launch if `.venv` or the Rust touch-up binary is missing.
-
-### Manual install (optional)
+macOS/Linux:
 
 ```bash
-python -m venv .venv
-# macOS/Linux:
-source .venv/bin/activate
-# Windows (PowerShell):
-#   .\\.venv\\Scripts\\Activate.ps1
-# Windows (cmd.exe):
-#   .\\.venv\\Scripts\\activate.bat
-pip install -r synthesia2midi/requirements.txt
+python3 setup_env.py
 ```
+
+Windows:
+
+```powershell
+py setup_env.py
+```
+
+The setup script creates/updates the repo-local `.venv`, installs Python dependencies, verifies FFmpeg, and builds the Rust Touch-Up Editor if `cargo` is available. If FFmpeg is missing, setup fails with install instructions.
+
+You do not need to activate `.venv` manually; `run.py` uses it automatically.
 
 ### Run (GUI)
 
 ```bash
-python run.py
+python3 run.py
 ```
+
+On Windows, use `py run.py`.
 
 ### Touch-Up Editor (Rust binary)
 
-If needed, build manually:
-
-```bash
-cd tools/midi_touchup_editor_rust
-cargo build --release
-```
-
-See `docs/midi_touchup_editor_rust_setup.md` for details.
-
-### Windows convenience launcher
-
-On Windows you can also run `run.bat`.
+The setup script builds the Rust MIDI Touch-Up Editor automatically when `cargo` is available. Without Cargo, the main app still works; touch-up editing is unavailable until the binary is built.
 
 ## Architecture (High-Level)
 

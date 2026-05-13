@@ -1,0 +1,9 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+  "qt: tests that instantiate Qt widgets",
+  "slow: slower integration tests",
+  "network: tests that require network access",
+  "ffmpeg: tests that require ffmpeg",
+]

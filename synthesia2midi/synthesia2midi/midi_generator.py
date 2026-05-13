@@ -34,11 +34,11 @@ class MidiWriter:
         self.notes_buffer: List[Dict] = [] # Buffer for notes before adding to MIDIFile
         self.miditrackname: str = 'synthesia2midi Output'
         self.tempo: int = 120 # Default tempo
-        
+
         # Track active notes for note-on/note-off workflow
         # Format: {(track, channel, pitch): start_time}
         self.active_notes: Dict[Tuple[int, int, int], float] = {}
-        
+
         # MIDIFile parameters:
         # numTracks, removeDuplicates, deinterleave, adjust_origin, file_format
         self.mf = MIDIFile(numTracks=num_tracks,
@@ -61,7 +61,7 @@ class MidiWriter:
         """Adds a program change event (instrument change)."""
         self.mf.addProgramChange(track, channel, time, program)
 
-    def add_note_to_buffer(self, track: int, channel: int, pitch: int, 
+    def add_note_to_buffer(self, track: int, channel: int, pitch: int,
                            start_time_beats: float, duration_beats: float, volume: int = 100) -> None:
         """
         Adds a note to an internal buffer. Notes from the buffer are written to the
@@ -75,11 +75,11 @@ class MidiWriter:
             volume: Note velocity (0-127).
         """
         self.notes_buffer.append({
-            'track': track, 
-            'channel': channel, 
-            'pitch': pitch, 
-            'start_time': start_time_beats, 
-            'duration': duration_beats, 
+            'track': track,
+            'channel': channel,
+            'pitch': pitch,
+            'start_time': start_time_beats,
+            'duration': duration_beats,
             'volume': volume
         })
 
@@ -112,10 +112,10 @@ class MidiWriter:
             start_time = self.active_notes[note_key]
             duration = max(0.01, time - start_time)  # Minimum duration to avoid zero-length notes
             self.mf.addNote(track, channel, pitch, start_time, duration, velocity)
-        
+
         # Start tracking this note
         self.active_notes[note_key] = time
-    
+
     def add_note_off(self, track: int, channel: int, time: float, pitch: int, velocity: int = 80) -> None:
         """
         Adds a note-off event by completing the note with proper duration.
@@ -131,7 +131,7 @@ class MidiWriter:
             start_time = self.active_notes.pop(note_key)
             duration = max(0.01, time - start_time)  # Minimum duration to avoid zero-length notes
             self.mf.addNote(track, channel, pitch, start_time, duration, velocity)
-    
+
     def save_file(self, filename: str) -> bool:
         """
         Alias for save_to_disk that returns only success status.
@@ -160,7 +160,7 @@ class MidiWriter:
             else:
                 duration = 0.5  # Default duration of half a beat
             self.mf.addNote(track, channel, pitch, start_time, duration, 80)
-        
+
         self.logger.info(f"[FINALIZE-NOTES] Cleared {len(self.active_notes)} active notes")
         self.active_notes.clear()
 
@@ -173,11 +173,11 @@ class MidiWriter:
             A tuple (success, message).
         """
         self.logger.warning("[SAVE-TO-DISK-START] Starting save_to_disk operation")
-        
+
         # Finalize any remaining active notes
         self.logger.info("[SAVE-TO-DISK] Finalizing active notes...")
         self.finalize_active_notes()
-        
+
         if not self.notes_buffer:
             # Allow saving an empty MIDI file if tracks/tempo were set up
             # return False, 'No notes to save.'
@@ -188,10 +188,12 @@ class MidiWriter:
 
         self.logger.info("[SAVE-TO-DISK] Committing buffer to MIDI file...")
         self._commit_buffer_to_midifile()
-        
+
         try:
             self.logger.warning(f"[SAVE-TO-DISK-WRITE] Creating directory and writing file: {filename}")
-            os.makedirs(os.path.dirname(filename), exist_ok=True)
+            output_dir = os.path.dirname(filename)
+            if output_dir:
+                os.makedirs(output_dir, exist_ok=True)
             with open(filename, 'wb') as outf:
                 self.logger.warning("[SAVE-TO-DISK-WRITE] Calling midiutil writeFile...")
                 self.mf.writeFile(outf)

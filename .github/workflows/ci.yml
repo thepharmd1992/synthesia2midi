@@ -4,6 +4,10 @@ on:
   push:
   pull_request:
 
+env:
+  PYTHONPATH: synthesia2midi
+  QT_QPA_PLATFORM: offscreen
+
 jobs:
   python-smoke:
     runs-on: ${{ matrix.os }}
@@ -20,17 +24,46 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r synthesia2midi/requirements.txt
+          python -m pip install -r synthesia2midi/requirements.txt pytest ruff
 
       - name: Compile sources
         run: |
           python -m compileall -q synthesia2midi
 
-      - name: Import smoke test
-        env:
-          PYTHONPATH: synthesia2midi
+      - name: Syntax/name lint
         run: |
-          python -c "from synthesia2midi.main import Video2MidiApp; print('import ok')"
+          python -m ruff check synthesia2midi tests --select=E9,F63,F7,F82
+
+      - name: Import smoke test
+        shell: bash
+        run: |
+          python - <<'PY'
+          from synthesia2midi.detection.monolithic_detector import MonolithicPianoDetector
+          from synthesia2midi.detection.auto_detect_adapter import AutoDetectAdapter
+          from synthesia2midi.detection.factory import DetectionFactory
+          from synthesia2midi.main import Video2MidiApp
+          print('import ok')
+          print(DetectionFactory.get_available_methods())
+          PY
+
+      - name: Run tests
+        run: |
+          python -m pytest -q
+
+  rust-touchup:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Check MIDI touch-up editor
+        run: cargo check --manifest-path tools/midi_touchup_editor_rust/Cargo.toml

@@ -37,8 +37,8 @@ logger.info("Log file: %s", log_file)
 def _missing_dep_instructions(missing_module: str) -> str:
     setup_hint = (
         "Setup instructions:\n"
-        "- Windows: run setup_windows.bat\n"
-        "- macOS/Linux: run ./setup.sh\n"
+        "- macOS/Linux: from the repo root, run: python3 setup_env.py, then python3 run.py\n"
+        "- Windows: from the repo root, run: py setup_env.py, then py run.py\n"
     )
     if missing_module in {"PySide6"}:
         return (
@@ -132,17 +132,9 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"Runtime error: {str(e)}")
         logger.error(traceback.format_exc())
-        
-        # On Windows, pause to keep the console window open
-        if sys.platform == "win32":
-            print("\nPress Enter to exit...")
-            input()
-        
         sys.exit(1)
-    
+
     finally:
         # Always show where the log file is
         if sys.platform == "win32":
             print(f"\nLog file saved to: {log_file}")
-            print("Press Enter to exit...")
-            input()

@@ -21,7 +21,7 @@ import datetime
 import logging
 import os
 import sys
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, List, Optional
 
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QAction, QPixmap
@@ -32,11 +32,11 @@ from synthesia2midi.config_manager import ConfigManager
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.core.logging_config import LoggingConfig
 from synthesia2midi.core.state_manager import StateManager
-from synthesia2midi.detection.factory import DetectionFactory
-from synthesia2midi.detection.roi_utils import get_hist_feature
+
 from synthesia2midi.gui.controls_qt import ControlPanelQt
 from synthesia2midi.gui.display_manager import DisplayManager
 from synthesia2midi.gui.keyboard_canvas import KeyboardCanvas
+from synthesia2midi.gui.main_action_controller import MainActionController
 from synthesia2midi.gui.calibration_effects_controller import CalibrationEffectsController
 from synthesia2midi.gui.calibration_interaction_controller import CalibrationInteractionController
 from synthesia2midi.gui.calibration_wizard_controller import CalibrationWizardController
@@ -100,6 +100,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.video_to_frames_worker = None
         self.video_to_frames_controller = VideoToFramesController(self)
         self.video_session_ui_controller = VideoSessionUiController(self)
+        self.main_action_controller = MainActionController(self)
         self.calibration_interaction_controller = CalibrationInteractionController(self)
         self.calibration_effects_controller = CalibrationEffectsController(self)
         self.calibration_wizard_controller = CalibrationWizardController(self)
@@ -152,13 +153,13 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.show_overlays_action = QAction("Show Overlays", self)
         self.show_overlays_action.setCheckable(True)
         self.show_overlays_action.setChecked(self.app_state.ui.show_overlays)
-        self.show_overlays_action.triggered.connect(self._toggle_overlays)
+        self.show_overlays_action.triggered.connect(self.main_action_controller.toggle_overlays)
         view_menu.addAction(self.show_overlays_action)
 
         self.live_detection_action = QAction("Live Detection Feedback", self)
         self.live_detection_action.setCheckable(True)
         self.live_detection_action.setChecked(self.app_state.ui.live_detection_feedback)
-        self.live_detection_action.triggered.connect(self._toggle_live_detection_feedback)
+        self.live_detection_action.triggered.connect(self.main_action_controller.toggle_live_detection_feedback)
         view_menu.addAction(self.live_detection_action)
 
         view_menu.addSeparator()
@@ -186,7 +187,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.visual_threshold_monitor_action = QAction("Enable", self)
         self.visual_threshold_monitor_action.setCheckable(True)
         self.visual_threshold_monitor_action.setChecked(self.app_state.ui.visual_threshold_monitor_enabled)
-        self.visual_threshold_monitor_action.triggered.connect(self._handle_visual_threshold_monitor_menu)
+        self.visual_threshold_monitor_action.triggered.connect(self.main_action_controller.handle_visual_threshold_monitor_menu)
         debug_menu.addAction(self.visual_threshold_monitor_action)
 
         debug_menu.addSeparator()
@@ -222,12 +223,12 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
 
         # Canvas - Variable width
         self.keyboard_canvas = KeyboardCanvas(self.app_state, width=720, height=450,
-                                              on_color_pick_callback=self._handle_color_pick,
-                                              on_overlay_select_callback=self._handle_overlay_selection,
-                                              detect_pressed_func=self._create_detection_wrapper()
+                                              on_color_pick_callback=self.calibration_interaction_controller._handle_color_pick,
+                                              on_overlay_select_callback=self.calibration_interaction_controller._handle_overlay_selection,
+                                              detect_pressed_func=self.main_action_controller.create_detection_wrapper()
                                               )
         # Set up additional callbacks
-        self.keyboard_canvas.on_spark_roi_callback = self._handle_spark_roi_updated
+        self.keyboard_canvas.on_spark_roi_callback = self.calibration_effects_controller._handle_spark_roi_updated
         # Give canvas stretch factor so it expands to fill available vertical space
         left_layout.addWidget(self.keyboard_canvas, 1)  # Stretch factor 1
 
@@ -396,39 +397,12 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         """Centralized function to reprocess and redisplay the current frame."""
         return self.video_controls.update_current_frame_display()
 
-    def _handle_color_pick(self, color_rgb: Tuple[int, int, int], coordinates: Tuple[int, int]):
-        return self.calibration_interaction_controller._handle_color_pick(color_rgb, coordinates)
-
-    def _handle_overlay_selection(self, selected_key_id: Optional[int]):
-        return self.calibration_interaction_controller._handle_overlay_selection(selected_key_id)
 
 
 
-    def _toggle_overlays(self):
-        """Delegate overlay visibility toggle to DisplayManager."""
-        if self.display_manager:
-            self.display_manager.toggle_overlays()
-
-    def _toggle_live_detection_feedback(self):
-        """Delegate live detection feedback toggle to DisplayManager."""
-        if self.display_manager:
-            self.display_manager.toggle_live_detection_feedback()
 
 
-    def _handle_visual_threshold_monitor_menu(self, checked: bool):
-        """Handle visual threshold monitor toggle from menu."""
-        # Update state
-        self.app_state.ui.visual_threshold_monitor_enabled = checked
-        self.app_state.unsaved_changes = True
 
-        # Update menu check state
-        self.visual_threshold_monitor_action.setChecked(checked)
-
-        # Emit signal to update display manager and other components
-        if hasattr(self, 'display_manager') and self.display_manager:
-            self.display_manager.handle_visual_threshold_monitor_toggle(checked)
-
-        logging.info(f"Visual threshold monitor: {'enabled' if checked else 'disabled'}")
 
     def _capture_window_screenshot(self):
         """Capture a screenshot of the current window and save with timestamp."""
@@ -469,270 +443,61 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
             )
             logging.error(f"Error capturing window screenshot: {e}")
 
-    def _handle_calibrate_unlit_all_keys(self):
-        """Delegate unlit calibration to CalibrationWorkflow."""
-        if self.calibration_workflow:
-            self.calibration_workflow.handle_calibrate_unlit_all_keys()
 
-    def _handle_calibrate_lit_exemplar_key_start(self, key_type: str):
-        """Delegate lit exemplar calibration start to CalibrationWorkflow."""
-        if self.calibration_workflow:
-            self.calibration_workflow.handle_calibrate_lit_exemplar_key_start(key_type)
 
-    def _handle_spark_roi_selection_request(self):
-        return self.calibration_effects_controller._handle_spark_roi_selection_request()
 
-    def _handle_spark_roi_visibility_toggle(self, visible: bool):
-        return self.calibration_effects_controller._handle_spark_roi_visibility_toggle(visible)
 
-    def _handle_shadow_roi_selection_request(self):
-        return self.calibration_effects_controller._handle_shadow_roi_selection_request()
 
-    def _handle_shadow_white_roi_selection_request(self):
-        return self.calibration_effects_controller._handle_shadow_white_roi_selection_request()
 
-    def _handle_shadow_black_roi_selection_request(self):
-        return self.calibration_effects_controller._handle_shadow_black_roi_selection_request()
 
-    def _handle_spark_roi_updated(self, top_y: int, bottom_y: int):
-        return self.calibration_effects_controller._handle_spark_roi_updated(top_y, bottom_y)
 
-    def _handle_spark_calibration_request(self, step_type: str):
-        return self.calibration_effects_controller._handle_spark_calibration_request(step_type)
-
-    def _handle_auto_spark_calibration_request(self, key_type: str):
-        return self.calibration_effects_controller._handle_auto_spark_calibration_request(key_type)
-
-    def _handle_spark_detection_toggle(self, enabled: bool):
-        return self.calibration_effects_controller._handle_spark_detection_toggle(enabled)
 
         # The detector will be recreated automatically on the next frame processing
         # when factory.create_from_app_state is called
 
-    def _handle_spark_detection_sensitivity_change(self, value: float):
-        return self.calibration_effects_controller._handle_spark_detection_sensitivity_change(value)
 
         # The sensitivity will be used on the next frame processing
 
-    def _handle_shadow_detection_toggle(self, enabled: bool):
-        return self.calibration_effects_controller._handle_shadow_detection_toggle(enabled)
 
         # The app_state is already updated by the control panel
         # We don't need to recreate the detector here as it will be recreated
         # automatically on the next frame processing when factory.create_from_app_state is called
 
-    def _handle_shadow_detection_sensitivity_change(self, value: float):
-        return self.calibration_effects_controller._handle_shadow_detection_sensitivity_change(value)
         # The app_state is already updated by the control panel
         # The sensitivity will be used on the next frame processing
 
-    def _handle_shadow_darkness_threshold_change(self, value: float):
-        return self.calibration_effects_controller._handle_shadow_darkness_threshold_change(value)
         # The app_state is already updated by the control panel
         # The threshold will be used on the next frame processing
 
-    def _handle_shadow_calibration_request(self, key_type: str, calibration_type: str):
-        return self.calibration_effects_controller._handle_shadow_calibration_request(key_type, calibration_type)
-
-    def _handle_overlay_type_change(self, overlay_type: str):
-        return self.calibration_effects_controller._handle_overlay_type_change(overlay_type)
-
-    def _capture_spark_background_calibration(self):
-        return self.calibration_effects_controller._capture_spark_background_calibration()
-
-    def _capture_spark_overlay_calibration(self, overlay, calibration_mode: str):
-        return self.calibration_effects_controller._capture_spark_overlay_calibration(overlay, calibration_mode)
-
-    def _capture_shadow_overlay_calibration(self, overlay, calibration_mode: str):
-        return self.calibration_effects_controller._capture_shadow_overlay_calibration(overlay, calibration_mode)
-
-    def _get_calibration_instructions(self, step_type: str) -> str:
-        return self.calibration_effects_controller._get_calibration_instructions(step_type)
-
-    def _handle_detection_threshold_change(self, threshold: float):
-        """Delegate detection threshold change to DetectionManager."""
-        if self.detection_manager:
-            self.detection_manager.handle_detection_threshold_change(threshold)
-
-    def _handle_rise_delta_threshold_change(self, threshold: float):
-        """Handle rise delta threshold change."""
-        self.app_state.detection.rise_delta_threshold = threshold
-        self.app_state.unsaved_changes = True
-
-    def _handle_fall_delta_threshold_change(self, threshold: float):
-        """Handle fall delta threshold change."""
-        self.app_state.detection.fall_delta_threshold = threshold
-        self.app_state.unsaved_changes = True
-
-    def _handle_refresh_selected_overlay_display(self):
-        """Delegate overlay display refresh to DisplayManager."""
-        if self.display_manager:
-            self.display_manager.handle_refresh_selected_overlay_display()
-
-    def _handle_align_white_keys_to_selected(self):
-        """Delegate white key alignment to OverlayManager."""
-        if self.overlay_manager:
-            self.overlay_manager.handle_align_white_keys_to_selected()
-
-    def _handle_align_black_keys_to_selected(self):
-        """Delegate black key alignment to OverlayManager."""
-        if self.overlay_manager:
-            self.overlay_manager.handle_align_black_keys_to_selected()
-
-    def _handle_overlay_size_adjustment(self, key_color: str, dimension: str, delta: int):
-        """Handle overlay size adjustment request from control panel.
-
-        Args:
-            key_color: The key color ('white' or 'black')
-            dimension: 'width' or 'height'
-            delta: Amount to adjust (typically +2 or -2 pixels)
-        """
-        # Use the overlay manager to handle the adjustment
-        self.overlay_manager.adjust_overlay_sizes(key_color, dimension, delta)
-
-    def _invoke_calibration_wizard(self):
-        return self.calibration_wizard_controller._invoke_calibration_wizard()
-
-    def _handle_edit_current_calibration_request(self):
-        return self.calibration_wizard_controller._handle_edit_current_calibration_request()
-
-    def _resolve_auto_detect_tuning_context(self, *, use_wizard_context: bool) -> Optional[Dict[str, Any]]:
-        return self.calibration_wizard_controller._resolve_auto_detect_tuning_context(use_wizard_context=use_wizard_context)
-
-    def _has_editable_auto_detect_tuning_context(self) -> bool:
-        return self.calibration_wizard_controller._has_editable_auto_detect_tuning_context()
-
-    def _handle_keyboard_region_selected(self, x: int, y: int, width: int, height: int):
-        return self.calibration_wizard_controller._handle_keyboard_region_selected(x, y, width, height)
-
-    def _apply_auto_detect_preview_result(self, detection_results: Dict[str, Any]) -> bool:
-        return self.calibration_wizard_controller._apply_auto_detect_preview_result(detection_results)
-
-    def _open_auto_detect_tuning_dialog(self, *, use_wizard_context: bool=True) -> bool:
-        return self.calibration_wizard_controller._open_auto_detect_tuning_dialog(use_wizard_context=use_wizard_context)
-
-    def _on_auto_detect_tuning_dialog_finished(self, _result: int) -> None:
-        return self.calibration_wizard_controller._on_auto_detect_tuning_dialog_finished(_result)
-
-    def _apply_template_styles_to_overlays(self):
-        """Delegate template style application to CalibrationWorkflow."""
-        if self.calibration_workflow:
-            self.calibration_workflow.apply_template_styles_to_overlays()
-
-
-    def _on_toggle_hist_detection(self):
-        """Delegate histogram detection toggle to DetectionManager."""
-        if self.detection_manager:
-            self.detection_manager.toggle_histogram_detection()
-
-    def _on_toggle_delta_detection(self):
-        """Delegate delta detection toggle to DetectionManager."""
-        if self.detection_manager:
-            self.detection_manager.toggle_delta_detection()
-
-    def _on_toggle_winner_takes_black(self, enabled: bool):
-        """Toggle black key filter (winner takes black) mode."""
-        self.app_state.detection.winner_takes_black_enabled = enabled
-        self.app_state.unsaved_changes = True
-        logging.info(f"Black key filter (winner takes black) is now {enabled}")
-
-    def _handle_exemplar_key_type_enabled_change(self, key_type: str, enabled: bool):
-        """Handle per-key-type exemplar availability changes from the control panel."""
-        if key_type not in {"LW", "LB", "RW", "RB"}:
-            logging.warning(f"Ignoring invalid exemplar key type toggle: {key_type}")
-            return
-
-        self.app_state.detection.exemplar_key_type_enabled[key_type] = enabled
-        self.app_state.unsaved_changes = True
-        logging.info(f"Exemplar key type {key_type} availability set to {enabled}")
-
-        # If user disabled the key type currently being calibrated, cancel that calibration.
-        if (
-            not enabled
-            and self.app_state.calibration.calibration_mode == "lit_exemplar"
-            and self.app_state.calibration.current_calibration_key_type == key_type
-        ):
-            self.app_state.calibration.calibration_mode = None
-            self.app_state.calibration.current_calibration_key_type = None
-            logging.info(f"Cancelled lit exemplar calibration for disabled key type {key_type}")
-
-        if self.control_panel:
-            self.control_panel.update_controls_from_state()
-
-    def _handle_hand_assignment_toggle(self, enabled: bool):
-        """Toggle hand assignment mode for MIDI channel separation."""
-        self.app_state.detection.hand_assignment_enabled = enabled
-        self.app_state.unsaved_changes = True
-        logging.info(f"Hand assignment is now {enabled}")
-
-
-    def _handle_overlay_color_change(self, color: str):
-        """Handle overlay color change from control panel."""
-        logging.debug(f"Overlay color changed to: {color}")
-        # Update the app state with the new color
-        self.app_state.ui.overlay_color = color.lower()
-        # Refresh the keyboard canvas to apply the new color
-        if self.keyboard_canvas:
-            self.keyboard_canvas.update()
-        # Mark as unsaved changes
-        self.app_state.unsaved_changes = True
-
-    def _handle_fps_override_change(self, fps_override):
-        """Handle FPS override change from control panel.
-
-        Args:
-            fps_override: The FPS override value (float) or None for auto-detect
-        """
-        logging.info(f"Setting FPS override to: {fps_override}")
-
-        # Update the app state with the new FPS override
-        if hasattr(self.app_state, 'video'):
-            self.app_state.video.fps_override = fps_override
-            self.app_state.unsaved_changes = True
-
-            # Update the FPS display if we have a video loaded
-            if self.video_session:
-                effective_fps = fps_override if fps_override else self.video_session.fps
-                if fps_override:
-                    logging.info(f"FPS override set to {fps_override} (detected: {self.video_session.fps})")
-                else:
-                    logging.info(f"FPS override disabled, using detected: {self.video_session.fps}")
-
-                # Update the control panel display to show effective FPS
-                self.control_panel.update_video_info(self.video_session.fps)
-
-    def _handle_octave_transpose_change(self, transpose_value: int):
-        """Handle octave transpose change from control panel.
-
-        Args:
-            transpose_value: The current octave transpose value (-8 to +8)
-        """
-        logging.info(f"Applying octave transpose: {transpose_value}")
-
-        # Update the app state with the new transpose value
-        if hasattr(self.app_state, 'midi') and hasattr(self.app_state.midi, 'octave_transpose'):
-            self.app_state.midi.octave_transpose = transpose_value
-
-        # Force a full redraw of the canvas to update overlay labels
-        if self.keyboard_canvas:
-            # Force recreation of the display to ensure labels are updated
-            self.keyboard_canvas.draw_overlays()
-
-        # Mark state as changed
-        self.app_state.mark_unsaved()
-
-    def _resize_and_position_window(self):
-        """Delegate window resize and positioning to WindowManager."""
-        self.window_manager.resize_and_position_window()
 
 
 
 
-    def _create_detection_wrapper(self):
-        """Delegate detection wrapper creation to DetectionManager."""
-        if self.detection_manager:
-            return self.detection_manager.create_detection_wrapper()
-        return None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     # UIUpdateInterface implementations
     def update_overlay_action(self, checked: bool) -> None:

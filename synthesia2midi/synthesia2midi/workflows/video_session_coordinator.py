@@ -72,7 +72,7 @@ class VideoSessionCoordinator:
             app.control_panel.update_video_info(app.video_session.fps)
 
         self._initialize_video_bound_workflows(video_session)
-        app.keyboard_canvas.detect_pressed_func = app._create_detection_wrapper()
+        app.keyboard_canvas.detect_pressed_func = app.main_action_controller.create_detection_wrapper()
         self._apply_loaded_configuration_ui()
 
     def _close_existing_session(self, log_prefix: str) -> None:

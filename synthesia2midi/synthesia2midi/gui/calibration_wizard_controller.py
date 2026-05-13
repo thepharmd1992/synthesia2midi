@@ -24,6 +24,10 @@ class CalibrationWizardController:
     def __getattr__(self, name):
         return getattr(self.app, name)
 
+    def _apply_template_styles_to_overlays(self):
+        if self.calibration_workflow:
+            self.calibration_workflow.apply_template_styles_to_overlays()
+
     def _invoke_calibration_wizard(self):
         """Called by the Run/Reset Calibration Wizard button using CalibrationWorkflow."""
         if not self.calibration_workflow:

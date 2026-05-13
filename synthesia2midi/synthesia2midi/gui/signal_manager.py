@@ -58,19 +58,19 @@ class ControlSignalManager(QObject):
         mw = self.main_window
         
         # Basic detection parameters
-        cp.detection_threshold_changed.connect(mw._handle_detection_threshold_change)
-        cp.rise_delta_threshold_changed.connect(mw._handle_rise_delta_threshold_change)
-        cp.fall_delta_threshold_changed.connect(mw._handle_fall_delta_threshold_change)
+        cp.detection_threshold_changed.connect(mw.main_action_controller.handle_detection_threshold_change)
+        cp.rise_delta_threshold_changed.connect(mw.main_action_controller.handle_rise_delta_threshold_change)
+        cp.fall_delta_threshold_changed.connect(mw.main_action_controller.handle_fall_delta_threshold_change)
         
         # Detection method toggles
-        cp.histogram_detection_toggled.connect(mw._on_toggle_hist_detection)
-        cp.delta_detection_toggled.connect(mw._on_toggle_delta_detection)
+        cp.histogram_detection_toggled.connect(mw.main_action_controller.toggle_hist_detection)
+        cp.delta_detection_toggled.connect(mw.main_action_controller.toggle_delta_detection)
         
         # Black key filter toggle
-        cp.winner_takes_black_changed.connect(mw._on_toggle_winner_takes_black)
+        cp.winner_takes_black_changed.connect(mw.main_action_controller.toggle_winner_takes_black)
         
         # Hand assignment toggle
-        cp.hand_assignment_toggled.connect(mw._handle_hand_assignment_toggle)
+        cp.hand_assignment_toggled.connect(mw.main_action_controller.handle_hand_assignment_toggle)
         
         
         # Manual refresh button
@@ -83,18 +83,18 @@ class ControlSignalManager(QObject):
         mw = self.main_window
         
         # Basic calibration actions
-        cp.calibrate_unlit_requested.connect(mw._handle_calibrate_unlit_all_keys)
-        cp.calibrate_lit_exemplar_requested.connect(mw._handle_calibrate_lit_exemplar_key_start)
-        cp.exemplar_key_type_enabled_changed.connect(mw._handle_exemplar_key_type_enabled_change)
-        cp.calibration_wizard_requested.connect(mw._invoke_calibration_wizard)
+        cp.calibrate_unlit_requested.connect(mw.main_action_controller.handle_calibrate_unlit_all_keys)
+        cp.calibrate_lit_exemplar_requested.connect(mw.main_action_controller.handle_calibrate_lit_exemplar_key_start)
+        cp.exemplar_key_type_enabled_changed.connect(mw.main_action_controller.handle_exemplar_key_type_enabled_change)
+        cp.calibration_wizard_requested.connect(mw.calibration_wizard_controller._invoke_calibration_wizard)
         
         # Overlay management actions
-        cp.refresh_overlay_display_requested.connect(mw._handle_refresh_selected_overlay_display)
-        cp.align_white_keys_requested.connect(mw._handle_align_white_keys_to_selected)
-        cp.align_black_keys_requested.connect(mw._handle_align_black_keys_to_selected)
+        cp.refresh_overlay_display_requested.connect(mw.main_action_controller.handle_refresh_selected_overlay_display)
+        cp.align_white_keys_requested.connect(mw.main_action_controller.handle_align_white_keys_to_selected)
+        cp.align_black_keys_requested.connect(mw.main_action_controller.handle_align_black_keys_to_selected)
         
         # Overlay size adjustments
-        cp.overlay_size_adjustment_requested.connect(mw._handle_overlay_size_adjustment)
+        cp.overlay_size_adjustment_requested.connect(mw.main_action_controller.handle_overlay_size_adjustment)
         
         # Conversion and testing actions
         cp.conversion_requested.connect(mw.midi_conversion_controller.start_conversion_process)
@@ -104,23 +104,23 @@ class ControlSignalManager(QObject):
         cp.trim_video_requested.connect(mw.video_session_ui_controller.handle_trim_video_request)
         
         # Spark ROI selection
-        cp.spark_roi_selection_requested.connect(mw._handle_spark_roi_selection_request)
-        cp.spark_roi_visibility_toggled.connect(mw._handle_spark_roi_visibility_toggle)
+        cp.spark_roi_selection_requested.connect(mw.calibration_effects_controller._handle_spark_roi_selection_request)
+        cp.spark_roi_visibility_toggled.connect(mw.calibration_effects_controller._handle_spark_roi_visibility_toggle)
         
         
         # Spark calibration
-        cp.spark_calibration_requested.connect(mw._handle_spark_calibration_request)
+        cp.spark_calibration_requested.connect(mw.calibration_effects_controller._handle_spark_calibration_request)
         
         # Auto-spark calibration
-        cp.auto_spark_calibration_requested.connect(mw._handle_auto_spark_calibration_request)
+        cp.auto_spark_calibration_requested.connect(mw.calibration_effects_controller._handle_auto_spark_calibration_request)
         
         # Spark detection toggle
-        cp.spark_detection_toggled.connect(mw._handle_spark_detection_toggle)
+        cp.spark_detection_toggled.connect(mw.calibration_effects_controller._handle_spark_detection_toggle)
         
         # Spark-off threshold
-        cp.spark_detection_sensitivity_changed.connect(mw._handle_spark_detection_sensitivity_change)
+        cp.spark_detection_sensitivity_changed.connect(mw.calibration_effects_controller._handle_spark_detection_sensitivity_change)
         
-        cp.overlay_type_changed.connect(mw._handle_overlay_type_change)
+        cp.overlay_type_changed.connect(mw.calibration_effects_controller._handle_overlay_type_change)
         
         # Frame-range and trim controls manage their own state updates.
         
@@ -134,10 +134,10 @@ class ControlSignalManager(QObject):
         # MIDI output settings (tempo is part of app state and not exposed here)
         
         # Octave transpose
-        cp.octave_transpose_changed.connect(mw._handle_octave_transpose_change)
+        cp.octave_transpose_changed.connect(mw.main_action_controller.handle_octave_transpose_change)
         
         # FPS override
-        cp.fps_override_changed.connect(mw._handle_fps_override_change)
+        cp.fps_override_changed.connect(mw.main_action_controller.handle_fps_override_change)
         
         # Custom MIDI processing range
         cp.processing_start_frame_changed.connect(mw.video_session_ui_controller.handle_processing_start_frame_change)
@@ -153,7 +153,7 @@ class ControlSignalManager(QObject):
         # Debug and visualization toggles (Visual Threshold Monitor is controlled via the main menu)
         
         # Overlay color change
-        cp.overlay_color_changed.connect(mw._handle_overlay_color_change)
+        cp.overlay_color_changed.connect(mw.main_action_controller.handle_overlay_color_change)
         
         self.logger.debug("UI state signals connected")
     

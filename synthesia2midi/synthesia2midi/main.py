@@ -70,8 +70,9 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(APP_NAME)
-        # Set initial size that will be adjusted when video loads
-        self.resize(1200, 800)  # Reduced width to match control panel constraints
+        # Set initial size from the available display; the window manager adjusts
+        # splitter defaults after the UI is built.
+        self.resize(1200, 800)
 
         self.app_state = AppState()
         self.state_manager = StateManager(self.app_state)
@@ -114,6 +115,8 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
 
         self._init_ui()
         self._bind_hotkeys()
+        self.window_manager.resize_and_position_window()
+        self.setWindowState(self.windowState() | Qt.WindowMaximized)
 
         logging.info(f"{APP_NAME} started.")
 
@@ -294,9 +297,9 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         # Use signal manager for all control panel connections
         self.signal_manager = ControlSignalManager(self.control_panel, self)
 
-        # Keep settings usable but stop them from consuming half of laptop screens.
+        # Keep settings usable and allow a wider default pane for readable tabs.
         self.control_panel.setMinimumWidth(300)
-        self.control_panel.setMaximumWidth(520)
+        self.control_panel.setMaximumWidth(760)
         self.control_panel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.content_splitter.addWidget(self.control_panel)
         self.content_splitter.setStretchFactor(0, 4)

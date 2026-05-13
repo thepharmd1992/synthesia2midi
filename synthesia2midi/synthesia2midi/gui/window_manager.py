@@ -87,20 +87,13 @@ class WindowManager:
         """Resize and position window to ensure full visibility without scrolling."""
         screen = QApplication.primaryScreen()
         screen_rect = screen.availableGeometry()
-        
-        # Calculate window size for 100% scaling
         max_width = screen_rect.width() - 20  # Small margin
-        max_height = screen_rect.height() - 40  # Leave space for taskbar
+        max_height = screen_rect.height() - 40  # Leave space for menu/dock
         
-        # For 100% scaling with doubled fonts, use reasonable proportions
-        # Height should be enough to show controls; allow more flexibility on smaller screens
-        optimal_height = min(int(max_height * 0.85), 1000)  # 85% of screen or 1000px max
-        optimal_height = max(optimal_height, 700)  # Allow smaller screens down to ~700px
-
-        # Width: responsive to screen, avoid hard minimum that overflows small displays
-        optimal_width = int(max_width * 0.8)  # start at 80% of available width
-        optimal_width = min(optimal_width, 1400)  # cap for very large screens
-        optimal_width = max(optimal_width, 800)   # allow smaller screens to fit
+        # Width: use the available display so the settings pane can open at a
+        # readable default width instead of starting squeezed.
+        optimal_width = max_width
+        optimal_height = max_height
         
         # Ensure we don't exceed screen bounds
         if optimal_width > max_width:
@@ -113,15 +106,23 @@ class WindowManager:
         # Position window at exact top-left of screen
         self.main_window.move(screen_rect.left(), screen_rect.top())
         
-        # Keep the settings pane compact; the splitter lets users resize when needed.
+        # Keep the settings pane wide enough to show tab labels and dense settings
+        # by default while preserving a usable video canvas on smaller screens.
         if hasattr(self.main_window, 'control_panel'):
-            responsive_width = int(optimal_width * 0.25)
-            responsive_width = max(300, min(responsive_width, 520))
+            settings_max_width = 760
+            min_video_width = 320
+            responsive_width = int(optimal_width * 0.38)
+            responsive_width = max(520, responsive_width)
+            responsive_width = min(settings_max_width, responsive_width)
+            if optimal_width - responsive_width < min_video_width:
+                responsive_width = max(300, optimal_width - min_video_width)
             self.main_window.control_panel.setMinimumWidth(300)
-            self.main_window.control_panel.setMaximumWidth(520)
+            self.main_window.control_panel.setMaximumWidth(settings_max_width)
             self.main_window.control_panel.resize(responsive_width, self.main_window.control_panel.height())
             if hasattr(self.main_window, 'content_splitter') and not self.main_window.control_panel.isHidden():
-                self.main_window.content_splitter.setSizes([optimal_width - responsive_width, responsive_width])
+                video_width = max(0, optimal_width - responsive_width)
+                self.main_window.content_splitter.setSizes([video_width, responsive_width])
+                self.main_window._settings_splitter_sizes = [video_width, responsive_width]
         
         # Force layout update to ensure everything is positioned correctly
         QApplication.processEvents()

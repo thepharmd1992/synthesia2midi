@@ -3,6 +3,8 @@ from PySide6.QtWidgets import QApplication, QSplitter
 
 from synthesia2midi.main import Video2MidiApp
 
+UNBOUNDED_WIDGET_SIZE = 16777215
+
 
 def _make_app(monkeypatch):
     QApplication.instance() or QApplication([])
@@ -23,14 +25,24 @@ def _assert_no_overlap(control_panel, widgets):
             assert not rect.intersects(other), f"{rect} overlaps {other}"
 
 
-def test_main_window_uses_splitter_with_video_priority(monkeypatch):
+def test_main_window_uses_splitter_with_settings_priority(monkeypatch):
     app = _make_app(monkeypatch)
     try:
+        screen_rect = QApplication.primaryScreen().availableGeometry()
+        max_width = screen_rect.width() - 20
+        max_height = screen_rect.height() - 40
+
         assert isinstance(app.content_splitter, QSplitter)
         assert app.content_splitter.count() == 2
+        assert app.width() == max_width
+        assert app.height() == max_height
+        assert app.windowState() & Qt.WindowMaximized
         assert app.control_panel.minimumWidth() <= 320
-        assert app.control_panel.tab_widget.maximumWidth() <= 520
-        assert app._settings_splitter_sizes[0] > app._settings_splitter_sizes[1]
+        assert app.control_panel.maximumWidth() >= 700
+        assert app.control_panel.tab_widget.maximumWidth() >= 700
+        assert app.control_panel.tab_widget.maximumHeight() == UNBOUNDED_WIDGET_SIZE
+        assert app.control_panel.tab_widget.height() >= app.control_panel.height() - 180
+        assert app._settings_splitter_sizes[1] >= min(700, max_width - 320)
     finally:
         app.close()
 
@@ -85,5 +97,27 @@ def test_minimum_width_calibration_controls_do_not_overlap(monkeypatch):
                     control_panel.exemplar_presence_checkboxes[key_type],
                 ],
             )
+    finally:
+        app.close()
+
+
+def test_spark_auto_calibration_controls_stack_vertically(monkeypatch):
+    app = _make_app(monkeypatch)
+    try:
+        app.show()
+        app.control_panel.tab_widget.setCurrentIndex(3)
+        QApplication.processEvents()
+
+        control_panel = app.control_panel
+        button_rects = {
+            key_type: _rect_in_control_panel(control_panel, button)
+            for key_type, button in control_panel.auto_calib_buttons.items()
+        }
+
+        assert button_rects["LW"].y() < button_rects["LB"].y() < button_rects["RW"].y() < button_rects["RB"].y()
+        for key_type in ["LW", "LB", "RW", "RB"]:
+            status_rect = _rect_in_control_panel(control_panel, control_panel.auto_calib_status_labels[key_type])
+            assert button_rects[key_type].right() < status_rect.left()
+            assert status_rect.right() <= control_panel.width()
     finally:
         app.close()

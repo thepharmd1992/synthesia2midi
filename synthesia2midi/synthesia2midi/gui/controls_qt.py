@@ -154,8 +154,7 @@ class ControlPanelQt(QWidget):
         # Main tab widget
         self.tab_widget = QTabWidget()
         self.tab_widget.setObjectName("main_tabs")
-        self.tab_widget.setMaximumHeight(600)  # Constrain height to force scrolling in tabs
-        self.tab_widget.setMaximumWidth(520)  # Keep settings compact on laptop screens
+        self.tab_widget.setMaximumWidth(760)  # Wide enough for readable tabs and settings
         
         # Create all tabs
         self._create_mandatory_calibration_tab()
@@ -166,10 +165,7 @@ class ControlPanelQt(QWidget):
         self._create_video_trim_tab()
         self._create_optional_settings_tab()
         
-        main_layout.addWidget(self.tab_widget)
-        
-        # Add stretch at bottom to prevent spacing between elements above
-        main_layout.addStretch(1)
+        main_layout.addWidget(self.tab_widget, 1)
     
     def _create_always_visible_section(self, parent_layout):
         """Create elements that are always visible regardless of tab."""
@@ -846,109 +842,32 @@ class ControlPanelQt(QWidget):
         self.auto_calib_buttons = {}
         self.auto_calib_status_labels = {}
 
-        # Create white keys row (LW and RW aligned horizontally)
-        white_keys_layout = QHBoxLayout()
-        white_keys_layout.setContentsMargins(0, 0, 0, 0)
+        # Create one vertical auto-calibration row per key type so the Spark tab
+        # fits in the settings pane without horizontal scrolling.
+        for key_type in ["LW", "LB", "RW", "RB"]:
+            row = QHBoxLayout()
+            row.setSpacing(5)
+            row.setContentsMargins(0, 0, 0, 0)
 
-        # Left Hand White
-        lw_row = QHBoxLayout()
-        lw_row.setSpacing(10)  # Space between button and status
+            button = QPushButton(f"Auto {KEY_TYPE_LABELS[key_type]}")
+            button.setMinimumWidth(120)
+            button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            button.clicked.connect(lambda checked=False, kt=key_type: self.auto_spark_calibration_requested.emit(kt))
+            button.setToolTip(
+                "Recommended: auto-calibrate spark detection for this key type. "
+                "Navigate to the frame where a key first turns ON, then click that overlay."
+            )
+            self.auto_calib_buttons[key_type] = button
+            row.addWidget(button)
 
-        lw_button = QPushButton(f"Auto {KEY_TYPE_LABELS['LW']}")
-        lw_button.setFixedWidth(220)  # Fixed width for alignment
-        lw_button.clicked.connect(lambda: self.auto_spark_calibration_requested.emit("LW"))
-        lw_button.setToolTip(
-            "Recommended: auto-calibrate spark detection for this key type. "
-            "Navigate to the frame where a key first turns ON, then click that overlay."
-        )
-        self.auto_calib_buttons["LW"] = lw_button
-        lw_row.addWidget(lw_button)
+            status = QLabel("Not Set")
+            status.setStyleSheet("color: grey; font-style: italic;")
+            status.setFixedWidth(60)
+            self.auto_calib_status_labels[key_type] = status
+            row.addWidget(status)
+            row.addStretch()
 
-        lw_status = QLabel("Not Set")
-        lw_status.setStyleSheet("color: grey; font-style: italic;")
-        lw_status.setFixedWidth(80)
-        self.auto_calib_status_labels["LW"] = lw_status
-        lw_row.addWidget(lw_status)
-
-        white_keys_layout.addLayout(lw_row)
-        white_keys_layout.addSpacing(50)  # Space between left and right hand buttons
-
-        # Right Hand White
-        rw_row = QHBoxLayout()
-        rw_row.setSpacing(10)  # Space between button and status
-
-        rw_button = QPushButton(f"Auto {KEY_TYPE_LABELS['RW']}")
-        rw_button.setFixedWidth(220)  # Fixed width for alignment
-        rw_button.clicked.connect(lambda: self.auto_spark_calibration_requested.emit("RW"))
-        rw_button.setToolTip(
-            "Recommended: auto-calibrate spark detection for this key type. "
-            "Navigate to the frame where a key first turns ON, then click that overlay."
-        )
-        self.auto_calib_buttons["RW"] = rw_button
-        rw_row.addWidget(rw_button)
-
-        rw_status = QLabel("Not Set")
-        rw_status.setStyleSheet("color: grey; font-style: italic;")
-        rw_status.setFixedWidth(80)
-        self.auto_calib_status_labels["RW"] = rw_status
-        rw_row.addWidget(rw_status)
-
-        white_keys_layout.addLayout(rw_row)
-        white_keys_layout.addStretch()  # Push everything left
-
-        auto_layout.addLayout(white_keys_layout)
-
-        # Create black keys row (LB and RB aligned horizontally)
-        black_keys_layout = QHBoxLayout()
-        black_keys_layout.setContentsMargins(0, 0, 0, 0)
-
-        # Left Hand Black
-        lb_row = QHBoxLayout()
-        lb_row.setSpacing(10)  # Space between button and status
-
-        lb_button = QPushButton(f"Auto {KEY_TYPE_LABELS['LB']}")
-        lb_button.setFixedWidth(220)  # Fixed width for alignment
-        lb_button.clicked.connect(lambda: self.auto_spark_calibration_requested.emit("LB"))
-        lb_button.setToolTip(
-            "Recommended: auto-calibrate spark detection for this key type. "
-            "Navigate to the frame where a key first turns ON, then click that overlay."
-        )
-        self.auto_calib_buttons["LB"] = lb_button
-        lb_row.addWidget(lb_button)
-
-        lb_status = QLabel("Not Set")
-        lb_status.setStyleSheet("color: grey; font-style: italic;")
-        lb_status.setFixedWidth(80)
-        self.auto_calib_status_labels["LB"] = lb_status
-        lb_row.addWidget(lb_status)
-
-        black_keys_layout.addLayout(lb_row)
-        black_keys_layout.addSpacing(50)  # Space between left and right hand buttons
-
-        # Right Hand Black
-        rb_row = QHBoxLayout()
-        rb_row.setSpacing(10)  # Space between button and status
-
-        rb_button = QPushButton(f"Auto {KEY_TYPE_LABELS['RB']}")
-        rb_button.setFixedWidth(220)  # Fixed width for alignment
-        rb_button.clicked.connect(lambda: self.auto_spark_calibration_requested.emit("RB"))
-        rb_button.setToolTip(
-            "Recommended: auto-calibrate spark detection for this key type. "
-            "Navigate to the frame where a key first turns ON, then click that overlay."
-        )
-        self.auto_calib_buttons["RB"] = rb_button
-        rb_row.addWidget(rb_button)
-
-        rb_status = QLabel("Not Set")
-        rb_status.setStyleSheet("color: grey; font-style: italic;")
-        rb_status.setFixedWidth(80)
-        self.auto_calib_status_labels["RB"] = rb_status
-        rb_row.addWidget(rb_status)
-
-        black_keys_layout.addLayout(rb_row)
-        black_keys_layout.addStretch()  # Push everything left
-
-        auto_layout.addLayout(black_keys_layout)
+            auto_layout.addLayout(row)
 
         calibration_layout.addLayout(auto_layout)
 

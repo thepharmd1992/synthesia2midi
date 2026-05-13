@@ -113,14 +113,15 @@ class WindowManager:
         # Position window at exact top-left of screen
         self.main_window.move(screen_rect.left(), screen_rect.top())
         
-        # Responsive control panel width: target ~45% of window, but allow user resizing
+        # Keep the settings pane compact; the splitter lets users resize when needed.
         if hasattr(self.main_window, 'control_panel'):
-            responsive_width = int(optimal_width * 0.45)
-            responsive_width = max(360, min(responsive_width, 900))  # clamp
-            self.main_window.control_panel.setMinimumWidth(350)
-            self.main_window.control_panel.setMaximumWidth(1200)
-            # Avoid setFixedWidth so users can resize; set a preferred width via resize
+            responsive_width = int(optimal_width * 0.25)
+            responsive_width = max(300, min(responsive_width, 520))
+            self.main_window.control_panel.setMinimumWidth(300)
+            self.main_window.control_panel.setMaximumWidth(520)
             self.main_window.control_panel.resize(responsive_width, self.main_window.control_panel.height())
+            if hasattr(self.main_window, 'content_splitter') and not self.main_window.control_panel.isHidden():
+                self.main_window.content_splitter.setSizes([optimal_width - responsive_width, responsive_width])
         
         # Force layout update to ensure everything is positioned correctly
         QApplication.processEvents()

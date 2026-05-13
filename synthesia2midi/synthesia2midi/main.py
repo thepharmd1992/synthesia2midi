@@ -25,7 +25,7 @@ from typing import Any, List, Optional
 
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QAction, QPixmap
-from PySide6.QtWidgets import QApplication, QDialog, QHBoxLayout, QLabel, QMainWindow, QMessageBox, QSlider, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QApplication, QDialog, QHBoxLayout, QLabel, QMainWindow, QMessageBox, QSizePolicy, QSlider, QSplitter, QVBoxLayout, QWidget
 
 from .app_config import APP_NAME, FRAME_NAV_INTERVALS
 from synthesia2midi.config_manager import ConfigManager
@@ -164,10 +164,16 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
 
         view_menu.addSeparator()
 
+        self.focus_video_action = QAction("Focus Video (Hide Settings)", self)
+        self.focus_video_action.setCheckable(True)
+        self.focus_video_action.setShortcut("Ctrl+Shift+F")
+        self.focus_video_action.triggered.connect(self._toggle_focus_video_mode)
+        view_menu.addAction(self.focus_video_action)
 
         view_menu.addSeparator()
 
         # Frame Navigation menu
+
         frame_nav_menu = menubar.addMenu("Frame Navigation")
 
         # Create interval menu items with checkmarks
@@ -207,18 +213,15 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         central_layout.setContentsMargins(0, 0, 0, 0)  # No margins on the central layout
         central_layout.setSpacing(0)
 
-        # Create the actual content widget
-        content_widget = QWidget()
-        main_layout = QHBoxLayout(content_widget)
-        main_layout.setContentsMargins(5, 5, 5, 10)  # Limit bottom padding to 10px
-        main_layout.setSpacing(10)  # Add spacing between canvas and controls
-
-        # Add content widget to central layout with stretch to fill available space
-        from PySide6.QtCore import Qt
-        central_layout.addWidget(content_widget, 1)
+        # Split video and settings so laptop users can give the canvas most of the window.
+        self.content_splitter = QSplitter(Qt.Horizontal)
+        self.content_splitter.setChildrenCollapsible(False)
+        self.content_splitter.setHandleWidth(8)
+        central_layout.addWidget(self.content_splitter, 1)
 
         # Left side layout for canvas and frame slider
         left_layout = QVBoxLayout()
+        left_layout.setContentsMargins(5, 5, 5, 10)
         left_layout.setSpacing(5)
 
         # Canvas - Variable width
@@ -246,7 +249,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.frame_slider.setTracking(True)
         # Set a reasonable height for the slider
         self.frame_slider.setMaximumHeight(30)
-        slider_layout.addWidget(self.frame_slider, 0)  # No stretch factor
+        slider_layout.addWidget(self.frame_slider, 1)
 
         # Time display label
         self.time_label = QLabel("0:00")
@@ -255,21 +258,19 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         slider_layout.addWidget(self.time_label, 0)  # No stretch
 
         # Navigation instructions
-        nav_instructions = QLabel("Move forward - Page Down or Right Arrow\nMove backward - Page Up or Left Arrow")
-        nav_instructions.setStyleSheet("font-size: 12px; color: #666; margin-left: 15px;")
+        nav_instructions = QLabel("PgUp/PgDn or ←/→")
+        nav_instructions.setStyleSheet("font-size: 12px; color: #666; margin-left: 8px;")
         slider_layout.addWidget(nav_instructions, 0)  # No stretch
 
         left_layout.addLayout(slider_layout, 0)  # No stretch
 
         # Create a widget to contain the left layout
         left_widget = QWidget()
-        # Set size policy to prevent vertical expansion beyond content
-        from PySide6.QtWidgets import QSizePolicy
-        left_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        left_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         left_widget.setLayout(left_layout)
-        main_layout.addWidget(left_widget, 0)  # No stretch factor
+        self.content_splitter.addWidget(left_widget)
 
-        # Control Panel (Right) - Fixed width container
+        # Control Panel (Right) - compact, draggable via splitter
         self.control_panel = ControlPanelQt(self, self.app_state, self.state_manager)
 
         # Connect control panel to canvas for ROI visualization updates
@@ -291,13 +292,30 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         # Use signal manager for all control panel connections
         self.signal_manager = ControlSignalManager(self.control_panel, self)
 
+        # Keep settings usable but stop them from consuming half of laptop screens.
+        self.control_panel.setMinimumWidth(300)
+        self.control_panel.setMaximumWidth(520)
+        self.control_panel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.content_splitter.addWidget(self.control_panel)
+        self.content_splitter.setStretchFactor(0, 4)
+        self.content_splitter.setStretchFactor(1, 1)
+        self.content_splitter.setSizes([900, 300])
+        self._settings_splitter_sizes = [900, 300]
 
-        # Let the control panel shrink on smaller screens while keeping a reasonable preferred size
-        from PySide6.QtWidgets import QSizePolicy
-        self.control_panel.setMinimumWidth(380)
-        self.control_panel.setMaximumWidth(1000)
-        self.control_panel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
-        main_layout.addWidget(self.control_panel, 0)  # No stretch factor
+    def _toggle_focus_video_mode(self, enabled: bool) -> None:
+        """Hide or restore the settings pane so calibration can prioritize video."""
+        if enabled:
+            sizes = self.content_splitter.sizes()
+            if sizes and any(sizes):
+                self._settings_splitter_sizes = sizes
+            self.control_panel.hide()
+            self.focus_video_action.setText("Show Settings Panel")
+            self.content_splitter.setSizes([1, 0])
+            return
+
+        self.control_panel.show()
+        self.focus_video_action.setText("Focus Video (Hide Settings)")
+        self.content_splitter.setSizes(getattr(self, "_settings_splitter_sizes", [900, 300]))
 
     def resizeEvent(self, event):
         """Delegate window resize handling to WindowManager."""

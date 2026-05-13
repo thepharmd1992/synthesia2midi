@@ -129,6 +129,12 @@ class ControlPanelQt(QWidget):
     conversion_requested = Signal()
     midi_touchup_requested = Signal()
     trim_video_requested = Signal(int, int)  # start_frame, end_frame
+
+    DEFAULT_DETECTION_THRESHOLD = 50
+    DEFAULT_HISTOGRAM_THRESHOLD = 80
+    DEFAULT_RISE_DELTA_THRESHOLD = 15
+    DEFAULT_FALL_DELTA_THRESHOLD = 5
+    DEFAULT_SIMILARITY_RATIO = 60
     
     def __init__(self, parent=None, app_state: AppState = None, state_manager=None):
         super().__init__(parent)
@@ -531,7 +537,7 @@ class ControlPanelQt(QWidget):
         self.detection_threshold_slider = QSlider(Qt.Horizontal)
         self.detection_threshold_slider.setMaximumWidth(150)  # Half of default width
         self.detection_threshold_slider.setRange(0, 100)
-        self.detection_threshold_slider.setValue(50)
+        self.detection_threshold_slider.setValue(self.DEFAULT_DETECTION_THRESHOLD)
         self.detection_threshold_slider.valueChanged.connect(self._handle_detection_threshold_change)
         self.detection_threshold_slider.setToolTip(
             "Main sensitivity. Lower = detects more; higher = fewer false notes."
@@ -575,7 +581,7 @@ class ControlPanelQt(QWidget):
         self.histogram_threshold_slider = QSlider(Qt.Horizontal)
         self.histogram_threshold_slider.setFixedWidth(150)
         self.histogram_threshold_slider.setRange(10, 100)  # 0.1 to 1.0
-        self.histogram_threshold_slider.setValue(80)  # Default 0.8
+        self.histogram_threshold_slider.setValue(self.DEFAULT_HISTOGRAM_THRESHOLD)  # Default 0.8
         self.histogram_threshold_slider.valueChanged.connect(self._handle_histogram_threshold_change)
         self.histogram_threshold_slider.setEnabled(False)  # Initially disabled
         self.histogram_threshold_slider.setToolTip(
@@ -607,7 +613,7 @@ class ControlPanelQt(QWidget):
         self.rise_delta_slider = QSlider(Qt.Horizontal)
         self.rise_delta_slider.setFixedWidth(150)
         self.rise_delta_slider.setRange(1, 50)  # 0.01 to 0.50
-        self.rise_delta_slider.setValue(15)  # Default 0.15
+        self.rise_delta_slider.setValue(self.DEFAULT_RISE_DELTA_THRESHOLD)  # Default 0.15
         self.rise_delta_slider.valueChanged.connect(self._handle_rise_delta_change)
         self.rise_delta_slider.setEnabled(False)  # Initially disabled
         self.rise_delta_slider.setToolTip(
@@ -630,7 +636,7 @@ class ControlPanelQt(QWidget):
         self.fall_delta_slider = QSlider(Qt.Horizontal)
         self.fall_delta_slider.setFixedWidth(150)
         self.fall_delta_slider.setRange(1, 50)  # 0.01 to 0.50
-        self.fall_delta_slider.setValue(5)  # Default 0.05
+        self.fall_delta_slider.setValue(self.DEFAULT_FALL_DELTA_THRESHOLD)  # Default 0.05
         self.fall_delta_slider.valueChanged.connect(self._handle_fall_delta_change)
         self.fall_delta_slider.setEnabled(False)  # Initially disabled
         self.fall_delta_slider.setToolTip(
@@ -658,7 +664,7 @@ class ControlPanelQt(QWidget):
         self.similarity_ratio_slider = QSlider(Qt.Horizontal)
         self.similarity_ratio_slider.setFixedWidth(150)
         self.similarity_ratio_slider.setRange(10, 100)  # 0.1 to 1.0
-        self.similarity_ratio_slider.setValue(60)  # Default 0.6
+        self.similarity_ratio_slider.setValue(self.DEFAULT_SIMILARITY_RATIO)  # Default 0.6
         self.similarity_ratio_slider.valueChanged.connect(self._handle_similarity_ratio_change)
         self.similarity_ratio_slider.setEnabled(False)  # Initially disabled
         self.similarity_ratio_slider.setToolTip(
@@ -676,6 +682,14 @@ class ControlPanelQt(QWidget):
         modes_layout.addLayout(modes_grid)
         
         layout.addWidget(modes_group)
+
+        self.restore_detection_defaults_button = QPushButton("Restore Defaults")
+        self.restore_detection_defaults_button.setToolTip(
+            "Reset detection threshold and detection mode parameter sliders to their defaults. "
+            "Detection mode checkboxes stay unchanged."
+        )
+        self.restore_detection_defaults_button.clicked.connect(self._restore_detection_defaults)
+        layout.addWidget(self.restore_detection_defaults_button, alignment=Qt.AlignLeft)
         
         layout.addStretch()
         self.tab_widget.addTab(tab, "Detection")
@@ -1142,6 +1156,14 @@ class ControlPanelQt(QWidget):
         ratio = value / 100.0
         self.similarity_ratio_label.setText(f"{ratio:.2f}")
         self.similarity_ratio_changed.emit(ratio)
+
+    def _restore_detection_defaults(self):
+        """Reset detection parameter sliders without changing mode toggles."""
+        self.detection_threshold_slider.setValue(self.DEFAULT_DETECTION_THRESHOLD)
+        self.histogram_threshold_slider.setValue(self.DEFAULT_HISTOGRAM_THRESHOLD)
+        self.rise_delta_slider.setValue(self.DEFAULT_RISE_DELTA_THRESHOLD)
+        self.fall_delta_slider.setValue(self.DEFAULT_FALL_DELTA_THRESHOLD)
+        self.similarity_ratio_slider.setValue(self.DEFAULT_SIMILARITY_RATIO)
     
     def _update_histogram_slider_state(self, checked):
         """Enable/disable histogram threshold slider based on checkbox state."""

@@ -1,4 +1,4 @@
-from PySide6.QtCore import QRect, Qt, QTimer
+from PySide6.QtCore import QSignalBlocker, QRect, Qt, QTimer
 from PySide6.QtWidgets import QApplication, QSplitter
 
 from synthesia2midi.main import Video2MidiApp
@@ -98,6 +98,55 @@ def test_minimum_width_calibration_controls_do_not_overlap(monkeypatch):
                 ],
             )
     finally:
+        app.close()
+
+
+def test_restore_detection_defaults_resets_parameter_sliders_not_toggles(monkeypatch):
+    app = _make_app(monkeypatch)
+    try:
+        app.show()
+        control_panel = app.control_panel
+        control_panel.tab_widget.setCurrentIndex(2)
+        QApplication.processEvents()
+
+        assert control_panel.histogram_detection_cb.isChecked() is False
+        assert control_panel.delta_detection_cb.isChecked() is False
+        assert control_panel.black_key_filter_cb.isChecked() is False
+        assert hasattr(control_panel, "restore_detection_defaults_button")
+
+        toggle_blockers = [
+            QSignalBlocker(control_panel.histogram_detection_cb),
+            QSignalBlocker(control_panel.delta_detection_cb),
+            QSignalBlocker(control_panel.black_key_filter_cb),
+        ]
+        control_panel.histogram_detection_cb.setChecked(True)
+        control_panel.delta_detection_cb.setChecked(False)
+        control_panel.black_key_filter_cb.setChecked(True)
+        del toggle_blockers
+
+        control_panel.detection_threshold_slider.setValue(12)
+        control_panel.histogram_threshold_slider.setValue(44)
+        control_panel.rise_delta_slider.setValue(31)
+        control_panel.fall_delta_slider.setValue(22)
+        control_panel.similarity_ratio_slider.setValue(91)
+
+        control_panel.restore_detection_defaults_button.click()
+
+        assert control_panel.detection_threshold_slider.value() == 50
+        assert control_panel.detection_threshold_label.text() == "50%"
+        assert control_panel.histogram_threshold_slider.value() == 80
+        assert control_panel.histogram_threshold_label.text() == "0.80"
+        assert control_panel.rise_delta_slider.value() == 15
+        assert control_panel.rise_delta_label.text() == "0.15"
+        assert control_panel.fall_delta_slider.value() == 5
+        assert control_panel.fall_delta_label.text() == "0.05"
+        assert control_panel.similarity_ratio_slider.value() == 60
+        assert control_panel.similarity_ratio_label.text() == "0.60"
+        assert control_panel.histogram_detection_cb.isChecked() is True
+        assert control_panel.delta_detection_cb.isChecked() is False
+        assert control_panel.black_key_filter_cb.isChecked() is True
+    finally:
+        app.app_state.unsaved_changes = False
         app.close()
 
 

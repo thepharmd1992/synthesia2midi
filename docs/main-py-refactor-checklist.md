@@ -302,4 +302,4 @@ Add one row per meaningful checkpoint commit.
 1. Keep `main.py` as composition-only; do not reintroduce workflow bodies or compatibility wrappers.
 2. If `_init_ui` grows, split it into an explicit UI builder without mixing business logic back into the root window.
 3. Add manual smoke coverage for local video loading and calibration flows when a GUI session is available.
-4. Keep `ARCHITECTURE.md` and `AGENTS.md` updated when adding new controllers/workflows.
+4. Keep `ARCHITECTURE.MD` and `AGENTS.md` updated when adding new controllers/workflows.

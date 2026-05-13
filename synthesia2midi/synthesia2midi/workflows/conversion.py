@@ -835,8 +835,8 @@ class ConversionWorkflow:
                     f.write(f"Detection threshold: {self.app_state.detection.detection_threshold}\\n")
                     f.write(f"Histogram detection: {self.app_state.detection.use_histogram_detection}\\n")
                     f.write(f"Error saving JSON: {e}\\n")
-            except:
-                pass
+            except Exception as fallback_exc:
+                self.logger.debug("Failed to write fallback conversion settings log: %s", fallback_exc)
     
     
     def _show_error(self, title: str, message: str):

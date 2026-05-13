@@ -86,10 +86,10 @@ class StartupDialog(QDialog):
         
     def _on_local_file_clicked(self):
         """Handle local file button click"""
-        self.open_local_file.emit()
         self.accept()
+        self.open_local_file.emit()
         
     def _on_youtube_clicked(self):
         """Handle YouTube button click"""
-        self.download_from_youtube.emit()
         self.accept()
+        self.download_from_youtube.emit()

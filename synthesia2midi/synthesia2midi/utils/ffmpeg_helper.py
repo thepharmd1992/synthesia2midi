@@ -8,6 +8,7 @@ import sys
 import subprocess
 import shutil
 import logging
+from fractions import Fraction
 from typing import Optional, List, Tuple
 
 logger = logging.getLogger(__name__)
@@ -195,6 +196,17 @@ def convert_video_to_frames(video_path: str, output_dir: str,
         return False
 
 
+def _parse_frame_rate(frame_rate: object) -> float:
+    """Parse ffprobe r_frame_rate safely without evaluating arbitrary Python."""
+    if frame_rate is None:
+        return 0.0
+    try:
+        return float(Fraction(str(frame_rate)))
+    except (ValueError, ZeroDivisionError):
+        logger.warning("Invalid ffprobe frame rate %r; using 0.0", frame_rate)
+        return 0.0
+
+
 def get_video_info(video_path: str) -> Optional[dict]:
     """
     Get video information using FFmpeg probe.
@@ -226,7 +238,7 @@ def get_video_info(video_path: str) -> Optional[dict]:
                 return {
                     'width': stream.get('width'),
                     'height': stream.get('height'),
-                    'fps': eval(stream.get('r_frame_rate', '0/1')),  # Convert fraction to float
+                    'fps': _parse_frame_rate(stream.get('r_frame_rate', '0/1')),  # Convert fraction to float
                     'frame_count': stream.get('nb_frames')
                 }
         

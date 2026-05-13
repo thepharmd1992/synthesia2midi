@@ -53,6 +53,7 @@ class SparkIntegratedDetection(DetectionMethod):
         # Spark-off detection state
         self.previous_saturations: Dict[int, float] = {}  # key_id -> previous saturation value
         self.spark_off_events: Dict[int, bool] = {}  # key_id -> spark just turned off this frame
+        self._frame_count = 0
         
     def detect_frame(self, 
                     frame_bgr: np.ndarray, 
@@ -134,20 +135,15 @@ class SparkIntegratedDetection(DetectionMethod):
             detection_state.spark_roi_bottom <= detection_state.spark_roi_top):
             return False
         
-        # Check calibration is complete (requires at least one key type calibrated)
-        has_lw_cal = (detection_state.spark_calibration_lw_bar_only is not None and
-                      detection_state.spark_calibration_lw_brightest_sparks is not None)
-        has_lb_cal = (detection_state.spark_calibration_lb_bar_only is not None and
-                      detection_state.spark_calibration_lb_brightest_sparks is not None)
-        has_rw_cal = (detection_state.spark_calibration_rw_bar_only is not None and
-                      detection_state.spark_calibration_rw_brightest_sparks is not None)
-        has_rb_cal = (detection_state.spark_calibration_rb_bar_only is not None and
-                      detection_state.spark_calibration_rb_brightest_sparks is not None)
-        
-        has_required_calibration = has_lw_cal or has_lb_cal or has_rw_cal or has_rb_cal
+        # Check calibration is complete (requires at least one effective key type calibrated)
+        calibration_pairs = detection_state.get_effective_spark_calibration_pairs()
+        has_required_calibration = bool(calibration_pairs)
         
         if self._frame_count % 100 == 0:
-            self.logger.debug(f"[SPARK-READY-CHECK] LW={has_lw_cal}, LB={has_lb_cal}, RW={has_rw_cal}, RB={has_rb_cal}")
+            self.logger.debug(
+                "[SPARK-READY-CHECK] effective calibration key types=%s",
+                [key_type for key_type, _bar, _spark in calibration_pairs],
+            )
         
         if not has_required_calibration:
             return False
@@ -230,19 +226,10 @@ class SparkIntegratedDetection(DetectionMethod):
         # Collect all available calibration data
         calibration_data = []
         
-        # Check each key type
-        for key_type in ['lw', 'lb', 'rw', 'rb']:
-            bar_attr = f'spark_calibration_{key_type}_bar_only'
-            sparks_attr = f'spark_calibration_{key_type}_brightest_sparks'
-            
-            bar_data = getattr(self.app_state.detection, bar_attr, None)
-            sparks_data = getattr(self.app_state.detection, sparks_attr, None)
-            
-            if bar_data and sparks_data:
-                calibration_data.append((key_type, bar_data, sparks_data))
+        calibration_data = self.app_state.detection.get_effective_spark_calibration_pairs()
         
         if not calibration_data:
-            self.logger.warning("No key-type-specific calibration data available for spark analysis")
+            self.logger.warning("No effective calibration data available for spark analysis")
             return current_spark_states
         
         if self._frame_count % 100 == 0:

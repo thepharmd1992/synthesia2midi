@@ -216,9 +216,9 @@ class YouTubeDownloadDialog(QDialog):
         )
         
         if reply == QMessageBox.Yes:
-            # Emit signal to load the video
+            # Close this modal before loading the video; loading may open progress dialogs.
+            self.accept()
             self.video_downloaded.emit(file_path)
-            self.accept()  # Close dialog
         else:
             # Just close the dialog without loading
             self.accept()

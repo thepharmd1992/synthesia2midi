@@ -41,11 +41,12 @@ Rules:
 | `synthesia2midi/synthesia2midi/main.py` | Qt root window composition, menus, hotkeys, lifecycle, public UI update adapter methods. |
 | `tools/midi_touchup_editor_rust/` | Separate Rust touch-up editor process launched by Python. |
 
-Supported user commands from repo root:
+Supported user commands from repo root with Python 3.10+ on `PATH` (3.12+ recommended):
 
 ```bash
 python3 setup_env.py
 python3 run.py
+# If python3 is too old, install a current Python and run e.g. python3.12 setup_env.py
 ```
 
 Windows equivalents:

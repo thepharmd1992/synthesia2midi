@@ -1,4 +1,5 @@
 import importlib.util
+import subprocess
 import sys
 from pathlib import Path
 
@@ -42,6 +43,33 @@ def test_setup_env_ffmpeg_is_required_by_default():
     assert "FFmpeg is required" in setup_env.ffmpeg_install_hint("darwin")
     assert "brew install ffmpeg" in setup_env.ffmpeg_install_hint("darwin")
     assert "winget install" in setup_env.ffmpeg_install_hint("win32")
+
+
+def test_setup_env_check_probes_venv_python_version_and_required_imports(monkeypatch, tmp_path):
+    setup_env = _load_module("setup_env_under_test", ROOT / "setup_env.py")
+    venv_python = setup_env.venv_python_path(tmp_path / ".venv", "darwin")
+    venv_python.parent.mkdir(parents=True)
+    venv_python.write_text("#!/usr/bin/env python\n", encoding="utf-8")
+
+    calls = []
+    monkeypatch.setattr(setup_env, "VENV_DIR", tmp_path / ".venv")
+    monkeypatch.setattr(setup_env, "RUST_EDITOR_DIR", tmp_path / "missing-rust-editor")
+    monkeypatch.setattr(setup_env, "ensure_ffmpeg", lambda: None)
+    monkeypatch.setattr(setup_env, "ensure_python_version", lambda: None)
+    monkeypatch.setattr(
+        setup_env.subprocess,
+        "run",
+        lambda cmd, **kwargs: calls.append((cmd, kwargs)) or subprocess.CompletedProcess(cmd, 0),
+    )
+
+    setup_env.check_environment(skip_rust=True)
+
+    assert calls
+    probe_cmd = calls[0][0]
+    assert probe_cmd[:2] == [str(venv_python), "-c"]
+    assert "PySide6" in probe_cmd[2]
+    assert "cv2" in probe_cmd[2]
+    assert "numpy" in probe_cmd[2]
 
 
 def test_root_launcher_prefers_repo_venv_python(tmp_path):

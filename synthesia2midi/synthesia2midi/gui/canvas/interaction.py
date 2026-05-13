@@ -100,9 +100,24 @@ class CanvasInteraction(QObject):
     
     def enter_spark_roi_selection_mode(self):
         """Enter spark ROI selection mode."""
+        self._enter_roi_selection_mode("spark")
+
+    def enter_shadow_roi_selection_mode(self):
+        """Enter dormant/general shadow ROI selection mode."""
+        self._enter_roi_selection_mode("shadow")
+
+    def enter_shadow_white_roi_selection_mode(self):
+        """Enter dormant white-key shadow ROI selection mode."""
+        self._enter_roi_selection_mode("shadow_white")
+
+    def enter_shadow_black_roi_selection_mode(self):
+        """Enter dormant black-key shadow ROI selection mode."""
+        self._enter_roi_selection_mode("shadow_black")
+
+    def _enter_roi_selection_mode(self, roi_type: str):
         self._roi_selection_mode = True
-        self._roi_selection_type = "spark"
-        self.logger.info("Entered spark ROI selection mode - click and drag to select region")
+        self._roi_selection_type = roi_type
+        self.logger.info("Entered %s ROI selection mode - click and drag to select region", roi_type)
     
         
     def exit_spark_roi_selection_mode(self):
@@ -514,8 +529,14 @@ class CanvasInteraction(QObject):
                 
                 self.logger.info(f"ROI selected: Y range {top_y} to {bottom_y}")
                 
-                # Emit signal with selected ROI
-                self.spark_roi_selected.emit(top_y, bottom_y)
+                # Emit signal with selected ROI when the active feature has a consumer.
+                if self._roi_selection_type == "spark":
+                    self.spark_roi_selected.emit(top_y, bottom_y)
+                else:
+                    self.logger.warning(
+                        "%s ROI selection completed but shadow ROI persistence is not wired; selection ignored",
+                        self._roi_selection_type,
+                    )
             else:
                 self.logger.warning("Failed to convert ROI selection to image coordinates")
             

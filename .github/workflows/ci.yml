@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.12"]
     steps:
       - uses: actions/checkout@v4
@@ -24,23 +24,53 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install Python dependencies
+      - name: Install FFmpeg
+        shell: bash
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r synthesia2midi/requirements.txt pytest ruff
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            choco install ffmpeg -y --no-progress
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            brew install ffmpeg
+          else
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+
+      - name: Create virtual environment
+        shell: bash
+        run: |
+          python -m venv .venv
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            echo "VENV_PY=.venv/Scripts/python.exe" >> "$GITHUB_ENV"
+          else
+            echo "VENV_PY=.venv/bin/python" >> "$GITHUB_ENV"
+          fi
+
+      - name: Install Python dependencies
+        shell: bash
+        run: |
+          "$VENV_PY" -m pip install --upgrade pip
+          "$VENV_PY" -m pip install -r synthesia2midi/requirements.txt pytest ruff
+
+      - name: Setup check
+        shell: bash
+        run: |
+          "$VENV_PY" setup_env.py --check --skip-rust
 
       - name: Compile sources
+        shell: bash
         run: |
-          python -m compileall -q synthesia2midi
+          "$VENV_PY" -m compileall -q synthesia2midi
 
       - name: Syntax/name lint
+        shell: bash
         run: |
-          python -m ruff check synthesia2midi tests --select=E9,F63,F7,F82
+          "$VENV_PY" -m ruff check synthesia2midi tests --select=E9,F63,F7,F82
 
       - name: Import smoke test
         shell: bash
         run: |
-          python - <<'PY'
+          "$VENV_PY" - <<'PY'
           from synthesia2midi.detection.monolithic_detector import MonolithicPianoDetector
           from synthesia2midi.detection.auto_detect_adapter import AutoDetectAdapter
           from synthesia2midi.detection.factory import DetectionFactory
@@ -50,15 +80,16 @@ jobs:
           PY
 
       - name: Run tests
+        shell: bash
         run: |
-          python -m pytest -q
+          "$VENV_PY" -m pytest -q
 
   rust-touchup:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
 

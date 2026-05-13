@@ -471,8 +471,8 @@ class VideoLoadingWorkflow:
                         early_stderr = process.stderr.read(1000)  # Read first 1000 chars
                         if early_stderr:
                             self.logger.warning(f"[FRAME-CONVERT] Early error: {early_stderr[:200]}")
-                    except:
-                        pass
+                    except Exception as exc:
+                        self.logger.debug("[FRAME-CONVERT] Could not read early FFmpeg stderr: %s", exc)
                     
                     # Clean up any partial output
                     import shutil
@@ -669,8 +669,8 @@ class VideoLoadingWorkflow:
             try:
                 if 'progress' in locals():
                     progress.close()
-            except:
-                pass
+            except Exception as exc:
+                self.logger.debug("Error closing frame conversion progress dialog: %s", exc)
             
             # Show error to user
             if self.parent_widget:

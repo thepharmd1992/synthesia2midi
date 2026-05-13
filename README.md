@@ -20,7 +20,7 @@ Acknowledgments: see [ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md).
 
 ### Requirements
 
-- Python 3.12+ recommended.
+- Python 3.10+ is required; Python 3.12+ is recommended. On macOS, Apple's system `python3` may be too old, so install a current Python first if `python3 --version` reports less than 3.10.
 - FFmpeg is required and must be available on `PATH`.
   - Windows: `winget install Gyan.FFmpeg`
   - macOS: `brew install ffmpeg`
@@ -33,10 +33,11 @@ Acknowledgments: see [ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md).
 
 Run from the repo root.
 
-macOS/Linux:
+macOS/Linux with Python 3.10+ on `PATH`:
 
 ```bash
 python3 setup_env.py
+# If python3 is too old, install a current Python and run e.g. python3.12 setup_env.py
 ```
 
 Windows:

@@ -6,7 +6,7 @@ to ensure identical calculations and prevent drift between the two systems.
 """
 
 import numpy as np
-from typing import Tuple, Dict, Optional, Any
+from typing import Tuple, Dict, Optional, Any, List
 from ..core.app_state import OverlayConfig
 from .roi_utils import euclidean_distance
 
@@ -20,7 +20,8 @@ def calculate_detection_parameters(
     hist_ratio_threshold: float,
     use_histogram_detection: bool,
     hist_rule_hit: bool = False,
-    allow_delta_override_sanity: bool = False
+    allow_delta_override_sanity: bool = False,
+    exemplar_types_to_check: Optional[List[str]] = None
 ) -> Dict[str, Any]:
     """
     Calculate all detection parameters for an overlay.
@@ -51,29 +52,30 @@ def calculate_detection_parameters(
     """
     base_color_type = overlay.key_type[-1]  # "W" or "B"
     
-    # Determine which exemplars to check based on key color
-    # CRITICAL: This matches StandardDetection logic - only check matching color exemplars
-    exemplar_types_to_check = []
-    if base_color_type == "W":
-        exemplar_types_to_check.extend(["LW", "RW"])
-    elif base_color_type == "B":
-        exemplar_types_to_check.extend(["LB", "RB"])
-    else:
-        # Invalid key type
-        return {
-            'current_max_progression_ratio': 0.0,
-            'is_key_lit_by_color': False,
-            'min_sanity_threshold': detection_threshold * 0.3,
-            'progression_passes_sanity': False,
-            'base_lit': False,
-            'exemplars_checked': []
-        }
-    
-    # Also check any additional COLOR_N exemplars that match the key type
-    for key_type, color in exemplar_lit_colors.items():
-        if key_type.startswith("COLOR_") and color is not None:
-            if key_type.endswith(f"_{base_color_type}"):
-                exemplar_types_to_check.append(key_type)
+    # Determine which exemplars to check based on key color unless the caller
+    # supplied a hand-aware filtered list.
+    if exemplar_types_to_check is None:
+        exemplar_types_to_check = []
+        if base_color_type == "W":
+            exemplar_types_to_check.extend(["LW", "RW"])
+        elif base_color_type == "B":
+            exemplar_types_to_check.extend(["LB", "RB"])
+        else:
+            # Invalid key type
+            return {
+                'current_max_progression_ratio': 0.0,
+                'is_key_lit_by_color': False,
+                'min_sanity_threshold': detection_threshold * 0.3,
+                'progression_passes_sanity': False,
+                'base_lit': False,
+                'exemplars_checked': []
+            }
+
+        # Also check any additional COLOR_N exemplars that match the key type
+        for key_type, color in exemplar_lit_colors.items():
+            if key_type.startswith("COLOR_") and color is not None:
+                if key_type.endswith(f"_{base_color_type}"):
+                    exemplar_types_to_check.append(key_type)
     
     # Calculate progression ratios for valid exemplars
     is_key_lit_by_color = False

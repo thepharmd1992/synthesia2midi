@@ -135,6 +135,45 @@ class DetectionConfig:
             or self.exemplar_key_type_enabled.get("RB", True)
         )
         return left_enabled and right_enabled
+
+    def get_effective_spark_calibration_pair(self, key_type: str) -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
+        """Return the best available bar/spark calibration pair for a key type.
+
+        Preference order: key-type-specific auto calibration, legacy per-hand manual
+        calibration, then universal manual calibration. Manual spark calibration stores
+        the spark sample as ``dimmest_sparks``; the runtime uses it as the spark
+        reference when key-type-specific brightest data is unavailable.
+        """
+        key_type = key_type.lower()
+        hand_prefix = "lh" if key_type.startswith("l") else "rh"
+
+        bar_data = (
+            getattr(self, f"spark_calibration_{key_type}_bar_only", None)
+            or getattr(self, f"spark_calibration_{hand_prefix}_bar_only", None)
+            or self.spark_calibration_bar_only
+        )
+        spark_data = (
+            getattr(self, f"spark_calibration_{key_type}_brightest_sparks", None)
+            or getattr(self, f"spark_calibration_{key_type}_dimmest_sparks", None)
+            or getattr(self, f"spark_calibration_{hand_prefix}_brightest_sparks", None)
+            or getattr(self, f"spark_calibration_{hand_prefix}_dimmest_sparks", None)
+            or self.spark_calibration_dimmest_sparks
+        )
+        return bar_data, spark_data
+
+    def has_effective_spark_calibration(self, key_type: str) -> bool:
+        """Return True when an effective bar/spark calibration pair exists."""
+        bar_data, spark_data = self.get_effective_spark_calibration_pair(key_type)
+        return bar_data is not None and spark_data is not None
+
+    def get_effective_spark_calibration_pairs(self) -> List[Tuple[str, Dict[str, Any], Dict[str, Any]]]:
+        """Return effective spark calibration pairs for all calibrated key types."""
+        pairs = []
+        for key_type in ("lw", "lb", "rw", "rb"):
+            bar_data, spark_data = self.get_effective_spark_calibration_pair(key_type)
+            if bar_data is not None and spark_data is not None:
+                pairs.append((key_type, bar_data, spark_data))
+        return pairs
     
     
     def validate(self) -> List[str]:

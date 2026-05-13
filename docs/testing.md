@@ -2,10 +2,11 @@
 
 ## Local Environment
 
-Recommended local setup:
+Recommended local setup with Python 3.10+ (3.12+ recommended):
 
 ```bash
 python3 setup_env.py --dev
+# If python3 is too old on macOS, install a current Python and run e.g. python3.12 setup_env.py --dev
 ```
 
 `setup_env.py --dev` creates `.venv`, installs Python dependencies plus `pytest`/`ruff`, verifies FFmpeg, and builds the Rust touch-up editor when Cargo is available. FFmpeg is required; missing FFmpeg is a setup failure.

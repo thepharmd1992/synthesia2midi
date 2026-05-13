@@ -131,6 +131,10 @@ class StandardDetection(DetectionMethod):
             avg_bgr = np.mean(roi_bgr, axis=(0, 1))
             current_avg_rgb_color = (int(round(avg_bgr[2])), int(round(avg_bgr[1])), int(round(avg_bgr[0])))  # Convert BGR to RGB
 
+            exemplar_types_to_check = self._get_exemplar_types_to_check(
+                overlay, frame_bgr, exemplar_lit_colors, kwargs
+            )
+
             # First calculate detection parameters without histogram
             # Allow delta override of sanity when delta detection is enabled
             detection_params = calculate_detection_parameters(
@@ -142,7 +146,8 @@ class StandardDetection(DetectionMethod):
                 hist_ratio_threshold=hist_ratio_threshold,
                 use_histogram_detection=False,  # First pass without histogram
                 hist_rule_hit=False,
-                allow_delta_override_sanity=use_delta_detection
+                allow_delta_override_sanity=use_delta_detection,
+                exemplar_types_to_check=exemplar_types_to_check
             )
             
             # Optional histogram detection with early exit
@@ -162,7 +167,8 @@ class StandardDetection(DetectionMethod):
                     hist_ratio_threshold=hist_ratio_threshold,
                     use_histogram_detection=use_histogram_detection,
                     hist_rule_hit=hist_rule_hit,
-                    allow_delta_override_sanity=use_delta_detection
+                    allow_delta_override_sanity=use_delta_detection,
+                    exemplar_types_to_check=exemplar_types_to_check
                 )
             
             # Extract values from shared calculation
@@ -271,6 +277,46 @@ class StandardDetection(DetectionMethod):
                 pressed_key_ids.add(overlay.key_id)
 
         return pressed_key_ids
+
+    def _get_exemplar_types_to_check(
+        self,
+        overlay: OverlayConfig,
+        frame_bgr: np.ndarray,
+        exemplar_lit_colors: Dict[str, Optional[Tuple[int, int, int]]],
+        kwargs: dict,
+    ) -> List[str]:
+        """Return color exemplar keys, filtered by detected hand when available."""
+        base_color_type = overlay.key_type[-1]  # "W" or "B"
+        if base_color_type not in {"W", "B"}:
+            self.logger.warning(f"Overlay {overlay.key_id} has unexpected key_type: {overlay.key_type}")
+            return []
+
+        hand_assignment_enabled = kwargs.get('hand_assignment_enabled', False)
+        hand_detection_calibrated = kwargs.get('hand_detection_calibrated', False)
+        left_hand_hue_mean = kwargs.get('left_hand_hue_mean', 0.0)
+        right_hand_hue_mean = kwargs.get('right_hand_hue_mean', 0.0)
+        exemplar_types_to_check: List[str] = []
+
+        if hand_assignment_enabled and hand_detection_calibrated:
+            hue_diff = abs(left_hand_hue_mean - right_hand_hue_mean)
+            if hue_diff >= 5.0:
+                hand_type = self._determine_hand_from_hue(
+                    overlay, frame_bgr, left_hand_hue_mean, right_hand_hue_mean
+                )
+                if hand_type in {"L", "R"}:
+                    exemplar_types_to_check.append(hand_type + base_color_type)
+                else:
+                    exemplar_types_to_check.extend(["L" + base_color_type, "R" + base_color_type])
+            else:
+                exemplar_types_to_check.extend(["L" + base_color_type, "R" + base_color_type])
+        else:
+            exemplar_types_to_check.extend(["L" + base_color_type, "R" + base_color_type])
+
+        for key_type, color in exemplar_lit_colors.items():
+            if key_type.startswith("COLOR_") and color is not None and key_type.endswith(f"_{base_color_type}"):
+                exemplar_types_to_check.append(key_type)
+
+        return exemplar_types_to_check
     
     def _calculate_color_progression(self, overlay: OverlayConfig, 
                                    current_color: Tuple[int, int, int],

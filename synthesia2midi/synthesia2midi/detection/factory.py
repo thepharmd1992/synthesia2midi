@@ -97,17 +97,10 @@ class DetectionFactory:
         
         # Check if spark detection is configured and calibrated
         detection_state = app_state.detection
-        # Check if we have any complete calibration pair for key-type-specific calibration
-        has_lw_cal = (detection_state.spark_calibration_lw_bar_only is not None and
-                      detection_state.spark_calibration_lw_brightest_sparks is not None)
-        has_lb_cal = (detection_state.spark_calibration_lb_bar_only is not None and
-                      detection_state.spark_calibration_lb_brightest_sparks is not None)
-        has_rw_cal = (detection_state.spark_calibration_rw_bar_only is not None and
-                      detection_state.spark_calibration_rw_brightest_sparks is not None)
-        has_rb_cal = (detection_state.spark_calibration_rb_bar_only is not None and
-                      detection_state.spark_calibration_rb_brightest_sparks is not None)
-        
-        has_any_calibration = has_lw_cal or has_lb_cal or has_rw_cal or has_rb_cal
+        has_any_calibration = any(
+            detection_state.has_effective_spark_calibration(key_type)
+            for key_type in ("lw", "lb", "rw", "rb")
+        )
         
         spark_available = (
             detection_state.spark_detection_enabled and  # User has enabled spark detection

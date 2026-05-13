@@ -212,6 +212,24 @@ def build_rust_editor(*, skip_rust: bool, strict_rust: bool) -> list[str]:
     return warnings
 
 
+def verify_venv_python(venv_python: Path) -> None:
+    """Verify the venv interpreter runs, is new enough, and has required imports."""
+    probe = """
+import sys
+if sys.version_info < (3, 10):
+    raise SystemExit(f'Venv Python 3.10+ is required. Current Python: {sys.version.split()[0]}')
+import PySide6
+import cv2
+import numpy
+import mido
+""".strip()
+    try:
+        subprocess.run([str(venv_python), "-c", probe], check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as exc:
+        details = (exc.stderr or exc.stdout or str(exc)).strip()
+        raise SetupError(f".venv Python verification failed: {details}") from exc
+
+
 def check_environment(*, skip_rust: bool) -> None:
     ensure_python_version()
     ensure_ffmpeg()
@@ -219,6 +237,8 @@ def check_environment(*, skip_rust: bool) -> None:
     venv_python = venv_python_path(VENV_DIR)
     if not venv_python.exists():
         raise SetupError(".venv is missing. Run `python3 setup_env.py` on macOS/Linux or `py setup_env.py` on Windows to create it.")
+
+    verify_venv_python(venv_python)
 
     if not skip_rust and RUST_EDITOR_DIR.exists() and not rust_binary_path().exists():
         print("Warning: Rust MIDI touch-up editor binary is missing.")

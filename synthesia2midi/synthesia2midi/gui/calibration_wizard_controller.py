@@ -182,8 +182,8 @@ class CalibrationWizardController:
         if self.video_session is None or frame_idx is None:
             return None
 
-        frame_bgr = self.video_session.get_frame(frame_idx)
-        if frame_bgr is None:
+        success, frame_bgr = self.video_session.get_frame(frame_idx)
+        if not success or frame_bgr is None:
             return None
         return cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
 

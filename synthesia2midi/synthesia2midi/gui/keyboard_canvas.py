@@ -1563,7 +1563,7 @@ class KeyboardCanvas(QWidget):
             self.interaction.color_picked.disconnect()
             self.interaction.request_repaint.disconnect()
             self.interaction.spark_roi_selected.disconnect()
-        except:
+        except (TypeError, RuntimeError):
             pass  # Ignore errors if already disconnected
 
         # Clean up debug box

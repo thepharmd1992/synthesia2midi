@@ -47,6 +47,14 @@ class MainActionController:
         self.app.app_state.detection.fall_delta_threshold = threshold
         self.app.app_state.unsaved_changes = True
 
+    def handle_histogram_threshold_change(self, threshold: float) -> None:
+        self.app.app_state.detection.hist_ratio_threshold = threshold
+        self.app.app_state.unsaved_changes = True
+
+    def handle_similarity_ratio_change(self, ratio: float) -> None:
+        self.app.app_state.detection.similarity_ratio = ratio
+        self.app.app_state.unsaved_changes = True
+
     def handle_refresh_selected_overlay_display(self) -> None:
         if self.app.display_manager:
             self.app.display_manager.handle_refresh_selected_overlay_display()

@@ -71,6 +71,8 @@ class ControlSignalManager(QObject):
         
         # Hand assignment toggle
         cp.hand_assignment_toggled.connect(mw.main_action_controller.handle_hand_assignment_toggle)
+        cp.histogram_threshold_changed.connect(mw.main_action_controller.handle_histogram_threshold_change)
+        cp.similarity_ratio_changed.connect(mw.main_action_controller.handle_similarity_ratio_change)
         
         
         # Manual refresh button

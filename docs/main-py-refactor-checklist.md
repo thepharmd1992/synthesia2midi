@@ -14,7 +14,7 @@ Measured 2026-05-12:
 
 | Metric | Before refactor (`HEAD`/`origin/main`) | Current working tree | Target guardrail |
 |---|---:|---:|---:|
-| `main.py` lines | 2,867 | 1,244 | ~500-700 if remaining code is UI composition only |
+| `main.py` lines | 2,867 | 1,135 | ~500-700 if remaining code is UI composition only |
 | `Video2MidiApp` methods | 121 | 117 | materially fewer; remaining methods should be shell/wiring or documented public API |
 | `Video2MidiApp` classes | 2 | 1 | 1 |
 
@@ -184,10 +184,10 @@ Remaining methods:
 - [ ] `_toggle_overlays`
 - [ ] `_handle_overlay_type_change`
 - [ ] `_handle_refresh_selected_overlay_display`
-- [ ] `_align_overlays_vertically`
+- [x] `_align_overlays_vertically` — deleted; no live callers.
 - [ ] `_handle_align_white_keys_to_selected`
 - [ ] `_handle_align_black_keys_to_selected`
-- [ ] `_handle_spinbox_overlay_size_change` — 23 lines.
+- [x] `_handle_spinbox_overlay_size_change` — deleted; no live callers.
 - [ ] `_handle_overlay_size_adjustment` — 10 lines.
 - [ ] `_handle_overlay_color_change` — 10 lines.
 - [ ] `_handle_octave_transpose_change` — 19 lines.
@@ -208,7 +208,7 @@ Goal: detection parameter changes belong to `DetectionManager`, display/monitor 
 
 Remaining methods:
 
-- [ ] `_prepare_frame_for_detection`
+- [x] `_prepare_frame_for_detection` — deleted; no live callers.
 - [ ] `_toggle_live_detection_feedback`
 - [ ] `_handle_visual_threshold_monitor_menu`
 - [ ] `_handle_detection_threshold_change`
@@ -218,10 +218,10 @@ Remaining methods:
 - [ ] `_on_toggle_delta_detection`
 - [ ] `_on_toggle_winner_takes_black`
 - [ ] `_handle_hand_assignment_toggle`
-- [ ] `_handle_visual_threshold_monitor_toggle`
+- [x] `_handle_visual_threshold_monitor_toggle` — deleted; no live callers.
 - [ ] `_handle_fps_override_change` — 23 lines.
-- [ ] `_handle_detection_logging_toggle`
-- [ ] `_log_detection_parameters`
+- [x] `_handle_detection_logging_toggle` — deleted; no live callers.
+- [x] `_log_detection_parameters` — deleted with no-op callback registration.
 - [ ] `_create_detection_wrapper`
 - [ ] `update_live_detection_action`
 - [ ] `update_detection_threshold`
@@ -260,21 +260,21 @@ Known thin wrappers needing caller search:
 
 - [ ] `resizeEvent`
 - [ ] `showEvent`
-- [ ] `_update_tempo`
-- [ ] `_navigate_frame_pgup`
-- [ ] `_navigate_frame_pgdn`
-- [ ] `_display_frame_lightweight`
-- [ ] `_update_frame_slider_position`
-- [ ] `_update_time_display`
+- [x] `_update_tempo` — deleted; no live callers.
+- [x] `_navigate_frame_pgup` — deleted; hotkeys now call `video_controls.navigate_frame_pgup` directly.
+- [x] `_navigate_frame_pgdn` — deleted; hotkeys now call `video_controls.navigate_frame_pgdn` directly.
+- [x] `_display_frame_lightweight` — deleted; no live callers.
+- [x] `_update_frame_slider_position` — deleted; no live callers.
+- [x] `_update_time_display` — deleted; no live callers.
 - [ ] `_display_frame_with_slider_update`
 - [ ] `_update_current_frame_display`
 - [ ] `_handle_color_pick`
-- [ ] `_extract_roi`
-- [ ] `_handle_keyboard_region_selection_request`
-- [ ] `_clone_auto_detect_tuning_context`
-- [ ] `_cache_auto_detect_tuning_context`
-- [ ] `_get_current_frame_rgb_for_tuning`
-- [ ] `_build_auto_detect_tuning_context_from_state`
+- [x] `_extract_roi` — deleted; no live callers.
+- [x] `_handle_keyboard_region_selection_request` — deleted; no live callers.
+- [x] `_clone_auto_detect_tuning_context` — deleted; no live callers.
+- [x] `_cache_auto_detect_tuning_context` — deleted; no live callers.
+- [x] `_get_current_frame_rgb_for_tuning` — deleted; no live callers.
+- [x] `_build_auto_detect_tuning_context_from_state` — deleted; no live callers.
 - [ ] `update_control_panel`
 - [ ] `_resize_and_position_window`
 - [ ] `show_message`
@@ -292,6 +292,7 @@ Add one row per meaningful checkpoint commit.
 |---|---|---|---:|---|---|
 | 2026-05-12 | `e987c9c` | First extraction wave + setup cleanup | 1,272 | compileall, pytest, ruff critical selectors, cargo check | Still many wrappers; needs subsystem-by-subsystem wrapper deletion. |
 | 2026-05-12 | `0e7baef` | Removed MIDI touch-up wrappers from `main.py` | 1,244 | `git diff --check`; compileall; pytest | `ControlSignalManager` and `closeEvent` now target `MidiTouchupController` directly. |
+| 2026-05-12 | pending | Removed no-live-caller thin wrappers | 1,135 | `git diff --check`; compileall; pytest | Deleted stale wrappers and no-op detection logging callback; hotkeys now target `VideoControls` directly. |
 
 ## Next Recommended Checkpoints
 

@@ -23,8 +23,6 @@ import os
 import sys
 from typing import Any, Dict, List, Optional, Tuple
 
-import cv2  # For HSV color space conversion
-import numpy as np  # For image data
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QAction, QPixmap
 from PySide6.QtWidgets import (
@@ -33,9 +31,7 @@ from PySide6.QtWidgets import (
     QTreeView, QVBoxLayout, QWidget
 )
 
-from synthesia2midi.app_config import (
-    APP_NAME, FRAME_NAV_INTERVALS, OverlayConfig
-)
+from .app_config import APP_NAME, FRAME_NAV_INTERVALS
 from synthesia2midi.config_manager import ConfigManager
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.core.logging_config import LoggingConfig
@@ -115,10 +111,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
 
         # Frame slider handling is now done by VideoControls class
 
-        # Detection parameter logging
-        self._detection_logging_enabled = False
-        self._detection_log_data = []
-        self._detection_log_start_time = None
 
         self._init_ui()
         self._bind_hotkeys()
@@ -292,9 +284,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
             self.time_label
         )
 
-        # Set up detection logging callback for video controls
-        self.video_controls.set_detection_logging_callback(self._log_detection_parameters)
-
         # Connect video controls to control panel for trim functionality
         self.control_panel.video_controls = self.video_controls
         self.control_panel.keyboard_canvas = self.keyboard_canvas
@@ -330,21 +319,21 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         # Page Up/Down and Left/Right for navigation
         pgup_action = QAction(self)
         pgup_action.setShortcut(Qt.Key_PageUp)
-        pgup_action.triggered.connect(self._navigate_frame_pgup)
+        pgup_action.triggered.connect(self.video_controls.navigate_frame_pgup)
         self.addAction(pgup_action)
         left_action = QAction(self)
         left_action.setShortcut(Qt.Key_Left)
-        left_action.triggered.connect(self._navigate_frame_pgup)
+        left_action.triggered.connect(self.video_controls.navigate_frame_pgup)
         self.addAction(left_action)
 
 
         pgdn_action = QAction(self)
         pgdn_action.setShortcut(Qt.Key_PageDown)
-        pgdn_action.triggered.connect(self._navigate_frame_pgdn)
+        pgdn_action.triggered.connect(self.video_controls.navigate_frame_pgdn)
         self.addAction(pgdn_action)
         right_action = QAction(self)
         right_action.setShortcut(Qt.Key_Right)
-        right_action.triggered.connect(self._navigate_frame_pgdn)
+        right_action.triggered.connect(self.video_controls.navigate_frame_pgdn)
         self.addAction(right_action)
 
     def _show_startup_dialog(self):
@@ -510,10 +499,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         logging.info(f"{APP_NAME} closing.")
         event.accept()
 
-    def _update_tempo(self, value: int):
-        """Delegate tempo update to ParameterManager."""
-        self.parameter_manager.update_tempo(value)
-
     def _update_nav_interval(self, value: int):
         """Delegate navigation interval update to ParameterManager and update menu."""
         self.parameter_manager.update_nav_interval(value)
@@ -523,32 +508,11 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
             for nav_interval, action in self.frame_nav_actions.items():
                 action.setChecked(nav_interval == value)
 
-
-    def _navigate_frame_pgup(self):
-        """Navigate backwards by current navigation interval."""
-        self.video_controls.navigate_frame_pgup()
-
-    def _navigate_frame_pgdn(self):
-        """Navigate forwards by current navigation interval."""
-        self.video_controls.navigate_frame_pgdn()
-
     def _update_frame_slider_for_video(self):
         """Update frame slider range and state when video is loaded."""
         self.video_controls.update_frame_slider_for_video()
 
     # Frame slider events are handled by VideoControls via ControlSignalManager.
-
-    def _display_frame_lightweight(self, frame_index: int) -> bool:
-        """Display frame without expensive live detection for smooth navigation."""
-        return self.video_controls.display_frame_lightweight(frame_index)
-
-    def _update_frame_slider_position(self):
-        """Update frame slider position to match current frame without triggering events."""
-        self.video_controls.update_frame_slider_position()
-
-    def _update_time_display(self, frame_index: int):
-        """Update the time display label based on frame index."""
-        self.video_controls.update_time_display(frame_index)
 
     def _display_frame_with_slider_update(self, frame_index: int) -> bool:
         """Wrapper for display_frame that also updates the frame slider."""
@@ -564,13 +528,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
     def _handle_overlay_selection(self, selected_key_id: Optional[int]):
         return self.calibration_interaction_controller._handle_overlay_selection(selected_key_id)
 
-
-
-    def _prepare_frame_for_detection(self, frame_bgr: np.ndarray) -> Tuple[np.ndarray, List[OverlayConfig]]:
-        """Delegate frame preparation to DetectionManager."""
-        if self.detection_manager:
-            return self.detection_manager.prepare_frame_for_detection(frame_bgr)
-        return frame_bgr, self.app_state.overlays
 
     def _start_conversion_process(self):
         """Start MIDI conversion using ConversionWorkflow."""
@@ -783,9 +740,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
     def _capture_shadow_overlay_calibration(self, overlay, calibration_mode: str):
         return self.calibration_effects_controller._capture_shadow_overlay_calibration(overlay, calibration_mode)
 
-    def _extract_roi(self, frame: np.ndarray, overlay: OverlayConfig) -> Optional[np.ndarray]:
-        return self.calibration_effects_controller._extract_roi(frame, overlay)
-
     def _get_calibration_instructions(self, step_type: str) -> str:
         return self.calibration_effects_controller._get_calibration_instructions(step_type)
 
@@ -829,11 +783,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         if self.display_manager:
             self.display_manager.handle_refresh_selected_overlay_display()
 
-    def _align_overlays_vertically(self, master_overlay: OverlayConfig, target_key_color_type: str):
-        """Delegate vertical overlay alignment to OverlayManager."""
-        if self.overlay_manager:
-            self.overlay_manager.align_overlays_vertically(master_overlay, target_key_color_type)
-
     def _handle_align_white_keys_to_selected(self):
         """Delegate white key alignment to OverlayManager."""
         if self.overlay_manager:
@@ -843,30 +792,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         """Delegate black key alignment to OverlayManager."""
         if self.overlay_manager:
             self.overlay_manager.handle_align_black_keys_to_selected()
-
-    def _handle_spinbox_overlay_size_change(self, key_suffix: str, dimension: str, value: int):
-        """Handle real-time spinbox value changes for overlay dimensions.
-
-        Args:
-            key_suffix: 'W' for white keys or 'B' for black keys
-            dimension: 'width' or 'height'
-            value: The new absolute value from the spinbox
-        """
-        # Update all overlays of the specified type
-        for overlay in self.app_state.overlays:
-            # Match both left and right keys with the suffix
-            if overlay.key_type.endswith(key_suffix):
-                if dimension == 'width':
-                    overlay.width = value
-                elif dimension == 'height':
-                    overlay.height = value
-
-        # Update canvas display
-        if self.keyboard_canvas:
-            self.keyboard_canvas.update()
-
-        # Mark as unsaved changes
-        self.app_state.unsaved_changes = True
 
     def _handle_overlay_size_adjustment(self, key_color: str, dimension: str, delta: int):
         """Handle overlay size adjustment request from control panel.
@@ -882,23 +807,8 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
     def _invoke_calibration_wizard(self):
         return self.calibration_wizard_controller._invoke_calibration_wizard()
 
-    def _handle_keyboard_region_selection_request(self):
-        return self.calibration_wizard_controller._handle_keyboard_region_selection_request()
-
     def _handle_edit_current_calibration_request(self):
         return self.calibration_wizard_controller._handle_edit_current_calibration_request()
-
-    def _clone_auto_detect_tuning_context(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        return self.calibration_wizard_controller._clone_auto_detect_tuning_context(context)
-
-    def _cache_auto_detect_tuning_context(self, context: Dict[str, Any]) -> None:
-        return self.calibration_wizard_controller._cache_auto_detect_tuning_context(context)
-
-    def _get_current_frame_rgb_for_tuning(self) -> Optional[np.ndarray]:
-        return self.calibration_wizard_controller._get_current_frame_rgb_for_tuning()
-
-    def _build_auto_detect_tuning_context_from_state(self) -> Optional[Dict[str, Any]]:
-        return self.calibration_wizard_controller._build_auto_detect_tuning_context_from_state()
 
     def _resolve_auto_detect_tuning_context(self, *, use_wizard_context: bool) -> Optional[Dict[str, Any]]:
         return self.calibration_wizard_controller._resolve_auto_detect_tuning_context(use_wizard_context=use_wizard_context)
@@ -969,15 +879,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.app_state.unsaved_changes = True
         logging.info(f"Hand assignment is now {enabled}")
 
-
-    def _handle_visual_threshold_monitor_toggle(self, enabled: bool):
-        """Delegate visual threshold monitor toggle to DisplayManager and update menu."""
-        if self.display_manager:
-            self.display_manager.handle_visual_threshold_monitor_toggle(enabled)
-
-        # Update menu check state when changed from control panel
-        if hasattr(self, 'visual_threshold_monitor_action'):
-            self.visual_threshold_monitor_action.setChecked(enabled)
 
     def _handle_overlay_color_change(self, color: str):
         """Handle overlay color change from control panel."""
@@ -1157,16 +1058,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
             if hasattr(self.control_panel, 'processing_start_frame_spin'):
                 self.control_panel.processing_start_frame_spin.setValue(video.processing_start_frame)
                 self.control_panel.processing_end_frame_spin.setValue(video.processing_end_frame)
-
-    def _handle_detection_logging_toggle(self, enabled: bool):
-        """No-op placeholder (kept for compatibility with older UI/menu hooks)."""
-        pass
-
-    def _log_detection_parameters(self):
-        """No-op placeholder (kept for compatibility with older UI/menu hooks)."""
-        pass
-
-
 
     def _resize_and_position_window(self):
         """Delegate window resize and positioning to WindowManager."""

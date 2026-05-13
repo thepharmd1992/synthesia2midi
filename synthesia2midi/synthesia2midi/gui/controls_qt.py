@@ -553,20 +553,27 @@ class ControlPanelQt(QWidget):
         modes_layout = QVBoxLayout(modes_group)
         modes_layout.setContentsMargins(15, 10, 15, 10)
         
+        # Detection mode controls use a grid so every mode slider starts in the same column.
+        # The histogram row is the visual anchor for the rest of the group.
+        modes_grid = QGridLayout()
+        modes_grid.setHorizontalSpacing(12)
+        modes_grid.setVerticalSpacing(8)
+        modes_grid.setColumnStretch(0, 1)
+        modes_grid.setColumnStretch(1, 0)
+        modes_grid.setColumnStretch(2, 0)
+
         # Histogram detection with sensitivity slider
-        histogram_layout = QHBoxLayout()
         self.histogram_detection_cb = QCheckBox("Enable Histogram Detection")
         self.histogram_detection_cb.toggled.connect(self.histogram_detection_toggled.emit)
         self.histogram_detection_cb.toggled.connect(self._update_histogram_slider_state)
         self.histogram_detection_cb.setToolTip(
             "Uses a color-pattern match inside the overlay. Helpful with gradients/uneven lighting."
         )
-        histogram_layout.addWidget(self.histogram_detection_cb)
-        histogram_layout.addStretch(2)  # Give checkbox text room; keep slider nearer center-right
+        modes_grid.addWidget(self.histogram_detection_cb, 0, 0)
         
         # Add histogram threshold slider
         self.histogram_threshold_slider = QSlider(Qt.Horizontal)
-        self.histogram_threshold_slider.setMaximumWidth(150)
+        self.histogram_threshold_slider.setFixedWidth(150)
         self.histogram_threshold_slider.setRange(10, 100)  # 0.1 to 1.0
         self.histogram_threshold_slider.setValue(80)  # Default 0.8
         self.histogram_threshold_slider.valueChanged.connect(self._handle_histogram_threshold_change)
@@ -574,17 +581,14 @@ class ControlPanelQt(QWidget):
         self.histogram_threshold_slider.setToolTip(
             "How strong the histogram match must be (only used when Histogram Detection is enabled)."
         )
-        histogram_layout.addWidget(self.histogram_threshold_slider)
+        modes_grid.addWidget(self.histogram_threshold_slider, 0, 1)
         
         self.histogram_threshold_label = QLabel("0.80")
         self.histogram_threshold_label.setMinimumWidth(40)
         self.histogram_threshold_label.setToolTip(
             "How strong the histogram match must be (only used when Histogram Detection is enabled)."
         )
-        histogram_layout.addWidget(self.histogram_threshold_label)
-        histogram_layout.addStretch(1)
-        
-        modes_layout.addLayout(histogram_layout)
+        modes_grid.addWidget(self.histogram_threshold_label, 0, 2)
         
         # Delta detection with rise/fall sliders
         self.delta_detection_cb = QCheckBox("Enable Delta Detection")
@@ -593,18 +597,15 @@ class ControlPanelQt(QWidget):
         self.delta_detection_cb.setToolTip(
             "Uses frame-to-frame change to confirm press/release (helps when color fades)."
         )
-        modes_layout.addWidget(self.delta_detection_cb)
+        modes_grid.addWidget(self.delta_detection_cb, 1, 0)
         
         # Rise delta threshold
-        rise_layout = QHBoxLayout()
-        rise_layout.setContentsMargins(20, 0, 0, 0)  # Indent to show it's under Delta Detection
         rise_label = QLabel("Rise Threshold:")
-        rise_label.setFixedWidth(260)  # Fixed width for alignment (280-20 indent)
-        rise_layout.addWidget(rise_label)
-        rise_layout.addStretch(2)
+        rise_label.setContentsMargins(20, 0, 0, 0)  # Indent to show it's under Delta Detection
+        modes_grid.addWidget(rise_label, 2, 0)
         
         self.rise_delta_slider = QSlider(Qt.Horizontal)
-        self.rise_delta_slider.setMaximumWidth(150)
+        self.rise_delta_slider.setFixedWidth(150)
         self.rise_delta_slider.setRange(1, 50)  # 0.01 to 0.50
         self.rise_delta_slider.setValue(15)  # Default 0.15
         self.rise_delta_slider.valueChanged.connect(self._handle_rise_delta_change)
@@ -612,28 +613,22 @@ class ControlPanelQt(QWidget):
         self.rise_delta_slider.setToolTip(
             "How big the change must be to count as a press (only used when Delta Detection is enabled)."
         )
-        rise_layout.addWidget(self.rise_delta_slider)
+        modes_grid.addWidget(self.rise_delta_slider, 2, 1)
         
         self.rise_delta_label = QLabel("0.15")
         self.rise_delta_label.setMinimumWidth(40)
         self.rise_delta_label.setToolTip(
             "How big the change must be to count as a press (only used when Delta Detection is enabled)."
         )
-        rise_layout.addWidget(self.rise_delta_label)
-        rise_layout.addStretch(1)
-        
-        modes_layout.addLayout(rise_layout)
+        modes_grid.addWidget(self.rise_delta_label, 2, 2)
         
         # Fall delta threshold
-        fall_layout = QHBoxLayout()
-        fall_layout.setContentsMargins(20, 0, 0, 0)  # Indent to show it's under Delta Detection
         fall_label = QLabel("Fall Threshold:")
-        fall_label.setFixedWidth(260)  # Fixed width for alignment (280-20 indent)
-        fall_layout.addWidget(fall_label)
-        fall_layout.addStretch(2)
+        fall_label.setContentsMargins(20, 0, 0, 0)  # Indent to show it's under Delta Detection
+        modes_grid.addWidget(fall_label, 3, 0)
         
         self.fall_delta_slider = QSlider(Qt.Horizontal)
-        self.fall_delta_slider.setMaximumWidth(150)
+        self.fall_delta_slider.setFixedWidth(150)
         self.fall_delta_slider.setRange(1, 50)  # 0.01 to 0.50
         self.fall_delta_slider.setValue(5)  # Default 0.05
         self.fall_delta_slider.valueChanged.connect(self._handle_fall_delta_change)
@@ -641,32 +636,27 @@ class ControlPanelQt(QWidget):
         self.fall_delta_slider.setToolTip(
             "How big the change must be to count as a release (only used when Delta Detection is enabled)."
         )
-        fall_layout.addWidget(self.fall_delta_slider)
+        modes_grid.addWidget(self.fall_delta_slider, 3, 1)
         
         self.fall_delta_label = QLabel("0.05")
         self.fall_delta_label.setMinimumWidth(40)
         self.fall_delta_label.setToolTip(
             "How big the change must be to count as a release (only used when Delta Detection is enabled)."
         )
-        fall_layout.addWidget(self.fall_delta_label)
-        fall_layout.addStretch(1)
-        
-        modes_layout.addLayout(fall_layout)
+        modes_grid.addWidget(self.fall_delta_label, 3, 2)
         
         # Black key filter with similarity ratio slider
-        filter_layout = QHBoxLayout()
         self.black_key_filter_cb = QCheckBox("Enable Black Key Filter")
         self.black_key_filter_cb.toggled.connect(self.winner_takes_black_changed.emit)
         self.black_key_filter_cb.toggled.connect(self._update_similarity_slider_state)
         self.black_key_filter_cb.setToolTip(
             "Reduces false black-key presses from nearby overlays."
         )
-        filter_layout.addWidget(self.black_key_filter_cb)
-        filter_layout.addStretch(2)  # Give checkbox text room; keep slider nearer center-right
+        modes_grid.addWidget(self.black_key_filter_cb, 4, 0)
         
         # Add similarity ratio slider
         self.similarity_ratio_slider = QSlider(Qt.Horizontal)
-        self.similarity_ratio_slider.setMaximumWidth(150)
+        self.similarity_ratio_slider.setFixedWidth(150)
         self.similarity_ratio_slider.setRange(10, 100)  # 0.1 to 1.0
         self.similarity_ratio_slider.setValue(60)  # Default 0.6
         self.similarity_ratio_slider.valueChanged.connect(self._handle_similarity_ratio_change)
@@ -674,17 +664,16 @@ class ControlPanelQt(QWidget):
         self.similarity_ratio_slider.setToolTip(
             "Controls how strict black-key filtering is (only used when Black Key Filter is enabled)."
         )
-        filter_layout.addWidget(self.similarity_ratio_slider)
+        modes_grid.addWidget(self.similarity_ratio_slider, 4, 1)
         
         self.similarity_ratio_label = QLabel("0.60")
         self.similarity_ratio_label.setMinimumWidth(40)
         self.similarity_ratio_label.setToolTip(
             "Controls how strict black-key filtering is (only used when Black Key Filter is enabled)."
         )
-        filter_layout.addWidget(self.similarity_ratio_label)
-        filter_layout.addStretch(1)
+        modes_grid.addWidget(self.similarity_ratio_label, 4, 2)
         
-        modes_layout.addLayout(filter_layout)
+        modes_layout.addLayout(modes_grid)
         
         layout.addWidget(modes_group)
         

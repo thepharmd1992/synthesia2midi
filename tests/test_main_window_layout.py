@@ -101,6 +101,29 @@ def test_minimum_width_calibration_controls_do_not_overlap(monkeypatch):
         app.close()
 
 
+def test_detection_mode_sliders_share_left_edge(monkeypatch):
+    app = _make_app(monkeypatch)
+    try:
+        app.show()
+        app.control_panel.tab_widget.setCurrentIndex(2)
+        QApplication.processEvents()
+
+        control_panel = app.control_panel
+        slider_rects = [
+            _rect_in_control_panel(control_panel, app.control_panel.histogram_threshold_slider),
+            _rect_in_control_panel(control_panel, app.control_panel.rise_delta_slider),
+            _rect_in_control_panel(control_panel, app.control_panel.fall_delta_slider),
+            _rect_in_control_panel(control_panel, app.control_panel.similarity_ratio_slider),
+        ]
+        left_edges = {rect.left() for rect in slider_rects}
+        widths = {rect.width() for rect in slider_rects}
+
+        assert len(left_edges) == 1
+        assert widths == {150}
+    finally:
+        app.close()
+
+
 def test_spark_auto_calibration_controls_stack_vertically(monkeypatch):
     app = _make_app(monkeypatch)
     try:

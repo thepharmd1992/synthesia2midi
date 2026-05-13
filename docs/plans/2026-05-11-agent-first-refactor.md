@@ -12,7 +12,7 @@
 
 ## Current Facts
 
-- Repo: `/Users/jeff/repos/synthesia2midi`
+- Repo: project checkout root
 - Kanban tenant: `synthesia2midi`
 - Root Kanban epic: `t_77771f49`
 - `main.py` is currently ~2.9k lines and owns Qt shell, menus, dialogs, video loading, calibration interaction dispatch, conversion actions, FFmpeg frame extraction, and Rust touch-up editor process lifecycle.
@@ -77,7 +77,7 @@ PYTHONPATH=synthesia2midi QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest -
 
 ## Kanban Roadmap
 
-All cards were created in `triage` with workspace `dir:/Users/jeff/repos/synthesia2midi` so nothing dispatches until Jeff explicitly promotes/dispatches.
+All cards were created in `triage` with workspace pointing at the project checkout so nothing dispatches until Jeff explicitly promotes/dispatches.
 
 | ID | Title | Assignee |
 |---|---|---|

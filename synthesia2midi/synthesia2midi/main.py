@@ -167,8 +167,10 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.focus_video_action = QAction("Focus Video (Hide Settings)", self)
         self.focus_video_action.setCheckable(True)
         self.focus_video_action.setShortcut("Ctrl+Shift+F")
+        self.focus_video_action.setShortcutContext(Qt.ApplicationShortcut)
         self.focus_video_action.triggered.connect(self._toggle_focus_video_mode)
         view_menu.addAction(self.focus_video_action)
+        self.addAction(self.focus_video_action)
 
         view_menu.addSeparator()
 

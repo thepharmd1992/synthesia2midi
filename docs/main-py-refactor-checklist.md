@@ -14,7 +14,7 @@ Measured 2026-05-12:
 
 | Metric | Before refactor (`HEAD`/`origin/main`) | Current working tree | Target guardrail |
 |---|---:|---:|---:|
-| `main.py` lines | 2,867 | 1,135 | ~500-700 if remaining code is UI composition only |
+| `main.py` lines | 2,867 | 1,077 | ~500-700 if remaining code is UI composition only |
 | `Video2MidiApp` methods | 121 | 117 | materially fewer; remaining methods should be shell/wiring or documented public API |
 | `Video2MidiApp` classes | 2 | 1 | 1 |
 
@@ -128,10 +128,10 @@ Goal: conversion/MIDI orchestration belongs to `ConversionWorkflow`; `main.py` s
 
 Remaining methods:
 
-- [ ] `_start_conversion_process` — 48 lines; move or shrink to a single controller call.
-- [ ] `_on_conversion_progress` — 3 lines; decide if direct signal target can be workflow/control-panel method.
-- [ ] `_on_conversion_finished` — 3 lines; decide if direct signal target can be workflow/control-panel method.
-- [ ] `_show_conversion_complete_dialog_with_touchup` — 2 lines; rewire callers to `MidiTouchupController` if possible.
+- [x] `_start_conversion_process` — deleted; `ControlSignalManager` and the Space hotkey now call `MidiConversionController.start_conversion_process`.
+- [x] `_on_conversion_progress` — deleted; no live callers.
+- [x] `_on_conversion_finished` — deleted; no live callers.
+- [x] `_show_conversion_complete_dialog_with_touchup` — deleted; conversion controller calls `MidiTouchupController` directly.
 
 Verification:
 
@@ -293,6 +293,7 @@ Add one row per meaningful checkpoint commit.
 | 2026-05-12 | `e987c9c` | First extraction wave + setup cleanup | 1,272 | compileall, pytest, ruff critical selectors, cargo check | Still many wrappers; needs subsystem-by-subsystem wrapper deletion. |
 | 2026-05-12 | `5036152` | Removed MIDI touch-up wrappers from `main.py` | 1,244 | `git diff --check`; compileall; pytest | `ControlSignalManager` and `closeEvent` now target `MidiTouchupController` directly. |
 | 2026-05-12 | `a65a395` | Removed no-live-caller thin wrappers | 1,135 | `git diff --check`; compileall; pytest | Deleted stale wrappers and no-op detection logging callback; hotkeys now target `VideoControls` directly. |
+| 2026-05-12 | pending | Extracted user-triggered MIDI conversion UI flow | 1,077 | pending | Added `MidiConversionController`; conversion signals/hotkey no longer target `main.py`. |
 
 ## Next Recommended Checkpoints
 

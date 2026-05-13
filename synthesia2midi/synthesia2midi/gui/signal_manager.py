@@ -97,7 +97,7 @@ class ControlSignalManager(QObject):
         cp.overlay_size_adjustment_requested.connect(mw._handle_overlay_size_adjustment)
         
         # Conversion and testing actions
-        cp.conversion_requested.connect(mw._start_conversion_process)
+        cp.conversion_requested.connect(mw.midi_conversion_controller.start_conversion_process)
         cp.midi_touchup_requested.connect(mw.midi_touchup_controller.open_from_picker)
         
         # Video trimming action

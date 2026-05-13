@@ -44,6 +44,7 @@ from synthesia2midi.gui.keyboard_canvas import KeyboardCanvas
 from synthesia2midi.gui.calibration_effects_controller import CalibrationEffectsController
 from synthesia2midi.gui.calibration_interaction_controller import CalibrationInteractionController
 from synthesia2midi.gui.calibration_wizard_controller import CalibrationWizardController
+from synthesia2midi.gui.midi_conversion_controller import MidiConversionController
 from synthesia2midi.gui.midi_touchup_controller import MidiTouchupController
 from synthesia2midi.gui.signal_manager import ControlSignalManager
 from synthesia2midi.gui.startup_dialog import StartupDialog
@@ -107,6 +108,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.calibration_wizard_controller = CalibrationWizardController(self)
         self._midi_touchup_processes: List[Any] = []
         self.midi_touchup_controller = MidiTouchupController(self)
+        self.midi_conversion_controller = MidiConversionController(self)
         self._is_closing = False
 
         # Frame slider handling is now done by VideoControls class
@@ -313,7 +315,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         # Space key for conversion
         space_action = QAction(self)
         space_action.setShortcut(Qt.Key_Space)
-        space_action.triggered.connect(self._start_conversion_process)
+        space_action.triggered.connect(self.midi_conversion_controller.start_conversion_process)
         self.addAction(space_action)
 
         # Page Up/Down and Left/Right for navigation
@@ -455,14 +457,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         """Handle request to convert current video to frame series."""
         return self.video_to_frames_controller.handle_request()
 
-    def _on_conversion_progress(self, message: str):
-        """Handle progress updates from video conversion."""
-        return self.video_to_frames_controller.on_progress(message)
-
-    def _on_conversion_finished(self, success: bool, message: str):
-        """Handle completion of video conversion."""
-        return self.video_to_frames_controller.on_finished(success, message)
-
     def _save_settings(self):
         if not self.app_state.video.filepath:
             QMessageBox.warning(self, "Save Settings", "No video file is open. Open a video first.")
@@ -528,58 +522,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
     def _handle_overlay_selection(self, selected_key_id: Optional[int]):
         return self.calibration_interaction_controller._handle_overlay_selection(selected_key_id)
 
-
-    def _start_conversion_process(self):
-        """Start MIDI conversion using ConversionWorkflow."""
-        logging.warning("[MIDI-BUTTON-CLICKED] === MIDI CONVERSION BUTTON CLICKED ===")
-        logging.warning(f"[MIDI-BUTTON-CLICKED] User initiated MIDI conversion at {datetime.datetime.now()}")
-
-        if not self.conversion_workflow:
-            logging.error("[MIDI-BUTTON-CLICKED] FAILED: No conversion workflow available")
-            QMessageBox.information(self, "Error", "Please open a video file first.")
-            self.control_panel.set_conversion_result(False, "Please open a video file first.")
-            return
-
-        logging.warning("[MIDI-BUTTON-CLICKED] Conversion workflow available - proceeding with conversion")
-
-        # Generate output path for MIDI file
-        # Use original video path if available (when using frame sequences)
-        video_path_for_output = getattr(self.app_state.video, 'original_video_path', None) or self.app_state.video.filepath
-        completed_midi_dir = os.path.join(os.path.dirname(video_path_for_output), "Completed MIDI Files")
-        os.makedirs(completed_midi_dir, exist_ok=True)
-
-        video_basename = os.path.splitext(os.path.basename(video_path_for_output))[0]
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        midi_filename = f"{video_basename}_{timestamp}.mid"
-        midi_output_path = os.path.join(completed_midi_dir, midi_filename)
-
-        logging.warning(f"[MIDI-CONVERSION-START] === Starting MIDI conversion process ===")
-        logging.warning(f"[MIDI-CONVERSION-START] Output path: {midi_output_path}")
-        logging.warning(f"[MIDI-CONVERSION-START] Video path: {video_path_for_output}")
-
-        try:
-            # Use ConversionWorkflow to perform the conversion
-            logging.warning("[MIDI-CONVERSION-START] Calling conversion_workflow.convert_to_midi()...")
-            success = self.conversion_workflow.convert_to_midi(midi_output_path)
-            logging.warning(f"[MIDI-CONVERSION-RESULT] convert_to_midi() returned: {success}")
-
-            # Update UI state - reset button whether success or failure
-            if success:
-                self.control_panel.set_conversion_result(True, f"MIDI file saved to:\n{midi_output_path}")
-                self._show_conversion_complete_dialog_with_touchup(midi_output_path)
-                logging.warning(f"[MIDI-CONVERSION-SUCCESS] MIDI conversion successful. Output: {midi_output_path}")
-            else:
-                self.control_panel.set_conversion_result(False, "MIDI conversion failed. Check logs for details.")
-                QMessageBox.critical(self, "Conversion Failed", "MIDI conversion failed. Check logs for details.")
-                logging.error("[MIDI-CONVERSION-FAILED] MIDI conversion failed - convert_to_midi returned False")
-        except Exception as e:
-            # Ensure button is reset even if an exception occurs
-            self.control_panel.set_conversion_result(False, f"MIDI conversion error: {str(e)}")
-            QMessageBox.critical(self, "Conversion Error", f"MIDI conversion error: {str(e)}")
-            logging.error(f"[MIDI-CONVERSION-EXCEPTION] MIDI conversion exception: {e}", exc_info=True)
-
-    def _show_conversion_complete_dialog_with_touchup(self, midi_output_path: str) -> None:
-        return self.midi_touchup_controller.show_conversion_complete_dialog(midi_output_path)
 
 
     def _toggle_overlays(self):

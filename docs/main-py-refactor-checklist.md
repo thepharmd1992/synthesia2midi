@@ -291,8 +291,8 @@ Add one row per meaningful checkpoint commit.
 | Date | Commit | Scope | `main.py` lines | Verification | Notes |
 |---|---|---|---:|---|---|
 | 2026-05-12 | `e987c9c` | First extraction wave + setup cleanup | 1,272 | compileall, pytest, ruff critical selectors, cargo check | Still many wrappers; needs subsystem-by-subsystem wrapper deletion. |
-| 2026-05-12 | `0e7baef` | Removed MIDI touch-up wrappers from `main.py` | 1,244 | `git diff --check`; compileall; pytest | `ControlSignalManager` and `closeEvent` now target `MidiTouchupController` directly. |
-| 2026-05-12 | pending | Removed no-live-caller thin wrappers | 1,135 | `git diff --check`; compileall; pytest | Deleted stale wrappers and no-op detection logging callback; hotkeys now target `VideoControls` directly. |
+| 2026-05-12 | `5036152` | Removed MIDI touch-up wrappers from `main.py` | 1,244 | `git diff --check`; compileall; pytest | `ControlSignalManager` and `closeEvent` now target `MidiTouchupController` directly. |
+| 2026-05-12 | `a65a395` | Removed no-live-caller thin wrappers | 1,135 | `git diff --check`; compileall; pytest | Deleted stale wrappers and no-op detection logging callback; hotkeys now target `VideoControls` directly. |
 
 ## Next Recommended Checkpoints
 

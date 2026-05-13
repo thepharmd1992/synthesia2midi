@@ -33,7 +33,13 @@ jobs:
             brew install ffmpeg
           else
             sudo apt-get update
-            sudo apt-get install -y ffmpeg
+            sudo apt-get install -y \
+              ffmpeg \
+              libegl1 \
+              libgl1 \
+              libxcb-cursor0 \
+              libxcb-xinerama0 \
+              libxkbcommon-x11-0
           fi
 
       - name: Create virtual environment

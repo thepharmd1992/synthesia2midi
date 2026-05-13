@@ -45,12 +45,19 @@ def should_reexec_into_venv(current_executable: Path, venv_python: Path) -> bool
         return os.path.abspath(current_executable) != os.path.abspath(venv_python)
 
 
+def setup_command_hint(platform_name: str | None = None) -> str:
+    """Return a concise cross-platform setup command hint."""
+    platform_name = platform_name or sys.platform
+    if platform_name.startswith("win"):
+        return "py setup_env.py (Windows) or python3 setup_env.py (macOS/Linux)"
+    return "python3 setup_env.py (macOS/Linux) or py setup_env.py (Windows)"
+
+
 def setup_required_message() -> str:
-    py_cmd = user_python_command()
     return (
         "Synthesia2MIDI environment not found.\n\n"
         "Run setup from the repo root first:\n"
-        f"  {py_cmd} setup_env.py"
+        f"  {setup_command_hint()}"
     )
 
 

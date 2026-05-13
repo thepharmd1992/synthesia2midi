@@ -47,7 +47,7 @@ def test_setup_env_ffmpeg_is_required_by_default():
 
 def test_setup_env_check_probes_venv_python_version_and_required_imports(monkeypatch, tmp_path):
     setup_env = _load_module("setup_env_under_test", ROOT / "setup_env.py")
-    venv_python = setup_env.venv_python_path(tmp_path / ".venv", "darwin")
+    venv_python = setup_env.venv_python_path(tmp_path / ".venv")
     venv_python.parent.mkdir(parents=True)
     venv_python.write_text("#!/usr/bin/env python\n", encoding="utf-8")
 

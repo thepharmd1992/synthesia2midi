@@ -257,7 +257,7 @@ class ControlPanelQt(QWidget):
         calibration_grid.addWidget(overlay_label, 0, 0)
         
         self.calibration_wizard_button = QPushButton("Calibrate")
-        self.calibration_wizard_button.setMinimumWidth(96)
+        self.calibration_wizard_button.setMinimumWidth(88)
         # Center-aligned text (default for QPushButton)
         self.calibration_wizard_button.clicked.connect(self.calibration_wizard_requested.emit)
         self.calibration_wizard_button.setToolTip(
@@ -283,7 +283,7 @@ class ControlPanelQt(QWidget):
         calibration_grid.addWidget(unlit_label, 2, 0)
         
         self.calibrate_unlit_button = QPushButton("Calibrate")
-        self.calibrate_unlit_button.setMinimumWidth(96)
+        self.calibrate_unlit_button.setMinimumWidth(88)
         # Center-aligned text (default for QPushButton)
         self.calibrate_unlit_button.clicked.connect(self.calibrate_unlit_requested.emit)
         self.calibrate_unlit_button.setToolTip(
@@ -294,6 +294,7 @@ class ControlPanelQt(QWidget):
         
         # Status indicator for unlit calibration
         self.unlit_status_label = QLabel("Not Set")
+        self.unlit_status_label.setFixedWidth(60)
         self.unlit_status_label.setStyleSheet("font-style: italic; color: #888;")
         calibration_grid.addWidget(self.unlit_status_label, 2, 2)
         
@@ -853,8 +854,7 @@ class ControlPanelQt(QWidget):
             row.setContentsMargins(0, 0, 0, 0)
 
             button = QPushButton(f"Auto {KEY_TYPE_LABELS[key_type]}")
-            button.setMinimumWidth(120)
-            button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            button.setFixedWidth(180)
             button.clicked.connect(lambda checked=False, kt=key_type: self.auto_spark_calibration_requested.emit(kt))
             button.setToolTip(
                 "Recommended: auto-calibrate spark detection for this key type. "
@@ -865,7 +865,7 @@ class ControlPanelQt(QWidget):
 
             status = QLabel("Not Set")
             status.setStyleSheet("color: grey; font-style: italic;")
-            status.setFixedWidth(60)
+            status.setFixedWidth(52)
             self.auto_calib_status_labels[key_type] = status
             row.addWidget(status)
             row.addStretch()

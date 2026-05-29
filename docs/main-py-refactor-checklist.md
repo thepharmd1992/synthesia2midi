@@ -104,7 +104,7 @@ Goal: conversion/MIDI orchestration belongs to `ConversionWorkflow`; `main.py` s
 
 Remaining methods:
 
-- [x] `_start_conversion_process` — deleted; `ControlSignalManager` and the Space hotkey now call `MidiConversionController.start_conversion_process`.
+- [x] `_start_conversion_process` — deleted; `ControlSignalManager` and the Space hotkey now call `MidiConversionController.start_conversion_process`, which delegates export path/workflow orchestration to `MidiExportService`.
 - [x] `_on_conversion_progress` — deleted; no live callers.
 - [x] `_on_conversion_finished` — deleted; no live callers.
 - [x] `_show_conversion_complete_dialog_with_touchup` — deleted; conversion controller calls `MidiTouchupController` directly.

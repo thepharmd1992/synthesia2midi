@@ -95,6 +95,7 @@ IMPORT_SMOKE_MODULES = [
     "synthesia2midi.workflows.detection_manager",
     "synthesia2midi.workflows.overlay_manager",
     "synthesia2midi.workflows.parameter_manager",
+    "synthesia2midi.workflows.midi_export",
     "synthesia2midi.workflows.video_loading",
     "synthesia2midi.workflows.video_session_coordinator",
     "synthesia2midi.workflows.video_to_frames",

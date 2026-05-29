@@ -95,6 +95,7 @@ When adding a new user action, first ask: can `ControlSignalManager` wire direct
 | `workflows/video_to_frames.py` | FFmpeg frame-series conversion and worker lifecycle. |
 | `workflows/calibration.py` | Manual calibration workflow and overlay generation. |
 | `workflows/auto_calibration.py` | Auto-calibration orchestration. |
+| `workflows/midi_export.py` | User-triggered MIDI export orchestration: default output path selection, conversion workflow invocation, and export result contract. |
 | `workflows/conversion.py` | Frame processing and MIDI file generation. |
 | `workflows/detection_manager.py` | Detection mode/threshold/toggle orchestration and wrappers used by the canvas. |
 | `workflows/overlay_manager.py` | Overlay selection/alignment/size mutation. |

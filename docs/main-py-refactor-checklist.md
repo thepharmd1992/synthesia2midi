@@ -14,7 +14,7 @@ Measured 2026-05-12:
 
 | Metric | Before refactor (`HEAD`/`origin/main`) | Current working tree | Target guardrail |
 |---|---:|---:|---:|
-| `main.py` lines | 2,867 | 590 | ~500-700 if remaining code is UI composition only |
+| `main.py` lines | 2,867 | 589 | ~500-700 if remaining code is UI composition only |
 | `Video2MidiApp` methods | 121 | 22 | materially fewer; remaining methods should be shell/wiring or documented public API |
 | `Video2MidiApp` classes | 2 | 1 | 1 |
 
@@ -224,6 +224,8 @@ Remaining wrappers:
 - [x] `_cleanup_midi_touchup_process` — deleted; no live callers.
 - [x] `_remove_midi_touchup_process_ref` — deleted; no live callers.
 - [x] `_shutdown_midi_touchup_processes` — deleted; `closeEvent` calls `midi_touchup_controller.shutdown_processes()` directly.
+- [x] Stale app-level MIDI touch-up process mirror — deleted; `MidiTouchupController.processes` is the sole live `QProcess` owner.
+- [x] Control-panel MIDI touch-up button wrapper — deleted; button emits `midi_touchup_requested` directly.
 
 Verification:
 

@@ -104,8 +104,7 @@ Inputs and state read:
 Outputs and state written:
 
 - Launches the Rust editor with `--midi <path> --result-json --theme neothesia`.
-- Tracks live `QProcess` objects in `MidiTouchupController.processes`.
-- Mirrors process list to `app._midi_touchup_processes` only while legacy callers/tests still expect it.
+- Tracks live `QProcess` objects in `MidiTouchupController.processes`; `Video2MidiApp` does not mirror process refs.
 - Shows missing-file, missing-binary, launch-failure, saved, and failure dialogs.
 - Removes process references and deletes processes on finish or shutdown.
 

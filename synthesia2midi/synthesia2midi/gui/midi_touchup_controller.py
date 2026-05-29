@@ -228,9 +228,8 @@ class MidiTouchupController(QObject):
             )
 
     def _retain_process(self, process: QProcess) -> None:
-        """Own and mirror a QProcess reference until it finishes or is destroyed."""
+        """Own a QProcess reference until it finishes or is destroyed."""
         self.processes.append(process)
-        self.app._midi_touchup_processes = self.processes
 
     def cleanup_process(self, process: QProcess) -> None:
         self.remove_process_ref(process)
@@ -249,7 +248,6 @@ class MidiTouchupController(QObject):
             self.processes.remove(process)
         except ValueError:
             pass
-        self.app._midi_touchup_processes = self.processes
 
     def shutdown_processes(self) -> None:
         if not self.processes:

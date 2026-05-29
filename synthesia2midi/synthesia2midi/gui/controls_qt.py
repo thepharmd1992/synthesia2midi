@@ -6,12 +6,12 @@ window connects to workflows/state updates.
 """
 
 import logging
-from typing import Dict, Optional
+from typing import Optional
 
-from PySide6.QtCore import Qt, Signal, Slot
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QDoubleSpinBox, QFrame, QGridLayout, QGroupBox,
-    QHBoxLayout, QLabel, QLineEdit, QPushButton, QScrollArea, QSizePolicy,
+    QCheckBox, QComboBox, QGridLayout, QGroupBox,
+    QHBoxLayout, QLabel, QPushButton, QScrollArea, QSizePolicy,
     QSlider, QSpinBox, QTabWidget, QToolButton, QVBoxLayout, QWidget
 )
 
@@ -202,7 +202,7 @@ class ControlPanelQt(QWidget):
         self.midi_touchup_button = QPushButton("Edit MIDI")
         self.midi_touchup_button.setObjectName("midi_touchup_button")
         self.midi_touchup_button.setMinimumHeight(34)
-        self.midi_touchup_button.clicked.connect(self._handle_midi_touchup_request)
+        self.midi_touchup_button.clicked.connect(self.midi_touchup_requested.emit)
         touchup_layout.addWidget(self.midi_touchup_button)
         touchup_layout.addStretch()
         always_visible_layout.addLayout(touchup_layout)
@@ -1084,10 +1084,6 @@ class ControlPanelQt(QWidget):
         self.convert_button.setEnabled(False)
         self.conversion_status.setText("Converting video to MIDI...")
         self.conversion_requested.emit()
-
-    def _handle_midi_touchup_request(self):
-        """Open MIDI touch-up editor from the main UI action."""
-        self.midi_touchup_requested.emit()
 
     def _handle_exemplar_key_type_presence_toggled(self, key_type: str, checked: bool):
         """Handle per-key-type exemplar availability toggle."""

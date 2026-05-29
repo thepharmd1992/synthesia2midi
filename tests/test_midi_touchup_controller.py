@@ -66,7 +66,7 @@ class FinishedProcess:
 
 
 def _fake_app():
-    return SimpleNamespace(_is_closing=False, _midi_touchup_processes=[])
+    return SimpleNamespace(_is_closing=False)
 
 
 def test_controller_is_qobject_and_exposes_lifecycle_signals():
@@ -104,7 +104,6 @@ def test_open_editor_retains_process_and_emits_started_signal(monkeypatch, tmp_p
     assert process.started is True
     assert process.wait_timeout_ms == 2000
     assert controller.processes == [process]
-    assert app._midi_touchup_processes is controller.processes
     assert started == [(str(midi_path), "/bin/midi-touchup-editor")]
 
 

@@ -74,6 +74,9 @@ class VideoSessionCoordinator:
         self._initialize_video_bound_workflows(video_session)
         app.keyboard_canvas.detect_pressed_func = app.main_action_controller.create_detection_wrapper()
         self._apply_loaded_configuration_ui()
+        # Loading a session is not a user edit. Some Qt control sync calls emit
+        # change signals while reflecting loaded state; clear any dirty flag they set.
+        app.app_state.unsaved_changes = False
 
     def _close_existing_session(self, log_prefix: str) -> None:
         app = self.app

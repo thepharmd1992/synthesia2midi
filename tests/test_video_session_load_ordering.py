@@ -85,8 +85,10 @@ class FakeButton:
 
 
 class FakeControlPanel:
-    def __init__(self, calls):
+    def __init__(self, calls, app_state=None, dirty_on_update_controls=False):
         self.calls = calls
+        self.app_state = app_state
+        self.dirty_on_update_controls = dirty_on_update_controls
         self.convert_button = FakeButton(calls, "convert_button")
         self.wizard_button = FakeButton(calls, "wizard_button")
 
@@ -98,6 +100,8 @@ class FakeControlPanel:
 
     def update_controls_from_state(self):
         self.calls.append("panel.update_controls_from_state")
+        if self.dirty_on_update_controls and self.app_state is not None:
+            self.app_state.unsaved_changes = True
 
     def update_trim_controls_from_state(self):
         self.calls.append("panel.update_trim_controls_from_state")
@@ -169,7 +173,7 @@ def _accepted_dialog_exec(_self):
 setattr(FakeAcceptedFileDialog, "exec", _accepted_dialog_exec)
 
 
-def _fake_app(calls, *, config_file):
+def _fake_app(calls, *, config_file, dirty_on_update_controls=False):
     app_state = SimpleNamespace(
         video=SimpleNamespace(
             processing_start_frame=0,
@@ -187,7 +191,11 @@ def _fake_app(calls, *, config_file):
         video_loading_workflow=FakeVideoLoadingWorkflow(calls, app_state, config_file=config_file),
         video_controls=FakeVideoControls(calls),
         keyboard_canvas=FakeKeyboardCanvas(calls),
-        control_panel=FakeControlPanel(calls),
+        control_panel=FakeControlPanel(
+            calls,
+            app_state=app_state,
+            dirty_on_update_controls=dirty_on_update_controls,
+        ),
         video_session_ui_controller=FakeVideoSessionUiController(calls),
         main_action_controller=FakeMainActionController(calls),
         window_manager=FakeWindowManager(calls),
@@ -276,3 +284,15 @@ def test_youtube_download_completion_preserves_no_config_session_orchestration_o
         "window.resize_and_position",
     ]
     assert "panel.update_video_info:24.0" not in calls
+
+
+def test_load_path_finishes_clean_when_control_sync_emits_dirty_state(monkeypatch):
+    calls = []
+    _patch_workflow_constructors(monkeypatch, calls)
+    app = _fake_app(calls, config_file=None, dirty_on_update_controls=True)
+    app.app_state.unsaved_changes = False
+    app.video_session_coordinator = VideoSessionCoordinator(app)
+
+    VideoSessionUiController(app).handle_youtube_video_downloaded("/tmp/youtube-download.mp4")
+
+    assert app.app_state.unsaved_changes is False

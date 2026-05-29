@@ -19,10 +19,11 @@ A refactor wave that keeps behavior stable while extracting low-risk `main.py` r
 
 ## Current Focus
 
-Agent-first refactor wave complete; setup/launcher surface simplified to one setup script plus one venv-aware launcher.
+M0 operating-model cleanup: root `AGENTS.md` is the canonical agent operating contract, `PROJECT_LOG.md` is the concise state handoff, and detailed setup/test/runbook instructions stay in their canonical docs instead of being copied here.
 
 ## Completed
 
+- 2026-05-29 M0 operating-model update: confirmed the existing root `PROJECT_LOG.md` is the project state log; root `AGENTS.md` remains tracked and canonical for agent instructions; follow-on doc-link work should point README/docs index readers here without duplicating command runbooks.
 - Fixed blocking f-string syntax error in `synthesia2midi/synthesia2midi/main.py`.
 - Created Kanban roadmap under tenant `synthesia2midi`; root epic `t_77771f49`.
 - Added implementation plan at `docs/plans/2026-05-11-agent-first-refactor.md`.
@@ -37,7 +38,7 @@ Agent-first refactor wave complete; setup/launcher surface simplified to one set
 
 ## Active Task
 
-None.
+M0 operating-model cleanup (Kanban root `t_162eeb6f`): project log update is done for this slice; remaining slices should finish/verify lightweight README/docs pointers and run the final duplicate-runbook consistency pass.
 
 ## Blockers
 
@@ -56,8 +57,9 @@ None known.
 - Use characterization-first extraction instead of rewriting `main.py` from scratch. The app reportedly works, so risk is behavior drift, not missing architecture.
 - Keep thin compatibility wrappers in `main.py` during extraction so existing Qt signal wiring can remain stable.
 - Keep `MonolithicPianoDetector` as the stable detector API while splitting implementation by stage; auto-detect adapter and per-video tuning should not need migration.
-- Keep setup boring: `python3 setup_env.py`/`python3 run.py` on macOS/Linux and `py setup_env.py`/`py run.py` on Windows. Setup creates `.venv`, installs deps, and requires FFmpeg; launch re-execs into `.venv`. Do not reintroduce a TUI or OS-specific wrapper scripts without an explicit product need.
+- Keep setup boring: one cross-platform setup script and one venv-aware launcher. README/docs/testing own the exact user and verification commands; this log should only record the decision.
+- Keep root `AGENTS.md` as the canonical agent operating model. Do not create `docs/agent-operating-model.md` unless `AGENTS.md` becomes too large; link the canonical file instead.
 
 ## Next Action
 
-No immediate refactor action remains for the current wave. Recommended next task: expand detector coverage with real-world fixture cases before making algorithmic improvements, or extract remaining low-value menu/layout glue from `main.py` if GUI work resumes.
+Finish/verify the remaining M0 docs links, then run the final duplicate-runbook consistency pass. After M0, the next product/refactor work is detector coverage with real-world fixture cases or low-value `main.py` menu/layout glue if GUI work resumes.

@@ -67,3 +67,36 @@ def test_adjust_overlay_for_crop_preserves_note_fields_and_runtime_state():
     assert adjusted.last_progression_ratio == overlay.last_progression_ratio
     assert adjusted.last_is_lit == overlay.last_is_lit
     assert adjusted.in_forced_delta_off_state == overlay.in_forced_delta_off_state
+
+
+def test_adjust_overlay_for_crop_handles_none_note_fields_and_preserves_histograms():
+    unlit_hist = np.array([0.25, 0.75], dtype=np.float32)
+    lit_hist = np.array([0.1, 0.9], dtype=np.float32)
+    overlay = make_overlay(
+        note_octave=None,
+        note_name_in_octave=None,
+        x=15,
+        y=25,
+        unlit_hist=unlit_hist,
+        lit_hist=lit_hist,
+        overlay_type="spark",
+        in_forced_delta_off_state=True,
+    )
+
+    adjusted = adjust_overlay_for_crop(overlay, crop_offset_x=5, crop_offset_y=10)
+
+    assert adjusted is not None
+    assert adjusted.note_octave is None
+    assert adjusted.note_name_in_octave is None
+    assert adjusted.x == 10
+    assert adjusted.y == 15
+    assert adjusted.unlit_hist is unlit_hist
+    assert adjusted.lit_hist is lit_hist
+    assert adjusted.overlay_type == "spark"
+    assert adjusted.in_forced_delta_off_state is True
+
+
+def test_adjust_overlay_for_crop_returns_none_when_overlay_is_before_crop():
+    overlay = make_overlay(x=2, y=3, width=4, height=5)
+
+    assert adjust_overlay_for_crop(overlay, crop_offset_x=10, crop_offset_y=12) is None

@@ -102,7 +102,7 @@ class CalibrationWizardController:
         )
 
         # Show the wizard
-        result = self.calibration_wizard.exec()
+        self.calibration_wizard.exec()
 
         # Check if keyboard region selection was requested
         if self._keyboard_region_requested:
@@ -136,7 +136,7 @@ class CalibrationWizardController:
         self.keyboard_canvas.display_frame(self.app_state.video.current_frame_index) # Redraw frame and overlays
 
     def _handle_keyboard_region_selection_request(self):
-        """Handle request to select keyboard region from wizard."""
+        """Wizard signal callback; kept as a named slot for Qt signal wiring."""
         logging.info("Starting keyboard region selection mode")
 
         # Mark that keyboard region was requested
@@ -190,17 +190,15 @@ class CalibrationWizardController:
             )
 
     def _cache_auto_detect_tuning_context(self, context: Dict[str, Any]) -> None:
+        """Wizard callback adapter that keeps tuning state owned by the tuning controller."""
         self.auto_detect_tuning_controller.cache_context(context)
-
-    def _get_current_frame_rgb_for_tuning(self) -> Optional[object]:
-        return self.auto_detect_tuning_controller.get_current_frame_rgb_for_tuning()
 
     def _has_editable_auto_detect_tuning_context(self) -> bool:
         return self.auto_detect_tuning_controller.has_editable_context()
 
     def _handle_keyboard_region_selected(self, x: int, y: int, width: int, height: int):
         """Handle the keyboard region selection from canvas."""
-        logging.info(f"=== KEYBOARD REGION SELECTION RECEIVED IN MAIN APP ===")
+        logging.info("=== KEYBOARD REGION SELECTION RECEIVED IN MAIN APP ===")
         logging.info(f"User-drawn ROI rectangle coordinates: x={x}, y={y}, width={width}, height={height}")
         logging.info(f"ROI rectangle bounds: left={x}, right={x+width}, top={y}, bottom={y+height}")
         logging.info("This ROI rectangle will be used to crop the frame for auto-detection")

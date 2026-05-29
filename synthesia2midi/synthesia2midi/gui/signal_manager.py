@@ -56,27 +56,39 @@ class ControlSignalManager(QObject):
         """Detection-related control signals"""
         cp = self.control_panel  # Shorthand
         mw = self.main_window
-        
+
+        detection_manager = getattr(mw, "detection_manager", None)
+        if detection_manager is None:
+            action_controller = mw.main_action_controller
+            cp.detection_threshold_changed.connect(action_controller.handle_detection_threshold_change)
+            cp.rise_delta_threshold_changed.connect(action_controller.handle_rise_delta_threshold_change)
+            cp.fall_delta_threshold_changed.connect(action_controller.handle_fall_delta_threshold_change)
+            cp.histogram_detection_toggled.connect(action_controller.toggle_hist_detection)
+            cp.delta_detection_toggled.connect(action_controller.toggle_delta_detection)
+            cp.winner_takes_black_changed.connect(action_controller.toggle_winner_takes_black)
+            cp.hand_assignment_toggled.connect(action_controller.handle_hand_assignment_toggle)
+            cp.histogram_threshold_changed.connect(action_controller.handle_histogram_threshold_change)
+            cp.similarity_ratio_changed.connect(action_controller.handle_similarity_ratio_change)
+            self.logger.debug("Detection signals connected through legacy action controller")
+            return
+
         # Basic detection parameters
-        cp.detection_threshold_changed.connect(mw.main_action_controller.handle_detection_threshold_change)
-        cp.rise_delta_threshold_changed.connect(mw.main_action_controller.handle_rise_delta_threshold_change)
-        cp.fall_delta_threshold_changed.connect(mw.main_action_controller.handle_fall_delta_threshold_change)
-        
+        cp.detection_threshold_changed.connect(detection_manager.set_detection_threshold)
+        cp.rise_delta_threshold_changed.connect(detection_manager.set_rise_delta_threshold)
+        cp.fall_delta_threshold_changed.connect(detection_manager.set_fall_delta_threshold)
+
         # Detection method toggles
-        cp.histogram_detection_toggled.connect(mw.main_action_controller.toggle_hist_detection)
-        cp.delta_detection_toggled.connect(mw.main_action_controller.toggle_delta_detection)
-        
+        cp.histogram_detection_toggled.connect(detection_manager.set_histogram_detection_enabled)
+        cp.delta_detection_toggled.connect(detection_manager.set_delta_detection_enabled)
+
         # Black key filter toggle
-        cp.winner_takes_black_changed.connect(mw.main_action_controller.toggle_winner_takes_black)
-        
+        cp.winner_takes_black_changed.connect(detection_manager.set_winner_takes_black_enabled)
+
         # Hand assignment toggle
-        cp.hand_assignment_toggled.connect(mw.main_action_controller.handle_hand_assignment_toggle)
-        cp.histogram_threshold_changed.connect(mw.main_action_controller.handle_histogram_threshold_change)
-        cp.similarity_ratio_changed.connect(mw.main_action_controller.handle_similarity_ratio_change)
-        
-        
-        # Manual refresh button
-        
+        cp.hand_assignment_toggled.connect(detection_manager.set_hand_assignment_enabled)
+        cp.histogram_threshold_changed.connect(detection_manager.set_histogram_threshold)
+        cp.similarity_ratio_changed.connect(detection_manager.set_similarity_ratio)
+
         self.logger.debug("Detection signals connected")
     
     def _connect_calibration_signals(self):
@@ -106,23 +118,23 @@ class ControlSignalManager(QObject):
         cp.trim_video_requested.connect(mw.video_session_ui_controller.handle_trim_video_request)
         
         # Spark ROI selection
-        cp.spark_roi_selection_requested.connect(mw.calibration_effects_controller._handle_spark_roi_selection_request)
-        cp.spark_roi_visibility_toggled.connect(mw.calibration_effects_controller._handle_spark_roi_visibility_toggle)
+        cp.spark_roi_selection_requested.connect(mw.calibration_effects_controller.spark.select_spark_roi)
+        cp.spark_roi_visibility_toggled.connect(mw.calibration_effects_controller.spark.set_spark_roi_visible)
         
         
         # Spark calibration
-        cp.spark_calibration_requested.connect(mw.calibration_effects_controller._handle_spark_calibration_request)
+        cp.spark_calibration_requested.connect(mw.calibration_effects_controller.spark.request_spark_calibration)
         
         # Auto-spark calibration
-        cp.auto_spark_calibration_requested.connect(mw.calibration_effects_controller._handle_auto_spark_calibration_request)
+        cp.auto_spark_calibration_requested.connect(mw.calibration_effects_controller.spark.start_auto_spark_calibration)
         
         # Spark detection toggle
-        cp.spark_detection_toggled.connect(mw.calibration_effects_controller._handle_spark_detection_toggle)
+        cp.spark_detection_toggled.connect(mw.calibration_effects_controller.spark.set_spark_detection_enabled)
         
         # Spark-off threshold
-        cp.spark_detection_sensitivity_changed.connect(mw.calibration_effects_controller._handle_spark_detection_sensitivity_change)
+        cp.spark_detection_sensitivity_changed.connect(mw.calibration_effects_controller.spark.set_spark_detection_sensitivity)
         
-        cp.overlay_type_changed.connect(mw.calibration_effects_controller._handle_overlay_type_change)
+        cp.overlay_type_changed.connect(mw.calibration_effects_controller.overlay.handle_overlay_type_change)
         
         # Frame-range and trim controls manage their own state updates.
         

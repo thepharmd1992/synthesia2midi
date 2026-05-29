@@ -42,6 +42,7 @@ class AutoDetectTuningController:
         self._apply_template_styles_callback = callback
 
     def _clone_auto_detect_tuning_context(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Return a defensive copy; callers mutate cached tuning packets independently."""
         cloned: Dict[str, Any] = dict(context)
         frame_rgb = context.get("frame_rgb")
         if frame_rgb is not None:

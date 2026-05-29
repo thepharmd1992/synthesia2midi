@@ -15,7 +15,7 @@ class SparkCalibrationController:
     def __getattr__(self, name):
         return getattr(self.app, name)
 
-    def _handle_spark_roi_selection_request(self):
+    def select_spark_roi(self):
         """Handle spark ROI selection request from control panel."""
         logging.info("Spark ROI selection requested - entering ROI selection mode")
         if hasattr(self, 'keyboard_canvas') and self.keyboard_canvas:
@@ -30,17 +30,31 @@ class SparkCalibrationController:
         else:
             QMessageBox.warning(self.app, "No Canvas", "No video canvas available for ROI selection.")
 
-    def _handle_spark_roi_visibility_toggle(self, visible: bool):
+    def set_spark_roi_visible(self, visible: bool):
         """Handle spark ROI visibility toggle from control panel."""
         logging.info(f"Spark ROI visibility toggled to: {visible}")
         self.app_state.detection.spark_roi_visible = visible
         # Update canvas to show/hide the ROI
-        if self.keyboard_canvas:
-            self.keyboard_canvas.update()
+        if hasattr(self, 'display_manager') and self.display_manager:
+            self.display_manager.refresh_canvas_overlays()
 
-    def _handle_spark_roi_updated(self, top_y: int, bottom_y: int):
+    def update_spark_roi_from_canvas(self, top_y: int, bottom_y: int):
         """Handle spark ROI coordinates updated from canvas selection."""
         logging.info(f"Spark ROI updated from canvas: top={top_y}, bottom={bottom_y}")
+
+        self.app_state.detection.spark_roi_top = top_y
+        self.app_state.detection.spark_roi_bottom = bottom_y
+        self.app_state.detection.spark_roi_visible = True
+        self.app_state.unsaved_changes = True
+
+        try:
+            from synthesia2midi.detection.spark_mapper import get_spark_mapper
+            get_spark_mapper().invalidate_cache()
+        except ImportError:
+            pass
+
+        if hasattr(self, 'display_manager') and self.display_manager:
+            self.display_manager.refresh_canvas_overlays()
 
         # Update control panel to reflect new values
         if hasattr(self, 'control_panel') and self.control_panel:
@@ -53,7 +67,7 @@ class SparkCalibrationController:
                                f"Bottom: {bottom_y} pixels\n"
                                f"Height: {bottom_y - top_y} pixels")
 
-    def _handle_spark_calibration_request(self, step_type: str):
+    def request_spark_calibration(self, step_type: str):
         """Handle spark calibration request from control panel."""
         logging.info(f"Spark calibration requested: {step_type}")
 
@@ -86,7 +100,7 @@ class SparkCalibrationController:
 
         # Handle background calibration differently (immediate capture)
         if step_type == "background":
-            self._capture_spark_background_calibration()
+            self.capture_spark_background_calibration()
             return
 
         # For bar_only and dimmest_sparks, set mode and wait for user click
@@ -132,7 +146,7 @@ class SparkCalibrationController:
         QMessageBox.information(self.app, f"Spark {display_name} Calibration", instruction_msg)
         logging.info(f"Set calibration mode to {calibration_mode}, waiting for user to click on key")
 
-    def _handle_auto_spark_calibration_request(self, key_type: str):
+    def start_auto_spark_calibration(self, key_type: str):
         """Handle auto-spark calibration request from control panel."""
         logging.info(f"Auto-spark calibration requested for key type: {key_type}")
 
@@ -163,7 +177,7 @@ class SparkCalibrationController:
             QMessageBox.warning(self.app, "Calibration Error",
                                "Failed to start auto-calibration. Please check video and overlays are loaded.")
 
-    def _handle_spark_detection_toggle(self, enabled: bool):
+    def set_spark_detection_enabled(self, enabled: bool):
         """Handle spark detection enable/disable toggle."""
         logging.info(f"Spark detection {'enabled' if enabled else 'disabled'}")
 
@@ -171,7 +185,7 @@ class SparkCalibrationController:
         self.app_state.detection.spark_detection_enabled = enabled
         self.app_state.unsaved_changes = True
 
-    def _handle_spark_detection_sensitivity_change(self, value: float):
+    def set_spark_detection_sensitivity(self, value: float):
         """Handle spark detection sensitivity change."""
         logging.info(f"Spark detection sensitivity changed to {value:.2f}")
 
@@ -179,7 +193,7 @@ class SparkCalibrationController:
         self.app_state.detection.spark_detection_sensitivity = value
         self.app_state.unsaved_changes = True
 
-    def _capture_spark_background_calibration(self):
+    def capture_spark_background_calibration(self):
         """Capture background calibration immediately (no user interaction needed)."""
         logging.info("Capturing spark background calibration")
 
@@ -216,7 +230,7 @@ class SparkCalibrationController:
                                "Please check that spark ROI is properly set.")
             logging.error("Spark background calibration failed")
 
-    def _capture_spark_overlay_calibration(self, overlay, calibration_mode: str):
+    def capture_spark_overlay_calibration(self, overlay, calibration_mode: str):
         """Capture spark calibration from selected overlay's spark zone."""
         logging.info(f"Capturing {calibration_mode} calibration from overlay {overlay.key_id}")
 
@@ -317,7 +331,7 @@ class SparkCalibrationController:
             # Always reset calibration mode
             self.app_state.calibration.calibration_mode = None
 
-    def _get_calibration_instructions(self, step_type: str) -> str:
+    def get_calibration_instructions(self, step_type: str) -> str:
         """Get user instructions for each calibration step."""
         instructions = {
             "background": "Navigate to a frame with no bars visible and no sparks.\nThe spark ROI should show only background content.",
@@ -325,3 +339,16 @@ class SparkCalibrationController:
             "dimmest_sparks": "Navigate to a frame with the DIMMEST visible sparks.\nSparks should be just barely noticeable as bright flashes in the ROI."
         }
         return instructions.get(step_type, "Unknown calibration step")
+
+    # Backward-compatible private aliases for older callers/tests. New wiring
+    # should use the public controller methods above.
+    _handle_spark_roi_selection_request = select_spark_roi
+    _handle_spark_roi_visibility_toggle = set_spark_roi_visible
+    _handle_spark_roi_updated = update_spark_roi_from_canvas
+    _handle_spark_calibration_request = request_spark_calibration
+    _handle_auto_spark_calibration_request = start_auto_spark_calibration
+    _handle_spark_detection_toggle = set_spark_detection_enabled
+    _handle_spark_detection_sensitivity_change = set_spark_detection_sensitivity
+    _capture_spark_background_calibration = capture_spark_background_calibration
+    _capture_spark_overlay_calibration = capture_spark_overlay_calibration
+    _get_calibration_instructions = get_calibration_instructions

@@ -35,7 +35,17 @@ class DetectionManager:
         self._detector_config_state = None
         self._is_navigation_mode = True  # Default to navigation mode for GUI interaction
     
-    def handle_detection_threshold_change(self, threshold: float):
+    def _refresh_loaded_video(self) -> None:
+        """Refresh the current frame when detection settings affect live feedback."""
+        if self.ui_updater and self.ui_updater.has_video_loaded():
+            self.update_frame_callback()
+
+    def reset_detector_cache(self) -> None:
+        """Forget the cached detector after a video/session-level context change."""
+        self._cached_detector = None
+        self._detector_config_state = None
+
+    def set_detection_threshold(self, threshold: float):
         """Handle detection threshold change with validation."""
         try:
             new_threshold = float(threshold)
@@ -45,8 +55,7 @@ class DetectionManager:
                 logging.info(f"Detection threshold changed to: {new_threshold}")
                 
                 # Trigger live visual update if video is loaded
-                if self.ui_updater and self.ui_updater.has_video_loaded():
-                    self.update_frame_callback()
+                self._refresh_loaded_video()
             else:
                 if self.ui_updater:
                     self.ui_updater.show_message("Invalid Threshold", 
@@ -61,26 +70,78 @@ class DetectionManager:
                                         "Detection threshold must be a valid number.")
                 self.ui_updater.update_detection_threshold(
                     self.app_state.detection.detection_threshold)
+
+    def handle_detection_threshold_change(self, threshold: float):
+        """Backward-compatible delegate for older controller wiring."""
+        self.set_detection_threshold(threshold)
+
+    def set_rise_delta_threshold(self, threshold: float):
+        """Update the frame-to-frame rise threshold."""
+        self.app_state.detection.rise_delta_threshold = float(threshold)
+        self.app_state.unsaved_changes = True
+        logging.info(f"Rise delta threshold changed to: {threshold}")
+        self._refresh_loaded_video()
+
+    def set_fall_delta_threshold(self, threshold: float):
+        """Update the frame-to-frame fall threshold."""
+        self.app_state.detection.fall_delta_threshold = float(threshold)
+        self.app_state.unsaved_changes = True
+        logging.info(f"Fall delta threshold changed to: {threshold}")
+        self._refresh_loaded_video()
+
+    def set_histogram_threshold(self, threshold: float):
+        """Update the histogram comparison threshold."""
+        self.app_state.detection.hist_ratio_threshold = float(threshold)
+        self.app_state.unsaved_changes = True
+        logging.info(f"Histogram threshold changed to: {threshold}")
+        self._refresh_loaded_video()
+
+    def set_similarity_ratio(self, ratio: float):
+        """Update the black-key filter similarity ratio."""
+        self.app_state.detection.similarity_ratio = float(ratio)
+        self.app_state.unsaved_changes = True
+        logging.info(f"Black key similarity ratio changed to: {ratio}")
+        self._refresh_loaded_video()
     
-    def toggle_histogram_detection(self):
-        """Toggle histogram detection mode."""
-        # The app_state.detection.use_histogram_detection is already updated by ControlPanel's handler
+    def set_histogram_detection_enabled(self, enabled: bool):
+        """Set histogram detection mode from the UI checkbox state."""
+        self.app_state.detection.use_histogram_detection = bool(enabled)
         logging.info(f"DetectionManager: Histogram detection is now {self.app_state.detection.use_histogram_detection}")
         self.app_state.unsaved_changes = True
-        
-        # Trigger live visual update if video is loaded
-        if self.ui_updater and self.ui_updater.has_video_loaded():
-            self.update_frame_callback()
-    
-    def toggle_delta_detection(self):
-        """Toggle delta detection mode."""
-        # The app_state.detection.use_delta_detection is already updated by ControlPanel's handler
+        self._refresh_loaded_video()
+
+    def toggle_histogram_detection(self, enabled: Optional[bool] = None):
+        """Toggle histogram detection mode, or set it when a checked state is supplied."""
+        if enabled is None:
+            enabled = not self.app_state.detection.use_histogram_detection
+        self.set_histogram_detection_enabled(enabled)
+
+    def set_delta_detection_enabled(self, enabled: bool):
+        """Set delta detection mode from the UI checkbox state."""
+        self.app_state.detection.use_delta_detection = bool(enabled)
         logging.info(f"DetectionManager: Delta detection is now {self.app_state.detection.use_delta_detection}")
         self.app_state.unsaved_changes = True
-        
-        # Trigger live visual update if video is loaded
-        if self.ui_updater and self.ui_updater.has_video_loaded():
-            self.update_frame_callback()
+        self._refresh_loaded_video()
+
+    def toggle_delta_detection(self, enabled: Optional[bool] = None):
+        """Toggle delta detection mode, or set it when a checked state is supplied."""
+        if enabled is None:
+            enabled = not self.app_state.detection.use_delta_detection
+        self.set_delta_detection_enabled(enabled)
+
+    def set_winner_takes_black_enabled(self, enabled: bool):
+        """Set black-key winner-takes-all filtering."""
+        self.app_state.detection.winner_takes_black_enabled = bool(enabled)
+        logging.info(f"Black key filter (winner takes black) is now {enabled}")
+        self.app_state.unsaved_changes = True
+        self._refresh_loaded_video()
+
+    def set_hand_assignment_enabled(self, enabled: bool):
+        """Set hand-assignment detection output."""
+        self.app_state.detection.hand_assignment_enabled = bool(enabled)
+        logging.info(f"Hand assignment is now {enabled}")
+        self.app_state.unsaved_changes = True
+        self._refresh_loaded_video()
     
 
     def prepare_frame_for_detection(self, frame_bgr: np.ndarray) -> Tuple[np.ndarray, List[OverlayConfig]]:

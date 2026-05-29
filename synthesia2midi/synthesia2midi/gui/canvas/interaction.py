@@ -61,6 +61,7 @@ class CanvasInteraction(QObject):
         self._repaint_throttle_ms = 16  # ~60 FPS max
         
         # Panning is not supported.
+        self.overlay_drawing_type = getattr(self.app_state.ui, "overlay_drawing_type", "key")
         
         # ROI selection state (for spark detection regions)
         self._roi_selection_mode = False
@@ -133,6 +134,10 @@ class CanvasInteraction(QObject):
     def is_in_roi_selection_mode(self) -> bool:
         """Check if currently in ROI selection mode."""
         return self._roi_selection_mode
+
+    def set_overlay_drawing_type(self, overlay_type: str) -> None:
+        """Update the interaction drawing mode through an explicit API."""
+        self.overlay_drawing_type = overlay_type
     
     def enter_keyboard_region_selection_mode(self):
         """Enter keyboard region selection mode."""
@@ -222,8 +227,7 @@ class CanvasInteraction(QObject):
             
             return True
         else:
-            # Clicked on empty area - always clear selection first
-            self.app_state.ui.selected_overlay_id = None
+            # Clicked on empty area - emit no selection and let the canvas/controller own state.
             self.overlay_selected.emit(-1)  # Signal no selection
             
             return True

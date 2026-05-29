@@ -50,6 +50,7 @@ from synthesia2midi.gui.video_session_ui_controller import VideoSessionUiControl
 from synthesia2midi.gui.video_controls import VideoControls
 from synthesia2midi.gui.window_manager import WindowManager
 from synthesia2midi.video_loader import VideoSession
+from synthesia2midi.workflows.detection_manager import DetectionManager
 from synthesia2midi.workflows.overlay_manager import OverlayManager
 from synthesia2midi.workflows.parameter_manager import ParameterManager
 from synthesia2midi.workflows.video_loading import VideoLoadingWorkflow
@@ -94,7 +95,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.auto_calibration_workflow = None  # Will be initialized when video is loaded
         self.conversion_workflow = None  # Will be initialized when video is loaded
         self.debug_tools = None  # Will be initialized when video is loaded
-        self.detection_manager = None  # Will be initialized when video is loaded
+        self.detection_manager = DetectionManager(self.app_state, self._update_current_frame_display, self)
         self.overlay_manager = OverlayManager(self.app_state, self)
         self.display_manager = DisplayManager(self.app_state, self)
 
@@ -166,7 +167,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.live_detection_action = QAction("Live Detection Feedback", self)
         self.live_detection_action.setCheckable(True)
         self.live_detection_action.setChecked(self.app_state.ui.live_detection_feedback)
-        self.live_detection_action.triggered.connect(self.main_action_controller.toggle_live_detection_feedback)
+        self.live_detection_action.triggered.connect(self.display_manager.set_live_detection_feedback_enabled)
         view_menu.addAction(self.live_detection_action)
 
         view_menu.addSeparator()
@@ -202,7 +203,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.visual_threshold_monitor_action = QAction("Enable", self)
         self.visual_threshold_monitor_action.setCheckable(True)
         self.visual_threshold_monitor_action.setChecked(self.app_state.ui.visual_threshold_monitor_enabled)
-        self.visual_threshold_monitor_action.triggered.connect(self.main_action_controller.handle_visual_threshold_monitor_menu)
+        self.visual_threshold_monitor_action.triggered.connect(self.display_manager.set_visual_threshold_monitor_enabled)
         debug_menu.addAction(self.visual_threshold_monitor_action)
 
         debug_menu.addSeparator()
@@ -237,10 +238,11 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.keyboard_canvas = KeyboardCanvas(self.app_state, width=720, height=450,
                                               on_color_pick_callback=self.calibration_interaction_controller._handle_color_pick,
                                               on_overlay_select_callback=self.calibration_interaction_controller._handle_overlay_selection,
-                                              detect_pressed_func=self.main_action_controller.create_detection_wrapper()
+                                              detect_pressed_func=self.detection_manager.create_detection_wrapper(),
+                                              overlay_manager=self.overlay_manager,
                                               )
         # Set up additional callbacks
-        self.keyboard_canvas.on_spark_roi_callback = self.calibration_effects_controller._handle_spark_roi_updated
+        self.keyboard_canvas.on_spark_roi_callback = self.calibration_effects_controller.spark.update_spark_roi_from_canvas
         # Give canvas stretch factor so it expands to fill available vertical space
         left_layout.addWidget(self.keyboard_canvas, 1)  # Stretch factor 1
 
@@ -327,11 +329,11 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.content_splitter.setSizes(getattr(self, "_settings_splitter_sizes", [900, 300]))
 
     def resizeEvent(self, event):
-        """Delegate window resize handling to WindowManager."""
+        """Qt lifecycle hook; keep this method so Qt can dispatch resize events."""
         self.window_manager.handle_resize_event(event)
 
     def showEvent(self, event):
-        """Delegate window show handling to WindowManager."""
+        """Qt lifecycle hook; keep this method so Qt can dispatch show events."""
         self.window_manager.handle_show_event(event)
 
 
@@ -374,11 +376,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         # If user cancels, just continue with empty application
         if dialog.exec() != QDialog.Accepted:
             logging.info("_show_startup_dialog: User cancelled startup dialog, continuing with empty application.")
-            # No video loaded, but app remains open
-
-            # No video loaded, but app remains open
-
-
+            # No video loaded, but app remains open.
 
     def _save_settings(self):
         if not self.app_state.video.filepath:
@@ -420,9 +418,9 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
 
     # Frame slider events are handled by VideoControls via ControlSignalManager.
 
-    def _update_current_frame_display(self):
-        """Centralized function to reprocess and redisplay the current frame."""
-        return self.video_controls.update_current_frame_display()
+    def _update_current_frame_display(self) -> None:
+        """DetectionManager callback adapter; keep this bound method for wiring."""
+        self.video_controls.update_current_frame_display()
 
 
 
@@ -470,62 +468,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
             )
             logging.error(f"Error capturing window screenshot: {e}")
 
-
-
-
-
-
-
-
-
-
-        # The detector will be recreated automatically on the next frame processing
-        # when factory.create_from_app_state is called
-
-
-        # The sensitivity will be used on the next frame processing
-
-
-        # The app_state is already updated by the control panel
-        # We don't need to recreate the detector here as it will be recreated
-        # automatically on the next frame processing when factory.create_from_app_state is called
-
-        # The app_state is already updated by the control panel
-        # The sensitivity will be used on the next frame processing
-
-        # The app_state is already updated by the control panel
-        # The threshold will be used on the next frame processing
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     # UIUpdateInterface implementations
     def update_overlay_action(self, checked: bool) -> None:
         """Update the overlay visibility action state."""
@@ -537,8 +479,13 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         if hasattr(self, 'keyboard_canvas') and self.app_state.video.current_frame_index is not None:
             self.keyboard_canvas.display_frame(self.app_state.video.current_frame_index)
 
+    def refresh_canvas_overlays(self) -> None:
+        """Refresh overlay-only canvas visuals without reloading frame data."""
+        if hasattr(self, 'keyboard_canvas'):
+            self.keyboard_canvas.draw_overlays()
+
     def update_control_panel(self) -> None:
-        """Update the control panel display."""
+        """UIUpdateInterface method; keep this public adapter for interface consumers."""
         if hasattr(self, 'control_panel'):
             self.control_panel.update_controls_from_state()
 
@@ -553,13 +500,18 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         if hasattr(self, 'live_detection_action'):
             self.live_detection_action.setChecked(checked)
 
+    def update_visual_threshold_monitor_action(self, checked: bool) -> None:
+        """Update visual threshold monitor action state."""
+        if hasattr(self, 'visual_threshold_monitor_action'):
+            self.visual_threshold_monitor_action.setChecked(checked)
+
     def update_detection_threshold(self, value: float) -> None:
         """Update detection threshold spinner value."""
         if hasattr(self, 'control_panel'):
             self.control_panel.detection_threshold_spin.setValue(value)
 
     def show_message(self, title: str, message: str) -> None:
-        """Show a message to the user."""
+        """UIUpdateInterface method; keep this public adapter for interface consumers."""
         QMessageBox.information(self, title, message)
 
     def get_video_session(self) -> Optional[object]:

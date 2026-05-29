@@ -72,7 +72,10 @@ class VideoSessionCoordinator:
             app.control_panel.update_video_info(app.video_session.fps)
 
         self._initialize_video_bound_workflows(video_session)
-        app.keyboard_canvas.detect_pressed_func = app.main_action_controller.create_detection_wrapper()
+        if hasattr(app.detection_manager, "create_detection_wrapper"):
+            app.keyboard_canvas.detect_pressed_func = app.detection_manager.create_detection_wrapper()
+        else:
+            app.keyboard_canvas.detect_pressed_func = app.main_action_controller.create_detection_wrapper()
         self._apply_loaded_configuration_ui()
 
     def _close_existing_session(self, log_prefix: str) -> None:
@@ -105,7 +108,12 @@ class VideoSessionCoordinator:
         app = self.app
         app.calibration_workflow = CalibrationWorkflow(app.app_state, video_session, app)
         app.auto_calibration_workflow = AutoCalibrationWorkflow(app.app_state, video_session, app)
-        app.detection_manager = DetectionManager(app.app_state, app._update_current_frame_display, app)
+        if getattr(app, "detection_manager", None) is None:
+            app.detection_manager = DetectionManager(app.app_state, app._update_current_frame_display, app)
+        else:
+            app.detection_manager.reset_detector_cache()
+        if hasattr(app.detection_manager, "set_navigation_mode"):
+            app.detection_manager.set_navigation_mode(True)
         app.conversion_workflow = ConversionWorkflow(
             app.app_state,
             video_session,

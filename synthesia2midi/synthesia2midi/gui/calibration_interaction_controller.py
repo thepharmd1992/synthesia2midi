@@ -20,7 +20,7 @@ class CalibrationInteractionController:
         return getattr(self.app, name)
 
     def _handle_color_pick(self, color_rgb: Tuple[int, int, int], coordinates: Tuple[int, int]):
-        """Delegate color picking to CalibrationWorkflow."""
+        """KeyboardCanvas callback adapter; keep this named slot for interaction wiring."""
         if self.calibration_workflow:
             self.calibration_workflow.handle_color_pick(color_rgb, coordinates)
 
@@ -144,7 +144,10 @@ class CalibrationInteractionController:
 
             overlay_to_sample = next((o for o in self.app_state.overlays if o.key_id == selected_key_id), None)
             if overlay_to_sample:
-                self._capture_spark_overlay_calibration(overlay_to_sample, self.app_state.calibration.calibration_mode)
+                self.app.calibration_effects_controller.spark.capture_spark_overlay_calibration(
+                    overlay_to_sample,
+                    self.app_state.calibration.calibration_mode,
+                )
             else:
                 QMessageBox.warning(self.app, "Calibration Error", f"Could not find overlay for key {selected_key_id}.")
                 self.app_state.calibration.calibration_mode = None
@@ -156,7 +159,10 @@ class CalibrationInteractionController:
 
             overlay_to_sample = next((o for o in self.app_state.overlays if o.key_id == selected_key_id), None)
             if overlay_to_sample:
-                self._capture_shadow_overlay_calibration(overlay_to_sample, self.app_state.calibration.calibration_mode)
+                self.app.calibration_effects_controller.shadow.capture_shadow_overlay_calibration(
+                    overlay_to_sample,
+                    self.app_state.calibration.calibration_mode,
+                )
             else:
                 QMessageBox.warning(self.app, "Calibration Error", f"Could not find overlay for key {selected_key_id}.")
                 self.app_state.calibration.calibration_mode = None

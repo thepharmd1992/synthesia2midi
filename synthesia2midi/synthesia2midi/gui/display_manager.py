@@ -42,9 +42,9 @@ class DisplayManager:
         
         self.logger.info(f"Overlays {'shown' if self.app_state.ui.show_overlays else 'hidden'}")
 
-    def toggle_live_detection_feedback(self):
-        """Toggle live detection feedback on the canvas."""
-        self.app_state.ui.live_detection_feedback = not self.app_state.ui.live_detection_feedback
+    def set_live_detection_feedback_enabled(self, enabled: bool):
+        """Set live detection feedback visibility on the canvas."""
+        self.app_state.ui.live_detection_feedback = bool(enabled)
         self.app_state.unsaved_changes = True  # Save this preference
         
         # Update UI if updater is available
@@ -57,17 +57,34 @@ class DisplayManager:
         
         self.logger.info(f"Live detection feedback {'enabled' if self.app_state.ui.live_detection_feedback else 'disabled'}")
 
+    def toggle_live_detection_feedback(self, enabled: Optional[bool] = None):
+        """Toggle live detection feedback, or set it when a checked state is supplied."""
+        if enabled is None:
+            enabled = not self.app_state.ui.live_detection_feedback
+        self.set_live_detection_feedback_enabled(enabled)
+
     def handle_refresh_selected_overlay_display(self):
         """Callback to explicitly refresh the selected overlay display in ControlPanel."""
         if self.ui_updater:
             self.ui_updater.update_selected_overlay_display()
 
-    def handle_visual_threshold_monitor_toggle(self, enabled: bool):
-        """Handle visual threshold monitor enable/disable."""
-        self.app_state.ui.visual_threshold_monitor_enabled = enabled
+    def refresh_canvas_overlays(self):
+        """Refresh overlay-only canvas visuals without reloading the current frame."""
+        if self.ui_updater:
+            self.ui_updater.refresh_canvas_overlays()
+
+    def set_visual_threshold_monitor_enabled(self, enabled: bool):
+        """Set visual threshold monitor enable/disable."""
+        self.app_state.ui.visual_threshold_monitor_enabled = bool(enabled)
         self.app_state.unsaved_changes = True
+        if self.ui_updater and hasattr(self.ui_updater, "update_visual_threshold_monitor_action"):
+            self.ui_updater.update_visual_threshold_monitor_action(self.app_state.ui.visual_threshold_monitor_enabled)
         self.logger.info(f"Visual threshold monitor {'enabled' if enabled else 'disabled'}")
         
         # Force a redraw to update or hide the debug box
         if self.ui_updater and self.ui_updater.has_video_loaded():
             self.ui_updater.refresh_canvas()
+
+    def handle_visual_threshold_monitor_toggle(self, enabled: bool):
+        """Backward-compatible delegate for older menu wiring."""
+        self.set_visual_threshold_monitor_enabled(enabled)

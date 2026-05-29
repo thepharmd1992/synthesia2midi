@@ -68,17 +68,12 @@ def _patch_workflow_factories(monkeypatch, events):
         events.append("auto_calibration_workflow")
         return "auto-calibration-workflow"
 
-    def detection_factory(app_state, callback, app):
-        events.append(("detection_manager", callback))
-        return "detection-manager"
-
     def conversion_factory(app_state, video_session, app, detection_manager):
         events.append(("conversion_workflow", detection_manager))
         return "conversion-workflow"
 
     monkeypatch.setattr(coordinator_module, "CalibrationWorkflow", calibration_factory)
     monkeypatch.setattr(coordinator_module, "AutoCalibrationWorkflow", auto_calibration_factory)
-    monkeypatch.setattr(coordinator_module, "DetectionManager", detection_factory)
     monkeypatch.setattr(coordinator_module, "ConversionWorkflow", conversion_factory)
 
 
@@ -149,6 +144,12 @@ def _fake_loaded_app(events, *, config_file, video_state):
     )
     control_panel._can_convert = lambda: events.append("can_convert") or True
 
+    detection_manager = SimpleNamespace(
+        reset_detector_cache=lambda: events.append("detection_cache_reset"),
+        set_navigation_mode=lambda navigation_mode: events.append(("navigation_mode", navigation_mode)),
+        create_detection_wrapper=lambda: events.append("detection_wrapper") or "detect-wrapper",
+    )
+
     app = SimpleNamespace(
         app_state=SimpleNamespace(video=video_state, overlays={"old": object()}, unsaved_changes=True),
         video_session=None,
@@ -166,6 +167,7 @@ def _fake_loaded_app(events, *, config_file, video_state):
         video_session_ui_controller=SimpleNamespace(
             initialize_processing_range_defaults=lambda: events.append("initialize_processing_range_defaults")
         ),
+        detection_manager=detection_manager,
         main_action_controller=SimpleNamespace(
             create_detection_wrapper=lambda: events.append("detection_wrapper") or "detect-wrapper"
         ),
@@ -187,7 +189,6 @@ def test_apply_loaded_session_with_config_runs_post_load_wiring_in_historical_or
     assert app.keyboard_canvas.detect_pressed_func == "detect-wrapper"
     assert app.calibration_workflow == "calibration-workflow"
     assert app.auto_calibration_workflow == "auto-calibration-workflow"
-    assert app.detection_manager == "detection-manager"
     assert app.conversion_workflow == "conversion-workflow"
     assert events == [
         ("controls_session", session),
@@ -197,8 +198,9 @@ def test_apply_loaded_session_with_config_runs_post_load_wiring_in_historical_or
         ("fps_info", 24.0),
         "calibration_workflow",
         "auto_calibration_workflow",
-        ("detection_manager", app._update_current_frame_display),
-        ("conversion_workflow", "detection-manager"),
+        "detection_cache_reset",
+        ("navigation_mode", True),
+        ("conversion_workflow", app.detection_manager),
         "detection_wrapper",
         "controls_from_state",
         "trim_from_state",
@@ -272,6 +274,17 @@ def test_control_signal_manager_wires_video_range_and_trim_surfaces_to_controlle
         frame_slider=SimpleNamespace(valueChanged=FakeSignal("frame_slider.valueChanged", connections)),
         video_session_ui_controller=video_session_ui_controller,
         video_controls=_namespace_with_slots("on_frame_slider_changed"),
+        detection_manager=_namespace_with_slots(
+            "set_detection_threshold",
+            "set_rise_delta_threshold",
+            "set_fall_delta_threshold",
+            "set_histogram_detection_enabled",
+            "set_delta_detection_enabled",
+            "set_winner_takes_black_enabled",
+            "set_hand_assignment_enabled",
+            "set_histogram_threshold",
+            "set_similarity_ratio",
+        ),
         main_action_controller=_namespace_with_slots(
             "handle_detection_threshold_change",
             "handle_rise_delta_threshold_change",

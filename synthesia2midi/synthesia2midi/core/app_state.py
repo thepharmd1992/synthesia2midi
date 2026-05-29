@@ -329,6 +329,7 @@ class UIConfig:
     live_detection_feedback: bool = False
     visual_threshold_monitor_enabled: bool = False
     overlay_color: str = "red"  # Default color for overlays
+    overlay_drawing_type: str = "key"  # Current overlay drawing mode
     
     # Performance settings
     auto_convert_to_frames: bool = True  # Automatically convert videos to frame sequences

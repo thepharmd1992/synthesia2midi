@@ -13,7 +13,7 @@ class OverlayInteractionController:
     def __getattr__(self, name):
         return getattr(self.app, name)
 
-    def _handle_overlay_type_change(self, overlay_type: str):
+    def handle_overlay_type_change(self, overlay_type: str):
         """Handle overlay type change (key/spark/shadow)."""
         logging.info(f"Overlay type changed to: {overlay_type}")
 
@@ -23,10 +23,15 @@ class OverlayInteractionController:
 
         # Update the canvas drawing mode if available
         if hasattr(self, 'keyboard_canvas') and self.keyboard_canvas:
-            if hasattr(self.keyboard_canvas, 'interaction') and self.keyboard_canvas.interaction:
-                self.keyboard_canvas.interaction.overlay_drawing_type = overlay_type
+            interaction = getattr(self.keyboard_canvas, 'interaction', None)
+            if interaction and hasattr(interaction, 'set_overlay_drawing_type'):
+                interaction.set_overlay_drawing_type(overlay_type)
                 logging.info(f"Updated canvas interaction overlay type to: {overlay_type}")
 
         # Refresh the display to show overlay colors correctly
-        if hasattr(self, 'keyboard_canvas'):
-            self.keyboard_canvas.draw_overlays()
+        if hasattr(self, 'display_manager') and self.display_manager:
+            self.display_manager.refresh_canvas_overlays()
+
+    # Backward-compatible private alias for older callers/tests. New wiring
+    # should use handle_overlay_type_change directly.
+    _handle_overlay_type_change = handle_overlay_type_change

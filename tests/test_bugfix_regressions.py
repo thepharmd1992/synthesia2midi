@@ -13,6 +13,8 @@ from synthesia2midi.core.app_state import AppState
 from synthesia2midi.detection.factory import DetectionFactory
 from synthesia2midi.detection.spark_integrated import SparkIntegratedDetection
 from synthesia2midi.detection.standard import StandardDetection
+from synthesia2midi.gui.auto_detect_tuning_controller import AutoDetectTuningController
+from synthesia2midi.gui.calibration_interaction_controller import CalibrationInteractionController
 from synthesia2midi.gui.calibration_wizard_controller import CalibrationWizardController
 from synthesia2midi.gui.canvas.interaction import CanvasInteraction
 from synthesia2midi.gui.main_action_controller import MainActionController
@@ -157,7 +159,7 @@ def test_ffprobe_fractional_frame_rate_is_parsed_as_float(monkeypatch):
 
 def test_calibration_tuning_fallback_unpacks_video_session_frame_tuple():
     frame_bgr = np.array([[[10, 20, 30]]], dtype=np.uint8)
-    controller = CalibrationWizardController(
+    controller = AutoDetectTuningController(
         SimpleNamespace(
             keyboard_canvas=SimpleNamespace(current_frame_rgb=None),
             app_state=SimpleNamespace(video=SimpleNamespace(current_frame_index=7)),
@@ -165,13 +167,13 @@ def test_calibration_tuning_fallback_unpacks_video_session_frame_tuple():
         )
     )
 
-    frame_rgb = controller._get_current_frame_rgb_for_tuning()
+    frame_rgb = controller.get_current_frame_rgb_for_tuning()
 
     assert np.array_equal(frame_rgb, cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB))
 
 
 def test_calibration_tuning_fallback_returns_none_when_video_session_read_fails():
-    controller = CalibrationWizardController(
+    controller = AutoDetectTuningController(
         SimpleNamespace(
             keyboard_canvas=SimpleNamespace(current_frame_rgb=None),
             app_state=SimpleNamespace(video=SimpleNamespace(current_frame_index=7)),
@@ -179,7 +181,7 @@ def test_calibration_tuning_fallback_returns_none_when_video_session_read_fails(
         )
     )
 
-    assert controller._get_current_frame_rgb_for_tuning() is None
+    assert controller.get_current_frame_rgb_for_tuning() is None
 
 
 class DummyWizardForController:
@@ -281,16 +283,18 @@ def test_calibration_wizard_controller_resets_edit_flag_when_tuning_context_miss
     assert display_calls == [7]
 
 
-def test_main_action_controller_updates_histogram_and_similarity_thresholds():
-    app_state = AppState()
-    controller = MainActionController(SimpleNamespace(app_state=app_state))
+def test_main_action_controller_delegates_histogram_and_similarity_thresholds():
+    calls = []
+    detection_manager = SimpleNamespace(
+        set_histogram_threshold=lambda value: calls.append(("histogram", value)),
+        set_similarity_ratio=lambda value: calls.append(("similarity", value)),
+    )
+    controller = MainActionController(SimpleNamespace(detection_manager=detection_manager))
 
     controller.handle_histogram_threshold_change(0.42)
     controller.handle_similarity_ratio_change(0.73)
 
-    assert app_state.detection.hist_ratio_threshold == 0.42
-    assert app_state.detection.similarity_ratio == 0.73
-    assert app_state.unsaved_changes is True
+    assert calls == [("histogram", 0.42), ("similarity", 0.73)]
 
 
 def test_signal_manager_wires_histogram_and_similarity_slider_signals():
@@ -316,8 +320,20 @@ def test_signal_manager_wires_histogram_and_similarity_slider_signals():
         handle_fps_override_change=lambda value: None,
         handle_overlay_color_change=lambda value: None,
     )
+    detection_manager = SimpleNamespace(
+        set_detection_threshold=lambda value: None,
+        set_rise_delta_threshold=lambda value: None,
+        set_fall_delta_threshold=lambda value: None,
+        set_histogram_detection_enabled=lambda value: None,
+        set_delta_detection_enabled=lambda value: None,
+        set_winner_takes_black_enabled=lambda value: None,
+        set_hand_assignment_enabled=lambda value: None,
+        set_histogram_threshold=lambda value: None,
+        set_similarity_ratio=lambda value: None,
+    )
     mw = SimpleNamespace(
         main_action_controller=main_action_controller,
+        detection_manager=detection_manager,
         video_session_ui_controller=SimpleNamespace(
             update_nav_interval=lambda value: None,
             handle_youtube_video_downloaded=lambda value: None,
@@ -334,13 +350,15 @@ def test_signal_manager_wires_histogram_and_similarity_slider_signals():
         midi_conversion_controller=SimpleNamespace(start_conversion_process=lambda: None),
         midi_touchup_controller=SimpleNamespace(open_from_picker=lambda: None),
         calibration_effects_controller=SimpleNamespace(
-            _handle_spark_roi_selection_request=lambda: None,
-            _handle_spark_roi_visibility_toggle=lambda value: None,
-            _handle_spark_calibration_request=lambda value: None,
-            _handle_auto_spark_calibration_request=lambda value: None,
-            _handle_spark_detection_toggle=lambda value: None,
-            _handle_spark_detection_sensitivity_change=lambda value: None,
-            _handle_overlay_type_change=lambda value: None,
+            spark=SimpleNamespace(
+                select_spark_roi=lambda: None,
+                set_spark_roi_visible=lambda value: None,
+                request_spark_calibration=lambda value: None,
+                start_auto_spark_calibration=lambda value: None,
+                set_spark_detection_enabled=lambda value: None,
+                set_spark_detection_sensitivity=lambda value: None,
+            ),
+            overlay=SimpleNamespace(handle_overlay_type_change=lambda value: None),
         ),
     )
 
@@ -350,11 +368,93 @@ def test_signal_manager_wires_histogram_and_similarity_slider_signals():
         mw.calibration_wizard_controller.run_calibration_wizard
     ]
     assert cp.histogram_threshold_changed.connected == [
-        main_action_controller.handle_histogram_threshold_change
+        detection_manager.set_histogram_threshold
     ]
     assert cp.similarity_ratio_changed.connected == [
-        main_action_controller.handle_similarity_ratio_change
+        detection_manager.set_similarity_ratio
     ]
+    assert cp.spark_roi_selection_requested.connected == [
+        mw.calibration_effects_controller.spark.select_spark_roi
+    ]
+    assert cp.spark_roi_visibility_toggled.connected == [
+        mw.calibration_effects_controller.spark.set_spark_roi_visible
+    ]
+    assert cp.spark_calibration_requested.connected == [
+        mw.calibration_effects_controller.spark.request_spark_calibration
+    ]
+    assert cp.auto_spark_calibration_requested.connected == [
+        mw.calibration_effects_controller.spark.start_auto_spark_calibration
+    ]
+    assert cp.spark_detection_toggled.connected == [
+        mw.calibration_effects_controller.spark.set_spark_detection_enabled
+    ]
+    assert cp.spark_detection_sensitivity_changed.connected == [
+        mw.calibration_effects_controller.spark.set_spark_detection_sensitivity
+    ]
+    assert cp.overlay_type_changed.connected == [
+        mw.calibration_effects_controller.overlay.handle_overlay_type_change
+    ]
+
+
+class RecordingEffectController:
+    def __init__(self):
+        self.calls = []
+
+    def capture_spark_overlay_calibration(self, overlay, calibration_mode):
+        self.calls.append((overlay, calibration_mode))
+
+    def capture_shadow_overlay_calibration(self, overlay, calibration_mode):
+        self.calls.append((overlay, calibration_mode))
+
+
+def _calibration_interaction_app_for_effect_dispatch(calibration_mode):
+    app_state = AppState()
+    app_state.calibration.calibration_mode = calibration_mode
+    app_state.overlays = [
+        OverlayConfig(
+            key_id=7,
+            note_octave=4,
+            note_name_in_octave="C",
+            x=0,
+            y=0,
+            width=10,
+            height=10,
+            key_type="LW",
+        )
+    ]
+    app_state.ui.selected_overlay_id = None
+    spark = RecordingEffectController()
+    shadow = RecordingEffectController()
+    app = SimpleNamespace(
+        app_state=app_state,
+        calibration_effects_controller=SimpleNamespace(spark=spark, shadow=shadow),
+        control_panel=SimpleNamespace(update_selected_overlay_display=lambda: None),
+    )
+    return app, spark, shadow
+
+
+def test_calibration_interaction_dispatches_spark_overlay_to_focused_controller_without_app_wrapper():
+    app, spark, shadow = _calibration_interaction_app_for_effect_dispatch("spark_bar_only")
+    controller = CalibrationInteractionController(app)
+
+    controller._handle_overlay_selection(7)
+
+    assert spark.calls == [(app.app_state.overlays[0], "spark_bar_only")]
+    assert shadow.calls == []
+    assert app.app_state.ui.selected_overlay_id == 7
+    assert not hasattr(app, "_capture_spark_overlay_calibration")
+
+
+def test_calibration_interaction_dispatches_shadow_overlay_to_focused_controller_without_app_wrapper():
+    app, spark, shadow = _calibration_interaction_app_for_effect_dispatch("shadow_lw_pressed")
+    controller = CalibrationInteractionController(app)
+
+    controller._handle_overlay_selection(7)
+
+    assert shadow.calls == [(app.app_state.overlays[0], "shadow_lw_pressed")]
+    assert spark.calls == []
+    assert app.app_state.ui.selected_overlay_id == 7
+    assert not hasattr(app, "_capture_shadow_overlay_calibration")
 
 
 def _app_state_with_universal_spark_calibration():

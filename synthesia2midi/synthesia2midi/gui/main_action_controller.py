@@ -10,22 +10,22 @@ class MainActionController:
     def __init__(self, app):
         self.app = app
 
+    def _detection_manager(self):
+        return getattr(self.app, "detection_manager", None)
+
     def toggle_overlays(self) -> None:
         if self.app.display_manager:
             self.app.display_manager.toggle_overlays()
 
-    def toggle_live_detection_feedback(self) -> None:
-        if self.app.display_manager:
-            self.app.display_manager.toggle_live_detection_feedback()
+    def toggle_live_detection_feedback(self, enabled=None) -> None:
+        display_manager = getattr(self.app, "display_manager", None)
+        if display_manager:
+            display_manager.toggle_live_detection_feedback(enabled)
 
     def handle_visual_threshold_monitor_menu(self, checked: bool) -> None:
-        app = self.app
-        app.app_state.ui.visual_threshold_monitor_enabled = checked
-        app.app_state.unsaved_changes = True
-        app.visual_threshold_monitor_action.setChecked(checked)
-        if app.display_manager:
-            app.display_manager.handle_visual_threshold_monitor_toggle(checked)
-        logging.info("Visual threshold monitor: %s", "enabled" if checked else "disabled")
+        display_manager = getattr(self.app, "display_manager", None)
+        if display_manager:
+            display_manager.set_visual_threshold_monitor_enabled(checked)
 
     def handle_calibrate_unlit_all_keys(self) -> None:
         if self.app.calibration_workflow:
@@ -36,24 +36,29 @@ class MainActionController:
             self.app.calibration_workflow.handle_calibrate_lit_exemplar_key_start(key_type)
 
     def handle_detection_threshold_change(self, threshold: float) -> None:
-        if self.app.detection_manager:
-            self.app.detection_manager.handle_detection_threshold_change(threshold)
+        detection_manager = self._detection_manager()
+        if detection_manager:
+            detection_manager.set_detection_threshold(threshold)
 
     def handle_rise_delta_threshold_change(self, threshold: float) -> None:
-        self.app.app_state.detection.rise_delta_threshold = threshold
-        self.app.app_state.unsaved_changes = True
+        detection_manager = self._detection_manager()
+        if detection_manager:
+            detection_manager.set_rise_delta_threshold(threshold)
 
     def handle_fall_delta_threshold_change(self, threshold: float) -> None:
-        self.app.app_state.detection.fall_delta_threshold = threshold
-        self.app.app_state.unsaved_changes = True
+        detection_manager = self._detection_manager()
+        if detection_manager:
+            detection_manager.set_fall_delta_threshold(threshold)
 
     def handle_histogram_threshold_change(self, threshold: float) -> None:
-        self.app.app_state.detection.hist_ratio_threshold = threshold
-        self.app.app_state.unsaved_changes = True
+        detection_manager = self._detection_manager()
+        if detection_manager:
+            detection_manager.set_histogram_threshold(threshold)
 
     def handle_similarity_ratio_change(self, ratio: float) -> None:
-        self.app.app_state.detection.similarity_ratio = ratio
-        self.app.app_state.unsaved_changes = True
+        detection_manager = self._detection_manager()
+        if detection_manager:
+            detection_manager.set_similarity_ratio(ratio)
 
     def handle_refresh_selected_overlay_display(self) -> None:
         if self.app.display_manager:
@@ -70,18 +75,20 @@ class MainActionController:
     def handle_overlay_size_adjustment(self, key_color: str, dimension: str, delta: int) -> None:
         self.app.overlay_manager.adjust_overlay_sizes(key_color, dimension, delta)
 
-    def toggle_hist_detection(self) -> None:
-        if self.app.detection_manager:
-            self.app.detection_manager.toggle_histogram_detection()
+    def toggle_hist_detection(self, enabled=None) -> None:
+        detection_manager = self._detection_manager()
+        if detection_manager:
+            detection_manager.toggle_histogram_detection(enabled)
 
-    def toggle_delta_detection(self) -> None:
-        if self.app.detection_manager:
-            self.app.detection_manager.toggle_delta_detection()
+    def toggle_delta_detection(self, enabled=None) -> None:
+        detection_manager = self._detection_manager()
+        if detection_manager:
+            detection_manager.toggle_delta_detection(enabled)
 
     def toggle_winner_takes_black(self, enabled: bool) -> None:
-        self.app.app_state.detection.winner_takes_black_enabled = enabled
-        self.app.app_state.unsaved_changes = True
-        logging.info("Black key filter (winner takes black) is now %s", enabled)
+        detection_manager = self._detection_manager()
+        if detection_manager:
+            detection_manager.set_winner_takes_black_enabled(enabled)
 
     def handle_exemplar_key_type_enabled_change(self, key_type: str, enabled: bool) -> None:
         if key_type not in {"LW", "LB", "RW", "RB"}:
@@ -106,15 +113,18 @@ class MainActionController:
             app.control_panel.update_controls_from_state()
 
     def handle_hand_assignment_toggle(self, enabled: bool) -> None:
-        self.app.app_state.detection.hand_assignment_enabled = enabled
-        self.app.app_state.unsaved_changes = True
-        logging.info("Hand assignment is now %s", enabled)
+        detection_manager = self._detection_manager()
+        if detection_manager:
+            detection_manager.set_hand_assignment_enabled(enabled)
 
     def handle_overlay_color_change(self, color: str) -> None:
         app = self.app
         logging.debug("Overlay color changed to: %s", color)
         app.app_state.ui.overlay_color = color.lower()
-        if app.keyboard_canvas:
+        display_manager = getattr(app, "display_manager", None)
+        if display_manager:
+            display_manager.refresh_canvas_overlays()
+        elif getattr(app, "keyboard_canvas", None):
             app.keyboard_canvas.update()
         app.app_state.unsaved_changes = True
 
@@ -134,7 +144,10 @@ class MainActionController:
         app = self.app
         logging.info("Applying octave transpose: %s", transpose_value)
         app.app_state.midi.octave_transpose = transpose_value
-        if app.keyboard_canvas:
+        display_manager = getattr(app, "display_manager", None)
+        if display_manager:
+            display_manager.refresh_canvas_overlays()
+        elif getattr(app, "keyboard_canvas", None):
             app.keyboard_canvas.draw_overlays()
         app.app_state.mark_unsaved()
 
@@ -142,6 +155,7 @@ class MainActionController:
         self.app.window_manager.resize_and_position_window()
 
     def create_detection_wrapper(self):
-        if self.app.detection_manager:
-            return self.app.detection_manager.create_detection_wrapper()
+        detection_manager = self._detection_manager()
+        if detection_manager:
+            return detection_manager.create_detection_wrapper()
         return None

@@ -40,12 +40,19 @@ def test_exemplar_key_type_toggle_updates_state_and_cancels_active_calibration()
     assert control_panel.updated == 1
 
 
-def test_overlay_color_and_octave_handlers_refresh_canvas_and_mark_unsaved():
+def test_overlay_color_and_octave_handlers_refresh_through_display_manager_and_mark_unsaved():
     app_state = FakeAppState()
-    canvas = SimpleNamespace(updated=0, drawn=0)
-    canvas.update = lambda: setattr(canvas, "updated", canvas.updated + 1)
-    canvas.draw_overlays = lambda: setattr(canvas, "drawn", canvas.drawn + 1)
-    app = SimpleNamespace(app_state=app_state, keyboard_canvas=canvas)
+    display_manager = SimpleNamespace(refreshed=0)
+    display_manager.refresh_canvas_overlays = lambda: setattr(
+        display_manager,
+        "refreshed",
+        display_manager.refreshed + 1,
+    )
+    canvas = SimpleNamespace(
+        update=lambda: (_ for _ in ()).throw(AssertionError("direct canvas update not expected")),
+        draw_overlays=lambda: (_ for _ in ()).throw(AssertionError("direct overlay draw not expected")),
+    )
+    app = SimpleNamespace(app_state=app_state, display_manager=display_manager, keyboard_canvas=canvas)
     controller = MainActionController(app)
 
     controller.handle_overlay_color_change("BLUE")
@@ -53,8 +60,7 @@ def test_overlay_color_and_octave_handlers_refresh_canvas_and_mark_unsaved():
 
     assert app_state.ui.overlay_color == "blue"
     assert app_state.midi.octave_transpose == 2
-    assert canvas.updated == 1
-    assert canvas.drawn == 1
+    assert display_manager.refreshed == 2
     assert app_state.marked_unsaved is True
 
 

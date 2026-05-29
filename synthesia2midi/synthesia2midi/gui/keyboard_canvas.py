@@ -145,9 +145,14 @@ class KeyboardCanvas(QWidget):
     def __init__(self, app_state: AppState, width: int, height: int,
                  on_color_pick_callback: Callable[[Tuple[int,int,int], Tuple[int,int]], None],
                  on_overlay_select_callback: Callable[[Optional[int]], None],
-                 detect_pressed_func: Optional[Callable] = None): # Add detect_pressed_func
+                 detect_pressed_func: Optional[Callable] = None,
+                 overlay_manager: Optional[Any] = None):
         super().__init__()
         self.app_state = app_state
+        if overlay_manager is None:
+            from synthesia2midi.workflows.overlay_manager import OverlayManager
+            overlay_manager = OverlayManager(app_state)
+        self._overlay_manager = overlay_manager
         self.video_session: Optional[VideoSession] = None
         self.current_frame_rgb: Optional[np.ndarray] = None  # RGB NumPy array
         self.original_frame_size: Optional[Tuple[int, int]] = None  # Store original frame size
@@ -1591,35 +1596,32 @@ class KeyboardCanvas(QWidget):
 
     def _handle_overlay_selected(self, overlay_key_id: int):
         """Handle overlay selection from interaction module."""
-        if overlay_key_id >= 0:
-            self.app_state.ui.selected_overlay_id = overlay_key_id
-        else:
-            self.app_state.ui.selected_overlay_id = None
+        selected_key_id = overlay_key_id if overlay_key_id >= 0 else None
 
-        # Call the overlay selection callback to notify main window
+        # CalibrationInteractionController owns normal app selection dispatch.
         if self.on_overlay_select_callback:
-            self.on_overlay_select_callback(overlay_key_id if overlay_key_id >= 0 else None)
+            self.on_overlay_select_callback(selected_key_id)
+        elif self._overlay_manager:
+            self._overlay_manager.select_overlay(selected_key_id)
 
         self.update()  # Repaint to show selection
 
     def _handle_overlay_moved(self, overlay_index: int, new_x: float, new_y: float):
         """Handle overlay movement from interaction module."""
-        if 0 <= overlay_index < len(self.app_state.overlays):
-            overlay = self.app_state.overlays[overlay_index]
-            overlay.x = new_x
-            overlay.y = new_y
-            self.app_state.unsaved_changes = True
+        if self._overlay_manager:
+            self._overlay_manager.move_overlay_by_index(overlay_index, new_x, new_y)
 
     def _handle_overlay_resized(self, overlay_index: int, new_x: float, new_y: float,
                               new_width: float, new_height: float):
         """Handle overlay resizing from interaction module."""
-        if 0 <= overlay_index < len(self.app_state.overlays):
-            overlay = self.app_state.overlays[overlay_index]
-            overlay.x = new_x
-            overlay.y = new_y
-            overlay.width = new_width
-            overlay.height = new_height
-            self.app_state.unsaved_changes = True
+        if self._overlay_manager:
+            self._overlay_manager.resize_overlay_by_index(
+                overlay_index,
+                new_x,
+                new_y,
+                new_width,
+                new_height,
+            )
 
     def _handle_color_picked(self, r: int, g: int, b: int, image_x: int, image_y: int):
         """Handle color picking from interaction module."""
@@ -1633,23 +1635,6 @@ class KeyboardCanvas(QWidget):
         """Handle spark ROI selection from interaction module."""
         logging.info(f"Spark ROI selected: Y range {top_y} to {bottom_y}")
 
-        # Update app state with new spark ROI values
-        self.app_state.detection.spark_roi_top = top_y
-        self.app_state.detection.spark_roi_bottom = bottom_y
-        self.app_state.detection.spark_roi_visible = True  # Show ROI immediately after calibration
-        self.app_state.unsaved_changes = True
-
-        # Invalidate spark zone cache since ROI changed
-        try:
-            from synthesia2midi.detection.spark_mapper import get_spark_mapper
-            get_spark_mapper().invalidate_cache()
-        except ImportError:
-            pass
-
-        # Trigger repaint to show ROI and zone visualization
-        self.update()
-
-        # Update control panel to reflect new values
         if hasattr(self, 'on_spark_roi_callback') and self.on_spark_roi_callback:
             self.on_spark_roi_callback(top_y, bottom_y)
 

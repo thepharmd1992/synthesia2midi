@@ -51,6 +51,46 @@ class OverlayManager:
         else:
             self.logger.warning(f"Could not find overlay with key_id {key_id} to update key_type.")
 
+    def select_overlay(self, selected_key_id: Optional[int]) -> None:
+        """Own selected-overlay state mutation for canvas selection adapters."""
+        self.app_state.ui.selected_overlay_id = selected_key_id
+        self.logger.debug("Overlay selected: key_id %s", selected_key_id)
+        if self.ui_updater:
+            self.ui_updater.update_selected_overlay_display()
+
+    def move_overlay_by_index(self, overlay_index: int, new_x: float, new_y: float) -> bool:
+        """Move an overlay by its current list index."""
+        if not 0 <= overlay_index < len(self.app_state.overlays):
+            self.logger.warning("Could not move overlay at invalid index %s", overlay_index)
+            return False
+
+        overlay = self.app_state.overlays[overlay_index]
+        overlay.x = new_x
+        overlay.y = new_y
+        self.app_state.unsaved_changes = True
+        return True
+
+    def resize_overlay_by_index(
+        self,
+        overlay_index: int,
+        new_x: float,
+        new_y: float,
+        new_width: float,
+        new_height: float,
+    ) -> bool:
+        """Resize an overlay by its current list index."""
+        if not 0 <= overlay_index < len(self.app_state.overlays):
+            self.logger.warning("Could not resize overlay at invalid index %s", overlay_index)
+            return False
+
+        overlay = self.app_state.overlays[overlay_index]
+        overlay.x = new_x
+        overlay.y = new_y
+        overlay.width = new_width
+        overlay.height = new_height
+        self.app_state.unsaved_changes = True
+        return True
+
     def align_overlays_vertically(self, master_overlay: OverlayConfig, target_key_color_type: str):
         """Helper to align overlays of a given color type (W or B) to a master overlay's Y and Height."""
         if not master_overlay:

@@ -20,7 +20,7 @@ class ShadowCalibrationController:
     def __getattr__(self, name):
         return getattr(self.app, name)
 
-    def _handle_shadow_roi_selection_request(self):
+    def select_shadow_roi(self):
         """Handle shadow ROI selection request from control panel."""
         logging.info("Shadow ROI selection requested - entering ROI selection mode")
         if hasattr(self, 'keyboard_canvas') and self.keyboard_canvas:
@@ -36,7 +36,7 @@ class ShadowCalibrationController:
         else:
             QMessageBox.warning(self.app, "No Canvas", "No video canvas available for ROI selection.")
 
-    def _handle_shadow_white_roi_selection_request(self):
+    def select_shadow_white_roi(self):
         """Handle white key shadow ROI selection request from control panel."""
         logging.info("White key shadow ROI selection requested - entering ROI selection mode")
         if hasattr(self, 'keyboard_canvas') and self.keyboard_canvas:
@@ -52,7 +52,7 @@ class ShadowCalibrationController:
         else:
             QMessageBox.warning(self.app, "No Canvas", "No video canvas available for ROI selection.")
 
-    def _handle_shadow_black_roi_selection_request(self):
+    def select_shadow_black_roi(self):
         """Handle black key shadow ROI selection request from control panel."""
         logging.info("Black key shadow ROI selection requested - entering ROI selection mode")
         if hasattr(self, 'keyboard_canvas') and self.keyboard_canvas:
@@ -68,19 +68,19 @@ class ShadowCalibrationController:
         else:
             QMessageBox.warning(self.app, "No Canvas", "No video canvas available for ROI selection.")
 
-    def _handle_shadow_detection_toggle(self, enabled: bool):
+    def set_shadow_detection_enabled(self, enabled: bool):
         """Handle shadow detection enable/disable toggle."""
         logging.info(f"Shadow detection {'enabled' if enabled else 'disabled'}")
 
-    def _handle_shadow_detection_sensitivity_change(self, value: float):
+    def set_shadow_detection_sensitivity(self, value: float):
         """Handle shadow detection sensitivity change."""
         logging.info(f"Shadow detection sensitivity changed to {value:.2f}")
 
-    def _handle_shadow_darkness_threshold_change(self, value: float):
+    def set_shadow_darkness_threshold(self, value: float):
         """Handle shadow darkness threshold change."""
         logging.info(f"Shadow darkness threshold changed to {value:.2f}")
 
-    def _handle_shadow_calibration_request(self, key_type: str, calibration_type: str):
+    def request_shadow_calibration(self, key_type: str, calibration_type: str):
         """Handle shadow calibration request for specific key type."""
         logging.info(f"Shadow calibration requested: key_type={key_type}, calibration_type={calibration_type}")
 
@@ -126,7 +126,7 @@ class ShadowCalibrationController:
         QMessageBox.information(self.app, f"Shadow Calibration - {key_type_display}", instruction_msg)
         logging.info(f"Set calibration mode to {calibration_mode}, waiting for user to click on key")
 
-    def _capture_shadow_overlay_calibration(self, overlay, calibration_mode: str):
+    def capture_shadow_overlay_calibration(self, overlay, calibration_mode: str):
         """Capture shadow calibration from selected overlay."""
         logging.info(f"Capturing {calibration_mode} calibration from overlay {overlay.key_id}")
 
@@ -183,7 +183,7 @@ class ShadowCalibrationController:
             return
 
         # Extract shadow ROI
-        shadow_roi = self._extract_roi(current_frame, shadow_overlay)
+        shadow_roi = self.extract_roi(current_frame, shadow_overlay)
         if shadow_roi is None or shadow_roi.size == 0:
             QMessageBox.warning(self.app, "ROI Error", "Could not extract shadow region.")
             self.app_state.calibration.calibration_mode = None
@@ -238,7 +238,7 @@ class ShadowCalibrationController:
         self.app_state.calibration.calibration_mode = None
         self.app_state.unsaved_changes = False  # Reset since we auto-saved
 
-    def _extract_roi(self, frame: np.ndarray, overlay: OverlayConfig) -> Optional[np.ndarray]:
+    def extract_roi(self, frame: np.ndarray, overlay: OverlayConfig) -> Optional[np.ndarray]:
         """Extract region of interest from frame based on overlay coordinates."""
         if frame is None or overlay is None:
             return None
@@ -257,3 +257,15 @@ class ShadowCalibrationController:
             return None
 
         return frame[y1:y2, x1:x2]
+
+    # Backward-compatible private aliases for older callers/tests. New wiring
+    # should use the public controller methods above.
+    _handle_shadow_roi_selection_request = select_shadow_roi
+    _handle_shadow_white_roi_selection_request = select_shadow_white_roi
+    _handle_shadow_black_roi_selection_request = select_shadow_black_roi
+    _handle_shadow_detection_toggle = set_shadow_detection_enabled
+    _handle_shadow_detection_sensitivity_change = set_shadow_detection_sensitivity
+    _handle_shadow_darkness_threshold_change = set_shadow_darkness_threshold
+    _handle_shadow_calibration_request = request_shadow_calibration
+    _capture_shadow_overlay_calibration = capture_shadow_overlay_calibration
+    _extract_roi = extract_roi

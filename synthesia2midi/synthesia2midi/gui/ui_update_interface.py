@@ -18,6 +18,10 @@ class UIUpdateInterface:
     def refresh_canvas(self) -> None:
         """Refresh the keyboard canvas display."""
         raise NotImplementedError("Subclass must implement refresh_canvas")
+
+    def refresh_canvas_overlays(self) -> None:
+        """Refresh overlay-only canvas visuals without reloading frame data."""
+        raise NotImplementedError("Subclass must implement refresh_canvas_overlays")
     
     def update_control_panel(self) -> None:
         """Update the control panel display."""
@@ -31,6 +35,10 @@ class UIUpdateInterface:
     def update_live_detection_action(self, checked: bool) -> None:
         """Update live detection action state."""
         raise NotImplementedError("Subclass must implement update_live_detection_action")
+
+    def update_visual_threshold_monitor_action(self, checked: bool) -> None:
+        """Update visual threshold monitor action state."""
+        raise NotImplementedError("Subclass must implement update_visual_threshold_monitor_action")
     
     def update_detection_threshold(self, value: float) -> None:
         """Update detection threshold spinner value."""

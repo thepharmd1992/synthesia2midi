@@ -10,12 +10,12 @@ Line count is a guardrail, not the definition of done.
 
 ## Current Baseline
 
-Measured 2026-05-12:
+Baseline originally measured 2026-05-12; current working-tree counts refreshed 2026-05-29:
 
 | Metric | Before refactor (`HEAD`/`origin/main`) | Current working tree | Target guardrail |
 |---|---:|---:|---:|
-| `main.py` lines | 2,867 | 589 | ~500-700 if remaining code is UI composition only |
-| `Video2MidiApp` methods | 121 | 22 | materially fewer; remaining methods should be shell/wiring or documented public API |
+| `main.py` lines | 2,867 | 541 | ~500-700 if remaining code is UI composition only |
+| `Video2MidiApp` methods | 121 | 24 | materially fewer; remaining methods should be shell/wiring or documented public API |
 | `Video2MidiApp` classes | 2 | 1 | 1 |
 
 Interpretation: `main.py` is now inside the target range and functions as a root-window composition facade. Remaining non-shell methods are public UI/update compatibility methods used by workflows/controllers.
@@ -39,6 +39,18 @@ This refactor is done when all of these are true:
 
 Run the smallest relevant set during each task, and the full gate before committing a phase. The canonical command runbook is [`testing.md`](testing.md); for `main.py` refactor work this usually means the default gate plus the GUI smoke, and for setup/launcher-adjacent edits it also means the setup/launcher gate.
 
+## Manual GUI Smoke Status
+
+Not performed in this headless checkpoint. The next local GUI smoke with a real/video fixture should verify:
+
+1. Calibration wizard launch: open a video, click Run/Reset Calibration Wizard, and confirm the wizard opens without blocking the main window lifecycle.
+2. Calibration wizard cancel: close/cancel the wizard before ROI selection and confirm no overlays/config are mutated and Convert stays disabled unless prior calibration is valid.
+3. Keyboard-region selection: from the wizard, request keyboard-region selection, draw a keyboard ROI on the canvas, and confirm the wizard instance remains alive while selection/autodetect proceeds.
+4. Auto-detect preview: after ROI autodetect, confirm the tuning dialog opens modeless, preview updates overlays without closing the wizard/dialog, and the settings panel/canvas remain usable.
+5. Auto-detect apply: apply tuned detection results and confirm overlays/template styles, Convert enablement, selected-overlay controls, and per-video config save still update.
+6. Modeless dialog lifetime: leave the tuning dialog open, interact with the main window, then close the dialog and confirm the retained wizard/dialog references are cleared and a second tuning dialog can open cleanly.
+7. Calibration wizard completion: complete the wizard after successful tuning and confirm overlays are visible, controls refresh, and conversion remains available.
+
 ## Method Inventory and Extraction Checklist
 
 Update statuses as work lands.
@@ -56,8 +68,9 @@ Goal: keep only true root-window shell code in `main.py`; move reusable construc
 
 Current large methods:
 
-- [x] `_init_ui` — 176 lines. Kept as root-window composition/widget layout; no workflow business logic remains.
-- [x] `__init__` — 53 lines. Controller/workflow construction and app state setup only.
+- [x] `_init_ui` — 182 lines. Kept as root-window composition/widget layout; no workflow business logic remains.
+- [x] `__init__` — 59 lines. Controller/workflow construction and app state setup only.
+- [x] `_toggle_focus_video_mode` — 14 lines. Kept as app-shell layout toggle for hiding/restoring the settings pane during calibration.
 - [x] `_bind_hotkeys` — 27 lines. Pure shortcut wiring to `VideoControls`/conversion controller.
 - [x] `closeEvent` — 23 lines. Lifecycle shell; cleanup delegated to `MidiTouchupController`, `video_session`, and `ConfigManager`.
 - [x] `_show_startup_dialog` — 11 lines. Kept as startup dialog signal wiring only.
@@ -124,16 +137,16 @@ Remaining methods:
 
 - [x] `_handle_calibrate_unlit_all_keys` — deleted; signal targets `MainActionController`.
 - [x] `_handle_calibrate_lit_exemplar_key_start` — deleted; signal targets `MainActionController`.
-- [x] `_handle_spark_roi_selection_request` — deleted; signal targets `CalibrationEffectsController`.
-- [x] `_handle_spark_roi_visibility_toggle` — deleted; signal targets `CalibrationEffectsController`.
+- [x] `_handle_spark_roi_selection_request` — deleted; signal targets `SparkCalibrationController.select_spark_roi`.
+- [x] `_handle_spark_roi_visibility_toggle` — deleted; signal targets `SparkCalibrationController.set_spark_roi_visible`.
 - [x] `_handle_shadow_roi_selection_request` — deleted; no live caller remained.
 - [x] `_handle_shadow_white_roi_selection_request` — deleted; no live caller remained.
 - [x] `_handle_shadow_black_roi_selection_request` — deleted; no live caller remained.
-- [x] `_handle_spark_roi_updated` — deleted; `KeyboardCanvas` callback targets `CalibrationEffectsController`.
-- [x] `_handle_spark_calibration_request` — deleted; signal targets `CalibrationEffectsController`.
-- [x] `_handle_auto_spark_calibration_request` — deleted; signal targets `CalibrationEffectsController`.
-- [x] `_handle_spark_detection_toggle` — deleted; signal targets `CalibrationEffectsController`.
-- [x] `_handle_spark_detection_sensitivity_change` — deleted; signal targets `CalibrationEffectsController`.
+- [x] `_handle_spark_roi_updated` — deleted; `KeyboardCanvas` callback targets `SparkCalibrationController.update_spark_roi_from_canvas`.
+- [x] `_handle_spark_calibration_request` — deleted; signal targets `SparkCalibrationController.request_spark_calibration`.
+- [x] `_handle_auto_spark_calibration_request` — deleted; signal targets `SparkCalibrationController.start_auto_spark_calibration`.
+- [x] `_handle_spark_detection_toggle` — deleted; signal targets `SparkCalibrationController.set_spark_detection_enabled`.
+- [x] `_handle_spark_detection_sensitivity_change` — deleted; signal targets `SparkCalibrationController.set_spark_detection_sensitivity`.
 - [x] `_handle_shadow_detection_toggle` — deleted; no live caller remained.
 - [x] `_handle_shadow_detection_sensitivity_change` — deleted; no live caller remained.
 - [x] `_handle_shadow_darkness_threshold_change` — deleted; no live caller remained.
@@ -160,7 +173,7 @@ Remaining methods:
 
 - [x] `_handle_overlay_selection` — deleted; `KeyboardCanvas` callback targets `CalibrationInteractionController`.
 - [x] `_toggle_overlays` — deleted; menu targets `MainActionController`.
-- [x] `_handle_overlay_type_change` — deleted; signal targets `CalibrationEffectsController`.
+- [x] `_handle_overlay_type_change` — deleted; signal targets `OverlayInteractionController.handle_overlay_type_change`.
 - [x] `_handle_refresh_selected_overlay_display` — deleted; signal targets `MainActionController`.
 - [x] `_align_overlays_vertically` — deleted; no live callers.
 - [x] `_handle_align_white_keys_to_selected` — deleted; signal targets `MainActionController`.
@@ -169,10 +182,11 @@ Remaining methods:
 - [x] `_handle_overlay_size_adjustment` — deleted; signal targets `MainActionController`.
 - [x] `_handle_overlay_color_change` — moved to `MainActionController` with coverage.
 - [x] `_handle_octave_transpose_change` — moved to `MainActionController` with coverage.
-- [x] `update_overlay_action` — kept as public `UIUpdateInterface` method used by managers.
-- [x] `refresh_canvas` — kept as public `UIUpdateInterface` method used by managers.
-- [x] `update_selected_overlay_display` — kept as public `UIUpdateInterface` method used by managers.
-- [x] `get_roi_bgr` — kept as public `UIUpdateInterface`/ROI adapter for controllers.
+- [x] `Video2MidiApp.update_overlay_action` — kept as public `UIUpdateInterface` method used by managers.
+- [x] `Video2MidiApp.refresh_canvas` — kept as public `UIUpdateInterface` method used by managers.
+- [x] `Video2MidiApp.refresh_canvas_overlays` — kept as public `UIUpdateInterface` method for overlay-only redraws.
+- [x] `Video2MidiApp.update_selected_overlay_display` — kept as public `UIUpdateInterface` method used by managers.
+- [x] `Video2MidiApp.get_roi_bgr` — kept as public `UIUpdateInterface`/ROI adapter for controllers.
 
 Verification:
 
@@ -201,14 +215,14 @@ Remaining methods:
 - [x] `_handle_detection_logging_toggle` — deleted; no live callers.
 - [x] `_log_detection_parameters` — deleted with no-op callback registration.
 - [x] `_create_detection_wrapper` — deleted; `MainActionController` exposes detection wrapper creation.
-- [x] `update_live_detection_action` — kept as public `UIUpdateInterface` method used by display/controls.
-- [x] `update_detection_threshold` — kept as public `UIUpdateInterface` method used by display/controls.
+- [x] `Video2MidiApp.update_live_detection_action` — kept as public `UIUpdateInterface` method used by display/controls.
+- [x] `Video2MidiApp.update_detection_threshold` — kept as public `UIUpdateInterface` method used by display/controls.
 
 Verification:
 
 - [ ] Manual auto-detector characterization tests pass. Not run; no detector math changed.
-- [x] Detection parameter UI changes are rewired to `MainActionController`; regression suite passes.
-- [x] Visual Threshold Monitor toggles through `MainActionController` and `DisplayManager`; regression suite passes.
+- [x] Detection parameter UI changes are wired directly to `DetectionManager`; `MainActionController` keeps compatibility delegates only.
+- [x] Live feedback and Visual Threshold Monitor toggles route through `DisplayManager`; regression suite passes.
 
 ### 7. MIDI Touch-Up Editor
 
@@ -236,28 +250,28 @@ Verification:
 
 Goal: delete wrappers once signal/control callers are rewired. Keep only wrappers that are true public app API.
 
-Known thin wrappers needing caller search:
+Known thin wrappers needing caller search (class-scoped so same-named helpers in focused controllers are not confused with deleted app-facade wrappers):
 
-- [x] `resizeEvent` — kept as lifecycle method delegating to `WindowManager`.
-- [x] `showEvent` — kept as lifecycle method delegating to `WindowManager`.
-- [x] `_update_tempo` — deleted; no live callers.
-- [x] `_navigate_frame_pgup` — deleted; hotkeys now call `video_controls.navigate_frame_pgup` directly.
-- [x] `_navigate_frame_pgdn` — deleted; hotkeys now call `video_controls.navigate_frame_pgdn` directly.
-- [x] `_display_frame_lightweight` — deleted; no live callers.
-- [x] `_update_frame_slider_position` — deleted; no live callers.
-- [x] `_update_time_display` — deleted; no live callers.
-- [x] `_display_frame_with_slider_update` — deleted; callers target `VideoControls` directly.
-- [x] `_update_current_frame_display` — kept as tiny callback adapter for `DetectionManager`.
-- [x] `_handle_color_pick` — deleted; `KeyboardCanvas` callback targets `CalibrationInteractionController`.
-- [x] `_extract_roi` — deleted; no live callers.
-- [x] `_handle_keyboard_region_selection_request` — deleted; no live callers.
-- [x] `_clone_auto_detect_tuning_context` — deleted; no live callers.
-- [x] `_cache_auto_detect_tuning_context` — deleted; no live callers.
-- [x] `_get_current_frame_rgb_for_tuning` — deleted; no live callers.
-- [x] `_build_auto_detect_tuning_context_from_state` — deleted; no live callers.
-- [x] `update_control_panel` — kept as public `UIUpdateInterface` method.
-- [x] `_resize_and_position_window` — deleted; callers target `WindowManager`/`MainActionController` directly.
-- [x] `show_message` — kept as public `UIUpdateInterface` method.
+- [x] `Video2MidiApp.resizeEvent` — kept as Qt lifecycle hook; Qt dispatches it and it delegates to `WindowManager.handle_resize_event`.
+- [x] `Video2MidiApp.showEvent` — kept as Qt lifecycle hook; Qt dispatches it and it delegates to `WindowManager.handle_show_event`.
+- [x] `Video2MidiApp._update_tempo` — deleted; no live callers.
+- [x] `Video2MidiApp._navigate_frame_pgup` — deleted; hotkeys now call `video_controls.navigate_frame_pgup` directly.
+- [x] `Video2MidiApp._navigate_frame_pgdn` — deleted; hotkeys now call `video_controls.navigate_frame_pgdn` directly.
+- [x] `Video2MidiApp._display_frame_lightweight` — deleted; no live callers.
+- [x] `Video2MidiApp._update_frame_slider_position` — deleted; no live callers.
+- [x] `Video2MidiApp._update_time_display` — deleted; no live callers.
+- [x] `Video2MidiApp._display_frame_with_slider_update` — deleted; callers target `VideoControls` directly.
+- [x] `Video2MidiApp._update_current_frame_display` — kept as `DetectionManager` callback adapter; delegates to `VideoControls.update_current_frame_display`.
+- [x] `CalibrationInteractionController._handle_color_pick` — kept as `KeyboardCanvas` color-pick callback adapter; delegates to `CalibrationWorkflow.handle_color_pick`.
+- [x] `CalibrationEffectsController._extract_roi` — deleted; no live callers. Shadow ROI extraction remains owned by `ShadowCalibrationController.extract_roi`.
+- [x] `CalibrationWizardController._handle_keyboard_region_selection_request` — kept as Qt wizard signal slot for `keyboard_region_selection_requested`.
+- [x] `AutoDetectTuningController._clone_auto_detect_tuning_context` — kept as defensive-copy helper for cached tuning packets whose callers mutate copies independently.
+- [x] `CalibrationWizardController._cache_auto_detect_tuning_context` — kept as wizard callback adapter that forwards context to `AutoDetectTuningController.cache_context`.
+- [x] `CalibrationWizardController._get_current_frame_rgb_for_tuning` — deleted; tests and callers use `AutoDetectTuningController.get_current_frame_rgb_for_tuning` directly.
+- [x] `CalibrationWizardController._build_auto_detect_tuning_context_from_state` — deleted; state/context assembly lives in `AutoDetectTuningController.build_context_from_state`.
+- [x] `Video2MidiApp.update_control_panel` — kept as public `UIUpdateInterface` method for interface consumers.
+- [x] `Video2MidiApp._resize_and_position_window` — deleted; callers target `WindowManager`/`MainActionController` directly.
+- [x] `Video2MidiApp.show_message` — kept as public `UIUpdateInterface` method for interface consumers.
 
 Verification:
 

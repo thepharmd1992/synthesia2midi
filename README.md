@@ -74,6 +74,11 @@ The code is organized with one-way dependencies:
 - `synthesia2midi/synthesia2midi/detection/`: detection methods and ROI utilities
 - `synthesia2midi/synthesia2midi/core/`: application state and persistence
 
+## Developer / Agent Docs
+
+- Agent operating model: [AGENTS.md](AGENTS.md)
+- Detailed testing and verification: [docs/testing.md](docs/testing.md)
+
 ## Key Concepts
 
 - **Overlay**: a rectangular ROI corresponding to one piano key.

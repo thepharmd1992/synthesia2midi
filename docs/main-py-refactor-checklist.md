@@ -201,21 +201,22 @@ Goal: detection parameter changes belong to `DetectionManager`, display/monitor 
 Remaining methods:
 
 - [x] `_prepare_frame_for_detection` — deleted; no live callers.
-- [x] `_toggle_live_detection_feedback` — deleted; menu targets `MainActionController`.
-- [x] `_handle_visual_threshold_monitor_menu` — deleted; menu targets `MainActionController`.
-- [x] `_handle_detection_threshold_change` — deleted; signal targets `MainActionController`.
-- [x] `_handle_rise_delta_threshold_change` — deleted; signal targets `MainActionController`.
-- [x] `_handle_fall_delta_threshold_change` — deleted; signal targets `MainActionController`.
-- [x] `_on_toggle_hist_detection` — deleted; signal targets `MainActionController`.
-- [x] `_on_toggle_delta_detection` — deleted; signal targets `MainActionController`.
-- [x] `_on_toggle_winner_takes_black` — deleted; signal targets `MainActionController`.
-- [x] `_handle_hand_assignment_toggle` — deleted; signal targets `MainActionController`.
+- [x] `_toggle_live_detection_feedback` — deleted; menu targets `DisplayManager.set_live_detection_feedback_enabled`.
+- [x] `_handle_visual_threshold_monitor_menu` — deleted; menu targets `DisplayManager.set_visual_threshold_monitor_enabled`.
+- [x] `_handle_detection_threshold_change` — deleted; signal targets `DetectionManager.set_detection_threshold`.
+- [x] `_handle_rise_delta_threshold_change` — deleted; signal targets `DetectionManager.set_rise_delta_threshold`.
+- [x] `_handle_fall_delta_threshold_change` — deleted; signal targets `DetectionManager.set_fall_delta_threshold`.
+- [x] `_on_toggle_hist_detection` — deleted; signal targets `DetectionManager.set_histogram_detection_enabled`.
+- [x] `_on_toggle_delta_detection` — deleted; signal targets `DetectionManager.set_delta_detection_enabled`.
+- [x] `_on_toggle_winner_takes_black` — deleted; signal targets `DetectionManager.set_winner_takes_black_enabled`.
+- [x] `_handle_hand_assignment_toggle` — deleted; signal targets `DetectionManager.set_hand_assignment_enabled`.
 - [x] `_handle_visual_threshold_monitor_toggle` — deleted; no live callers.
 - [x] `_handle_fps_override_change` — moved to `MainActionController` with coverage.
 - [x] `_handle_detection_logging_toggle` — deleted; no live callers.
 - [x] `_log_detection_parameters` — deleted with no-op callback registration.
-- [x] `_create_detection_wrapper` — deleted; `MainActionController` exposes detection wrapper creation.
+- [x] `_create_detection_wrapper` — deleted; `DetectionManager` exposes detection wrapper creation and `Video2MidiApp`/`VideoSessionCoordinator` use it directly.
 - [x] `Video2MidiApp.update_live_detection_action` — kept as public `UIUpdateInterface` method used by display/controls.
+- [x] `Video2MidiApp.update_visual_threshold_monitor_action` — kept as public `UIUpdateInterface` method used by `DisplayManager`.
 - [x] `Video2MidiApp.update_detection_threshold` — kept as public `UIUpdateInterface` method used by display/controls.
 
 Verification:

@@ -73,7 +73,7 @@ Current `main.py` guardrail after the refactor: about 500-700 lines, composition
 | `gui/video_session_ui_controller.py` | File/YouTube video entrypoints, frame navigation interval, trim/range UI handlers, video-to-frames request forwarding. |
 | `gui/midi_conversion_controller.py` | User-triggered MIDI conversion flow: output path selection, conversion result UI, touch-up prompt. |
 | `gui/midi_touchup_controller.py` | Rust touch-up editor binary discovery, launch, process tracking, result parsing, shutdown. |
-| `gui/main_action_controller.py` | Small menu/control actions that mutate app state or delegate to managers: detection toggles, overlay color/size actions, octave/FPS, visual monitor, exemplar toggles. |
+| `gui/main_action_controller.py` | Small menu/control actions that mutate app state or delegate to managers: overlay color/size actions, octave/FPS, exemplar toggles, and legacy detection delegates. |
 | `gui/calibration_wizard_controller.py` | Manual calibration wizard and keyboard-region selection lifecycle. |
 | `gui/auto_detect_tuning_controller.py` | Modeless auto-detect tuning dialog lifetime, context cache, and preview/apply propagation. |
 | `gui/calibration_effects_controller.py` | Facade over spark, shadow, and overlay calibration effect controllers. |
@@ -82,7 +82,7 @@ Current `main.py` guardrail after the refactor: about 500-700 lines, composition
 | `gui/shadow_calibration_controller.py` | Shadow ROI and shadow calibration behavior. |
 | `gui/overlay_interaction_controller.py` | Overlay drawing-mode changes. |
 | `gui/video_controls.py` | Frame display, frame slider, navigation controls. |
-| `gui/display_manager.py` | Canvas/UI display toggles and current-frame display coordination. |
+| `gui/display_manager.py` | Canvas/UI display toggles, live detection feedback, visual threshold monitor state, and current-frame display coordination. |
 | `gui/window_manager.py` | Resize/position behavior. |
 
 When adding a new user action, first ask: can `ControlSignalManager` wire directly to an existing controller? If yes, do that. If no, add a focused controller method, not a `Video2MidiApp` wrapper.
@@ -98,7 +98,7 @@ When adding a new user action, first ask: can `ControlSignalManager` wire direct
 | `workflows/auto_calibration.py` | Auto-calibration orchestration. |
 | `workflows/midi_export.py` | User-triggered MIDI export orchestration: default output path selection, conversion workflow invocation, and export result contract. |
 | `workflows/conversion.py` | Frame processing and MIDI file generation. |
-| `workflows/detection_manager.py` | Detection mode/threshold/toggle orchestration and wrappers used by the canvas. |
+| `workflows/detection_manager.py` | Detection mode/threshold/toggle orchestration, live parameter refreshes, and wrappers used by the canvas/conversion path. |
 | `workflows/overlay_manager.py` | Overlay selection/alignment/size mutation. |
 | `workflows/parameter_manager.py` | Parameter synchronization between app state and UI. |
 

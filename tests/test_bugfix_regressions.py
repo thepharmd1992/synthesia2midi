@@ -3,6 +3,7 @@ from types import SimpleNamespace
 
 import cv2
 import numpy as np
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QDialog, QMessageBox
 
 from synthesia2midi.app_config import OverlayConfig
@@ -52,6 +53,13 @@ class RecordingSignal:
 
     def connect(self, slot):
         self.connected.append(slot)
+
+    def emit(self, *args):
+        for slot in list(self.connected):
+            slot(*args)
+
+    def disconnect(self):
+        self.connected.clear()
 
 
 class DummyControlPanel:
@@ -174,6 +182,105 @@ def test_calibration_tuning_fallback_returns_none_when_video_session_read_fails(
     assert controller._get_current_frame_rgb_for_tuning() is None
 
 
+class DummyWizardForController:
+    def __init__(self, emit_signal_name: str, *, result=None):
+        self.keyboard_region_selection_requested = RecordingSignal()
+        self.edit_current_calibration_requested = RecordingSignal()
+        self.emit_signal_name = emit_signal_name
+        self.result = result
+        self.edit_enabled = None
+
+    def set_edit_current_calibration_enabled(self, enabled, tooltip=None):
+        self.edit_enabled = (enabled, tooltip)
+
+    def exec(self):
+        getattr(self, self.emit_signal_name).emit()
+        return QDialog.Accepted
+
+    def get_auto_detect_tuning_context(self):
+        return None
+
+
+class DummyCalibrationWorkflowForController:
+    def __init__(self, wizard):
+        self.wizard = wizard
+        self.completed = []
+
+    def run_calibration_wizard(self):
+        return self.wizard
+
+    def handle_wizard_completed(self, success):
+        self.completed.append(success)
+        return False
+
+    def apply_template_styles_to_overlays(self):
+        raise AssertionError("template styles should not be applied in this test")
+
+
+def test_calibration_wizard_controller_keeps_wizard_for_keyboard_region_selection():
+    wizard = DummyWizardForController("keyboard_region_selection_requested")
+    workflow = DummyCalibrationWorkflowForController(wizard)
+    selected_signal = RecordingSignal()
+    interaction = SimpleNamespace(
+        keyboard_region_selected=selected_signal,
+        enter_keyboard_region_selection_mode=lambda: setattr(interaction, "entered", True),
+        entered=False,
+    )
+    cursor_changes = []
+    app = SimpleNamespace(
+        app_state=SimpleNamespace(overlays=[], video=SimpleNamespace(current_frame_index=7)),
+        calibration_workflow=workflow,
+        control_panel=SimpleNamespace(),
+        keyboard_canvas=SimpleNamespace(
+            current_frame_rgb=None,
+            interaction=interaction,
+            setCursor=lambda cursor: cursor_changes.append(cursor),
+        ),
+        video_loading_workflow=None,
+        video_session=None,
+    )
+    controller = CalibrationWizardController(app)
+
+    controller.run_calibration_wizard()
+
+    assert controller.calibration_wizard is wizard
+    assert controller._keyboard_region_requested is True
+    assert not hasattr(wizard, "_keyboard_region_requested")
+    assert workflow.completed == []
+    assert interaction.entered is True
+    assert selected_signal.connected == [controller._handle_keyboard_region_selected]
+    assert cursor_changes == [Qt.CrossCursor]
+
+
+def test_calibration_wizard_controller_resets_edit_flag_when_tuning_context_missing(monkeypatch):
+    monkeypatch.setattr(QMessageBox, "warning", lambda *args, **kwargs: None)
+    wizard = DummyWizardForController("edit_current_calibration_requested")
+    workflow = DummyCalibrationWorkflowForController(wizard)
+    convert_button = SimpleNamespace(setEnabled=lambda enabled: setattr(convert_button, "enabled", enabled))
+    display_calls = []
+    app = SimpleNamespace(
+        app_state=SimpleNamespace(overlays=[], video=SimpleNamespace(current_frame_index=7)),
+        calibration_workflow=workflow,
+        control_panel=SimpleNamespace(convert_button=convert_button),
+        keyboard_canvas=SimpleNamespace(
+            current_frame_rgb=None,
+            display_frame=lambda frame_idx: display_calls.append(frame_idx),
+        ),
+        video_loading_workflow=None,
+        video_session=None,
+    )
+    controller = CalibrationWizardController(app)
+
+    controller.run_calibration_wizard()
+
+    assert controller.calibration_wizard is None
+    assert controller._edit_current_calibration_requested is False
+    assert not hasattr(wizard, "_edit_current_calibration_requested")
+    assert workflow.completed == [False]
+    assert convert_button.enabled is False
+    assert display_calls == [7]
+
+
 def test_main_action_controller_updates_histogram_and_similarity_thresholds():
     app_state = AppState()
     controller = MainActionController(SimpleNamespace(app_state=app_state))
@@ -223,7 +330,7 @@ def test_signal_manager_wires_histogram_and_similarity_slider_signals():
         ),
         frame_slider=SimpleNamespace(valueChanged=RecordingSignal()),
         video_controls=SimpleNamespace(on_frame_slider_changed=lambda value: None),
-        calibration_wizard_controller=SimpleNamespace(_invoke_calibration_wizard=lambda: None),
+        calibration_wizard_controller=SimpleNamespace(run_calibration_wizard=lambda: None),
         midi_conversion_controller=SimpleNamespace(start_conversion_process=lambda: None),
         midi_touchup_controller=SimpleNamespace(open_from_picker=lambda: None),
         calibration_effects_controller=SimpleNamespace(
@@ -239,6 +346,9 @@ def test_signal_manager_wires_histogram_and_similarity_slider_signals():
 
     ControlSignalManager(cp, mw)
 
+    assert getattr(cp, "calibration_wizard_requested").connected == [
+        mw.calibration_wizard_controller.run_calibration_wizard
+    ]
     assert cp.histogram_threshold_changed.connected == [
         main_action_controller.handle_histogram_threshold_change
     ]

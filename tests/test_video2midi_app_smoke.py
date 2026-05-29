@@ -16,6 +16,11 @@ def test_video2midi_app_constructs_under_qt_offscreen(monkeypatch):
     try:
         assert hasattr(window, "control_panel")
         assert hasattr(window, "keyboard_canvas")
+        assert hasattr(window, "auto_detect_tuning_controller")
+        assert (
+            window.calibration_wizard_controller.auto_detect_tuning_controller
+            is window.auto_detect_tuning_controller
+        )
     finally:
         window.app_state.unsaved_changes = False
         window.close()

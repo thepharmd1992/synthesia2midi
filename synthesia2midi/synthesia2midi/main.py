@@ -21,10 +21,10 @@ import datetime
 import logging
 import os
 import sys
-from typing import Any, List, Optional
+from typing import Optional
 
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QAction, QPixmap
+from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QApplication, QDialog, QHBoxLayout, QLabel, QMainWindow, QMessageBox, QSizePolicy, QSlider, QSplitter, QVBoxLayout, QWidget
 
 from .app_config import APP_NAME, FRAME_NAV_INTERVALS
@@ -37,6 +37,7 @@ from synthesia2midi.gui.controls_qt import ControlPanelQt
 from synthesia2midi.gui.display_manager import DisplayManager
 from synthesia2midi.gui.keyboard_canvas import KeyboardCanvas
 from synthesia2midi.gui.main_action_controller import MainActionController
+from synthesia2midi.gui.auto_detect_tuning_controller import AutoDetectTuningController
 from synthesia2midi.gui.calibration_effects_controller import CalibrationEffectsController
 from synthesia2midi.gui.calibration_interaction_controller import CalibrationInteractionController
 from synthesia2midi.gui.calibration_wizard_controller import CalibrationWizardController
@@ -104,8 +105,11 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.main_action_controller = MainActionController(self)
         self.calibration_interaction_controller = CalibrationInteractionController(self)
         self.calibration_effects_controller = CalibrationEffectsController(self)
-        self.calibration_wizard_controller = CalibrationWizardController(self)
-        self._midi_touchup_processes: List[Any] = []
+        self.auto_detect_tuning_controller = AutoDetectTuningController(self)
+        self.calibration_wizard_controller = CalibrationWizardController(
+            self,
+            self.auto_detect_tuning_controller,
+        )
         self.midi_touchup_controller = MidiTouchupController(self)
         self.midi_conversion_controller = MidiConversionController(self)
         self._is_closing = False

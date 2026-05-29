@@ -88,7 +88,7 @@ class ControlSignalManager(QObject):
         cp.calibrate_unlit_requested.connect(mw.main_action_controller.handle_calibrate_unlit_all_keys)
         cp.calibrate_lit_exemplar_requested.connect(mw.main_action_controller.handle_calibrate_lit_exemplar_key_start)
         cp.exemplar_key_type_enabled_changed.connect(mw.main_action_controller.handle_exemplar_key_type_enabled_change)
-        cp.calibration_wizard_requested.connect(mw.calibration_wizard_controller._invoke_calibration_wizard)
+        cp.calibration_wizard_requested.connect(mw.calibration_wizard_controller.run_calibration_wizard)
         
         # Overlay management actions
         cp.refresh_overlay_display_requested.connect(mw.main_action_controller.handle_refresh_selected_overlay_display)

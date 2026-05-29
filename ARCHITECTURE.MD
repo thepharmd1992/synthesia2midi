@@ -74,7 +74,8 @@ Current `main.py` guardrail after the refactor: about 500-700 lines, composition
 | `gui/midi_conversion_controller.py` | User-triggered MIDI conversion flow: output path selection, conversion result UI, touch-up prompt. |
 | `gui/midi_touchup_controller.py` | Rust touch-up editor binary discovery, launch, process tracking, result parsing, shutdown. |
 | `gui/main_action_controller.py` | Small menu/control actions that mutate app state or delegate to managers: detection toggles, overlay color/size actions, octave/FPS, visual monitor, exemplar toggles. |
-| `gui/calibration_wizard_controller.py` | Manual calibration wizard, keyboard-region selection, auto-detect tuning dialog flow. |
+| `gui/calibration_wizard_controller.py` | Manual calibration wizard and keyboard-region selection lifecycle. |
+| `gui/auto_detect_tuning_controller.py` | Modeless auto-detect tuning dialog lifetime, context cache, and preview/apply propagation. |
 | `gui/calibration_effects_controller.py` | Facade over spark, shadow, and overlay calibration effect controllers. |
 | `gui/calibration_interaction_controller.py` | Canvas color-pick and overlay-selection dispatch into calibration workflows. |
 | `gui/spark_calibration_controller.py` | Spark ROI and spark calibration behavior. |

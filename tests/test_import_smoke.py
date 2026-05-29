@@ -64,6 +64,7 @@ IMPORT_SMOKE_MODULES = [
     "synthesia2midi.video_loader",
     "synthesia2midi.youtube_downloader",
     # GUI modules and controllers: import-only smoke, no QApplication/window init.
+    "synthesia2midi.gui.auto_detect_tuning_controller",
     "synthesia2midi.gui.auto_detect_tuning_dialog",
     "synthesia2midi.gui.calibration_effects_controller",
     "synthesia2midi.gui.calibration_interaction_controller",

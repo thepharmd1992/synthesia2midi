@@ -1,0 +1,242 @@
+from types import SimpleNamespace
+
+import numpy as np
+
+from synthesia2midi.gui.auto_detect_tuning_controller import AutoDetectTuningController
+from synthesia2midi.gui.calibration_wizard_controller import CalibrationWizardController
+
+
+class RecordingSignal:
+    def __init__(self):
+        self.connected = []
+
+    def connect(self, callback):
+        self.connected.append(callback)
+
+    def disconnect(self, callback=None):
+        if callback is None:
+            self.connected.clear()
+            return
+        self.connected = [item for item in self.connected if item is not callback]
+
+    def emit(self, *args):
+        for callback in list(self.connected):
+            callback(*args)
+
+
+class FakeDialog:
+    instances = []
+
+    def __init__(
+        self,
+        parent,
+        app_state,
+        source_frame_rgb,
+        keyboard_roi,
+        *,
+        initial_detection_results,
+        fallback_used,
+        apply_detection_callback,
+    ):
+        self.parent = parent
+        self.app_state = app_state
+        self.source_frame_rgb = source_frame_rgb
+        self.keyboard_roi = keyboard_roi
+        self.initial_detection_results = initial_detection_results
+        self.fallback_used = fallback_used
+        self.apply_detection_callback = apply_detection_callback
+        self.finished = RecordingSignal()
+        self.modal = None
+        self.window_modality = None
+        self.closed = False
+        self.shown = False
+        self.raised = False
+        self.activated = False
+        FakeDialog.instances.append(self)
+
+    def setModal(self, value):
+        self.modal = value
+
+    def setWindowModality(self, value):
+        self.window_modality = value
+
+    def show(self):
+        self.shown = True
+
+    def raise_(self):
+        self.raised = True
+
+    def activateWindow(self):
+        self.activated = True
+
+    def close(self):
+        self.closed = True
+
+
+class FakeWizard:
+    def __init__(self, context=None):
+        self.context = context
+        self.applied_results = []
+
+    def get_auto_detect_tuning_context(self):
+        return self.context
+
+    def apply_auto_detect_results(self, detection_results):
+        self.applied_results.append(detection_results)
+        if self.context is not None:
+            self.context["detection_results"] = detection_results
+        return True
+
+
+class FakeAction:
+    def __init__(self):
+        self.checked_values = []
+
+    def setChecked(self, value):
+        self.checked_values.append(value)
+
+
+class FakeButton:
+    def __init__(self):
+        self.enabled_values = []
+
+    def setEnabled(self, value):
+        self.enabled_values.append(value)
+
+
+class FakeControlPanel:
+    def __init__(self):
+        self.convert_button = FakeButton()
+        self.controls_updates = 0
+        self.selected_overlay_updates = 0
+
+    def _can_convert(self):
+        return True
+
+    def update_controls_from_state(self):
+        self.controls_updates += 1
+
+    def update_selected_overlay_display(self):
+        self.selected_overlay_updates += 1
+
+
+class FakeCanvas:
+    def __init__(self):
+        self.current_frame_rgb = None
+        self.displayed_frames = []
+        self.update_count = 0
+
+    def display_frame(self, frame_index):
+        self.displayed_frames.append(frame_index)
+
+    def update(self):
+        self.update_count += 1
+
+
+class FakeVideoLoadingWorkflow:
+    def __init__(self):
+        self.save_count = 0
+
+    def save_current_config(self):
+        self.save_count += 1
+        return True
+
+
+def make_app(*, current_frame_index=4, unsaved_changes=True):
+    return SimpleNamespace(
+        app_state=SimpleNamespace(
+            ui=SimpleNamespace(show_overlays=False),
+            video=SimpleNamespace(current_frame_index=current_frame_index),
+            calibration=SimpleNamespace(auto_detect_params={}),
+            midi=SimpleNamespace(total_keys=88, leftmost_note_name="A", leftmost_note_octave=0),
+            overlays=[SimpleNamespace(x=0, y=0, width=3, height=2)],
+            unsaved_changes=unsaved_changes,
+        ),
+        show_overlays_action=FakeAction(),
+        control_panel=FakeControlPanel(),
+        keyboard_canvas=FakeCanvas(),
+        video_loading_workflow=FakeVideoLoadingWorkflow(),
+        video_session=None,
+        screen=lambda: None,
+    )
+
+
+def test_controller_retains_modeless_dialog_until_finished(monkeypatch):
+    FakeDialog.instances.clear()
+    monkeypatch.setattr(
+        "synthesia2midi.gui.auto_detect_tuning_controller.AutoDetectTuningDialog",
+        FakeDialog,
+    )
+    app = make_app()
+    context = {
+        "frame_rgb": np.zeros((2, 3, 3), dtype=np.uint8),
+        "keyboard_roi": (0, 0, 3, 2),
+        "fallback_used": True,
+        "detection_results": {"total_keys": 88},
+    }
+    wizard = FakeWizard(context)
+    finished = []
+    controller = AutoDetectTuningController(app)
+
+    opened = controller.open(
+        wizard,
+        use_wizard_context=True,
+        on_dialog_finished=lambda: finished.append("closed"),
+    )
+
+    assert opened is True
+    dialog = FakeDialog.instances[-1]
+    assert controller.active_dialog is dialog
+    assert dialog.modal is False
+    assert dialog.shown is True
+    assert dialog.raised is True
+    assert dialog.activated is True
+
+    dialog.finished.emit(0)
+
+    assert controller.active_dialog is None
+    assert app.video_loading_workflow.save_count == 1
+    assert finished == ["closed"]
+
+
+def test_preview_result_applies_to_wizard_and_refreshes_existing_ui_flow():
+    app = make_app(current_frame_index=9)
+    template_style_calls = []
+    controller = AutoDetectTuningController(
+        app,
+        apply_template_styles_callback=lambda: template_style_calls.append("applied"),
+    )
+    wizard = FakeWizard(
+        {
+            "frame_rgb": np.zeros((2, 3, 3), dtype=np.uint8),
+            "keyboard_roi": (0, 0, 3, 2),
+            "fallback_used": False,
+            "detection_results": {"total_keys": 88},
+        }
+    )
+    assert controller.open(wizard, dialog_factory=lambda *args, **kwargs: FakeDialog(*args, **kwargs)) is True
+    detection_results = {"total_keys": 76, "detected_keys": [object()]}
+
+    applied = controller.apply_preview_result(detection_results)
+
+    assert applied is True
+    assert wizard.applied_results == [detection_results]
+    assert template_style_calls == ["applied"]
+    assert app.app_state.ui.show_overlays is True
+    assert app.show_overlays_action.checked_values == [True]
+    assert app.control_panel.convert_button.enabled_values == [True]
+    assert app.keyboard_canvas.displayed_frames == [9]
+    assert app.control_panel.controls_updates == 1
+    assert app.control_panel.selected_overlay_updates == 1
+    assert controller.cached_context["detection_results"] == detection_results
+
+
+def test_calibration_wizard_controller_delegates_tuning_state_to_dedicated_controller():
+    app = make_app()
+    tuning_controller = AutoDetectTuningController(app)
+
+    calibration_controller = CalibrationWizardController(app, tuning_controller)
+
+    assert calibration_controller.auto_detect_tuning_controller is tuning_controller
+    assert "_auto_detect_tuning_dialog" not in vars(calibration_controller)
+    assert "_last_auto_detect_tuning_context" not in vars(calibration_controller)

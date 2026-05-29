@@ -14,8 +14,8 @@ Measured 2026-05-12:
 
 | Metric | Before refactor (`HEAD`/`origin/main`) | Current working tree | Target guardrail |
 |---|---:|---:|---:|
-| `main.py` lines | 2,867 | 562 | ~500-700 if remaining code is UI composition only |
-| `Video2MidiApp` methods | 121 | 21 | materially fewer; remaining methods should be shell/wiring or documented public API |
+| `main.py` lines | 2,867 | 590 | ~500-700 if remaining code is UI composition only |
+| `Video2MidiApp` methods | 121 | 22 | materially fewer; remaining methods should be shell/wiring or documented public API |
 | `Video2MidiApp` classes | 2 | 1 | 1 |
 
 Interpretation: `main.py` is now inside the target range and functions as a root-window composition facade. Remaining non-shell methods are public UI/update compatibility methods used by workflows/controllers.
@@ -61,6 +61,7 @@ Current large methods:
 - [x] `_bind_hotkeys` — 27 lines. Pure shortcut wiring to `VideoControls`/conversion controller.
 - [x] `closeEvent` — 23 lines. Lifecycle shell; cleanup delegated to `MidiTouchupController`, `video_session`, and `ConfigManager`.
 - [x] `_show_startup_dialog` — 11 lines. Kept as startup dialog signal wiring only.
+- [x] `_save_settings` — 11 lines. Kept as File > Save Settings / close confirmation shell action; delegates persistence to `VideoLoadingWorkflow`/`ConfigManager`.
 - [x] `_capture_window_screenshot` — 38 lines. Kept as app-shell debug utility because it captures the root widget.
 
 Verification:
@@ -143,6 +144,7 @@ Remaining methods:
 - [x] `_capture_shadow_overlay_calibration` — deleted; owned by `CalibrationWizardController`/effect controllers.
 - [x] `_apply_template_styles_to_overlays` — deleted; implemented in `CalibrationWizardController`.
 - [x] `_handle_exemplar_key_type_enabled_change` — moved to `MainActionController` with coverage.
+- [x] Auto-detect tuning dialog state/context/preview flow — owned by `AutoDetectTuningController`; `CalibrationWizardController` invokes it and keeps manual wizard lifecycle state.
 
 Verification:
 

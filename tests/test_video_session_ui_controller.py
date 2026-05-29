@@ -77,6 +77,57 @@ def _fake_app(video):
     )
 
 
+def test_start_and_end_frame_changes_update_legacy_and_processing_ranges():
+    video = _fake_video(total_frames=100)
+    app = _fake_app(video)
+    controller = VideoSessionUiController(app)
+
+    controller.handle_start_frame_change(8)
+    controller.handle_end_frame_change(72)
+
+    assert video.start_frame == 8
+    assert video.processing_start_frame == 8
+    assert video.end_frame == 72
+    assert video.processing_end_frame == 72
+    assert app.app_state.unsaved_changes is True
+
+
+def test_frame_nav_interval_updates_state_actions_and_control_panel_signal():
+    video = _fake_video(current_nav_interval=1)
+    app = _fake_app(video)
+    emitted = []
+    app.control_panel.nav_interval_changed = SimpleNamespace(emit=lambda value: emitted.append(value))
+    app.frame_nav_actions = {
+        1: SimpleNamespace(checked=None, setChecked=lambda checked: setattr(app.frame_nav_actions[1], "checked", checked)),
+        5: SimpleNamespace(checked=None, setChecked=lambda checked: setattr(app.frame_nav_actions[5], "checked", checked)),
+    }
+
+    VideoSessionUiController(app).handle_frame_nav_interval(5)
+
+    assert video.current_nav_interval == 5
+    assert app.app_state.unsaved_changes is True
+    assert app.frame_nav_actions[1].checked is False
+    assert app.frame_nav_actions[5].checked is True
+    assert emitted == [5]
+
+
+def test_update_nav_interval_syncs_parameter_manager_and_menu_actions():
+    video = _fake_video(current_nav_interval=1)
+    app = _fake_app(video)
+    updated = []
+    app.parameter_manager = SimpleNamespace(update_nav_interval=lambda value: updated.append(value))
+    app.frame_nav_actions = {
+        1: SimpleNamespace(checked=None, setChecked=lambda checked: setattr(app.frame_nav_actions[1], "checked", checked)),
+        10: SimpleNamespace(checked=None, setChecked=lambda checked: setattr(app.frame_nav_actions[10], "checked", checked)),
+    }
+
+    VideoSessionUiController(app).update_nav_interval(10)
+
+    assert updated == [10]
+    assert app.frame_nav_actions[1].checked is False
+    assert app.frame_nav_actions[10].checked is True
+
+
 def test_processing_start_frame_clamps_and_rejects_crossing_end():
     video = _fake_video(processing_end_frame=50, total_frames=100)
     app = _fake_app(video)

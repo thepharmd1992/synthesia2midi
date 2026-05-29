@@ -1,0 +1,156 @@
+from types import SimpleNamespace
+
+from PySide6.QtCore import QObject
+
+from synthesia2midi.gui.midi_touchup_controller import MidiTouchupController
+
+
+class RecordingSignal:
+    def __init__(self):
+        self.connected = []
+
+    def connect(self, slot):
+        self.connected.append(slot)
+
+
+class FakeProcess:
+    SeparateChannels = object()
+    NotRunning = object()
+
+    instances = []
+
+    def __init__(self, parent=None):
+        self.parent = parent
+        self.program = None
+        self.arguments = None
+        self.channel_mode = None
+        self.destroyed = RecordingSignal()
+        self.finished = RecordingSignal()
+        self.started = False
+        self.deleted = False
+        FakeProcess.instances.append(self)
+
+    def setProgram(self, program):
+        self.program = program
+
+    def setArguments(self, arguments):
+        self.arguments = list(arguments)
+
+    def setProcessChannelMode(self, mode):
+        self.channel_mode = mode
+
+    def start(self):
+        self.started = True
+
+    def waitForStarted(self, timeout_ms):
+        self.wait_timeout_ms = timeout_ms
+        return True
+
+    def state(self):
+        return self.NotRunning
+
+    def deleteLater(self):
+        self.deleted = True
+
+
+class FinishedProcess:
+    def __init__(self, stdout_text, stderr_text=""):
+        self.stdout_text = stdout_text
+        self.stderr_text = stderr_text
+
+    def readAllStandardOutput(self):
+        return self.stdout_text.encode("utf-8")
+
+    def readAllStandardError(self):
+        return self.stderr_text.encode("utf-8")
+
+
+def _fake_app():
+    return SimpleNamespace(_is_closing=False, _midi_touchup_processes=[])
+
+
+def test_controller_is_qobject_and_exposes_lifecycle_signals():
+    controller = MidiTouchupController(_fake_app())
+
+    assert isinstance(controller, QObject)
+    for signal_name in (
+        "editor_started",
+        "editor_saved",
+        "editor_cancelled",
+        "editor_failed",
+        "setup_required",
+    ):
+        assert hasattr(controller, signal_name)
+
+
+def test_open_editor_retains_process_and_emits_started_signal(monkeypatch, tmp_path):
+    FakeProcess.instances.clear()
+    midi_path = tmp_path / "song.mid"
+    midi_path.write_bytes(b"MThd")
+    app = _fake_app()
+    controller = MidiTouchupController(app)
+    started = []
+
+    controller.editor_started.connect(lambda source, binary: started.append((source, binary)))
+    monkeypatch.setattr("synthesia2midi.gui.midi_touchup_controller.QProcess", FakeProcess)
+    monkeypatch.setattr(controller, "resolve_binary_path", lambda: "/bin/midi-touchup-editor")
+
+    controller.open_editor(str(midi_path))
+
+    process = FakeProcess.instances[0]
+    assert process.program == "/bin/midi-touchup-editor"
+    assert process.arguments == ["--midi", str(midi_path), "--result-json", "--theme", "neothesia"]
+    assert process.channel_mode is FakeProcess.SeparateChannels
+    assert process.started is True
+    assert process.wait_timeout_ms == 2000
+    assert controller.processes == [process]
+    assert app._midi_touchup_processes is controller.processes
+    assert started == [(str(midi_path), "/bin/midi-touchup-editor")]
+
+
+def test_handle_process_finished_uses_last_valid_stdout_json_and_emits_saved(monkeypatch, tmp_path):
+    app = _fake_app()
+    controller = MidiTouchupController(app)
+    process = FinishedProcess(
+        "log line\n"
+        '{"status":"error","message":"ignored older result"}\n'
+        '{"status":"saved","source_path":"song.mid","saved_path":"song_touchup.mid","message":"ok"}\n'
+    )
+    info_calls = []
+    saved = []
+    cleaned = []
+
+    monkeypatch.setattr(
+        "synthesia2midi.gui.midi_touchup_controller.QMessageBox.information",
+        lambda *args: info_calls.append(args),
+    )
+    monkeypatch.setattr(controller, "cleanup_process", lambda proc: cleaned.append(proc))
+    controller.editor_saved.connect(lambda source, saved_path: saved.append((source, saved_path)))
+
+    controller.handle_process_finished(process, str(tmp_path / "song.mid"), 0)
+
+    assert cleaned == [process]
+    assert len(info_calls) == 1
+    assert "song_touchup.mid" in info_calls[0][2]
+    assert saved == [(str(tmp_path / "song.mid"), "song_touchup.mid")]
+
+
+def test_handle_process_finished_emits_failure_for_error_result(monkeypatch, tmp_path):
+    app = _fake_app()
+    controller = MidiTouchupController(app)
+    process = FinishedProcess('{"status":"error","message":"load failed"}\n', "stderr details")
+    critical_calls = []
+    failures = []
+
+    monkeypatch.setattr(
+        "synthesia2midi.gui.midi_touchup_controller.QMessageBox.critical",
+        lambda *args: critical_calls.append(args),
+    )
+    monkeypatch.setattr(controller, "cleanup_process", lambda proc: None)
+    controller.editor_failed.connect(lambda source, message: failures.append((source, message)))
+
+    controller.handle_process_finished(process, str(tmp_path / "song.mid"), 1)
+
+    assert len(critical_calls) == 1
+    assert "load failed" in critical_calls[0][2]
+    assert failures == [(str(tmp_path / "song.mid"), "load failed")]

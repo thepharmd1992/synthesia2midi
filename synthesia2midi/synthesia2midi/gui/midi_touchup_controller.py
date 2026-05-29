@@ -6,15 +6,25 @@ import logging
 import os
 from typing import Any, Dict, Optional
 
-from PySide6.QtCore import QProcess
+from PySide6.QtCore import QObject, QProcess, Signal
 from PySide6.QtWidgets import QFileDialog, QMessageBox
 
 
-class MidiTouchupController:
+class MidiTouchupController(QObject):
     """Owns the Rust MIDI touch-up editor process lifecycle."""
 
+    editor_started = Signal(str, str)  # source MIDI path, editor binary path
+    editor_saved = Signal(str, str)  # source MIDI path, saved MIDI path shown to the user
+    editor_cancelled = Signal(str)  # source MIDI path
+    editor_failed = Signal(str, str)  # source MIDI path, user-facing failure message
+    setup_required = Signal(str)  # source MIDI path that needs the Rust editor built first
+
     def __init__(self, app):
+        parent = app if isinstance(app, QObject) else None
+        super().__init__(parent)
         self.app = app
+        # QProcess objects must be strongly retained until finished/destroyed; otherwise
+        # Qt can destroy the process while the Rust editor is still running.
         self.processes: list[QProcess] = []
 
     def show_conversion_complete_dialog(self, midi_output_path: str) -> None:
@@ -52,11 +62,14 @@ class MidiTouchupController:
     def open_editor(self, midi_path: str) -> None:
         app = self.app
         if not os.path.exists(midi_path):
-            QMessageBox.warning(app, "Touch-Up Editor", f"MIDI file not found:\n{midi_path}")
+            message = f"MIDI file not found:\n{midi_path}"
+            self.editor_failed.emit(midi_path, message)
+            QMessageBox.warning(app, "Touch-Up Editor", message)
             return
 
         binary_path = self.resolve_binary_path()
         if binary_path is None:
+            self.setup_required.emit(midi_path)
             self.show_setup_dialog(midi_path)
             return
 
@@ -64,8 +77,9 @@ class MidiTouchupController:
         process.setProgram(binary_path)
         process.setArguments(["--midi", midi_path, "--result-json", "--theme", "neothesia"])
         process.setProcessChannelMode(QProcess.SeparateChannels)
-        self.processes.append(process)
-        app._midi_touchup_processes = self.processes
+        # Preserve the historical launch contract: inherit the app environment and
+        # current working directory rather than forcing editor-specific overrides.
+        self._retain_process(process)
 
         def _on_destroyed(_obj=None, proc=process):
             self.remove_process_ref(proc)
@@ -81,6 +95,7 @@ class MidiTouchupController:
             error_msg = process.errorString() or "Unknown launch failure."
             self.cleanup_process(process)
             if not app._is_closing:
+                self.editor_failed.emit(midi_path, error_msg)
                 QMessageBox.critical(
                     app,
                     "Touch-Up Editor Launch Failed",
@@ -91,6 +106,8 @@ class MidiTouchupController:
                     ),
                 )
             return
+
+        self.editor_started.emit(midi_path, binary_path)
 
     def resolve_binary_path(self) -> Optional[str]:
         repo_root = self._repo_root()
@@ -183,6 +200,7 @@ class MidiTouchupController:
         if status == "saved" and exit_code == 0:
             shown_path = saved_path if isinstance(saved_path, str) and saved_path else "(path not provided)"
             if not app._is_closing:
+                self.editor_saved.emit(source_midi_path, shown_path)
                 QMessageBox.information(
                     app,
                     "Touch-Up Saved",
@@ -191,11 +209,13 @@ class MidiTouchupController:
             return
 
         if status == "cancelled" and exit_code == 0:
+            self.editor_cancelled.emit(source_midi_path)
             logging.info("[TOUCHUP-RUST] User cancelled editor for %s", source_midi_path)
             return
 
         failure_message = message or f"Rust touch-up editor exited with code {exit_code}."
         if not app._is_closing:
+            self.editor_failed.emit(source_midi_path, failure_message)
             QMessageBox.critical(
                 app,
                 "Touch-Up Editor Error",
@@ -206,6 +226,11 @@ class MidiTouchupController:
                     f"Stderr: {stderr_text.strip() or '(empty)'}"
                 ),
             )
+
+    def _retain_process(self, process: QProcess) -> None:
+        """Own and mirror a QProcess reference until it finishes or is destroyed."""
+        self.processes.append(process)
+        self.app._midi_touchup_processes = self.processes
 
     def cleanup_process(self, process: QProcess) -> None:
         self.remove_process_ref(process)

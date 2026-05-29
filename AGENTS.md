@@ -30,8 +30,8 @@ Canonical agent operating model for this repo. Keep this file short: it is the o
 Do not duplicate setup, launch, test, or smoke-command blocks in this file. Canonical command locations are:
 
 - User setup and launch: [`README.md`](README.md)
-- Local verification and test strategy: [`docs/testing.md`](docs/testing.md)
-- Architecture-specific smoke context: [`ARCHITECTURE.MD`](ARCHITECTURE.MD)
+- Local verification, test strategy, GUI smoke, setup/launcher checks, and Rust editor checks: [`docs/testing.md`](docs/testing.md)
+- Architecture context and subsystem boundaries: [`ARCHITECTURE.MD`](ARCHITECTURE.MD)
 
 When a command changes, update the owning document first, then update links or short references elsewhere.
 

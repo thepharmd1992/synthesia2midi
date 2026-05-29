@@ -37,31 +37,7 @@ This refactor is done when all of these are true:
 
 ## Standard Checkpoint Commands
 
-Run the smallest relevant set during each task, and the full gate before committing a phase:
-
-```bash
-git diff --check
-.venv/bin/python -m compileall -q synthesia2midi
-PYTHONPATH=synthesia2midi QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest -q
-PYTHONPATH=synthesia2midi QT_QPA_PLATFORM=offscreen .venv/bin/python - <<'PY'
-from PySide6.QtWidgets import QApplication
-from synthesia2midi.main import Video2MidiApp
-app = QApplication([])
-w = Video2MidiApp()
-assert hasattr(w, 'control_panel')
-assert hasattr(w, 'keyboard_canvas')
-w.close()
-app.quit()
-print('offscreen Video2MidiApp smoke ok')
-PY
-```
-
-For setup/launcher-adjacent edits, also run:
-
-```bash
-PYTHONPATH=synthesia2midi QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest -q tests/test_setup_and_launch.py
-.venv/bin/python setup_env.py --check
-```
+Run the smallest relevant set during each task, and the full gate before committing a phase. The canonical command runbook is [`testing.md`](testing.md); for `main.py` refactor work this usually means the default gate plus the GUI smoke, and for setup/launcher-adjacent edits it also means the setup/launcher gate.
 
 ## Method Inventory and Extraction Checklist
 

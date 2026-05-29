@@ -41,20 +41,7 @@ Rules:
 | `synthesia2midi/synthesia2midi/main.py` | Qt root window composition, menus, hotkeys, lifecycle, public UI update adapter methods. |
 | `tools/midi_touchup_editor_rust/` | Separate Rust touch-up editor process launched by Python. |
 
-Supported user commands from repo root with Python 3.10+ on `PATH` (3.12+ recommended):
-
-```bash
-python3 setup_env.py
-python3 run.py
-# If python3 is too old, install a current Python and run e.g. python3.12 setup_env.py
-```
-
-Windows equivalents:
-
-```powershell
-py setup_env.py
-py run.py
-```
+Canonical setup and launch commands live in [`README.md`](README.md). Development verification commands live in [`docs/testing.md`](docs/testing.md). Keep this file focused on architecture boundaries and update those runbooks instead of copying command blocks here.
 
 ## Main Window Boundary
 
@@ -170,42 +157,7 @@ If this contract changes, update both Python and Rust and run Python tests plus 
 
 ## Testing and Verification
 
-Default gate from repo root:
-
-```bash
-git diff --check
-.venv/bin/python -m compileall -q synthesia2midi
-PYTHONPATH=synthesia2midi QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest -q
-```
-
-For GUI wiring/refactor work, also run:
-
-```bash
-PYTHONPATH=synthesia2midi QT_QPA_PLATFORM=offscreen .venv/bin/python - <<'PY'
-from PySide6.QtWidgets import QApplication
-from synthesia2midi.main import Video2MidiApp
-app = QApplication([])
-w = Video2MidiApp()
-assert hasattr(w, 'control_panel')
-assert hasattr(w, 'keyboard_canvas')
-w.close()
-app.quit()
-print('offscreen Video2MidiApp smoke ok')
-PY
-```
-
-For setup/launcher work:
-
-```bash
-PYTHONPATH=synthesia2midi QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest -q tests/test_setup_and_launch.py
-.venv/bin/python setup_env.py --check
-```
-
-For Rust touch-up editor work:
-
-```bash
-cargo check --manifest-path tools/midi_touchup_editor_rust/Cargo.toml
-```
+Use [`docs/testing.md`](docs/testing.md) as the canonical verification runbook. It owns the default gate, GUI smoke, setup/launcher gate, detector characterization checks, and Rust editor gate. When architecture changes add or remove verification requirements, update `docs/testing.md` first and link back here only if the boundary rationale changes.
 
 ## Refactor Rules
 

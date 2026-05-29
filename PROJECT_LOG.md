@@ -23,6 +23,7 @@ M0 operating-model cleanup: root `AGENTS.md` is the canonical agent operating co
 
 ## Completed
 
+- 2026-05-29 M0 docs consistency pass: added a docs index, confirmed root `AGENTS.md` as the single canonical agent operating model, and moved duplicated active command/runbook instructions back to `README.md` and `docs/testing.md` links.
 - 2026-05-29 M0 operating-model update: confirmed the existing root `PROJECT_LOG.md` is the project state log; root `AGENTS.md` remains tracked and canonical for agent instructions; follow-on doc-link work should point README/docs index readers here without duplicating command runbooks.
 - Fixed blocking f-string syntax error in `synthesia2midi/synthesia2midi/main.py`.
 - Created Kanban roadmap under tenant `synthesia2midi`; root epic `t_77771f49`.
@@ -38,7 +39,7 @@ M0 operating-model cleanup: root `AGENTS.md` is the canonical agent operating co
 
 ## Active Task
 
-M0 operating-model cleanup (Kanban root `t_162eeb6f`): project log update is done for this slice; remaining slices should finish/verify lightweight README/docs pointers and run the final duplicate-runbook consistency pass.
+M0 operating-model cleanup (Kanban root `t_162eeb6f`): final docs consistency pass is complete pending review/parent closeout.
 
 ## Blockers
 
@@ -62,4 +63,4 @@ None known.
 
 ## Next Action
 
-Finish/verify the remaining M0 docs links, then run the final duplicate-runbook consistency pass. After M0, the next product/refactor work is detector coverage with real-world fixture cases or low-value `main.py` menu/layout glue if GUI work resumes.
+Close the M0 operating-model parent after review. The next product/refactor work is detector coverage with real-world fixture cases or low-value `main.py` menu/layout glue if GUI work resumes.

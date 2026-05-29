@@ -8,15 +8,8 @@ Principle: extract one responsibility at a time, preserve old behavior through c
 
 - Fix compile blockers before characterization. The historical baseline had an `_open_video_file` f-string syntax error; no extraction is safe until `compileall` can run.
 - Preserve unrelated working-tree changes. Inspect `git status --short --branch` and relevant diffs before editing, and do not touch unrelated test/code changes.
-- Start every extraction checkpoint with:
-
-```bash
-git status --short --branch
-git diff --check
-.venv/bin/python -m compileall -q synthesia2midi
-```
-
-- For any GUI wiring extraction, also run the offscreen app smoke from `ARCHITECTURE.MD`.
+- Start every extraction checkpoint with the repo preflight from [`../AGENTS.md`](../AGENTS.md) and the relevant verification gate from [`testing.md`](testing.md).
+- For any GUI wiring extraction, also run the GUI smoke from [`testing.md`](testing.md).
 - Do not combine these groups with detection algorithm, config format, calibration math, or UI redesign changes.
 
 ## Group 1 — Video-to-frame-series conversion worker/controller

@@ -1,6 +1,8 @@
 # Synthesia2MIDI Agent-First Refactor Implementation Plan
 
 > **For Hermes:** Use subagent-driven-development skill to implement this plan task-by-task after Jeff explicitly dispatches the Kanban roadmap.
+>
+> **Historical note:** This plan is retained as a snapshot of the original refactor roadmap. Current setup/launch commands live in [`../../README.md`](../../README.md#quick-start), current verification commands live in [`../testing.md`](../testing.md), and current agent operating rules live in [`../../AGENTS.md`](../../AGENTS.md).
 
 **Goal:** Make Synthesia2MIDI safe and efficient for coding-agent development while preserving current user-visible behavior.
 

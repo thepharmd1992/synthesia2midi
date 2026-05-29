@@ -76,8 +76,12 @@ The code is organized with one-way dependencies:
 
 ## Developer / Agent Docs
 
-- Agent operating model: [AGENTS.md](AGENTS.md)
-- Detailed testing and verification: [docs/testing.md](docs/testing.md)
+- Documentation index: [docs/README.md](docs/README.md)
+- Canonical agent operating model: [AGENTS.md](AGENTS.md)
+- Project state and durable decisions: [PROJECT_LOG.md](PROJECT_LOG.md)
+- Architecture map: [ARCHITECTURE.MD](ARCHITECTURE.MD)
+- Task ownership and handoff boundaries: [docs/task-boundaries.md](docs/task-boundaries.md)
+- Detailed testing and verification runbook: [docs/testing.md](docs/testing.md)
 
 ## Key Concepts
 

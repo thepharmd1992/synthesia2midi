@@ -57,20 +57,7 @@ class ControlSignalManager(QObject):
         cp = self.control_panel  # Shorthand
         mw = self.main_window
 
-        detection_manager = getattr(mw, "detection_manager", None)
-        if detection_manager is None:
-            action_controller = mw.main_action_controller
-            cp.detection_threshold_changed.connect(action_controller.handle_detection_threshold_change)
-            cp.rise_delta_threshold_changed.connect(action_controller.handle_rise_delta_threshold_change)
-            cp.fall_delta_threshold_changed.connect(action_controller.handle_fall_delta_threshold_change)
-            cp.histogram_detection_toggled.connect(action_controller.toggle_hist_detection)
-            cp.delta_detection_toggled.connect(action_controller.toggle_delta_detection)
-            cp.winner_takes_black_changed.connect(action_controller.toggle_winner_takes_black)
-            cp.hand_assignment_toggled.connect(action_controller.handle_hand_assignment_toggle)
-            cp.histogram_threshold_changed.connect(action_controller.handle_histogram_threshold_change)
-            cp.similarity_ratio_changed.connect(action_controller.handle_similarity_ratio_change)
-            self.logger.debug("Detection signals connected through legacy action controller")
-            return
+        detection_manager = mw.detection_manager
 
         # Basic detection parameters
         cp.detection_threshold_changed.connect(detection_manager.set_detection_threshold)

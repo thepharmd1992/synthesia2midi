@@ -1,7 +1,10 @@
 from types import SimpleNamespace
 
+import numpy as np
 import pytest
-from PySide6.QtWidgets import QMessageBox
+from PySide6.QtCore import QSize
+from PySide6.QtGui import QResizeEvent
+from PySide6.QtWidgets import QApplication, QMessageBox
 
 from synthesia2midi.app_config import OverlayConfig
 from synthesia2midi.core.app_state import AppState
@@ -79,6 +82,26 @@ def test_keyboard_canvas_overlay_handlers_delegate_geometry_to_overlay_manager()
     assert ("move", (0, 11, 22)) in calls
     assert ("resize", (0, 1, 2, 3, 4)) in calls
     assert calls.count(("update", ())) == 2
+
+
+def test_keyboard_canvas_resize_rebuilds_loaded_frame_pixmap(monkeypatch):
+    QApplication.instance() or QApplication([])
+    app_state = AppState()
+    canvas = KeyboardCanvas(
+        app_state,
+        width=100,
+        height=100,
+        on_color_pick_callback=lambda *_: None,
+        on_overlay_select_callback=lambda *_: None,
+    )
+    canvas.current_frame_rgb = np.zeros((100, 200, 3), dtype=np.uint8)
+    canvas.coord_manager.update_image_size(200, 100)
+    rebuilt = []
+    monkeypatch.setattr(canvas, "_display_image", lambda: rebuilt.append(True))
+
+    canvas.resizeEvent(QResizeEvent(QSize(120, 100), QSize(100, 100)))
+
+    assert rebuilt == [True]
 
 
 def test_canvas_interaction_empty_click_only_emits_selection_signal():

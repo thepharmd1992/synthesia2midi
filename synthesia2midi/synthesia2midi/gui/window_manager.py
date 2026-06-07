@@ -106,35 +106,19 @@ class WindowManager:
         # Position window at exact top-left of screen
         self.main_window.move(screen_rect.left(), screen_rect.top())
         
-        # Keep the settings pane wide enough to show tab labels and dense settings
-        # by default while preserving a usable video canvas on smaller screens.
-        if hasattr(self.main_window, 'control_panel'):
-            settings_max_width = 760
-            min_video_width = 320
-            responsive_width = int(optimal_width * 0.38)
-            responsive_width = max(520, responsive_width)
-            responsive_width = min(settings_max_width, responsive_width)
-            if optimal_width - responsive_width < min_video_width:
-                responsive_width = max(300, optimal_width - min_video_width)
-            self.main_window.control_panel.setMinimumWidth(300)
-            self.main_window.control_panel.setMaximumWidth(settings_max_width)
-            self.main_window.control_panel.resize(responsive_width, self.main_window.control_panel.height())
-            if hasattr(self.main_window, 'content_splitter') and not self.main_window.control_panel.isHidden():
-                video_width = max(0, optimal_width - responsive_width)
-                self.main_window.content_splitter.setSizes([video_width, responsive_width])
-                self.main_window._settings_splitter_sizes = [video_width, responsive_width]
-        
         # Force layout update to ensure everything is positioned correctly
         QApplication.processEvents()
         
-        control_panel_width = getattr(self.main_window.control_panel, "width", lambda: 0)()
+        settings_rail_width = getattr(getattr(self.main_window, "settings_rail_button", None), "width", lambda: 0)()
         logging.info(f"Window positioned at top-left ({screen_rect.left()}, {screen_rect.top()}) "
                      f"with size {optimal_width}x{optimal_height}, "
-                     f"control panel width: {control_panel_width}px")
+                     f"settings rail width: {settings_rail_width}px")
         
         # Update controls and redraw frame if available
         if hasattr(self.main_window, 'control_panel'):
             self.main_window.control_panel.update_controls_from_state()
+        if hasattr(self.main_window, 'settings_tool_window'):
+            self.main_window.settings_tool_window.fit_to_available_screen()
         
         # Redraw the frame to show the keyboard area outline if video is loaded
         if (hasattr(self.main_window, 'video_session') and 

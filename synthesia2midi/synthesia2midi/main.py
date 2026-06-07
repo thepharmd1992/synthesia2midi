@@ -25,7 +25,7 @@ from typing import Optional
 
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QApplication, QDialog, QHBoxLayout, QLabel, QMainWindow, QMessageBox, QSizePolicy, QSlider, QSplitter, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QApplication, QDialog, QHBoxLayout, QLabel, QMainWindow, QMessageBox, QPushButton, QSizePolicy, QSlider, QVBoxLayout, QWidget
 
 from .app_config import APP_NAME, FRAME_NAV_INTERVALS
 from synthesia2midi.config_manager import ConfigManager
@@ -43,6 +43,7 @@ from synthesia2midi.gui.calibration_interaction_controller import CalibrationInt
 from synthesia2midi.gui.calibration_wizard_controller import CalibrationWizardController
 from synthesia2midi.gui.midi_conversion_controller import MidiConversionController
 from synthesia2midi.gui.midi_touchup_controller import MidiTouchupController
+from synthesia2midi.gui.settings_tool_window import SettingsToolWindow
 from synthesia2midi.gui.signal_manager import ControlSignalManager
 from synthesia2midi.gui.startup_dialog import StartupDialog
 from synthesia2midi.gui.ui_update_interface import UIUpdateInterface
@@ -223,11 +224,10 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         central_layout.setContentsMargins(0, 0, 0, 0)  # No margins on the central layout
         central_layout.setSpacing(0)
 
-        # Split video and settings so laptop users can give the canvas most of the window.
-        self.content_splitter = QSplitter(Qt.Horizontal)
-        self.content_splitter.setChildrenCollapsible(False)
-        self.content_splitter.setHandleWidth(8)
-        central_layout.addWidget(self.content_splitter, 1)
+        content_layout = QHBoxLayout()
+        content_layout.setContentsMargins(0, 0, 0, 0)
+        content_layout.setSpacing(0)
+        central_layout.addLayout(content_layout, 1)
 
         # Left side layout for canvas and frame slider
         left_layout = QVBoxLayout()
@@ -279,10 +279,34 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         left_widget = QWidget()
         left_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         left_widget.setLayout(left_layout)
-        self.content_splitter.addWidget(left_widget)
+        content_layout.addWidget(left_widget, 1)
 
-        # Control Panel (Right) - compact, draggable via splitter
-        self.control_panel = ControlPanelQt(self, self.app_state, self.state_manager)
+        self.settings_tool_window = SettingsToolWindow(self)
+        self.settings_scroll_area = self.settings_tool_window.scroll_area
+
+        # Control Panel lives in a floating tool window so the video canvas keeps priority.
+        self.control_panel = ControlPanelQt(self.settings_tool_window, self.app_state, self.state_manager)
+        self.settings_tool_window.set_settings_widget(self.control_panel)
+
+        self.settings_rail_button = QPushButton("Settings")
+        self.settings_rail_button.setObjectName("settings_rail_button")
+        self.settings_rail_button.setFixedWidth(64)
+        self.settings_rail_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        self.settings_rail_button.setToolTip("Open settings")
+        self.settings_rail_button.setStyleSheet(
+            "QPushButton#settings_rail_button {"
+            "background-color: #0d65ca;"
+            "color: white;"
+            "font-weight: bold;"
+            "border: 0;"
+            "padding: 8px 2px;"
+            "}"
+            "QPushButton#settings_rail_button:hover {"
+            "background-color: #0a58b0;"
+            "}"
+        )
+        self.settings_rail_button.clicked.connect(self._show_settings_tool_window)
+        content_layout.addWidget(self.settings_rail_button, 0)
 
         # Connect control panel to canvas for ROI visualization updates
         self.control_panel.canvas_refresh_callback = lambda: self.keyboard_canvas.refresh_spark_roi_visualization()
@@ -307,26 +331,27 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.control_panel.setMinimumWidth(300)
         self.control_panel.setMaximumWidth(760)
         self.control_panel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
-        self.content_splitter.addWidget(self.control_panel)
-        self.content_splitter.setStretchFactor(0, 4)
-        self.content_splitter.setStretchFactor(1, 1)
-        self.content_splitter.setSizes([900, 300])
-        self._settings_splitter_sizes = [900, 300]
+        self._settings_tool_was_visible_before_focus = False
+
+    def _show_settings_tool_window(self) -> None:
+        """Open the floating settings tool window."""
+        if hasattr(self, "control_panel"):
+            self.control_panel.update_controls_from_state()
+        self.settings_tool_window.show_near_parent()
 
     def _toggle_focus_video_mode(self, enabled: bool) -> None:
         """Hide or restore the settings pane so calibration can prioritize video."""
         if enabled:
-            sizes = self.content_splitter.sizes()
-            if sizes and any(sizes):
-                self._settings_splitter_sizes = sizes
-            self.control_panel.hide()
+            self._settings_tool_was_visible_before_focus = self.settings_tool_window.isVisible()
+            self.settings_tool_window.hide()
+            self.settings_rail_button.hide()
             self.focus_video_action.setText("Show Settings Panel")
-            self.content_splitter.setSizes([1, 0])
             return
 
-        self.control_panel.show()
+        self.settings_rail_button.show()
         self.focus_video_action.setText("Focus Video (Hide Settings)")
-        self.content_splitter.setSizes(getattr(self, "_settings_splitter_sizes", [900, 300]))
+        if getattr(self, "_settings_tool_was_visible_before_focus", False):
+            self._show_settings_tool_window()
 
     def resizeEvent(self, event):
         """Qt lifecycle hook; keep this method so Qt can dispatch resize events."""
@@ -408,6 +433,8 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         # Clean up canvas resources
         if hasattr(self, 'keyboard_canvas') and self.keyboard_canvas:
             self.keyboard_canvas.cleanup()
+        if hasattr(self, 'settings_tool_window') and self.settings_tool_window:
+            self.settings_tool_window.hide()
 
         if self.video_session:
             self.video_session.release()

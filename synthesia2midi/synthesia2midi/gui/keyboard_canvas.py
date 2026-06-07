@@ -1501,6 +1501,11 @@ class KeyboardCanvas(QWidget):
         self.image_y_offset = self.coord_manager.image_y_offset
         self.image_scale_factor = self.coord_manager.image_scale_factor
 
+        if self.current_frame_rgb is not None:
+            self._display_image()
+        else:
+            self.update()
+
         # Update debug box position if visible, ensuring it stays within bounds
         if self._debug_box and self._debug_box.isVisible():
             # Check if debug box is still within bounds after resize

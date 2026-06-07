@@ -1,5 +1,5 @@
 from PySide6.QtCore import QSignalBlocker, QRect, Qt, QTimer
-from PySide6.QtWidgets import QApplication, QSplitter
+from PySide6.QtWidgets import QApplication, QScrollArea
 
 from synthesia2midi.main import Video2MidiApp
 
@@ -25,41 +25,90 @@ def _assert_no_overlap(control_panel, widgets):
             assert not rect.intersects(other), f"{rect} overlaps {other}"
 
 
-def test_main_window_uses_splitter_with_settings_priority(monkeypatch):
+def test_main_window_prioritizes_video_with_settings_rail_and_tool_window(monkeypatch):
     app = _make_app(monkeypatch)
     try:
         screen_rect = QApplication.primaryScreen().availableGeometry()
         max_width = screen_rect.width() - 20
         max_height = screen_rect.height() - 40
 
-        assert isinstance(app.content_splitter, QSplitter)
-        assert app.content_splitter.count() == 2
+        assert not hasattr(app, "content_splitter")
         assert app.width() == max_width
         assert app.height() == max_height
         assert app.windowState() & Qt.WindowMaximized
+        assert not app.settings_rail_button.isHidden()
+        assert app.settings_rail_button.width() <= 72
+        assert "#0d65ca" in app.settings_rail_button.styleSheet()
+        assert app.settings_tool_window.windowFlags() & Qt.Tool
+        assert not app.settings_tool_window.isVisible()
+        assert isinstance(app.settings_scroll_area, QScrollArea)
+        assert app.settings_scroll_area.widget() is app.control_panel
+        assert app.settings_scroll_area.widgetResizable()
         assert app.control_panel.minimumWidth() <= 320
         assert app.control_panel.maximumWidth() >= 700
         assert app.control_panel.tab_widget.maximumWidth() >= 700
         assert app.control_panel.tab_widget.maximumHeight() == UNBOUNDED_WIDGET_SIZE
-        assert app.control_panel.tab_widget.height() >= app.control_panel.height() - 180
-        assert app._settings_splitter_sizes[1] >= min(700, max_width - 320)
     finally:
         app.close()
 
 
-def test_focus_video_action_hides_and_restores_settings_panel(monkeypatch):
+def test_settings_rail_opens_floating_tool_window(monkeypatch):
     app = _make_app(monkeypatch)
     try:
+        app.show()
+        QApplication.processEvents()
+
+        assert not app.settings_tool_window.isVisible()
+
+        app.settings_rail_button.click()
+        QApplication.processEvents()
+
+        assert app.settings_tool_window.isVisible()
+        assert app.settings_tool_window.windowFlags() & Qt.Tool
+        assert app.settings_rail_button.isVisible()
+    finally:
+        app.close()
+
+
+def test_settings_rail_preserves_open_tool_window_position(monkeypatch):
+    app = _make_app(monkeypatch)
+    try:
+        app.show()
+        app.settings_rail_button.click()
+        QApplication.processEvents()
+        custom_pos = app.settings_tool_window.pos()
+        custom_pos.setX(custom_pos.x() + 80)
+        custom_pos.setY(custom_pos.y() + 40)
+        app.settings_tool_window.move(custom_pos)
+
+        app.settings_rail_button.click()
+        QApplication.processEvents()
+
+        assert app.settings_tool_window.pos() == custom_pos
+    finally:
+        app.close()
+
+
+def test_focus_video_action_hides_and_restores_settings_rail(monkeypatch):
+    app = _make_app(monkeypatch)
+    try:
+        app.show()
+        app.settings_rail_button.click()
+        QApplication.processEvents()
+        assert app.settings_tool_window.isVisible()
+
         app.focus_video_action.setChecked(True)
         app._toggle_focus_video_mode(True)
 
-        assert app.control_panel.isHidden()
+        assert app.settings_rail_button.isHidden()
+        assert not app.settings_tool_window.isVisible()
         assert app.focus_video_action.text() == "Show Settings Panel"
 
         app.focus_video_action.setChecked(False)
         app._toggle_focus_video_mode(False)
 
-        assert not app.control_panel.isHidden()
+        assert not app.settings_rail_button.isHidden()
+        assert app.settings_tool_window.isVisible()
         assert app.focus_video_action.text() == "Focus Video (Hide Settings)"
         assert app.focus_video_action.shortcutContext() == Qt.ApplicationShortcut
         assert app.focus_video_action in app.actions()
@@ -72,11 +121,9 @@ def test_minimum_width_calibration_controls_do_not_overlap(monkeypatch):
     try:
         app.resize(1200, 828)
         app.show()
-        app.content_splitter.setSizes([900, 300])
         QApplication.processEvents()
 
         control_panel = app.control_panel
-        assert control_panel.width() == control_panel.minimumWidth()
 
         _assert_no_overlap(
             control_panel,
@@ -177,6 +224,7 @@ def test_spark_auto_calibration_controls_stack_vertically(monkeypatch):
     app = _make_app(monkeypatch)
     try:
         app.show()
+        app.settings_rail_button.click()
         app.control_panel.tab_widget.setCurrentIndex(3)
         QApplication.processEvents()
 

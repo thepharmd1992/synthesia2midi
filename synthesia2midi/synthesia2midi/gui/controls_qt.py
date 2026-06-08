@@ -255,8 +255,13 @@ class ControlPanelQt(QWidget):
         actions_layout.addSpacing(4)
         actions_layout.addWidget(self.midi_touchup_button)
         actions_layout.addSpacing(4)
-        actions_layout.addWidget(self.selected_overlay_caption)
-        actions_layout.addWidget(self.selected_overlay_label)
+        overlay_row = QHBoxLayout()
+        overlay_row.setContentsMargins(0, 0, 0, 0)
+        overlay_row.setSpacing(4)
+        overlay_row.addWidget(self.selected_overlay_caption)
+        overlay_row.addWidget(self.selected_overlay_label)
+        overlay_row.addStretch()
+        actions_layout.addLayout(overlay_row)
 
         parent_layout.addWidget(self.settings_rail_actions, alignment=Qt.AlignBottom)
     
@@ -1504,7 +1509,7 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
         if overlay_id is None:
             self.selected_overlay_label.setText("None")
         else:
-            self.selected_overlay_label.setText(f"Overlay {overlay_id}")
+            self.selected_overlay_label.setText(str(overlay_id))
     
     # ==================== Compatibility Methods ====================
     # These methods/properties are referenced by the main window code.

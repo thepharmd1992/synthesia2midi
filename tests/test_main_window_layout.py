@@ -103,6 +103,7 @@ def test_settings_lower_rail_holds_global_actions_and_status(monkeypatch):
             control_panel.convert_button,
             control_panel.conversion_status,
             control_panel.midi_touchup_button,
+            control_panel.selected_overlay_caption,
             control_panel.selected_overlay_label,
         ]
 
@@ -117,6 +118,15 @@ def test_settings_lower_rail_holds_global_actions_and_status(monkeypatch):
         assert actions_rect.top() > rail_rect.bottom()
         assert actions_rect.left() < stack_rect.left()
         assert actions_rect.width() <= control_panel.settings_section_rail.width()
+
+        caption_rect = _rect_in_control_panel(control_panel, control_panel.selected_overlay_caption)
+        value_rect = _rect_in_control_panel(control_panel, control_panel.selected_overlay_label)
+        assert abs(caption_rect.center().y() - value_rect.center().y()) <= 2
+
+        control_panel.update_selected_overlay(None)
+        assert control_panel.selected_overlay_label.text() == "None"
+        control_panel.update_selected_overlay(23)
+        assert control_panel.selected_overlay_label.text() == "23"
     finally:
         app.close()
 

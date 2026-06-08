@@ -100,6 +100,28 @@ def test_manual_fit_drawn_regions_apply_visible_safe_margins():
     assert (black.x, black.y, black.width, black.height) == pytest.approx((12.6, 14.5, 4.8, 21))
 
 
+def test_manual_fit_setup_generates_initial_geometry_from_keyboard_box_and_guides():
+    app_state = _state_with_overlays()
+    session = ManualKeyboardFitSession(app_state)
+
+    session.set_setup_keyboard_box(10, 100, 70, 200)
+    session.set_setup_black_bottom(140)
+    assert session.default_setup_white_start() == pytest.approx(152)
+    session.set_setup_white_start(152)
+    session.finalize_setup_geometry()
+
+    white_left, black, white_right = app_state.overlays
+    assert (white_left.x, white_left.y, white_left.width, white_left.height) == pytest.approx(
+        (13, 159.2, 24, 33.6)
+    )
+    assert (black.x, black.y, black.width, black.height) == pytest.approx(
+        (32.8, 106, 14.4, 28)
+    )
+    assert (white_right.x, white_right.y, white_right.width, white_right.height) == pytest.approx(
+        (43, 159.2, 24, 33.6)
+    )
+
+
 def test_manual_fit_keyboard_top_moves_safe_top_only():
     app_state = _state_with_overlays()
     session = ManualKeyboardFitSession(app_state)

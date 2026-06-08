@@ -46,6 +46,14 @@ class DetectionRegion:
     bottom: float
 
 
+@dataclass(frozen=True)
+class KeyboardBox:
+    left: float
+    top: float
+    right: float
+    bottom: float
+
+
 @dataclass
 class OverlayOverride:
     x_delta: float = 0.0
@@ -60,7 +68,7 @@ class ManualKeyboardFitSession:
         self.params = ManualFitParams()
         self._previous_unsaved_changes = bool(app_state.unsaved_changes)
         self._previous_octave_transpose = int(getattr(app_state.midi, "octave_transpose", 0))
-        self._baseline: Dict[int, OverlayGeometry] = {
+        self._cancel_baseline: Dict[int, OverlayGeometry] = {
             overlay.key_id: OverlayGeometry(
                 float(overlay.x),
                 float(overlay.y),
@@ -69,10 +77,14 @@ class ManualKeyboardFitSession:
             )
             for overlay in app_state.overlays
         }
+        self._baseline: Dict[int, OverlayGeometry] = dict(self._cancel_baseline)
         self._overrides: Dict[int, OverlayOverride] = {}
         self._bounds = self._calculate_bounds(self._baseline.values())
         self._default_regions = self._calculate_default_regions()
         self._custom_regions: Dict[str, DetectionRegion] = {}
+        self._setup_keyboard_box: KeyboardBox | None = None
+        self._setup_black_bottom: float | None = None
+        self._setup_white_start: float | None = None
 
     def update_params(self, params: ManualFitParams) -> None:
         self.params = params
@@ -112,6 +124,67 @@ class ManualKeyboardFitSession:
             "white": self._region_for_type("white"),
             "black": self._region_for_type("black"),
         }
+
+    def set_setup_keyboard_box(self, left: float, top: float, right: float, bottom: float) -> None:
+        box_left = min(float(left), float(right))
+        box_right = max(float(left), float(right))
+        box_top = min(float(top), float(bottom))
+        box_bottom = max(float(top), float(bottom))
+        if box_right <= box_left:
+            box_right = box_left + 1.0
+        if box_bottom <= box_top:
+            box_bottom = box_top + 1.0
+        self._setup_keyboard_box = KeyboardBox(box_left, box_top, box_right, box_bottom)
+        self._setup_black_bottom = self.default_setup_black_bottom()
+        self._setup_white_start = self.default_setup_white_start()
+
+    def set_setup_black_bottom(self, y: float) -> None:
+        box = self._require_setup_keyboard_box()
+        self._setup_black_bottom = self._clamp(float(y), box.top + 1.0, box.bottom - 1.0)
+        self._setup_white_start = self.default_setup_white_start()
+
+    def set_setup_white_start(self, y: float) -> None:
+        box = self._require_setup_keyboard_box()
+        black_bottom = self._setup_black_bottom_or_default()
+        self._setup_white_start = self._clamp(float(y), black_bottom, box.bottom - 1.0)
+
+    def default_setup_black_bottom(self) -> float:
+        box = self._require_setup_keyboard_box()
+        return box.top + ((box.bottom - box.top) * 0.45)
+
+    def default_setup_white_start(self) -> float:
+        box = self._require_setup_keyboard_box()
+        black_bottom = self._setup_black_bottom_or_default()
+        return black_bottom + ((box.bottom - black_bottom) * 0.20)
+
+    def setup_guides(self) -> Dict[str, object]:
+        guides: Dict[str, object] = {}
+        if self._setup_keyboard_box is not None:
+            guides["keyboard_box"] = self._setup_keyboard_box
+            guides["black"] = DetectionRegion(
+                self._setup_keyboard_box.top,
+                self._setup_black_bottom_or_default(),
+            )
+            guides["white"] = DetectionRegion(
+                self._setup_white_start_or_default(),
+                self._setup_keyboard_box.bottom,
+            )
+        return guides
+
+    def finalize_setup_geometry(self) -> None:
+        box = self._require_setup_keyboard_box()
+        black_bottom = self._setup_black_bottom_or_default()
+        white_start = self._setup_white_start_or_default()
+        self.params = ManualFitParams()
+        self._overrides.clear()
+        self._custom_regions.clear()
+        self._baseline = self._generate_baseline_from_setup_box(box)
+        self._bounds = self._calculate_bounds(self._baseline.values())
+        self._default_regions = {
+            "black": DetectionRegion(box.top, black_bottom),
+            "white": DetectionRegion(white_start, box.bottom),
+        }
+        self.apply_preview()
 
     def set_octave_transpose(self, value: int) -> None:
         self.app_state.midi.octave_transpose = int(value)
@@ -215,7 +288,7 @@ class ManualKeyboardFitSession:
 
     def _restore_baseline(self) -> None:
         for overlay in self.app_state.overlays:
-            baseline = self._baseline.get(overlay.key_id)
+            baseline = self._cancel_baseline.get(overlay.key_id)
             if baseline is None:
                 continue
             overlay.x = baseline.x
@@ -314,3 +387,59 @@ class ManualKeyboardFitSession:
         span = max(1.0, right - left)
         center = left + span / 2
         return left, right, span, center
+
+    def _generate_baseline_from_setup_box(self, box: KeyboardBox) -> Dict[int, OverlayGeometry]:
+        ordered_overlays = sorted(self.app_state.overlays, key=lambda overlay: overlay.key_id)
+        white_overlays = [
+            overlay for overlay in ordered_overlays if overlay.note_name_in_octave in WHITE_NOTE_NAMES
+        ]
+        white_count = max(1, len(white_overlays))
+        white_width = max(1.0, (box.right - box.left) / white_count)
+        black_width = max(1.0, white_width * 0.60)
+        generated: Dict[int, OverlayGeometry] = {}
+        white_index = 0
+
+        for overlay in ordered_overlays:
+            if overlay.note_name_in_octave in WHITE_NOTE_NAMES:
+                x = box.left + (white_index * white_width)
+                generated[overlay.key_id] = OverlayGeometry(
+                    x,
+                    box.top,
+                    white_width,
+                    box.bottom - box.top,
+                )
+                white_index += 1
+                continue
+
+            boundary_x = box.left + (white_index * white_width)
+            x = boundary_x - (black_width / 2.0)
+            x = self._clamp(x, box.left, max(box.left, box.right - black_width))
+            generated[overlay.key_id] = OverlayGeometry(
+                x,
+                box.top,
+                black_width,
+                max(1.0, self._setup_black_bottom_or_default() - box.top),
+            )
+
+        return generated
+
+    def _require_setup_keyboard_box(self) -> KeyboardBox:
+        if self._setup_keyboard_box is None:
+            raise RuntimeError("Manual Fit keyboard box has not been set.")
+        return self._setup_keyboard_box
+
+    def _setup_black_bottom_or_default(self) -> float:
+        if self._setup_black_bottom is not None:
+            return self._setup_black_bottom
+        return self.default_setup_black_bottom()
+
+    def _setup_white_start_or_default(self) -> float:
+        if self._setup_white_start is not None:
+            return self._setup_white_start
+        return self.default_setup_white_start()
+
+    @staticmethod
+    def _clamp(value: float, minimum: float, maximum: float) -> float:
+        if maximum < minimum:
+            maximum = minimum
+        return max(minimum, min(float(value), maximum))

@@ -26,6 +26,8 @@ class ManualKeyboardFitController:
         self._session: Optional[ManualKeyboardFitSession] = None
         self._settings_tool_was_visible = False
         self._finishing = False
+        self._setup_step: Optional[str] = None
+        self._manual_fit_overlays_visible = True
 
     @property
     def active_dialog(self) -> Optional[ManualKeyboardFitDialog]:
@@ -35,7 +37,7 @@ class ManualKeyboardFitController:
     def session(self) -> Optional[ManualKeyboardFitSession]:
         return self._session
 
-    def open(self) -> bool:
+    def open(self, *, start_setup: bool = False) -> bool:
         if not self.app.app_state.overlays:
             QMessageBox.warning(
                 self.app,
@@ -63,8 +65,10 @@ class ManualKeyboardFitController:
             override_ids_callback=self._override_ids,
             region_selected_callback=self._handle_region_selected,
             region_guides_callback=self._region_guides,
+            keyboard_box_selected_callback=self._handle_keyboard_box_selected,
+            guide_line_selected_callback=self._handle_guide_line_selected,
+            overlays_visible_callback=self._overlays_visible,
         )
-        self.app.keyboard_canvas.set_manual_fit_mode("manual_fit_group")
 
         dialog = self._dialog_factory(
             self.app,
@@ -75,14 +79,18 @@ class ManualKeyboardFitController:
         dialog.params_changed.connect(self._handle_params_changed)
         dialog.octave_changed.connect(self._handle_octave_changed)
         dialog.mode_changed.connect(self._handle_mode_changed)
+        dialog.setup_confirm_requested.connect(self._handle_setup_confirm)
         dialog.reset_all_requested.connect(self._handle_reset_all)
         dialog.reset_position_requested.connect(self._handle_reset_position)
         dialog.clear_selected_override_requested.connect(self._handle_clear_selected_override)
-        dialog.set_black_region_requested.connect(self._handle_set_black_region)
-        dialog.set_white_region_requested.connect(self._handle_set_white_region)
         dialog.accepted.connect(self._handle_apply)
         dialog.rejected.connect(self._handle_cancel)
         self._dialog = dialog
+
+        if start_setup:
+            self._start_setup()
+        else:
+            self._finish_setup()
 
         move_to_top_center_safe_zone(dialog, self.app)
         dialog.show()
@@ -106,12 +114,6 @@ class ManualKeyboardFitController:
     def _handle_mode_changed(self, mode: str) -> None:
         self.app.keyboard_canvas.set_manual_fit_mode(mode)
 
-    def _handle_set_black_region(self) -> None:
-        self.app.keyboard_canvas.set_manual_fit_mode("manual_fit_black_region")
-
-    def _handle_set_white_region(self) -> None:
-        self.app.keyboard_canvas.set_manual_fit_mode("manual_fit_white_region")
-
     def _handle_group_move(self, dx: float, dy: float) -> None:
         if self._session is None:
             return
@@ -131,6 +133,41 @@ class ManualKeyboardFitController:
         self._session.set_detection_region(region_type, top, bottom)
         self.app.keyboard_canvas.set_manual_fit_mode("manual_fit_group")
         self._refresh_preview()
+
+    def _handle_keyboard_box_selected(self, left: float, top: float, right: float, bottom: float) -> None:
+        if self._session is None or self._setup_step != "keyboard_box":
+            return
+        self._session.set_setup_keyboard_box(left, top, right, bottom)
+        if self._dialog is not None:
+            self._dialog.mark_setup_step_ready()
+        self._refresh_preview()
+
+    def _handle_guide_line_selected(self, line_type: str, y: float) -> None:
+        if self._session is None:
+            return
+        if line_type == "black_bottom" and self._setup_step == "black_bottom":
+            self._session.set_setup_black_bottom(y)
+        elif line_type == "white_start" and self._setup_step == "white_start":
+            self._session.set_setup_white_start(y)
+        else:
+            return
+        if self._dialog is not None:
+            self._dialog.mark_setup_step_ready()
+        self._refresh_preview()
+
+    def _handle_setup_confirm(self) -> None:
+        if self._session is None:
+            return
+        if self._setup_step == "keyboard_box":
+            self._enter_setup_step("black_bottom")
+            return
+        if self._setup_step == "black_bottom":
+            self._enter_setup_step("white_start", can_confirm=True)
+            return
+        if self._setup_step == "white_start":
+            self._session.finalize_setup_geometry()
+            self._finish_setup()
+            self._refresh_preview()
 
     def _handle_single_resize(
         self,
@@ -189,6 +226,8 @@ class ManualKeyboardFitController:
         self._finishing = True
         dialog = self._dialog
         try:
+            self._setup_step = None
+            self._manual_fit_overlays_visible = True
             self.app.keyboard_canvas.clear_manual_fit_callbacks()
             self._restore_settings_tool_window()
             self._sync_octave_control()
@@ -208,7 +247,36 @@ class ManualKeyboardFitController:
     def _region_guides(self) -> dict:
         if self._session is None:
             return {}
+        if self._setup_step is not None:
+            return self._session.setup_guides()
         return self._session.detection_region_guides()
+
+    def _overlays_visible(self) -> bool:
+        return self._manual_fit_overlays_visible
+
+    def _start_setup(self) -> None:
+        self._manual_fit_overlays_visible = False
+        self._enter_setup_step("keyboard_box")
+
+    def _enter_setup_step(self, step: str, *, can_confirm: bool = False) -> None:
+        self._setup_step = step
+        mode_by_step = {
+            "keyboard_box": "manual_fit_keyboard_box",
+            "black_bottom": "manual_fit_black_bottom",
+            "white_start": "manual_fit_white_start",
+        }
+        self.app.keyboard_canvas.set_manual_fit_mode(mode_by_step[step])
+        if self._dialog is not None:
+            self._dialog.enter_setup_step(step, can_confirm=can_confirm)
+        self._refresh_preview()
+
+    def _finish_setup(self) -> None:
+        self._setup_step = None
+        self._manual_fit_overlays_visible = True
+        self.app.keyboard_canvas.set_manual_fit_mode("manual_fit_group")
+        if self._dialog is not None:
+            self._dialog.finish_setup()
+        self._refresh_preview()
 
     def _refresh_preview(self) -> None:
         if hasattr(self.app.keyboard_canvas, "update"):

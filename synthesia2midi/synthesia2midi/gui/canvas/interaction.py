@@ -36,6 +36,8 @@ class CanvasInteraction(QObject):
     overlay_resized = Signal(int, float, float, float, float)  # index, x, y, w, h
     manual_fit_group_moved = Signal(float, float)  # image-space dx, dy
     manual_fit_region_selected = Signal(str, float, float)  # region_type, top_y, bottom_y
+    manual_fit_keyboard_box_selected = Signal(float, float, float, float)  # left, top, right, bottom
+    manual_fit_guide_line_selected = Signal(str, float)  # line_type, image_y
     color_picked = Signal(int, int, int, int, int)  # r, g, b, image_x, image_y from Ctrl+click
     request_repaint = Signal()  # Request canvas repaint after interaction
     spark_roi_selected = Signal(int, int)  # top_y, bottom_y coordinates for spark ROI
@@ -63,6 +65,7 @@ class CanvasInteraction(QObject):
         self._manual_fit_region_selecting = False
         self._manual_fit_region_start_pos = QPoint()
         self._manual_fit_region_rubber_band = None
+        self._manual_fit_line_dragging = False
         
         # Performance optimization: throttle repaint requests during drag
         self._last_repaint_request = 0
@@ -153,6 +156,9 @@ class CanvasInteraction(QObject):
             "off",
             "manual_fit_group",
             "manual_fit_single",
+            "manual_fit_keyboard_box",
+            "manual_fit_black_bottom",
+            "manual_fit_white_start",
             "manual_fit_black_region",
             "manual_fit_white_region",
         }:
@@ -160,6 +166,7 @@ class CanvasInteraction(QObject):
         self._manual_fit_mode = mode
         self._manual_fit_group_dragging = False
         self._manual_fit_region_selecting = False
+        self._manual_fit_line_dragging = False
 
     def manual_fit_mode(self) -> str:
         return self._manual_fit_mode
@@ -194,6 +201,10 @@ class CanvasInteraction(QObject):
             return self._handle_keyboard_region_selection_press(event)
         elif self._roi_selection_mode:
             return self._handle_roi_selection_press(event)
+        elif self._manual_fit_mode == "manual_fit_keyboard_box":
+            return self._handle_manual_fit_keyboard_box_press(event)
+        elif self._manual_fit_mode in {"manual_fit_black_bottom", "manual_fit_white_start"}:
+            return self._handle_manual_fit_line_press(event)
         elif self._manual_fit_mode in {"manual_fit_black_region", "manual_fit_white_region"}:
             return self._handle_manual_fit_region_press(event)
         elif self._manual_fit_mode == "manual_fit_group":
@@ -213,6 +224,10 @@ class CanvasInteraction(QObject):
             return True
         elif self._manual_fit_region_selecting:
             self._handle_manual_fit_region_move(event)
+            return True
+        elif self._manual_fit_line_dragging:
+            self._emit_manual_fit_line_y(event.x(), event.y())
+            self._request_throttled_repaint()
             return True
         elif self._manual_fit_group_dragging:
             self._handle_manual_fit_group_motion(event)
@@ -235,7 +250,13 @@ class CanvasInteraction(QObject):
             self._handle_roi_selection_release(event)
             return True
         elif self._manual_fit_region_selecting:
-            self._handle_manual_fit_region_release(event)
+            if self._manual_fit_mode == "manual_fit_keyboard_box":
+                self._handle_manual_fit_keyboard_box_release(event)
+            else:
+                self._handle_manual_fit_region_release(event)
+            return True
+        elif self._manual_fit_line_dragging:
+            self._handle_manual_fit_line_release(event)
             return True
         elif self._manual_fit_group_dragging:
             self._finish_manual_fit_group_drag()
@@ -487,6 +508,60 @@ class CanvasInteraction(QObject):
         self._manual_fit_group_dragging = False
         self.request_repaint.emit()
 
+    def _handle_manual_fit_keyboard_box_press(self, event: QMouseEvent) -> bool:
+        return self._start_manual_fit_rectangle_selection(event)
+
+    def _handle_manual_fit_keyboard_box_release(self, event: QMouseEvent) -> None:
+        if event.button() != Qt.LeftButton:
+            return
+        end_pos = QPoint(event.x(), event.y())
+        selection_rect = QRect(self._manual_fit_region_start_pos, end_pos).normalized()
+        start_img = self.coord_manager.canvas_to_image(
+            selection_rect.x(),
+            selection_rect.y(),
+            clamp_to_bounds=True,
+        )
+        end_img = self.coord_manager.canvas_to_image(
+            selection_rect.right(),
+            selection_rect.bottom(),
+            clamp_to_bounds=True,
+        )
+        self._finish_manual_fit_region_selection()
+        if not start_img or not end_img:
+            return
+        left = min(float(start_img[0]), float(end_img[0]))
+        right = max(float(start_img[0]), float(end_img[0]))
+        top = min(float(start_img[1]), float(end_img[1]))
+        bottom = max(float(start_img[1]), float(end_img[1]))
+        if right <= left or bottom <= top:
+            return
+        self.manual_fit_keyboard_box_selected.emit(left, top, right, bottom)
+        self.request_repaint.emit()
+
+    def _handle_manual_fit_line_press(self, event: QMouseEvent) -> bool:
+        if event.button() != Qt.LeftButton:
+            return False
+        self._manual_fit_line_dragging = True
+        return True
+
+    def _handle_manual_fit_line_release(self, event: QMouseEvent) -> None:
+        if event.button() != Qt.LeftButton:
+            return
+        self._emit_manual_fit_line_y(event.x(), event.y())
+        self._manual_fit_line_dragging = False
+        self.request_repaint.emit()
+
+    def _emit_manual_fit_line_y(self, canvas_x: float, canvas_y: float) -> None:
+        image_pos = self.coord_manager.canvas_to_image(
+            canvas_x,
+            canvas_y,
+            clamp_to_bounds=True,
+        )
+        if not image_pos:
+            return
+        line_type = "black_bottom" if self._manual_fit_mode == "manual_fit_black_bottom" else "white_start"
+        self.manual_fit_guide_line_selected.emit(line_type, float(image_pos[1]))
+
     def _handle_manual_fit_region_press(self, event: QMouseEvent) -> bool:
         if event.button() == Qt.RightButton:
             self._finish_manual_fit_region_selection()
@@ -494,6 +569,9 @@ class CanvasInteraction(QObject):
             return True
         if event.button() != Qt.LeftButton:
             return False
+        return self._start_manual_fit_rectangle_selection(event)
+
+    def _start_manual_fit_rectangle_selection(self, event: QMouseEvent) -> bool:
         self._manual_fit_region_selecting = True
         self._manual_fit_region_start_pos = QPoint(event.x(), event.y())
         if not self._manual_fit_region_rubber_band:

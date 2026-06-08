@@ -143,7 +143,7 @@ class CalibrationWizardController:
         if manual_overlays_generated and self.app_state.overlays:
             manual_fit_controller = getattr(self.app, "manual_keyboard_fit_controller", None)
             if manual_fit_controller is not None:
-                manual_fit_controller.open()
+                manual_fit_controller.open(start_setup=True)
 
     def _handle_keyboard_region_selection_request(self):
         """Wizard signal callback; kept as a named slot for Qt signal wiring."""

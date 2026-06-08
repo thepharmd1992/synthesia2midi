@@ -433,7 +433,7 @@ def test_calibration_wizard_controller_opens_manual_fit_after_manual_overlay_gen
             display_frame=lambda _frame_idx: None,
         ),
         show_overlays_action=DummyShowOverlaysAction(),
-        manual_keyboard_fit_controller=SimpleNamespace(open=lambda: manual_fit_calls.append(True)),
+        manual_keyboard_fit_controller=SimpleNamespace(open=lambda **kwargs: manual_fit_calls.append(kwargs)),
         video_loading_workflow=None,
         video_session=None,
     )
@@ -441,7 +441,7 @@ def test_calibration_wizard_controller_opens_manual_fit_after_manual_overlay_gen
 
     controller.run_calibration_wizard()
 
-    assert manual_fit_calls == [True]
+    assert manual_fit_calls == [{"start_setup": True}]
     assert controller.calibration_wizard is None
 
 

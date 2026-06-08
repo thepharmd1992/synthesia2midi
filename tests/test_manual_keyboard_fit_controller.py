@@ -167,8 +167,9 @@ def test_manual_fit_dialog_uses_drawn_region_controls():
 
         assert expected_controls.issubset(dialog.param_spinboxes)
         assert removed_controls.isdisjoint(dialog.param_spinboxes)
-        assert dialog.set_black_region_button.text() == "Set Black Region"
-        assert dialog.set_white_region_button.text() == "Set White Region"
+        assert dialog.setup_step_label.text() == "Fine Tune Overlays"
+        assert not hasattr(dialog, "set_black_region_button")
+        assert not hasattr(dialog, "set_white_region_button")
     finally:
         if controller.active_dialog is not None:
             controller.active_dialog.reject()
@@ -210,21 +211,54 @@ def test_manual_fit_dialog_reset_and_clear_selected_override_update_preview():
         _flush_qt_deletes()
 
 
-def test_manual_fit_region_buttons_enter_canvas_region_modes():
+def test_manual_fit_setup_wizard_confirms_keyboard_box_then_guides_then_enters_fine_tune():
     QApplication.instance() or QApplication([])
     app = _FakeApp()
-    app.app_state.overlays = [_overlay()]
+    app.app_state.overlays = [
+        _overlay(key_id=1, note="C", x=0, y=20, width=10, height=40),
+        _overlay(key_id=2, note="C♯", x=12, y=10, width=6, height=20),
+        _overlay(key_id=3, note="D", x=24, y=20, width=10, height=40),
+    ]
     controller = ManualKeyboardFitController(app)
 
     try:
-        assert controller.open() is True
+        assert controller.open(start_setup=True) is True
         dialog = controller.active_dialog
 
-        dialog.set_black_region_button.click()
-        assert app.keyboard_canvas.mode == "manual_fit_black_region"
+        assert app.keyboard_canvas.mode == "manual_fit_keyboard_box"
+        assert dialog.setup_step_label.text() == "Draw Keyboard Area"
+        assert dialog.confirm_step_button.isEnabled() is False
+        assert app.keyboard_canvas.callbacks["overlays_visible_callback"]() is False
 
-        dialog.set_white_region_button.click()
-        assert app.keyboard_canvas.mode == "manual_fit_white_region"
+        app.keyboard_canvas.callbacks["keyboard_box_selected_callback"](10, 100, 70, 200)
+        assert dialog.confirm_step_button.isEnabled() is True
+        dialog.confirm_step_button.click()
+
+        assert app.keyboard_canvas.mode == "manual_fit_black_bottom"
+        assert dialog.setup_step_label.text() == "Set Black Key Bottom"
+
+        app.keyboard_canvas.callbacks["guide_line_selected_callback"]("black_bottom", 140)
+        dialog.confirm_step_button.click()
+
+        assert app.keyboard_canvas.mode == "manual_fit_white_start"
+        assert dialog.setup_step_label.text() == "Set White Key Start"
+
+        app.keyboard_canvas.callbacks["guide_line_selected_callback"]("white_start", 152)
+        dialog.confirm_step_button.click()
+
+        assert app.keyboard_canvas.mode == "manual_fit_group"
+        assert dialog.setup_step_label.text() == "Fine Tune Overlays"
+        assert app.keyboard_canvas.callbacks["overlays_visible_callback"]() is True
+        white_left, black, white_right = app.app_state.overlays
+        assert (white_left.x, white_left.y, white_left.width, white_left.height) == pytest.approx(
+            (13, 159.2, 24, 33.6)
+        )
+        assert (black.x, black.y, black.width, black.height) == pytest.approx(
+            (32.8, 106, 14.4, 28)
+        )
+        assert (white_right.x, white_right.y, white_right.width, white_right.height) == pytest.approx(
+            (43, 159.2, 24, 33.6)
+        )
     finally:
         if controller.active_dialog is not None:
             controller.active_dialog.reject()

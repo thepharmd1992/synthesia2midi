@@ -150,21 +150,37 @@ def test_canvas_interaction_manual_fit_single_mode_keeps_existing_overlay_drag()
     assert single_moves == [(0, 15, 25)]
 
 
-def test_canvas_interaction_manual_fit_region_mode_emits_vertical_range():
+def test_canvas_interaction_manual_fit_keyboard_box_mode_emits_rectangle():
     app_state = AppState()
     interaction = CanvasInteraction(None, _IdentityCoordManager(), app_state)
-    interaction.set_manual_fit_mode("manual_fit_black_region")
-    regions = []
-    interaction.manual_fit_region_selected.connect(
-        lambda region_type, top, bottom: regions.append((region_type, top, bottom))
+    interaction.set_manual_fit_mode("manual_fit_keyboard_box")
+    boxes = []
+    interaction.manual_fit_keyboard_box_selected.connect(
+        lambda left, top, right, bottom: boxes.append((left, top, right, bottom))
     )
 
     assert interaction.handle_mouse_press(_MouseEvent(10, 12)) is True
     assert interaction.handle_mouse_move(_MouseEvent(40, 42)) is True
     assert interaction.handle_mouse_release(_MouseEvent(40, 42)) is True
 
-    assert regions == [("black", 12, 42)]
-    assert interaction.manual_fit_mode() == "manual_fit_group"
+    assert boxes == [(10, 12, 40, 42)]
+
+
+def test_canvas_interaction_manual_fit_line_mode_emits_single_guide_y():
+    app_state = AppState()
+    interaction = CanvasInteraction(None, _IdentityCoordManager(), app_state)
+    interaction.set_manual_fit_mode("manual_fit_black_bottom")
+    lines = []
+    interaction.manual_fit_guide_line_selected.connect(
+        lambda line_type, y: lines.append((line_type, y))
+    )
+
+    assert interaction.handle_mouse_press(_MouseEvent(10, 12)) is True
+    assert interaction.handle_mouse_move(_MouseEvent(40, 42)) is True
+    assert interaction.handle_mouse_release(_MouseEvent(40, 42)) is True
+
+    assert lines[-1] == ("black_bottom", 42)
+    assert interaction.manual_fit_mode() == "manual_fit_black_bottom"
 
 
 def test_keyboard_canvas_overlay_handlers_delegate_geometry_to_overlay_manager():

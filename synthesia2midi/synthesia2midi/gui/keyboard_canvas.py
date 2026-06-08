@@ -172,6 +172,9 @@ class KeyboardCanvas(QWidget):
         self.manual_fit_override_ids_callback = None
         self.manual_fit_region_selected_callback = None
         self.manual_fit_region_guides_callback = None
+        self.manual_fit_keyboard_box_selected_callback = None
+        self.manual_fit_guide_line_selected_callback = None
+        self.manual_fit_overlays_visible_callback = None
 
         # Set widget properties
         # Keep a modest minimum so the window can fit smaller displays, but start larger
@@ -530,7 +533,11 @@ class KeyboardCanvas(QWidget):
 
                 # Draw overlays if enabled, but only those intersecting this rect
                 if self.app_state.ui.show_overlays:
-                    self._draw_overlays_on_painter_in_rect(painter, rect)
+                    overlays_visible = True
+                    if self.manual_fit_overlays_visible_callback is not None:
+                        overlays_visible = bool(self.manual_fit_overlays_visible_callback())
+                    if overlays_visible:
+                        self._draw_overlays_on_painter_in_rect(painter, rect)
                     self._draw_manual_fit_guides(painter, rect)
 
                 # Draw spark ROI visualization and zones (if visible)
@@ -1189,10 +1196,34 @@ class KeyboardCanvas(QWidget):
 
         painter.save()
         try:
-            overlay_left = min(float(overlay.x) for overlay in self.app_state.overlays)
-            overlay_right = max(float(overlay.x + overlay.width) for overlay in self.app_state.overlays)
+            keyboard_box = region_guides.get("keyboard_box")
+            if keyboard_box is not None:
+                overlay_left = float(getattr(keyboard_box, "left", 0.0))
+                overlay_right = float(getattr(keyboard_box, "right", overlay_left + 1.0))
+                box_top = float(getattr(keyboard_box, "top", 0.0))
+                box_bottom = float(getattr(keyboard_box, "bottom", box_top + 1.0))
+                x1_c, y1_c, x2_c, y2_c = self._map_image_to_canvas_coords(
+                    overlay_left,
+                    box_top,
+                    max(1.0, overlay_right - overlay_left),
+                    max(1.0, box_bottom - box_top),
+                )
+                rect = QRect(x1_c, y1_c, x2_c - x1_c, y2_c - y1_c)
+                if rect.intersects(clip_rect):
+                    color = QColor("#00b875")
+                    fill = QColor(color)
+                    fill.setAlpha(25)
+                    painter.fillRect(rect, fill)
+                    painter.setPen(QPen(color, 2, Qt.DashLine))
+                    painter.setBrush(Qt.NoBrush)
+                    painter.drawRect(rect)
+            else:
+                overlay_left = min(float(overlay.x) for overlay in self.app_state.overlays)
+                overlay_right = max(float(overlay.x + overlay.width) for overlay in self.app_state.overlays)
             guide_width = max(1.0, overlay_right - overlay_left)
             for region_type, region in region_guides.items():
+                if region_type == "keyboard_box":
+                    continue
                 top = float(getattr(region, "top", 0.0))
                 bottom = float(getattr(region, "bottom", top + 1.0))
                 x1_c, y1_c, x2_c, y2_c = self._map_image_to_canvas_coords(
@@ -1835,6 +1866,8 @@ class KeyboardCanvas(QWidget):
         self.interaction.overlay_resized.connect(self._handle_overlay_resized)
         self.interaction.manual_fit_group_moved.connect(self._handle_manual_fit_group_moved)
         self.interaction.manual_fit_region_selected.connect(self._handle_manual_fit_region_selected)
+        self.interaction.manual_fit_keyboard_box_selected.connect(self._handle_manual_fit_keyboard_box_selected)
+        self.interaction.manual_fit_guide_line_selected.connect(self._handle_manual_fit_guide_line_selected)
         self.interaction.color_picked.connect(self._handle_color_picked)
         self.interaction.request_repaint.connect(self._handle_repaint_request)
         self.interaction.spark_roi_selected.connect(self._handle_spark_roi_selected)
@@ -1847,6 +1880,9 @@ class KeyboardCanvas(QWidget):
             self.interaction.overlay_moved.disconnect()
             self.interaction.overlay_resized.disconnect()
             self.interaction.manual_fit_group_moved.disconnect()
+            self.interaction.manual_fit_region_selected.disconnect()
+            self.interaction.manual_fit_keyboard_box_selected.disconnect()
+            self.interaction.manual_fit_guide_line_selected.disconnect()
             self.interaction.color_picked.disconnect()
             self.interaction.request_repaint.disconnect()
             self.interaction.spark_roi_selected.disconnect()
@@ -1941,6 +1977,18 @@ class KeyboardCanvas(QWidget):
             self.manual_fit_region_selected_callback(region_type, top, bottom)
             self.update()
 
+    def _handle_manual_fit_keyboard_box_selected(self, left: float, top: float, right: float, bottom: float):
+        """Handle Manual Fit setup keyboard-box selection."""
+        if self.manual_fit_keyboard_box_selected_callback is not None:
+            self.manual_fit_keyboard_box_selected_callback(left, top, right, bottom)
+            self.update()
+
+    def _handle_manual_fit_guide_line_selected(self, line_type: str, y: float):
+        """Handle Manual Fit setup guide-line selection."""
+        if self.manual_fit_guide_line_selected_callback is not None:
+            self.manual_fit_guide_line_selected_callback(line_type, y)
+            self.update()
+
     def set_manual_fit_mode(self, mode: str) -> None:
         self.interaction.set_manual_fit_mode(mode)
         self.update()
@@ -1954,6 +2002,9 @@ class KeyboardCanvas(QWidget):
         override_ids_callback=None,
         region_selected_callback=None,
         region_guides_callback=None,
+        keyboard_box_selected_callback=None,
+        guide_line_selected_callback=None,
+        overlays_visible_callback=None,
     ) -> None:
         self.manual_fit_group_move_callback = group_move_callback
         self.manual_fit_single_move_callback = single_move_callback
@@ -1961,6 +2012,9 @@ class KeyboardCanvas(QWidget):
         self.manual_fit_override_ids_callback = override_ids_callback
         self.manual_fit_region_selected_callback = region_selected_callback
         self.manual_fit_region_guides_callback = region_guides_callback
+        self.manual_fit_keyboard_box_selected_callback = keyboard_box_selected_callback
+        self.manual_fit_guide_line_selected_callback = guide_line_selected_callback
+        self.manual_fit_overlays_visible_callback = overlays_visible_callback
 
     def clear_manual_fit_callbacks(self) -> None:
         self.set_manual_fit_callbacks()

@@ -1,7 +1,7 @@
 """Manual keyboard fit tool window."""
 from __future__ import annotations
 
-from typing import Dict
+from typing import Dict, Optional
 
 from PySide6.QtCore import QSignalBlocker, Qt, Signal
 from PySide6.QtWidgets import (
@@ -25,9 +25,12 @@ PARAM_SPECS = [
     ("keyboard_width_delta", "Keyboard Width", -1000, 1000),
     ("left_edge_drift", "Left Edge Drift", -500, 500),
     ("right_edge_drift", "Right Edge Drift", -500, 500),
-    ("white_height_delta", "White Height", -500, 500),
-    ("black_y_delta", "Black Y", -500, 500),
-    ("black_height_delta", "Black Height", -500, 500),
+    ("white_band_top_delta", "White Band Top", -500, 500),
+    ("white_band_bottom_delta", "White Band Bottom", -500, 500),
+    ("black_band_top_delta", "Black Band Top", -500, 500),
+    ("black_band_bottom_delta", "Black Band Bottom", -500, 500),
+    ("white_x_inset", "White X Inset", 0, 500),
+    ("black_x_inset", "Black X Inset", 0, 500),
     ("black_width_delta", "Black Width", -500, 500),
 ]
 
@@ -36,19 +39,23 @@ class ManualKeyboardFitDialog(QDialog):
     """Modeless controls for manual overlay keyboard fitting."""
 
     params_changed = Signal(object)
+    octave_changed = Signal(int)
     mode_changed = Signal(str)
     reset_all_requested = Signal()
+    reset_position_requested = Signal()
     clear_selected_override_requested = Signal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, *, initial_octave: int = 0):
         super().__init__(parent, Qt.Tool | Qt.WindowCloseButtonHint)
+        self._initial_octave = int(initial_octave)
         self.setWindowTitle("Manual Fit")
         self.setModal(False)
         self.setWindowModality(Qt.NonModal)
-        self.resize(680, 440)
+        self.resize(760, 560)
 
         self.param_sliders: Dict[str, QSlider] = {}
         self.param_spinboxes: Dict[str, QSpinBox] = {}
+        self.param_reset_buttons: Dict[str, QPushButton] = {}
 
         self._setup_ui()
 
@@ -74,6 +81,19 @@ class ManualKeyboardFitDialog(QDialog):
         mode_layout.addWidget(self.single_overlay_radio)
         layout.addWidget(mode_group)
 
+        octave_row = QHBoxLayout()
+        octave_label = QLabel("Octave")
+        octave_label.setStyleSheet("font-weight: bold;")
+        self.octave_spinbox = QSpinBox()
+        self.octave_spinbox.setRange(-5, 5)
+        self.octave_spinbox.setValue(self._initial_octave)
+        self.octave_spinbox.setFixedWidth(78)
+        self.octave_spinbox.valueChanged.connect(self.octave_changed.emit)
+        octave_row.addWidget(octave_label)
+        octave_row.addWidget(self.octave_spinbox)
+        octave_row.addStretch()
+        layout.addLayout(octave_row)
+
         controls_group = QGroupBox("Keyboard Fit")
         controls_layout = QGridLayout(controls_group)
         controls_layout.setHorizontalSpacing(10)
@@ -88,6 +108,9 @@ class ManualKeyboardFitDialog(QDialog):
             spinbox.setRange(minimum, maximum)
             spinbox.setValue(0)
             spinbox.setFixedWidth(78)
+            reset_button = QPushButton("0")
+            reset_button.setFixedWidth(32)
+            reset_button.setToolTip(f"Reset {label}")
 
             slider.valueChanged.connect(
                 lambda value, param_name=name: self._handle_slider_changed(param_name, value)
@@ -95,27 +118,35 @@ class ManualKeyboardFitDialog(QDialog):
             spinbox.valueChanged.connect(
                 lambda value, param_name=name: self._handle_spinbox_changed(param_name, value)
             )
+            reset_button.clicked.connect(
+                lambda checked=False, param_name=name: self._handle_reset_param(param_name)
+            )
 
             self.param_sliders[name] = slider
             self.param_spinboxes[name] = spinbox
+            self.param_reset_buttons[name] = reset_button
             controls_layout.addWidget(label_widget, row, 0)
             controls_layout.addWidget(slider, row, 1)
             controls_layout.addWidget(spinbox, row, 2)
+            controls_layout.addWidget(reset_button, row, 3)
 
         layout.addWidget(controls_group, 1)
 
         action_row = QHBoxLayout()
         self.reset_all_button = QPushButton("Reset All")
+        self.reset_position_button = QPushButton("Reset Position")
         self.clear_selected_override_button = QPushButton("Clear Selected Override")
         self.cancel_button = QPushButton("Cancel")
         self.apply_button = QPushButton("Apply")
 
         self.reset_all_button.clicked.connect(self.reset_all_requested.emit)
+        self.reset_position_button.clicked.connect(self.reset_position_requested.emit)
         self.clear_selected_override_button.clicked.connect(self.clear_selected_override_requested.emit)
         self.cancel_button.clicked.connect(self.reject)
         self.apply_button.clicked.connect(self.accept)
 
         action_row.addWidget(self.reset_all_button)
+        action_row.addWidget(self.reset_position_button)
         action_row.addWidget(self.clear_selected_override_button)
         action_row.addStretch()
         action_row.addWidget(self.cancel_button)
@@ -129,9 +160,13 @@ class ManualKeyboardFitDialog(QDialog):
         }
         return ManualFitParams(**values)
 
-    def reset_controls(self) -> None:
+    def reset_controls(self, *, octave_value: Optional[int] = None) -> None:
         for name in self.param_spinboxes:
             self._set_control_value(name, 0)
+        if octave_value is None:
+            octave_value = self._initial_octave
+        with QSignalBlocker(self.octave_spinbox):
+            self.octave_spinbox.setValue(int(octave_value))
 
     def _set_control_value(self, name: str, value: int) -> None:
         slider = self.param_sliders[name]
@@ -148,6 +183,10 @@ class ManualKeyboardFitDialog(QDialog):
     def _handle_spinbox_changed(self, name: str, value: int) -> None:
         with QSignalBlocker(self.param_sliders[name]):
             self.param_sliders[name].setValue(value)
+        self.params_changed.emit(self.current_params())
+
+    def _handle_reset_param(self, name: str) -> None:
+        self._set_control_value(name, 0)
         self.params_changed.emit(self.current_params())
 
     def _handle_mode_toggled(self) -> None:

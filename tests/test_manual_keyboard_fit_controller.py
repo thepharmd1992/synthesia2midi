@@ -72,9 +72,10 @@ class _FakeApp(QWidget):
         self.app_state = AppState()
         self.keyboard_canvas = _KeyboardCanvas()
         self.settings_tool_window = _SettingsToolWindow()
+        self.control_updates = 0
         self.show_overlays_action = SimpleNamespace(checked=None, setChecked=lambda value: setattr(self.show_overlays_action, "checked", value))
         self.control_panel = SimpleNamespace(
-            update_controls_from_state=lambda: None,
+            update_controls_from_state=lambda: setattr(self, "control_updates", self.control_updates + 1),
             update_selected_overlay_display=lambda: None,
         )
 
@@ -132,7 +133,7 @@ def test_manual_fit_controller_opens_modeless_top_center_and_restores_settings()
         _flush_qt_deletes()
 
 
-def test_manual_fit_dialog_omits_removed_geometry_controls():
+def test_manual_fit_dialog_uses_detection_band_controls():
     QApplication.instance() or QApplication([])
     app = _FakeApp()
     app.app_state.overlays = [_overlay()]
@@ -142,9 +143,29 @@ def test_manual_fit_dialog_omits_removed_geometry_controls():
         assert controller.open() is True
         dialog = controller.active_dialog
 
-        assert "white_y_delta" not in dialog.param_spinboxes
-        assert "white_width_delta" not in dialog.param_spinboxes
-        assert "black_x_delta" not in dialog.param_spinboxes
+        expected_controls = {
+            "keyboard_width_delta",
+            "left_edge_drift",
+            "right_edge_drift",
+            "white_band_top_delta",
+            "white_band_bottom_delta",
+            "black_band_top_delta",
+            "black_band_bottom_delta",
+            "white_x_inset",
+            "black_x_inset",
+            "black_width_delta",
+        }
+        removed_controls = {
+            "white_y_delta",
+            "white_width_delta",
+            "black_x_delta",
+            "white_height_delta",
+            "black_y_delta",
+            "black_height_delta",
+        }
+
+        assert expected_controls.issubset(dialog.param_spinboxes)
+        assert removed_controls.isdisjoint(dialog.param_spinboxes)
     finally:
         if controller.active_dialog is not None:
             controller.active_dialog.reject()
@@ -163,8 +184,8 @@ def test_manual_fit_dialog_reset_and_clear_selected_override_update_preview():
         assert controller.open() is True
         dialog = controller.active_dialog
 
-        dialog.param_spinboxes["white_height_delta"].setValue(6)
-        assert app.app_state.overlays[0].height == 46
+        dialog.param_spinboxes["white_band_top_delta"].setValue(6)
+        assert app.app_state.overlays[0].y == 26
 
         app.keyboard_canvas.callbacks["single_move_callback"](0, 100, 50)
         assert controller.session.overridden_key_ids() == {1}
@@ -173,11 +194,121 @@ def test_manual_fit_dialog_reset_and_clear_selected_override_update_preview():
         assert controller.session.overridden_key_ids() == set()
 
         dialog.reset_all_button.click()
-        assert dialog.param_spinboxes["white_height_delta"].value() == 0
+        assert dialog.param_spinboxes["white_band_top_delta"].value() == 0
         assert app.app_state.overlays[0].height == 40
 
         dialog.reject()
         QApplication.processEvents()
+    finally:
+        if controller.active_dialog is not None:
+            controller.active_dialog.reject()
+        app.close()
+        app.deleteLater()
+        _flush_qt_deletes()
+
+
+def test_manual_fit_dialog_resets_individual_parameter():
+    QApplication.instance() or QApplication([])
+    app = _FakeApp()
+    app.app_state.overlays = [_overlay()]
+    controller = ManualKeyboardFitController(app)
+
+    try:
+        assert controller.open() is True
+        dialog = controller.active_dialog
+
+        dialog.param_spinboxes["white_band_top_delta"].setValue(12)
+        assert app.app_state.overlays[0].y == pytest.approx(32)
+
+        dialog.param_reset_buttons["white_band_top_delta"].click()
+
+        assert dialog.param_spinboxes["white_band_top_delta"].value() == 0
+        assert app.app_state.overlays[0].y == pytest.approx(20)
+    finally:
+        if controller.active_dialog is not None:
+            controller.active_dialog.reject()
+        app.close()
+        app.deleteLater()
+        _flush_qt_deletes()
+
+
+def test_manual_fit_reset_position_preserves_other_controls():
+    QApplication.instance() or QApplication([])
+    app = _FakeApp()
+    app.app_state.overlays = [_overlay()]
+    controller = ManualKeyboardFitController(app)
+
+    try:
+        assert controller.open() is True
+        dialog = controller.active_dialog
+
+        dialog.param_spinboxes["white_band_top_delta"].setValue(6)
+        app.keyboard_canvas.callbacks["group_move_callback"](30, 8)
+        assert app.app_state.overlays[0].x == pytest.approx(30)
+        assert app.app_state.overlays[0].y == pytest.approx(34)
+
+        dialog.reset_position_button.click()
+
+        assert controller.session.params.group_dx == pytest.approx(0)
+        assert controller.session.params.group_dy == pytest.approx(0)
+        assert dialog.param_spinboxes["white_band_top_delta"].value() == 6
+        assert app.app_state.overlays[0].x == pytest.approx(0)
+        assert app.app_state.overlays[0].y == pytest.approx(26)
+    finally:
+        if controller.active_dialog is not None:
+            controller.active_dialog.reject()
+        app.close()
+        app.deleteLater()
+        _flush_qt_deletes()
+
+
+def test_manual_fit_octave_cancel_restores_previous_value():
+    QApplication.instance() or QApplication([])
+    app = _FakeApp()
+    app.app_state.overlays = [_overlay()]
+    app.app_state.midi.octave_transpose = 1
+    app.app_state.unsaved_changes = False
+    controller = ManualKeyboardFitController(app)
+
+    try:
+        assert controller.open() is True
+        dialog = controller.active_dialog
+        assert dialog.octave_spinbox.value() == 1
+
+        dialog.octave_spinbox.setValue(2)
+        assert app.app_state.midi.octave_transpose == 2
+
+        dialog.reject()
+        QApplication.processEvents()
+
+        assert app.app_state.midi.octave_transpose == 1
+        assert app.app_state.unsaved_changes is False
+    finally:
+        if controller.active_dialog is not None:
+            controller.active_dialog.reject()
+        app.close()
+        app.deleteLater()
+        _flush_qt_deletes()
+
+
+def test_manual_fit_octave_apply_commits_value():
+    QApplication.instance() or QApplication([])
+    app = _FakeApp()
+    app.app_state.overlays = [_overlay()]
+    app.app_state.midi.octave_transpose = 1
+    controller = ManualKeyboardFitController(app)
+
+    try:
+        assert controller.open() is True
+        dialog = controller.active_dialog
+
+        dialog.octave_spinbox.setValue(2)
+        dialog.accept()
+        QApplication.processEvents()
+
+        assert app.app_state.midi.octave_transpose == 2
+        assert app.app_state.unsaved_changes is True
+        assert app.control_updates >= 1
     finally:
         if controller.active_dialog is not None:
             controller.active_dialog.reject()

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Callable, Optional
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QSignalBlocker, Qt
 from PySide6.QtWidgets import QMessageBox
 
 from synthesia2midi.gui.dialog_positioning import move_to_top_center_safe_zone
@@ -64,12 +64,17 @@ class ManualKeyboardFitController:
         )
         self.app.keyboard_canvas.set_manual_fit_mode("manual_fit_group")
 
-        dialog = self._dialog_factory(self.app)
+        dialog = self._dialog_factory(
+            self.app,
+            initial_octave=self.app.app_state.midi.octave_transpose,
+        )
         dialog.setModal(False)
         dialog.setWindowModality(Qt.NonModal)
         dialog.params_changed.connect(self._handle_params_changed)
+        dialog.octave_changed.connect(self._handle_octave_changed)
         dialog.mode_changed.connect(self._handle_mode_changed)
         dialog.reset_all_requested.connect(self._handle_reset_all)
+        dialog.reset_position_requested.connect(self._handle_reset_position)
         dialog.clear_selected_override_requested.connect(self._handle_clear_selected_override)
         dialog.accepted.connect(self._handle_apply)
         dialog.rejected.connect(self._handle_cancel)
@@ -85,6 +90,13 @@ class ManualKeyboardFitController:
         if self._session is None:
             return
         self._session.update_control_params(params)
+        self._refresh_preview()
+
+    def _handle_octave_changed(self, value: int) -> None:
+        if self._session is None:
+            return
+        self._session.set_octave_transpose(value)
+        self._sync_octave_control()
         self._refresh_preview()
 
     def _handle_mode_changed(self, mode: str) -> None:
@@ -128,7 +140,14 @@ class ManualKeyboardFitController:
             return
         self._session.reset_all()
         if self._dialog is not None:
-            self._dialog.reset_controls()
+            self._dialog.reset_controls(octave_value=self._session.current_octave_transpose())
+        self._sync_octave_control()
+        self._refresh_preview()
+
+    def _handle_reset_position(self) -> None:
+        if self._session is None:
+            return
+        self._session.reset_position()
         self._refresh_preview()
 
     def _handle_clear_selected_override(self) -> None:
@@ -155,6 +174,7 @@ class ManualKeyboardFitController:
         try:
             self.app.keyboard_canvas.clear_manual_fit_callbacks()
             self._restore_settings_tool_window()
+            self._sync_octave_control()
             self._refresh_preview()
             self._dialog = None
             self._session = None
@@ -174,6 +194,18 @@ class ManualKeyboardFitController:
         control_panel = getattr(self.app, "control_panel", None)
         if control_panel is not None and hasattr(control_panel, "update_selected_overlay_display"):
             control_panel.update_selected_overlay_display()
+
+    def _sync_octave_control(self) -> None:
+        control_panel = getattr(self.app, "control_panel", None)
+        if control_panel is None:
+            return
+        octave_spin = getattr(control_panel, "octave_transpose_spin", None)
+        if octave_spin is not None:
+            with QSignalBlocker(octave_spin):
+                octave_spin.setValue(self.app.app_state.midi.octave_transpose)
+            return
+        if hasattr(control_panel, "update_controls_from_state"):
+            control_panel.update_controls_from_state()
 
     def _hide_settings_tool_window(self) -> bool:
         settings_tool_window = getattr(self.app, "settings_tool_window", None)

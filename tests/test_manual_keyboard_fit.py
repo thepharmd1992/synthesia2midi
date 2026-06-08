@@ -87,28 +87,37 @@ def test_manual_fit_edge_drift_moves_edges_more_than_center():
     assert shifts[0] > shifts[1] > shifts[2]
 
 
-def test_manual_fit_remaining_shape_controls_are_color_scoped():
+def test_manual_fit_detection_band_controls_make_safe_roi_boxes():
     app_state = _state_with_overlays()
     session = ManualKeyboardFitSession(app_state)
 
     session.update_params(
         ManualFitParams(
-            white_height_delta=6,
-            black_y_delta=-3,
-            black_height_delta=5,
+            white_band_top_delta=25,
+            white_band_bottom_delta=-5,
+            black_band_top_delta=2,
+            black_band_bottom_delta=-4,
+            white_x_inset=2,
+            black_x_inset=1,
             black_width_delta=4,
         )
     )
 
     white_left, black, white_right = app_state.overlays
-    assert (white_left.y, white_left.height, white_left.width) == pytest.approx((20, 46, 10))
-    assert (white_right.y, white_right.height, white_right.width) == pytest.approx((20, 46, 10))
-    assert (black.y, black.height, black.width) == pytest.approx((7, 25, 10))
-    assert black.x == pytest.approx(10)
+    assert (white_left.x, white_left.y, white_left.width, white_left.height) == pytest.approx((2, 45, 6, 10))
+    assert (white_right.x, white_right.y, white_right.width, white_right.height) == pytest.approx((26, 45, 6, 10))
+    assert (black.x, black.y, black.width, black.height) == pytest.approx((11, 12, 8, 14))
 
 
 def test_manual_fit_removed_geometry_controls_are_not_backend_parameters():
-    removed_names = {"white_y_delta", "white_width_delta", "black_x_delta"}
+    removed_names = {
+        "white_y_delta",
+        "white_width_delta",
+        "black_x_delta",
+        "white_height_delta",
+        "black_y_delta",
+        "black_height_delta",
+    }
 
     assert removed_names.isdisjoint({field.name for field in fields(ManualFitParams)})
 

@@ -17,9 +17,12 @@ class ManualFitParams:
     keyboard_width_delta: float = 0.0
     left_edge_drift: float = 0.0
     right_edge_drift: float = 0.0
-    white_height_delta: float = 0.0
-    black_y_delta: float = 0.0
-    black_height_delta: float = 0.0
+    white_band_top_delta: float = 0.0
+    white_band_bottom_delta: float = 0.0
+    black_band_top_delta: float = 0.0
+    black_band_bottom_delta: float = 0.0
+    white_x_inset: float = 0.0
+    black_x_inset: float = 0.0
     black_width_delta: float = 0.0
 
 
@@ -27,9 +30,12 @@ CONTROL_PARAM_NAMES = (
     "keyboard_width_delta",
     "left_edge_drift",
     "right_edge_drift",
-    "white_height_delta",
-    "black_y_delta",
-    "black_height_delta",
+    "white_band_top_delta",
+    "white_band_bottom_delta",
+    "black_band_top_delta",
+    "black_band_bottom_delta",
+    "white_x_inset",
+    "black_x_inset",
     "black_width_delta",
 )
 
@@ -55,6 +61,7 @@ class ManualKeyboardFitSession:
         self.app_state = app_state
         self.params = ManualFitParams()
         self._previous_unsaved_changes = bool(app_state.unsaved_changes)
+        self._previous_octave_transpose = int(getattr(app_state.midi, "octave_transpose", 0))
         self._baseline: Dict[int, OverlayGeometry] = {
             overlay.key_id: OverlayGeometry(
                 float(overlay.x),
@@ -86,6 +93,18 @@ class ManualKeyboardFitSession:
         self.params.group_dx += float(dx)
         self.params.group_dy += float(dy)
         self.apply_preview()
+
+    def reset_position(self) -> None:
+        self.params.group_dx = 0.0
+        self.params.group_dy = 0.0
+        self.apply_preview()
+
+    def set_octave_transpose(self, value: int) -> None:
+        self.app_state.midi.octave_transpose = int(value)
+        self.app_state.unsaved_changes = True
+
+    def current_octave_transpose(self) -> int:
+        return int(getattr(self.app_state.midi, "octave_transpose", 0))
 
     def move_single_overlay_by_index(self, overlay_index: int, new_x: float, new_y: float) -> bool:
         if not 0 <= overlay_index < len(self.app_state.overlays):
@@ -146,10 +165,12 @@ class ManualKeyboardFitSession:
     def reset_all(self) -> None:
         self.params = ManualFitParams()
         self._overrides.clear()
+        self.app_state.midi.octave_transpose = self._previous_octave_transpose
         self.apply_preview()
 
     def cancel(self) -> None:
         self._restore_baseline()
+        self.app_state.midi.octave_transpose = self._previous_octave_transpose
         self.app_state.unsaved_changes = self._previous_unsaved_changes
 
     def apply(self) -> None:
@@ -206,21 +227,32 @@ class ManualKeyboardFitSession:
         )
 
         x = scaled_center_x - scaled_width / 2 + self.params.group_dx + edge_shift
-        y = baseline.y + self.params.group_dy
         width = scaled_width
-        height = baseline.height
+        top = baseline.y + self.params.group_dy
+        bottom = baseline.y + baseline.height + self.params.group_dy
 
         overlay = next((candidate for candidate in self.app_state.overlays if candidate.key_id == key_id), None)
         is_white = overlay is not None and overlay.note_name_in_octave in WHITE_NOTE_NAMES
         if is_white:
-            height = max(1.0, height + self.params.white_height_delta)
+            top += self.params.white_band_top_delta
+            bottom += self.params.white_band_bottom_delta
+            x, width = self._apply_x_inset(x, width, self.params.white_x_inset)
         else:
-            y += self.params.black_y_delta
-            height = max(1.0, height + self.params.black_height_delta)
+            top += self.params.black_band_top_delta
+            bottom += self.params.black_band_bottom_delta
             width = max(1.0, width + self.params.black_width_delta)
             x = (scaled_center_x + self.params.group_dx + edge_shift) - width / 2
+            x, width = self._apply_x_inset(x, width, self.params.black_x_inset)
 
-        return OverlayGeometry(x, y, width, height)
+        if bottom < top + 1.0:
+            bottom = top + 1.0
+
+        return OverlayGeometry(x, top, width, bottom - top)
+
+    @staticmethod
+    def _apply_x_inset(x: float, width: float, inset: float) -> Tuple[float, float]:
+        safe_inset = max(0.0, min(float(inset), (width - 1.0) / 2.0))
+        return x + safe_inset, max(1.0, width - (2.0 * safe_inset))
 
     @staticmethod
     def _calculate_bounds(geometries: Iterable[OverlayGeometry]) -> Tuple[float, float, float, float]:

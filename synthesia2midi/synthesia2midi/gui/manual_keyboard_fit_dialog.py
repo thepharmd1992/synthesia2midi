@@ -25,13 +25,10 @@ PARAM_SPECS = [
     ("keyboard_width_delta", "Keyboard Width", -1000, 1000),
     ("left_edge_drift", "Left Edge Drift", -500, 500),
     ("right_edge_drift", "Right Edge Drift", -500, 500),
-    ("white_y_delta", "White Y", -500, 500),
     ("white_height_delta", "White Height", -500, 500),
-    ("white_width_delta", "White Width", -500, 500),
     ("black_y_delta", "Black Y", -500, 500),
     ("black_height_delta", "Black Height", -500, 500),
     ("black_width_delta", "Black Width", -500, 500),
-    ("black_x_delta", "Black X Offset", -500, 500),
 ]
 
 
@@ -48,7 +45,7 @@ class ManualKeyboardFitDialog(QDialog):
         self.setWindowTitle("Manual Fit")
         self.setModal(False)
         self.setWindowModality(Qt.NonModal)
-        self.resize(680, 520)
+        self.resize(680, 440)
 
         self.param_sliders: Dict[str, QSlider] = {}
         self.param_spinboxes: Dict[str, QSpinBox] = {}

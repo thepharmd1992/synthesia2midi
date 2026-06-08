@@ -132,6 +132,27 @@ def test_manual_fit_controller_opens_modeless_top_center_and_restores_settings()
         _flush_qt_deletes()
 
 
+def test_manual_fit_dialog_omits_removed_geometry_controls():
+    QApplication.instance() or QApplication([])
+    app = _FakeApp()
+    app.app_state.overlays = [_overlay()]
+    controller = ManualKeyboardFitController(app)
+
+    try:
+        assert controller.open() is True
+        dialog = controller.active_dialog
+
+        assert "white_y_delta" not in dialog.param_spinboxes
+        assert "white_width_delta" not in dialog.param_spinboxes
+        assert "black_x_delta" not in dialog.param_spinboxes
+    finally:
+        if controller.active_dialog is not None:
+            controller.active_dialog.reject()
+        app.close()
+        app.deleteLater()
+        _flush_qt_deletes()
+
+
 def test_manual_fit_dialog_reset_and_clear_selected_override_update_preview():
     QApplication.instance() or QApplication([])
     app = _FakeApp()

@@ -17,26 +17,20 @@ class ManualFitParams:
     keyboard_width_delta: float = 0.0
     left_edge_drift: float = 0.0
     right_edge_drift: float = 0.0
-    white_y_delta: float = 0.0
     white_height_delta: float = 0.0
-    white_width_delta: float = 0.0
     black_y_delta: float = 0.0
     black_height_delta: float = 0.0
     black_width_delta: float = 0.0
-    black_x_delta: float = 0.0
 
 
 CONTROL_PARAM_NAMES = (
     "keyboard_width_delta",
     "left_edge_drift",
     "right_edge_drift",
-    "white_y_delta",
     "white_height_delta",
-    "white_width_delta",
     "black_y_delta",
     "black_height_delta",
     "black_width_delta",
-    "black_x_delta",
 )
 
 
@@ -219,16 +213,12 @@ class ManualKeyboardFitSession:
         overlay = next((candidate for candidate in self.app_state.overlays if candidate.key_id == key_id), None)
         is_white = overlay is not None and overlay.note_name_in_octave in WHITE_NOTE_NAMES
         if is_white:
-            y += self.params.white_y_delta
             height = max(1.0, height + self.params.white_height_delta)
-            width = max(1.0, width + self.params.white_width_delta)
-            x = (scaled_center_x + self.params.group_dx + edge_shift) - width / 2
         else:
             y += self.params.black_y_delta
             height = max(1.0, height + self.params.black_height_delta)
             width = max(1.0, width + self.params.black_width_delta)
             x = (scaled_center_x + self.params.group_dx + edge_shift) - width / 2
-            x += self.params.black_x_delta
 
         return OverlayGeometry(x, y, width, height)
 

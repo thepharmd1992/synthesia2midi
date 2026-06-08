@@ -19,10 +19,11 @@ A refactor wave that keeps behavior stable while extracting low-risk `main.py` r
 
 ## Current Focus
 
-M0 operating-model cleanup: root `AGENTS.md` is the canonical agent operating contract, `PROJECT_LOG.md` is the concise state handoff, and detailed setup/test/runbook instructions stay in their canonical docs instead of being copied here.
+Backlog and Spec Kit workflow adoption: root `AGENTS.md` remains the canonical agent operating contract, Backlog now owns planning/status memory, Spec Kit owns non-trivial feature planning, and existing root docs remain canonical until deliberately migrated.
 
 ## Completed
 
+- 2026-06-08 Backlog/Spec Kit workflow foundation: installed Backlog under `backlog/`, Spec Kit under `.specify/` with Codex skills, created an inactive Spec Kit feature pointer, recorded the planning decision, and added starter process/product/parking-lot Backlog docs.
 - 2026-05-29 M0 docs consistency pass: added a docs index, confirmed root `AGENTS.md` as the single canonical agent operating model, and moved duplicated active command/runbook instructions back to `README.md` and `docs/testing.md` links.
 - 2026-05-29 M0 operating-model update: confirmed the existing root `PROJECT_LOG.md` is the project state log; root `AGENTS.md` remains tracked and canonical for agent instructions; follow-on doc-link work should point README/docs index readers here without duplicating command runbooks.
 - Fixed blocking f-string syntax error in `synthesia2midi/synthesia2midi/main.py`.
@@ -39,7 +40,7 @@ M0 operating-model cleanup: root `AGENTS.md` is the canonical agent operating co
 
 ## Active Task
 
-M0 operating-model cleanup (Kanban root `t_162eeb6f`): final docs consistency pass is complete pending review/parent closeout.
+TASK-1 Backlog/Spec Kit setup is complete. Future non-trivial work should start from a Backlog task and use Spec Kit only when the implementation needs formal specs/plans/tasks.
 
 ## Blockers
 
@@ -54,6 +55,7 @@ None known.
 
 ## Decisions / Rationale
 
+- Use Backlog as the planning memory and status surface. Use Spec Kit for non-trivial feature execution planning. Keep existing root docs canonical until specific content is deliberately migrated.
 - Track `AGENTS.md` in this repo because future development is intentionally agent-driven. The previous `.gitignore` rule for `AGENTS.md` was local-agent oriented and conflicted with the new operating model.
 - Use characterization-first extraction instead of rewriting `main.py` from scratch. The app reportedly works, so risk is behavior drift, not missing architecture.
 - Keep thin compatibility wrappers in `main.py` during extraction so existing Qt signal wiring can remain stable.
@@ -63,4 +65,4 @@ None known.
 
 ## Next Action
 
-Close the M0 operating-model parent after review. The next product/refactor work is detector coverage with real-world fixture cases or low-value `main.py` menu/layout glue if GUI work resumes.
+Create or update a Backlog task before the next non-trivial product/refactor slice, then decide whether that slice needs Spec Kit planning.

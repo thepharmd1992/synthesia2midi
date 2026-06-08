@@ -12,6 +12,9 @@ Canonical agent operating model for this repo. Keep this file short: it is the o
 ## Read Before Editing
 
 - Project status, rationale, blockers, and parking lot: [`PROJECT_LOG.md`](PROJECT_LOG.md)
+- Current and historical work: [`backlog/tasks/`](backlog/tasks/)
+- Durable workflow/product docs and decisions: [`backlog/docs/`](backlog/docs/) and [`backlog/decisions/`](backlog/decisions/)
+- Current Spec Kit feature pointer: [`.specify/feature.json`](.specify/feature.json), then the referenced feature under [`specs/`](specs/) if active.
 - Architecture and subsystem boundaries: [`ARCHITECTURE.MD`](ARCHITECTURE.MD)
 - Task ownership, scoping, and handoff format: [`docs/task-boundaries.md`](docs/task-boundaries.md)
 - Verification and testing commands: [`docs/testing.md`](docs/testing.md)
@@ -24,6 +27,8 @@ Canonical agent operating model for this repo. Keep this file short: it is the o
 - Add or update tests before behavior changes and before risky refactors.
 - Do not commit generated media, logs, extracted frames, MIDI files, `.venv`, or Rust `target/` output.
 - For multi-step refactors, setup changes, and UI/layout work, make frequent small checkpoint commits after each coherent slice passes relevant verification.
+- Use one Backlog task with acceptance criteria for non-trivial work. Backlog owns status.
+- Use Spec Kit for non-trivial feature planning. Spec Kit owns feature detail, not project status.
 
 ## Command and Runbook Ownership
 
@@ -38,6 +43,11 @@ When a command changes, update the owning document first, then update links or s
 ## Documentation Updates
 
 - Keep docs focused on stable contracts, commands, decisions, and boundaries.
-- Record durable project decisions, scope changes, blocker/parking-lot calls, and next actions in [`PROJECT_LOG.md`](PROJECT_LOG.md); keep transient task chatter in Kanban/comments.
+- Record durable project decisions in [`backlog/decisions/`](backlog/decisions/) and durable workflow/product planning in [`backlog/docs/`](backlog/docs/).
+- Keep [`PROJECT_LOG.md`](PROJECT_LOG.md) as a concise state handoff until specific content is migrated to Backlog.
 - Update [`ARCHITECTURE.MD`](ARCHITECTURE.MD) for architecture changes, [`docs/task-boundaries.md`](docs/task-boundaries.md) for ownership/scoping changes, and [`docs/testing.md`](docs/testing.md) for verification changes.
 - Do not create a second canonical agent operating model. If this file is ever retired, replace it with one linked successor instead of keeping parallel guidance.
+
+<!-- SPECKIT START -->
+Current Spec Kit feature: none. When active, read `.specify/feature.json`, then the referenced feature directory under `specs/`.
+<!-- SPECKIT END -->

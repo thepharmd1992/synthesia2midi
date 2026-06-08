@@ -61,6 +61,8 @@ class ManualKeyboardFitController:
             single_move_callback=self._handle_single_move,
             single_resize_callback=self._handle_single_resize,
             override_ids_callback=self._override_ids,
+            region_selected_callback=self._handle_region_selected,
+            region_guides_callback=self._region_guides,
         )
         self.app.keyboard_canvas.set_manual_fit_mode("manual_fit_group")
 
@@ -76,6 +78,8 @@ class ManualKeyboardFitController:
         dialog.reset_all_requested.connect(self._handle_reset_all)
         dialog.reset_position_requested.connect(self._handle_reset_position)
         dialog.clear_selected_override_requested.connect(self._handle_clear_selected_override)
+        dialog.set_black_region_requested.connect(self._handle_set_black_region)
+        dialog.set_white_region_requested.connect(self._handle_set_white_region)
         dialog.accepted.connect(self._handle_apply)
         dialog.rejected.connect(self._handle_cancel)
         self._dialog = dialog
@@ -102,6 +106,12 @@ class ManualKeyboardFitController:
     def _handle_mode_changed(self, mode: str) -> None:
         self.app.keyboard_canvas.set_manual_fit_mode(mode)
 
+    def _handle_set_black_region(self) -> None:
+        self.app.keyboard_canvas.set_manual_fit_mode("manual_fit_black_region")
+
+    def _handle_set_white_region(self) -> None:
+        self.app.keyboard_canvas.set_manual_fit_mode("manual_fit_white_region")
+
     def _handle_group_move(self, dx: float, dy: float) -> None:
         if self._session is None:
             return
@@ -114,6 +124,13 @@ class ManualKeyboardFitController:
         updated = self._session.move_single_overlay_by_index(overlay_index, new_x, new_y)
         self._refresh_preview()
         return updated
+
+    def _handle_region_selected(self, region_type: str, top: float, bottom: float) -> None:
+        if self._session is None:
+            return
+        self._session.set_detection_region(region_type, top, bottom)
+        self.app.keyboard_canvas.set_manual_fit_mode("manual_fit_group")
+        self._refresh_preview()
 
     def _handle_single_resize(
         self,
@@ -187,6 +204,11 @@ class ManualKeyboardFitController:
         if self._session is None:
             return set()
         return self._session.overridden_key_ids()
+
+    def _region_guides(self) -> dict:
+        if self._session is None:
+            return {}
+        return self._session.detection_region_guides()
 
     def _refresh_preview(self) -> None:
         if hasattr(self.app.keyboard_canvas, "update"):

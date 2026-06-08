@@ -47,25 +47,25 @@ def test_manual_fit_group_translate_moves_every_overlay_and_preserves_note_ident
         (2, "C♯", 4),
         (3, "D", 4),
     ]
-    assert [(o.x, o.y) for o in app_state.overlays] == [
-        (7, 17),
-        (19, 7),
-        (31, 17),
-    ]
+    assert [(o.x, o.y) for o in app_state.overlays] == pytest.approx([
+        (8, 23),
+        (19.6, 10),
+        (32, 23),
+    ])
     assert app_state.unsaved_changes is True
 
 
-def test_manual_fit_keyboard_width_scales_white_and_black_keys_from_same_span():
+def test_manual_fit_keyboard_width_scales_centers_and_safe_widths_from_same_span():
     app_state = _state_with_overlays()
     baseline_span = _bounds(app_state.overlays)[2]
     session = ManualKeyboardFitSession(app_state)
 
     session.set_param("keyboard_width_delta", baseline_span)
 
-    assert _bounds(app_state.overlays)[2] == pytest.approx(baseline_span * 2)
-    assert app_state.overlays[0].width == pytest.approx(20)
-    assert app_state.overlays[1].width == pytest.approx(12)
-    assert app_state.overlays[2].width == pytest.approx(20)
+    assert _bounds(app_state.overlays)[2] == pytest.approx(64)
+    assert app_state.overlays[0].width == pytest.approx(16)
+    assert app_state.overlays[1].width == pytest.approx(9.6)
+    assert app_state.overlays[2].width == pytest.approx(16)
 
 
 def test_manual_fit_edge_drift_moves_edges_more_than_center():
@@ -87,26 +87,30 @@ def test_manual_fit_edge_drift_moves_edges_more_than_center():
     assert shifts[0] > shifts[1] > shifts[2]
 
 
-def test_manual_fit_detection_band_controls_make_safe_roi_boxes():
+def test_manual_fit_drawn_regions_apply_visible_safe_margins():
     app_state = _state_with_overlays()
     session = ManualKeyboardFitSession(app_state)
 
-    session.update_params(
-        ManualFitParams(
-            white_band_top_delta=25,
-            white_band_bottom_delta=-5,
-            black_band_top_delta=2,
-            black_band_bottom_delta=-4,
-            white_x_inset=2,
-            black_x_inset=1,
-            black_width_delta=4,
-        )
-    )
+    session.set_detection_region("white", 50, 100)
+    session.set_detection_region("black", 10, 40)
 
     white_left, black, white_right = app_state.overlays
-    assert (white_left.x, white_left.y, white_left.width, white_left.height) == pytest.approx((2, 45, 6, 10))
-    assert (white_right.x, white_right.y, white_right.width, white_right.height) == pytest.approx((26, 45, 6, 10))
-    assert (black.x, black.y, black.width, black.height) == pytest.approx((11, 12, 8, 14))
+    assert (white_left.x, white_left.y, white_left.width, white_left.height) == pytest.approx((1, 57.5, 8, 35))
+    assert (white_right.x, white_right.y, white_right.width, white_right.height) == pytest.approx((25, 57.5, 8, 35))
+    assert (black.x, black.y, black.width, black.height) == pytest.approx((12.6, 14.5, 4.8, 21))
+
+
+def test_manual_fit_keyboard_top_moves_safe_top_only():
+    app_state = _state_with_overlays()
+    session = ManualKeyboardFitSession(app_state)
+
+    session.set_detection_region("white", 50, 100)
+    session.set_detection_region("black", 10, 40)
+    session.set_param("keyboard_top_delta", 10)
+
+    white_left, black, _white_right = app_state.overlays
+    assert (white_left.y, white_left.height) == pytest.approx((66, 28))
+    assert (black.y, black.height) == pytest.approx((23, 14))
 
 
 def test_manual_fit_removed_geometry_controls_are_not_backend_parameters():
@@ -117,6 +121,12 @@ def test_manual_fit_removed_geometry_controls_are_not_backend_parameters():
         "white_height_delta",
         "black_y_delta",
         "black_height_delta",
+        "white_band_top_delta",
+        "white_band_bottom_delta",
+        "black_band_top_delta",
+        "black_band_bottom_delta",
+        "white_x_inset",
+        "black_x_inset",
     }
 
     assert removed_names.isdisjoint({field.name for field in fields(ManualFitParams)})
@@ -131,7 +141,7 @@ def test_manual_fit_single_overlay_override_survives_later_group_changes():
 
     assert app_state.overlays[0].x == pytest.approx(110)
     assert app_state.overlays[0].y == pytest.approx(50)
-    assert app_state.overlays[1].x == pytest.approx(22)
+    assert app_state.overlays[1].x == pytest.approx(22.6)
     assert session.overridden_key_ids() == {1}
 
 
@@ -145,7 +155,7 @@ def test_manual_fit_control_updates_preserve_current_group_position():
     assert session.params.group_dx == pytest.approx(30)
     assert session.params.group_dy == pytest.approx(8)
     assert app_state.overlays[0].x > 0
-    assert app_state.overlays[0].y == pytest.approx(28)
+    assert app_state.overlays[0].y == pytest.approx(34)
 
 
 def test_manual_fit_cancel_restores_baseline_and_previous_unsaved_state():

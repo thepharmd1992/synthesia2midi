@@ -170,6 +170,8 @@ class KeyboardCanvas(QWidget):
         self.manual_fit_single_move_callback = None
         self.manual_fit_single_resize_callback = None
         self.manual_fit_override_ids_callback = None
+        self.manual_fit_region_selected_callback = None
+        self.manual_fit_region_guides_callback = None
 
         # Set widget properties
         # Keep a modest minimum so the window can fit smaller displays, but start larger
@@ -1176,14 +1178,40 @@ class KeyboardCanvas(QWidget):
         override_ids = set()
         if self.manual_fit_override_ids_callback is not None:
             override_ids = set(self.manual_fit_override_ids_callback())
+        region_guides = {}
+        if self.manual_fit_region_guides_callback is not None:
+            region_guides = dict(self.manual_fit_region_guides_callback())
 
-        if mode != "manual_fit_group" and not override_ids:
+        if mode != "manual_fit_group" and not override_ids and not region_guides:
             return
         if not self.app_state.overlays:
             return
 
         painter.save()
         try:
+            overlay_left = min(float(overlay.x) for overlay in self.app_state.overlays)
+            overlay_right = max(float(overlay.x + overlay.width) for overlay in self.app_state.overlays)
+            guide_width = max(1.0, overlay_right - overlay_left)
+            for region_type, region in region_guides.items():
+                top = float(getattr(region, "top", 0.0))
+                bottom = float(getattr(region, "bottom", top + 1.0))
+                x1_c, y1_c, x2_c, y2_c = self._map_image_to_canvas_coords(
+                    overlay_left,
+                    top,
+                    guide_width,
+                    max(1.0, bottom - top),
+                )
+                rect = QRect(x1_c, y1_c, x2_c - x1_c, y2_c - y1_c)
+                if not rect.intersects(clip_rect):
+                    continue
+                color = QColor("#ffb000") if region_type == "black" else QColor("#00a7ff")
+                fill = QColor(color)
+                fill.setAlpha(35)
+                painter.fillRect(rect, fill)
+                painter.setPen(QPen(color, 2, Qt.DashLine))
+                painter.setBrush(Qt.NoBrush)
+                painter.drawRect(rect)
+
             if mode == "manual_fit_group":
                 bounds = []
                 for overlay in self.app_state.overlays:
@@ -1806,6 +1834,7 @@ class KeyboardCanvas(QWidget):
         self.interaction.overlay_moved.connect(self._handle_overlay_moved)
         self.interaction.overlay_resized.connect(self._handle_overlay_resized)
         self.interaction.manual_fit_group_moved.connect(self._handle_manual_fit_group_moved)
+        self.interaction.manual_fit_region_selected.connect(self._handle_manual_fit_region_selected)
         self.interaction.color_picked.connect(self._handle_color_picked)
         self.interaction.request_repaint.connect(self._handle_repaint_request)
         self.interaction.spark_roi_selected.connect(self._handle_spark_roi_selected)
@@ -1906,6 +1935,12 @@ class KeyboardCanvas(QWidget):
             self.manual_fit_group_move_callback(dx, dy)
             self.update()
 
+    def _handle_manual_fit_region_selected(self, region_type: str, top: float, bottom: float):
+        """Handle Manual Fit black/white detection-region selection."""
+        if self.manual_fit_region_selected_callback is not None:
+            self.manual_fit_region_selected_callback(region_type, top, bottom)
+            self.update()
+
     def set_manual_fit_mode(self, mode: str) -> None:
         self.interaction.set_manual_fit_mode(mode)
         self.update()
@@ -1917,11 +1952,15 @@ class KeyboardCanvas(QWidget):
         single_move_callback=None,
         single_resize_callback=None,
         override_ids_callback=None,
+        region_selected_callback=None,
+        region_guides_callback=None,
     ) -> None:
         self.manual_fit_group_move_callback = group_move_callback
         self.manual_fit_single_move_callback = single_move_callback
         self.manual_fit_single_resize_callback = single_resize_callback
         self.manual_fit_override_ids_callback = override_ids_callback
+        self.manual_fit_region_selected_callback = region_selected_callback
+        self.manual_fit_region_guides_callback = region_guides_callback
 
     def clear_manual_fit_callbacks(self) -> None:
         self.set_manual_fit_callbacks()

@@ -35,6 +35,7 @@ class CanvasInteraction(QObject):
     overlay_moved = Signal(int, float, float)  # overlay_index, new_x, new_y
     overlay_resized = Signal(int, float, float, float, float)  # index, x, y, w, h
     manual_fit_group_moved = Signal(float, float)  # image-space dx, dy
+    manual_fit_region_selected = Signal(str, float, float)  # region_type, top_y, bottom_y
     color_picked = Signal(int, int, int, int, int)  # r, g, b, image_x, image_y from Ctrl+click
     request_repaint = Signal()  # Request canvas repaint after interaction
     spark_roi_selected = Signal(int, int)  # top_y, bottom_y coordinates for spark ROI
@@ -59,6 +60,9 @@ class CanvasInteraction(QObject):
         self._manual_fit_mode = "off"
         self._manual_fit_group_dragging = False
         self._manual_fit_group_drag_start = QPoint()
+        self._manual_fit_region_selecting = False
+        self._manual_fit_region_start_pos = QPoint()
+        self._manual_fit_region_rubber_band = None
         
         # Performance optimization: throttle repaint requests during drag
         self._last_repaint_request = 0
@@ -145,10 +149,17 @@ class CanvasInteraction(QObject):
 
     def set_manual_fit_mode(self, mode: str) -> None:
         """Set manual keyboard fit interaction mode."""
-        if mode not in {"off", "manual_fit_group", "manual_fit_single"}:
+        if mode not in {
+            "off",
+            "manual_fit_group",
+            "manual_fit_single",
+            "manual_fit_black_region",
+            "manual_fit_white_region",
+        }:
             raise ValueError(f"Unknown manual fit mode: {mode}")
         self._manual_fit_mode = mode
         self._manual_fit_group_dragging = False
+        self._manual_fit_region_selecting = False
 
     def manual_fit_mode(self) -> str:
         return self._manual_fit_mode
@@ -183,6 +194,8 @@ class CanvasInteraction(QObject):
             return self._handle_keyboard_region_selection_press(event)
         elif self._roi_selection_mode:
             return self._handle_roi_selection_press(event)
+        elif self._manual_fit_mode in {"manual_fit_black_region", "manual_fit_white_region"}:
+            return self._handle_manual_fit_region_press(event)
         elif self._manual_fit_mode == "manual_fit_group":
             return self._handle_manual_fit_group_press(event)
         elif event.modifiers() & Qt.ControlModifier:
@@ -197,6 +210,9 @@ class CanvasInteraction(QObject):
             return True
         elif self._roi_selecting:
             self._handle_roi_selection_move(event)
+            return True
+        elif self._manual_fit_region_selecting:
+            self._handle_manual_fit_region_move(event)
             return True
         elif self._manual_fit_group_dragging:
             self._handle_manual_fit_group_motion(event)
@@ -217,6 +233,9 @@ class CanvasInteraction(QObject):
             return True
         elif self._roi_selecting:
             self._handle_roi_selection_release(event)
+            return True
+        elif self._manual_fit_region_selecting:
+            self._handle_manual_fit_region_release(event)
             return True
         elif self._manual_fit_group_dragging:
             self._finish_manual_fit_group_drag()
@@ -467,6 +486,67 @@ class CanvasInteraction(QObject):
     def _finish_manual_fit_group_drag(self) -> None:
         self._manual_fit_group_dragging = False
         self.request_repaint.emit()
+
+    def _handle_manual_fit_region_press(self, event: QMouseEvent) -> bool:
+        if event.button() == Qt.RightButton:
+            self._finish_manual_fit_region_selection()
+            self.set_manual_fit_mode("manual_fit_group")
+            return True
+        if event.button() != Qt.LeftButton:
+            return False
+        self._manual_fit_region_selecting = True
+        self._manual_fit_region_start_pos = QPoint(event.x(), event.y())
+        if not self._manual_fit_region_rubber_band:
+            try:
+                self._manual_fit_region_rubber_band = QRubberBand(QRubberBand.Rectangle, self.canvas)
+            except (TypeError, AttributeError):
+                self.logger.debug("Cannot create Manual Fit QRubberBand - canvas not a valid QWidget")
+        if self._manual_fit_region_rubber_band:
+            self._manual_fit_region_rubber_band.setGeometry(
+                QRect(self._manual_fit_region_start_pos, self._manual_fit_region_start_pos)
+            )
+            self._manual_fit_region_rubber_band.show()
+            self._manual_fit_region_rubber_band.setAttribute(Qt.WA_TransparentForMouseEvents)
+        return True
+
+    def _handle_manual_fit_region_move(self, event: QMouseEvent) -> None:
+        if not self._manual_fit_region_rubber_band:
+            return
+        current_pos = QPoint(event.x(), event.y())
+        selection_rect = QRect(self._manual_fit_region_start_pos, current_pos).normalized()
+        self._manual_fit_region_rubber_band.setGeometry(selection_rect)
+
+    def _handle_manual_fit_region_release(self, event: QMouseEvent) -> None:
+        if event.button() != Qt.LeftButton:
+            return
+        end_pos = QPoint(event.x(), event.y())
+        selection_rect = QRect(self._manual_fit_region_start_pos, end_pos).normalized()
+        start_img = self.coord_manager.canvas_to_image(
+            selection_rect.x(),
+            selection_rect.y(),
+            clamp_to_bounds=True,
+        )
+        end_img = self.coord_manager.canvas_to_image(
+            selection_rect.right(),
+            selection_rect.bottom(),
+            clamp_to_bounds=True,
+        )
+        region_type = "black" if self._manual_fit_mode == "manual_fit_black_region" else "white"
+        self._finish_manual_fit_region_selection()
+        self.set_manual_fit_mode("manual_fit_group")
+        if not start_img or not end_img:
+            return
+        top = min(float(start_img[1]), float(end_img[1]))
+        bottom = max(float(start_img[1]), float(end_img[1]))
+        if bottom <= top:
+            return
+        self.manual_fit_region_selected.emit(region_type, top, bottom)
+        self.request_repaint.emit()
+
+    def _finish_manual_fit_region_selection(self) -> None:
+        self._manual_fit_region_selecting = False
+        if self._manual_fit_region_rubber_band:
+            self._manual_fit_region_rubber_band.hide()
 
     def _is_point_inside_overlay_bounds(self, canvas_x: float, canvas_y: float) -> bool:
         if not self._get_overlays_callback:

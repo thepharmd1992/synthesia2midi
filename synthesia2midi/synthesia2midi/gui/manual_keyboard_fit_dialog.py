@@ -23,14 +23,9 @@ from synthesia2midi.workflows.manual_keyboard_fit import ManualFitParams
 
 PARAM_SPECS = [
     ("keyboard_width_delta", "Keyboard Width", -1000, 1000),
+    ("keyboard_top_delta", "Keyboard Top", -500, 500),
     ("left_edge_drift", "Left Edge Drift", -500, 500),
     ("right_edge_drift", "Right Edge Drift", -500, 500),
-    ("white_band_top_delta", "White Band Top", -500, 500),
-    ("white_band_bottom_delta", "White Band Bottom", -500, 500),
-    ("black_band_top_delta", "Black Band Top", -500, 500),
-    ("black_band_bottom_delta", "Black Band Bottom", -500, 500),
-    ("white_x_inset", "White X Inset", 0, 500),
-    ("black_x_inset", "Black X Inset", 0, 500),
     ("black_width_delta", "Black Width", -500, 500),
 ]
 
@@ -44,6 +39,8 @@ class ManualKeyboardFitDialog(QDialog):
     reset_all_requested = Signal()
     reset_position_requested = Signal()
     clear_selected_override_requested = Signal()
+    set_black_region_requested = Signal()
+    set_white_region_requested = Signal()
 
     def __init__(self, parent=None, *, initial_octave: int = 0):
         super().__init__(parent, Qt.Tool | Qt.WindowCloseButtonHint)
@@ -93,6 +90,19 @@ class ManualKeyboardFitDialog(QDialog):
         octave_row.addWidget(self.octave_spinbox)
         octave_row.addStretch()
         layout.addLayout(octave_row)
+
+        regions_group = QGroupBox("Detection Regions")
+        regions_layout = QHBoxLayout(regions_group)
+        self.set_black_region_button = QPushButton("Set Black Region")
+        self.set_white_region_button = QPushButton("Set White Region")
+        self.set_black_region_button.setToolTip("Draw the vertical black-key detection range on the video.")
+        self.set_white_region_button.setToolTip("Draw the vertical white-key detection range on the video.")
+        self.set_black_region_button.clicked.connect(self.set_black_region_requested.emit)
+        self.set_white_region_button.clicked.connect(self.set_white_region_requested.emit)
+        regions_layout.addWidget(self.set_black_region_button)
+        regions_layout.addWidget(self.set_white_region_button)
+        regions_layout.addStretch()
+        layout.addWidget(regions_group)
 
         controls_group = QGroupBox("Keyboard Fit")
         controls_layout = QGridLayout(controls_group)

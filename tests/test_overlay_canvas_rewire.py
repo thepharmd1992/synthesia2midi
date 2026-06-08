@@ -67,6 +67,12 @@ class _IdentityCoordManager:
     def scale_delta(self, dx, dy):
         return dx, dy
 
+    def canvas_to_image(self, x, y, clamp_to_bounds=False):
+        if clamp_to_bounds:
+            x = max(0, min(self.image_width, x))
+            y = max(0, min(self.image_height, y))
+        return x, y
+
 
 def test_overlay_manager_owns_index_based_move_and_resize_mutations():
     app_state = AppState()
@@ -142,6 +148,23 @@ def test_canvas_interaction_manual_fit_single_mode_keeps_existing_overlay_drag()
 
     assert group_moves == []
     assert single_moves == [(0, 15, 25)]
+
+
+def test_canvas_interaction_manual_fit_region_mode_emits_vertical_range():
+    app_state = AppState()
+    interaction = CanvasInteraction(None, _IdentityCoordManager(), app_state)
+    interaction.set_manual_fit_mode("manual_fit_black_region")
+    regions = []
+    interaction.manual_fit_region_selected.connect(
+        lambda region_type, top, bottom: regions.append((region_type, top, bottom))
+    )
+
+    assert interaction.handle_mouse_press(_MouseEvent(10, 12)) is True
+    assert interaction.handle_mouse_move(_MouseEvent(40, 42)) is True
+    assert interaction.handle_mouse_release(_MouseEvent(40, 42)) is True
+
+    assert regions == [("black", 12, 42)]
+    assert interaction.manual_fit_mode() == "manual_fit_group"
 
 
 def test_keyboard_canvas_overlay_handlers_delegate_geometry_to_overlay_manager():

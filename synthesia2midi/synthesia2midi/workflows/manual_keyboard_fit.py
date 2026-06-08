@@ -8,6 +8,8 @@ from synthesia2midi.app_config import NOTE_NAMES_SHARP
 
 
 WHITE_NOTE_NAMES = {name for name in NOTE_NAMES_SHARP if "♯" not in name and "♭" not in name}
+HORIZONTAL_SAFE_INSET_FRACTION = 0.10
+VERTICAL_SAFE_INSET_FRACTION = 0.15
 
 
 @dataclass
@@ -15,27 +17,17 @@ class ManualFitParams:
     group_dx: float = 0.0
     group_dy: float = 0.0
     keyboard_width_delta: float = 0.0
+    keyboard_top_delta: float = 0.0
     left_edge_drift: float = 0.0
     right_edge_drift: float = 0.0
-    white_band_top_delta: float = 0.0
-    white_band_bottom_delta: float = 0.0
-    black_band_top_delta: float = 0.0
-    black_band_bottom_delta: float = 0.0
-    white_x_inset: float = 0.0
-    black_x_inset: float = 0.0
     black_width_delta: float = 0.0
 
 
 CONTROL_PARAM_NAMES = (
     "keyboard_width_delta",
+    "keyboard_top_delta",
     "left_edge_drift",
     "right_edge_drift",
-    "white_band_top_delta",
-    "white_band_bottom_delta",
-    "black_band_top_delta",
-    "black_band_bottom_delta",
-    "white_x_inset",
-    "black_x_inset",
     "black_width_delta",
 )
 
@@ -46,6 +38,12 @@ class OverlayGeometry:
     y: float
     width: float
     height: float
+
+
+@dataclass(frozen=True)
+class DetectionRegion:
+    top: float
+    bottom: float
 
 
 @dataclass
@@ -73,6 +71,8 @@ class ManualKeyboardFitSession:
         }
         self._overrides: Dict[int, OverlayOverride] = {}
         self._bounds = self._calculate_bounds(self._baseline.values())
+        self._default_regions = self._calculate_default_regions()
+        self._custom_regions: Dict[str, DetectionRegion] = {}
 
     def update_params(self, params: ManualFitParams) -> None:
         self.params = params
@@ -98,6 +98,20 @@ class ManualKeyboardFitSession:
         self.params.group_dx = 0.0
         self.params.group_dy = 0.0
         self.apply_preview()
+
+    def set_detection_region(self, key_type: str, top: float, bottom: float) -> None:
+        if key_type not in {"white", "black"}:
+            raise ValueError(f"Unknown detection region type: {key_type}")
+        region_top = min(float(top), float(bottom)) - self.params.group_dy
+        region_bottom = max(float(top), float(bottom)) - self.params.group_dy
+        self._custom_regions[key_type] = DetectionRegion(region_top, region_bottom)
+        self.apply_preview()
+
+    def detection_region_guides(self) -> Dict[str, DetectionRegion]:
+        return {
+            "white": self._region_for_type("white"),
+            "black": self._region_for_type("black"),
+        }
 
     def set_octave_transpose(self, value: int) -> None:
         self.app_state.midi.octave_transpose = int(value)
@@ -165,6 +179,7 @@ class ManualKeyboardFitSession:
     def reset_all(self) -> None:
         self.params = ManualFitParams()
         self._overrides.clear()
+        self._custom_regions.clear()
         self.app_state.midi.octave_transpose = self._previous_octave_transpose
         self.apply_preview()
 
@@ -234,25 +249,60 @@ class ManualKeyboardFitSession:
         overlay = next((candidate for candidate in self.app_state.overlays if candidate.key_id == key_id), None)
         is_white = overlay is not None and overlay.note_name_in_octave in WHITE_NOTE_NAMES
         if is_white:
-            top += self.params.white_band_top_delta
-            bottom += self.params.white_band_bottom_delta
-            x, width = self._apply_x_inset(x, width, self.params.white_x_inset)
+            top, bottom = self._safe_region_bounds("white")
         else:
-            top += self.params.black_band_top_delta
-            bottom += self.params.black_band_bottom_delta
+            top, bottom = self._safe_region_bounds("black")
             width = max(1.0, width + self.params.black_width_delta)
             x = (scaled_center_x + self.params.group_dx + edge_shift) - width / 2
-            x, width = self._apply_x_inset(x, width, self.params.black_x_inset)
+
+        x, width = self._apply_fractional_x_inset(x, width)
 
         if bottom < top + 1.0:
             bottom = top + 1.0
 
         return OverlayGeometry(x, top, width, bottom - top)
 
+    def _safe_region_bounds(self, key_type: str) -> Tuple[float, float]:
+        region = self._region_for_type(key_type)
+        top = region.top + self.params.group_dy + self.params.keyboard_top_delta
+        bottom = region.bottom + self.params.group_dy
+        region_height = max(1.0, bottom - top)
+        vertical_inset = region_height * VERTICAL_SAFE_INSET_FRACTION
+        return top + vertical_inset, bottom - vertical_inset
+
+    def _region_for_type(self, key_type: str) -> DetectionRegion:
+        return self._custom_regions.get(key_type) or self._default_regions[key_type]
+
     @staticmethod
-    def _apply_x_inset(x: float, width: float, inset: float) -> Tuple[float, float]:
-        safe_inset = max(0.0, min(float(inset), (width - 1.0) / 2.0))
+    def _apply_fractional_x_inset(x: float, width: float) -> Tuple[float, float]:
+        inset = width * HORIZONTAL_SAFE_INSET_FRACTION
+        safe_inset = max(0.0, min(inset, (width - 1.0) / 2.0))
         return x + safe_inset, max(1.0, width - (2.0 * safe_inset))
+
+    def _calculate_default_regions(self) -> Dict[str, DetectionRegion]:
+        white_geometries = []
+        black_geometries = []
+        for overlay in self.app_state.overlays:
+            geometry = self._baseline.get(overlay.key_id)
+            if geometry is None:
+                continue
+            if overlay.note_name_in_octave in WHITE_NOTE_NAMES:
+                white_geometries.append(geometry)
+            else:
+                black_geometries.append(geometry)
+        return {
+            "white": self._calculate_vertical_region(white_geometries or self._baseline.values()),
+            "black": self._calculate_vertical_region(black_geometries or self._baseline.values()),
+        }
+
+    @staticmethod
+    def _calculate_vertical_region(geometries: Iterable[OverlayGeometry]) -> DetectionRegion:
+        geometries = list(geometries)
+        if not geometries:
+            return DetectionRegion(0.0, 1.0)
+        top = min(geometry.y for geometry in geometries)
+        bottom = max(geometry.y + geometry.height for geometry in geometries)
+        return DetectionRegion(top, max(top + 1.0, bottom))
 
     @staticmethod
     def _calculate_bounds(geometries: Iterable[OverlayGeometry]) -> Tuple[float, float, float, float]:

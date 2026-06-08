@@ -247,7 +247,7 @@ def test_manual_fit_setup_uses_compact_coach_and_auto_advances_to_fine_tune():
             "black",
         }
         assert app.keyboard_canvas.callbacks["setup_instruction_callback"]() == (
-            "Drag to bottom of black keys"
+            "Drag to slightly above the bottom of black keys"
         )
 
         app.keyboard_canvas.callbacks["guide_line_changed_callback"]("black_bottom", 140)
@@ -262,7 +262,7 @@ def test_manual_fit_setup_uses_compact_coach_and_auto_advances_to_fine_tune():
             "white",
         }
         assert app.keyboard_canvas.callbacks["setup_instruction_callback"]() == (
-            "Drag to start of white-key detection area"
+            "Drag to a bit under the black keys"
         )
 
         app.keyboard_canvas.callbacks["guide_line_selected_callback"]("white_start", 152)

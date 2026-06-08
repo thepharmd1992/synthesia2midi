@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 import cv2
 import numpy as np
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QRect, Qt
 from PySide6.QtWidgets import QApplication, QDialog, QMessageBox
 
 from synthesia2midi.app_config import OverlayConfig
@@ -219,6 +219,30 @@ class DummyCalibrationWorkflowForController:
         raise AssertionError("template styles should not be applied in this test")
 
 
+class DummyPassiveWizardForPlacement:
+    def __init__(self):
+        self.keyboard_region_selection_requested = RecordingSignal()
+        self.edit_current_calibration_requested = RecordingSignal()
+        self.result = False
+        self.edit_enabled = None
+        self.moved_to = None
+
+    def set_edit_current_calibration_enabled(self, enabled, tooltip=None):
+        self.edit_enabled = (enabled, tooltip)
+
+    def frameGeometry(self):
+        return QRect(0, 0, 600, 220)
+
+    def move(self, x, y):
+        self.moved_to = (x, y)
+
+    def exec(self):
+        return QDialog.Rejected
+
+    def get_auto_detect_tuning_context(self):
+        return None
+
+
 def test_calibration_wizard_controller_keeps_wizard_for_keyboard_region_selection():
     wizard = DummyWizardForController("keyboard_region_selection_requested")
     workflow = DummyCalibrationWorkflowForController(wizard)
@@ -252,6 +276,32 @@ def test_calibration_wizard_controller_keeps_wizard_for_keyboard_region_selectio
     assert interaction.entered is True
     assert selected_signal.connected == [controller._handle_keyboard_region_selected]
     assert cursor_changes == [Qt.CrossCursor]
+
+
+def test_calibration_wizard_controller_places_wizard_in_upper_left_safe_zone():
+    wizard = DummyPassiveWizardForPlacement()
+    workflow = DummyCalibrationWorkflowForController(wizard)
+    convert_button = SimpleNamespace(setEnabled=lambda enabled: setattr(convert_button, "enabled", enabled))
+    display_calls = []
+    app = SimpleNamespace(
+        app_state=SimpleNamespace(overlays=[], video=SimpleNamespace(current_frame_index=7)),
+        calibration_workflow=workflow,
+        control_panel=SimpleNamespace(convert_button=convert_button),
+        keyboard_canvas=SimpleNamespace(
+            current_frame_rgb=None,
+            display_frame=lambda frame_idx: display_calls.append(frame_idx),
+        ),
+        video_loading_workflow=None,
+        video_session=None,
+        screen=lambda: SimpleNamespace(availableGeometry=lambda: QRect(0, 24, 1440, 876)),
+    )
+    controller = CalibrationWizardController(app)
+
+    controller.run_calibration_wizard()
+
+    x, y = wizard.moved_to
+    assert x <= 80
+    assert 40 <= y <= 110
 
 
 def test_calibration_wizard_controller_resets_edit_flag_when_tuning_context_missing(monkeypatch):

@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 
 import numpy as np
+from PySide6.QtCore import QRect
 
 from synthesia2midi.gui.auto_detect_tuning_controller import AutoDetectTuningController
 from synthesia2midi.gui.calibration_wizard_controller import CalibrationWizardController
@@ -52,6 +53,7 @@ class FakeDialog:
         self.shown = False
         self.raised = False
         self.activated = False
+        self.moved_to = None
         FakeDialog.instances.append(self)
 
     def setModal(self, value):
@@ -68,6 +70,12 @@ class FakeDialog:
 
     def activateWindow(self):
         self.activated = True
+
+    def frameGeometry(self):
+        return QRect(0, 0, 640, 360)
+
+    def move(self, x, y):
+        self.moved_to = (x, y)
 
     def close(self):
         self.closed = True
@@ -142,6 +150,24 @@ class FakeVideoLoadingWorkflow:
         return True
 
 
+class FakeSettingsToolWindow:
+    def __init__(self, *, visible):
+        self.visible = visible
+        self.hide_count = 0
+        self.show_count = 0
+
+    def isVisible(self):
+        return self.visible
+
+    def hide(self):
+        self.hide_count += 1
+        self.visible = False
+
+    def show_near_parent(self):
+        self.show_count += 1
+        self.visible = True
+
+
 def make_app(*, current_frame_index=4, unsaved_changes=True):
     return SimpleNamespace(
         app_state=SimpleNamespace(
@@ -157,6 +183,7 @@ def make_app(*, current_frame_index=4, unsaved_changes=True):
         keyboard_canvas=FakeCanvas(),
         video_loading_workflow=FakeVideoLoadingWorkflow(),
         video_session=None,
+        settings_tool_window=None,
         screen=lambda: None,
     )
 
@@ -197,6 +224,61 @@ def test_controller_retains_modeless_dialog_until_finished(monkeypatch):
     assert controller.active_dialog is None
     assert app.video_loading_workflow.save_count == 1
     assert finished == ["closed"]
+
+
+def test_controller_hides_visible_settings_tool_window_until_tuning_closes(monkeypatch):
+    FakeDialog.instances.clear()
+    monkeypatch.setattr(
+        "synthesia2midi.gui.auto_detect_tuning_controller.AutoDetectTuningDialog",
+        FakeDialog,
+    )
+    app = make_app()
+    app.settings_tool_window = FakeSettingsToolWindow(visible=True)
+    wizard = FakeWizard(
+        {
+            "frame_rgb": np.zeros((2, 3, 3), dtype=np.uint8),
+            "keyboard_roi": (0, 0, 3, 2),
+            "fallback_used": False,
+            "detection_results": {"total_keys": 88},
+        }
+    )
+    controller = AutoDetectTuningController(app)
+
+    assert controller.open(wizard, use_wizard_context=True) is True
+
+    dialog = FakeDialog.instances[-1]
+    assert app.settings_tool_window.hide_count == 1
+    assert app.settings_tool_window.visible is False
+
+    dialog.finished.emit(0)
+
+    assert app.settings_tool_window.show_count == 1
+    assert app.settings_tool_window.visible is True
+
+
+def test_controller_places_tuning_dialog_in_upper_left_safe_zone(monkeypatch):
+    FakeDialog.instances.clear()
+    monkeypatch.setattr(
+        "synthesia2midi.gui.auto_detect_tuning_controller.AutoDetectTuningDialog",
+        FakeDialog,
+    )
+    app = make_app()
+    app.screen = lambda: SimpleNamespace(availableGeometry=lambda: QRect(0, 24, 1440, 876))
+    wizard = FakeWizard(
+        {
+            "frame_rgb": np.zeros((2, 3, 3), dtype=np.uint8),
+            "keyboard_roi": (0, 0, 3, 2),
+            "fallback_used": False,
+            "detection_results": {"total_keys": 88},
+        }
+    )
+    controller = AutoDetectTuningController(app)
+
+    assert controller.open(wizard, use_wizard_context=True) is True
+
+    x, y = FakeDialog.instances[-1].moved_to
+    assert x <= 80
+    assert 40 <= y <= 110
 
 
 def test_preview_result_applies_to_wizard_and_refreshes_existing_ui_flow():

@@ -9,6 +9,7 @@ import numpy as np
 from PySide6.QtCore import Qt
 
 from synthesia2midi.gui.auto_detect_tuning_dialog import AutoDetectTuningDialog
+from synthesia2midi.gui.dialog_positioning import move_to_upper_left_safe_zone
 
 
 class AutoDetectTuningController:
@@ -26,6 +27,7 @@ class AutoDetectTuningController:
         self._active_wizard = None
         self._on_dialog_finished_callback: Optional[Callable[[], None]] = None
         self._apply_template_styles_callback = apply_template_styles_callback
+        self._settings_tool_was_visible_before_tuning = False
 
     @property
     def active_dialog(self):
@@ -228,28 +230,34 @@ class AutoDetectTuningController:
         dialog.finished.connect(self._on_auto_detect_tuning_dialog_finished)
         self._auto_detect_tuning_dialog = dialog
 
-        # Position dialog toward the right side so it does not cover the keyboard area.
-        screen = self.app.screen() if hasattr(self.app, "screen") else None
-        if screen is not None:
-            available = screen.availableGeometry()
-            frame = dialog.frameGeometry()
-            x = max(
-                available.left() + 10,
-                available.right() - frame.width() - 20,
-            )
-            y = min(
-                max(available.top() + 40, self.app.geometry().top() + 20),
-                max(available.top() + 10, available.bottom() - frame.height() - 20),
-            )
-            dialog.move(x, y)
+        self._settings_tool_was_visible_before_tuning = self._hide_settings_tool_window_for_tuning()
+        move_to_upper_left_safe_zone(dialog, self.app)
 
         dialog.show()
         dialog.raise_()
         dialog.activateWindow()
         return True
 
+    def _hide_settings_tool_window_for_tuning(self) -> bool:
+        settings_tool_window = getattr(self.app, "settings_tool_window", None)
+        if settings_tool_window is None:
+            return False
+        if not settings_tool_window.isVisible():
+            return False
+        settings_tool_window.hide()
+        return True
+
+    def _restore_settings_tool_window_after_tuning(self) -> None:
+        if not self._settings_tool_was_visible_before_tuning:
+            return
+        self._settings_tool_was_visible_before_tuning = False
+        settings_tool_window = getattr(self.app, "settings_tool_window", None)
+        if settings_tool_window is not None:
+            settings_tool_window.show_near_parent()
+
     def _on_auto_detect_tuning_dialog_finished(self, _result: int) -> None:
         self._auto_detect_tuning_dialog = None
+        self._restore_settings_tool_window_after_tuning()
 
         # Persist tuned params/overlays with the existing per-video save flow.
         if self.app.app_state.unsaved_changes and self.app.video_loading_workflow:

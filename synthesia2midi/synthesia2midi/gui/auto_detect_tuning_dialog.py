@@ -61,7 +61,7 @@ class AutoDetectTuningDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Auto-Detect Tuning")
         self.setModal(True)
-        self.resize(980, 760)
+        self.resize(760, 420)
 
         self.logger = logging.getLogger(f"{__name__}.AutoDetectTuningDialog")
         self.app_state = app_state
@@ -88,22 +88,15 @@ class AutoDetectTuningDialog(QDialog):
         layout.setContentsMargins(12, 12, 12, 12)
         layout.setSpacing(10)
 
-        banner = QLabel()
-        banner.setWordWrap(True)
         if self._fallback_used:
+            banner = QLabel()
+            banner.setWordWrap(True)
             banner.setText(
                 "Initial auto-detect needed a fallback profile (not the default profile). "
                 "Tune parameters if you want to refine this result."
             )
             banner.setStyleSheet("color: #8a6d00; background: #fff8db; border: 1px solid #e6d390; padding: 6px;")
-        else:
-            banner.setText("Initial auto-detect used the default built-in profile.")
-            banner.setStyleSheet("color: #2f5d2f; background: #eaf7ea; border: 1px solid #bcdcbc; padding: 6px;")
-        layout.addWidget(banner)
-
-        mode_label = QLabel("White-from-black geometry mode is always enabled.")
-        mode_label.setStyleSheet("color: #2c3e50;")
-        layout.addWidget(mode_label)
+            layout.addWidget(banner)
 
         controls_row = QHBoxLayout()
         reset_all_btn = QPushButton("Reset All to Active Defaults")
@@ -113,6 +106,8 @@ class AutoDetectTuningDialog(QDialog):
         layout.addLayout(controls_row)
 
         tabs = QTabWidget()
+        tabs.tabBar().setExpanding(False)
+        tabs.setStyleSheet("QTabWidget::tab-bar { alignment: right; }")
         tabs.addTab(
             self._build_param_tab(get_basic_auto_detect_param_keys()),
             "Basic",

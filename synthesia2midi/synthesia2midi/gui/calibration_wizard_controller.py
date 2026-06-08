@@ -8,6 +8,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMessageBox
 
 from synthesia2midi.gui.auto_detect_tuning_controller import AutoDetectTuningController
+from synthesia2midi.gui.dialog_positioning import move_to_upper_left_safe_zone
 
 
 class CalibrationWizardController:
@@ -102,6 +103,7 @@ class CalibrationWizardController:
         )
 
         # Show the wizard
+        move_to_upper_left_safe_zone(self.calibration_wizard, self.app)
         self.calibration_wizard.exec()
 
         # Check if keyboard region selection was requested

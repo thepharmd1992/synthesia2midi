@@ -40,11 +40,6 @@ ACTIVE_AUTO_DETECT_PARAM_KEYS: List[str] = [
 BASIC_AUTO_DETECT_PARAM_KEYS: List[str] = [
     "white_edge_left_shift_ticks",
     "white_edge_right_shift_ticks",
-    "black_upper_ratio",
-    "black_bottom_ratio",
-    "white_bottom_ratio",
-    "white_initial_top_ratio",
-    "padding_percent",
 ]
 
 AUTO_DETECT_PARAM_CATEGORIES: List[str] = [

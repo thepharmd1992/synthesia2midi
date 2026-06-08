@@ -26,6 +26,20 @@ class ManualFitParams:
     black_x_delta: float = 0.0
 
 
+CONTROL_PARAM_NAMES = (
+    "keyboard_width_delta",
+    "left_edge_drift",
+    "right_edge_drift",
+    "white_y_delta",
+    "white_height_delta",
+    "white_width_delta",
+    "black_y_delta",
+    "black_height_delta",
+    "black_width_delta",
+    "black_x_delta",
+)
+
+
 @dataclass(frozen=True)
 class OverlayGeometry:
     x: float
@@ -61,6 +75,11 @@ class ManualKeyboardFitSession:
 
     def update_params(self, params: ManualFitParams) -> None:
         self.params = params
+        self.apply_preview()
+
+    def update_control_params(self, params: ManualFitParams) -> None:
+        for name in CONTROL_PARAM_NAMES:
+            setattr(self.params, name, getattr(params, name))
         self.apply_preview()
 
     def set_param(self, name: str, value: float) -> None:

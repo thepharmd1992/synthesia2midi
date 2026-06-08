@@ -84,7 +84,7 @@ class ManualKeyboardFitController:
     def _handle_params_changed(self, params: ManualFitParams) -> None:
         if self._session is None:
             return
-        self._session.update_params(params)
+        self._session.update_control_params(params)
         self._refresh_preview()
 
     def _handle_mode_changed(self, mode: str) -> None:

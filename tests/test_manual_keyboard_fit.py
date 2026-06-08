@@ -121,6 +121,19 @@ def test_manual_fit_single_overlay_override_survives_later_group_changes():
     assert session.overridden_key_ids() == {1}
 
 
+def test_manual_fit_control_updates_preserve_current_group_position():
+    app_state = _state_with_overlays()
+    session = ManualKeyboardFitSession(app_state)
+
+    session.translate_group(30, 8)
+    session.update_control_params(ManualFitParams(keyboard_width_delta=20))
+
+    assert session.params.group_dx == pytest.approx(30)
+    assert session.params.group_dy == pytest.approx(8)
+    assert app_state.overlays[0].x > 0
+    assert app_state.overlays[0].y == pytest.approx(28)
+
+
 def test_manual_fit_cancel_restores_baseline_and_previous_unsaved_state():
     app_state = _state_with_overlays()
     app_state.unsaved_changes = False

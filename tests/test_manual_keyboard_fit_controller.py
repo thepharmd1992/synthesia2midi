@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 
+import pytest
 from PySide6.QtCore import QCoreApplication, QEvent, Qt
 from PySide6.QtWidgets import QApplication, QMessageBox, QWidget
 
@@ -156,6 +157,36 @@ def test_manual_fit_dialog_reset_and_clear_selected_override_update_preview():
 
         dialog.reject()
         QApplication.processEvents()
+    finally:
+        if controller.active_dialog is not None:
+            controller.active_dialog.reject()
+        app.close()
+        app.deleteLater()
+        _flush_qt_deletes()
+
+
+def test_manual_fit_slider_changes_preserve_group_drag_position():
+    QApplication.instance() or QApplication([])
+    app = _FakeApp()
+    app.app_state.overlays = [
+        _overlay(key_id=1, note="C", x=0, y=20, width=10, height=40),
+        _overlay(key_id=2, note="D", x=24, y=20, width=10, height=40),
+    ]
+    controller = ManualKeyboardFitController(app)
+
+    try:
+        assert controller.open() is True
+        dialog = controller.active_dialog
+
+        app.keyboard_canvas.callbacks["group_move_callback"](30, 8)
+        assert app.app_state.overlays[0].y == pytest.approx(28)
+
+        dialog.param_spinboxes["keyboard_width_delta"].setValue(20)
+
+        assert controller.session.params.group_dx == pytest.approx(30)
+        assert controller.session.params.group_dy == pytest.approx(8)
+        assert app.app_state.overlays[0].x > 0
+        assert app.app_state.overlays[0].y == pytest.approx(28)
     finally:
         if controller.active_dialog is not None:
             controller.active_dialog.reject()

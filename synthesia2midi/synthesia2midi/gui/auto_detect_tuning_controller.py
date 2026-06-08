@@ -9,7 +9,7 @@ import numpy as np
 from PySide6.QtCore import Qt
 
 from synthesia2midi.gui.auto_detect_tuning_dialog import AutoDetectTuningDialog
-from synthesia2midi.gui.dialog_positioning import move_to_upper_left_safe_zone
+from synthesia2midi.gui.dialog_positioning import move_to_top_center_safe_zone
 
 
 class AutoDetectTuningController:
@@ -28,6 +28,7 @@ class AutoDetectTuningController:
         self._on_dialog_finished_callback: Optional[Callable[[], None]] = None
         self._apply_template_styles_callback = apply_template_styles_callback
         self._settings_tool_was_visible_before_tuning = False
+        self._restore_settings_after_tuning = False
 
     @property
     def active_dialog(self):
@@ -194,6 +195,7 @@ class AutoDetectTuningController:
         use_wizard_context: bool = True,
         on_dialog_finished: Optional[Callable[[], None]] = None,
         dialog_factory: Optional[Callable[..., Any]] = None,
+        restore_settings_on_finish: bool = False,
     ) -> bool:
         if wizard is None:
             return False
@@ -212,6 +214,7 @@ class AutoDetectTuningController:
                 pass
             self._auto_detect_tuning_dialog.close()
             self._auto_detect_tuning_dialog = None
+            self._restore_settings_after_tuning = False
 
         self._active_wizard = wizard
         self._on_dialog_finished_callback = on_dialog_finished
@@ -231,7 +234,10 @@ class AutoDetectTuningController:
         self._auto_detect_tuning_dialog = dialog
 
         self._settings_tool_was_visible_before_tuning = self._hide_settings_tool_window_for_tuning()
-        move_to_upper_left_safe_zone(dialog, self.app)
+        self._restore_settings_after_tuning = (
+            restore_settings_on_finish or self._settings_tool_was_visible_before_tuning
+        )
+        move_to_top_center_safe_zone(dialog, self.app)
 
         dialog.show()
         dialog.raise_()
@@ -248,12 +254,16 @@ class AutoDetectTuningController:
         return True
 
     def _restore_settings_tool_window_after_tuning(self) -> None:
-        if not self._settings_tool_was_visible_before_tuning:
+        if not self._restore_settings_after_tuning:
             return
+        self._restore_settings_after_tuning = False
         self._settings_tool_was_visible_before_tuning = False
         settings_tool_window = getattr(self.app, "settings_tool_window", None)
         if settings_tool_window is not None:
-            settings_tool_window.show_near_parent()
+            if hasattr(settings_tool_window, "show_preserving_geometry"):
+                settings_tool_window.show_preserving_geometry()
+            else:
+                settings_tool_window.show_near_parent()
 
     def _on_auto_detect_tuning_dialog_finished(self, _result: int) -> None:
         self._auto_detect_tuning_dialog = None

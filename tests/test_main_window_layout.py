@@ -81,6 +81,12 @@ def test_settings_rail_opens_floating_tool_window(monkeypatch):
         assert app.settings_tool_window.isVisible()
         assert app.settings_tool_window.windowFlags() & Qt.Tool
         assert app.settings_rail_button.isVisible()
+
+        screen_rect = QApplication.primaryScreen().availableGeometry()
+        settings_rect = app.settings_tool_window.frameGeometry()
+        assert settings_rect.right() >= screen_rect.right() - 80
+        assert settings_rect.top() <= screen_rect.top() + 80
+        assert app.settings_tool_window.height() <= 620
     finally:
         app.close()
 

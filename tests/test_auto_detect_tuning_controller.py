@@ -155,6 +155,7 @@ class FakeSettingsToolWindow:
         self.visible = visible
         self.hide_count = 0
         self.show_count = 0
+        self.restore_count = 0
 
     def isVisible(self):
         return self.visible
@@ -165,6 +166,10 @@ class FakeSettingsToolWindow:
 
     def show_near_parent(self):
         self.show_count += 1
+        self.visible = True
+
+    def show_preserving_geometry(self):
+        self.restore_count += 1
         self.visible = True
 
 
@@ -252,11 +257,42 @@ def test_controller_hides_visible_settings_tool_window_until_tuning_closes(monke
 
     dialog.finished.emit(0)
 
-    assert app.settings_tool_window.show_count == 1
+    assert app.settings_tool_window.show_count == 0
+    assert app.settings_tool_window.restore_count == 1
     assert app.settings_tool_window.visible is True
 
 
-def test_controller_places_tuning_dialog_in_upper_left_safe_zone(monkeypatch):
+def test_controller_restores_settings_when_calibration_flow_requests_it_even_if_hidden(monkeypatch):
+    FakeDialog.instances.clear()
+    monkeypatch.setattr(
+        "synthesia2midi.gui.auto_detect_tuning_controller.AutoDetectTuningDialog",
+        FakeDialog,
+    )
+    app = make_app()
+    app.settings_tool_window = FakeSettingsToolWindow(visible=False)
+    wizard = FakeWizard(
+        {
+            "frame_rgb": np.zeros((2, 3, 3), dtype=np.uint8),
+            "keyboard_roi": (0, 0, 3, 2),
+            "fallback_used": False,
+            "detection_results": {"total_keys": 88},
+        }
+    )
+    controller = AutoDetectTuningController(app)
+
+    assert controller.open(
+        wizard,
+        use_wizard_context=True,
+        restore_settings_on_finish=True,
+    ) is True
+
+    FakeDialog.instances[-1].finished.emit(0)
+
+    assert app.settings_tool_window.restore_count == 1
+    assert app.settings_tool_window.visible is True
+
+
+def test_controller_places_tuning_dialog_top_center_safe_zone(monkeypatch):
     FakeDialog.instances.clear()
     monkeypatch.setattr(
         "synthesia2midi.gui.auto_detect_tuning_controller.AutoDetectTuningDialog",
@@ -277,8 +313,8 @@ def test_controller_places_tuning_dialog_in_upper_left_safe_zone(monkeypatch):
     assert controller.open(wizard, use_wizard_context=True) is True
 
     x, y = FakeDialog.instances[-1].moved_to
-    assert x <= 80
-    assert 40 <= y <= 110
+    assert 300 <= x <= 420
+    assert 24 <= y <= 70
 
 
 def test_preview_result_applies_to_wizard_and_refreshes_existing_ui_flow():

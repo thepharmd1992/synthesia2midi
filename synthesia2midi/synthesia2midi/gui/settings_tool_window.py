@@ -32,12 +32,12 @@ class SettingsToolWindow(QDialog):
         """Keep the pop-out usable on laptop-sized displays."""
         screen = QApplication.primaryScreen()
         if not screen:
-            self.resize(760, 720)
+            self.resize(760, 560)
             return
 
         rect = screen.availableGeometry()
         width = min(780, max(380, rect.width() - 80))
-        height = min(860, max(420, rect.height() - 100))
+        height = min(600, max(420, rect.height() - 160))
         self.resize(width, height)
 
     def show_near_parent(self) -> None:
@@ -48,10 +48,19 @@ class SettingsToolWindow(QDialog):
             return
 
         self.fit_to_available_screen()
-        parent = self.parentWidget()
-        if parent is not None:
-            parent_top_left = parent.frameGeometry().topLeft()
-            self.move(parent_top_left.x() + 40, parent_top_left.y() + 60)
+        screen = QApplication.primaryScreen()
+        if screen is not None:
+            rect = screen.availableGeometry()
+            self.move(
+                max(rect.left(), rect.right() - self.frameGeometry().width() - 20),
+                rect.top() + 40,
+            )
+        self.show()
+        self.raise_()
+        self.activateWindow()
+
+    def show_preserving_geometry(self) -> None:
+        """Restore after workflow dialogs without changing the user's window placement."""
         self.show()
         self.raise_()
         self.activateWindow()

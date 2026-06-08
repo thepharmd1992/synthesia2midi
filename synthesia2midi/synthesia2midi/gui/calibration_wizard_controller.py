@@ -259,6 +259,7 @@ class CalibrationWizardController:
             self.calibration_wizard,
             use_wizard_context=use_wizard_context,
             on_dialog_finished=self._on_auto_detect_tuning_dialog_finished,
+            restore_settings_on_finish=True,
         )
 
     def _on_auto_detect_tuning_dialog_finished(self) -> None:

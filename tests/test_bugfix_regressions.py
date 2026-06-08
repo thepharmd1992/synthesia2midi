@@ -243,6 +243,21 @@ class DummyPassiveWizardForPlacement:
         return None
 
 
+class DummyAutoDetectTuningControllerForRestore:
+    def __init__(self):
+        self.open_kwargs = None
+
+    def set_apply_template_styles_callback(self, _callback):
+        pass
+
+    def has_editable_context(self):
+        return True
+
+    def open(self, wizard, **kwargs):
+        self.open_kwargs = {"wizard": wizard, **kwargs}
+        return True
+
+
 def test_calibration_wizard_controller_keeps_wizard_for_keyboard_region_selection():
     wizard = DummyWizardForController("keyboard_region_selection_requested")
     workflow = DummyCalibrationWorkflowForController(wizard)
@@ -302,6 +317,19 @@ def test_calibration_wizard_controller_places_wizard_in_upper_left_safe_zone():
     x, y = wizard.moved_to
     assert x <= 80
     assert 40 <= y <= 110
+
+
+def test_calibration_wizard_controller_requests_settings_restore_after_tuning():
+    app = SimpleNamespace()
+    tuning_controller = DummyAutoDetectTuningControllerForRestore()
+    controller = CalibrationWizardController(app, tuning_controller)
+    wizard = SimpleNamespace()
+    controller.calibration_wizard = wizard
+
+    assert controller._open_auto_detect_tuning_dialog() is True
+
+    assert tuning_controller.open_kwargs["wizard"] is wizard
+    assert tuning_controller.open_kwargs["restore_settings_on_finish"] is True
 
 
 def test_calibration_wizard_controller_resets_edit_flag_when_tuning_context_missing(monkeypatch):

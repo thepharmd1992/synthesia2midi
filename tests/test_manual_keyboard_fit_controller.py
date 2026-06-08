@@ -202,6 +202,13 @@ def test_manual_fit_dialog_modes_show_only_relevant_controls():
         assert dialog.controls_group.title() == ""
         assert dialog.local_controls_group.title() == ""
         assert dialog.current_local_filter() == "black"
+        assert list(dialog.local_param_spinboxes) == [
+            "spread_delta",
+            "x_delta",
+            "y_delta",
+            "width_delta",
+            "slant_delta",
+        ]
         local_labels = {
             label.text()
             for label in dialog.local_controls_group.findChildren(QLabel)
@@ -623,6 +630,51 @@ def test_manual_fit_octave_apply_commits_value():
         assert app.app_state.midi.octave_transpose == 2
         assert app.app_state.unsaved_changes is True
         assert app.control_updates >= 1
+    finally:
+        if controller.active_dialog is not None:
+            controller.active_dialog.reject()
+        app.close()
+        app.deleteLater()
+        _flush_qt_deletes()
+
+
+def test_manual_fit_octave_transpose_stays_global_in_local_and_single_modes():
+    QApplication.instance() or QApplication([])
+    app = _FakeApp()
+    app.app_state.overlays = [
+        _overlay(key_id=1, note="C", x=0, y=20, width=10, height=40),
+        _overlay(key_id=2, note="C♯", x=12, y=10, width=6, height=20),
+        _overlay(key_id=3, note="D", x=24, y=20, width=10, height=40),
+        _overlay(key_id=4, note="D♯", x=36, y=10, width=6, height=20),
+    ]
+    controller = ManualKeyboardFitController(app)
+
+    try:
+        assert controller.open() is True
+        dialog = controller.active_dialog
+        dialog.local_fit_radio.click()
+        app.keyboard_canvas.callbacks["local_selection_callback"](0, 0, 50, 50)
+
+        dialog.octave_spinbox.setValue(1)
+
+        assert app.app_state.midi.octave_transpose == 1
+        assert [overlay.get_full_note_name(app.app_state.midi.octave_transpose) for overlay in app.app_state.overlays] == [
+            "C5",
+            "C♯5",
+            "D5",
+            "D♯5",
+        ]
+
+        dialog.single_overlay_radio.click()
+        dialog.octave_spinbox.setValue(2)
+
+        assert app.app_state.midi.octave_transpose == 2
+        assert [overlay.get_full_note_name(app.app_state.midi.octave_transpose) for overlay in app.app_state.overlays] == [
+            "C6",
+            "C♯6",
+            "D6",
+            "D♯6",
+        ]
     finally:
         if controller.active_dialog is not None:
             controller.active_dialog.reject()

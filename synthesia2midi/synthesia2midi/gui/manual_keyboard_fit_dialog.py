@@ -34,9 +34,9 @@ PARAM_SPECS = [
 ]
 
 LOCAL_PARAM_SPECS = [
+    ("spread_delta", "Spacing", -500, 500),
     ("x_delta", "Move Left / Right", -500, 500),
     ("y_delta", "Move Up / Down", -500, 500),
-    ("spread_delta", "Spacing", -500, 500),
     ("width_delta", "Overlay Width", -500, 500),
     ("slant_delta", "Tilt", -45, 45),
 ]

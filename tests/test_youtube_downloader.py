@@ -1,7 +1,12 @@
 from pathlib import Path
 
 from synthesia2midi import youtube_downloader
-from synthesia2midi.youtube_downloader import YouTubeDownloader
+from synthesia2midi.youtube_downloader import (
+    YouTubeDownloader,
+    _format_youtube_error,
+    _format_download_status,
+    _progress_percentage,
+)
 
 
 def test_get_video_info_enables_js_challenge_support(monkeypatch, tmp_path):
@@ -98,3 +103,119 @@ def test_get_video_info_explains_missing_js_runtime_for_misleading_unavailable_e
 
     assert "No JavaScript runtime was found" in message
     assert "Node.js, Deno, Bun, or QuickJS" in message
+
+
+def test_normalizes_common_youtube_url_forms(tmp_path):
+    downloader = YouTubeDownloader(str(tmp_path))
+
+    urls = [
+        "https://www.youtube.com/watch?v=SFFSZQCnU_M&list=RDSFFSZQCnU_M",
+        "https://youtu.be/SFFSZQCnU_M?si=abc",
+        "https://www.youtube.com/shorts/SFFSZQCnU_M",
+        "https://www.youtube.com/live/SFFSZQCnU_M?feature=share",
+        "https://music.youtube.com/watch?v=SFFSZQCnU_M&list=RDAMVM",
+    ]
+
+    for url in urls:
+        assert downloader.validate_url(url)
+        assert downloader.normalize_url(url) == "https://www.youtube.com/watch?v=SFFSZQCnU_M"
+
+
+def test_download_uses_quality_suffix_and_selected_height(monkeypatch, tmp_path):
+    captured_opts = []
+
+    class FakeYoutubeDL:
+        def __init__(self, opts):
+            captured_opts.append(opts)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def extract_info(self, url, download=False):
+            return {"title": "Mary had a little lamb", "id": "SFFSZQCnU_M"}
+
+        def prepare_filename(self, info):
+            return str(Path(captured_opts[-1]["outtmpl"]).with_suffix(".mp4"))
+
+    monkeypatch.setattr(youtube_downloader.yt_dlp, "YoutubeDL", FakeYoutubeDL)
+
+    output_path = YouTubeDownloader(str(tmp_path)).download_video_only(
+        "https://youtu.be/SFFSZQCnU_M?si=abc",
+        quality="720p",
+    )
+
+    assert output_path.endswith("mary_had_a_little_lamb_720p.mp4")
+    assert captured_opts[-1]["format"] == "bestvideo[height<=720][ext=mp4]/bestvideo[height<=720]"
+
+
+def test_download_falls_back_to_closest_lower_quality(monkeypatch, tmp_path):
+    captured_opts = []
+
+    class FakeYoutubeDL:
+        def __init__(self, opts):
+            captured_opts.append(opts)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def extract_info(self, url, download=False):
+            return {
+                "title": "Mary had a little lamb",
+                "id": "SFFSZQCnU_M",
+                "formats": [
+                    {"height": 360, "vcodec": "h264", "acodec": "none"},
+                    {"height": 720, "vcodec": "h264", "acodec": "none"},
+                ],
+            }
+
+        def prepare_filename(self, info):
+            return str(Path(captured_opts[-1]["outtmpl"]).with_suffix(".mp4"))
+
+    monkeypatch.setattr(youtube_downloader.yt_dlp, "YoutubeDL", FakeYoutubeDL)
+
+    output_path = YouTubeDownloader(str(tmp_path)).download_video_only(
+        "https://www.youtube.com/watch?v=SFFSZQCnU_M",
+        quality="1080p",
+    )
+
+    assert output_path.endswith("mary_had_a_little_lamb_720p.mp4")
+    assert captured_opts[-1]["format"] == "bestvideo[height<=720][ext=mp4]/bestvideo[height<=720]"
+
+
+def test_progress_status_includes_download_metrics():
+    progress = {
+        "status": "downloading",
+        "downloaded_bytes": 52 * 1024 * 1024,
+        "total_bytes": 100 * 1024 * 1024,
+        "speed": 2.5 * 1024 * 1024,
+        "eta": 19,
+    }
+
+    assert _progress_percentage(progress) == 52
+    assert _format_download_status(progress) == "Downloading: 52% - 52.0 MB - 2.5 MB/s - ETA 00:19"
+
+
+def test_progress_without_total_stays_indeterminate_but_informative():
+    progress = {
+        "status": "downloading",
+        "downloaded_bytes": 8 * 1024 * 1024,
+        "speed": 1024 * 1024,
+    }
+
+    assert _progress_percentage(progress) == -1
+    assert _format_download_status(progress) == "Downloading: 8.0 MB - 1.0 MB/s"
+
+
+def test_youtube_error_messages_distinguish_common_failure_modes():
+    assert "sign-in or cookies" in _format_youtube_error(Exception("Sign in to confirm your age"))
+    assert "private" in _format_youtube_error(Exception("Private video"))
+    assert "region restricted" in _format_youtube_error(
+        Exception("This video is not available in your country")
+    )
+    assert "network or proxy" in _format_youtube_error(Exception("Unable to download webpage"))

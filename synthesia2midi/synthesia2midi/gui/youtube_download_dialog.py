@@ -8,8 +8,8 @@ from pathlib import Path
 from PySide6.QtCore import Qt, Signal, QTimer, QThread
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
-    QDialog, QDialogButtonBox, QGroupBox, QHBoxLayout, 
-    QLabel, QLineEdit, QMessageBox, QProgressBar, 
+    QComboBox, QDialog, QDialogButtonBox, QGroupBox, QHBoxLayout,
+    QLabel, QLineEdit, QMessageBox, QProgressBar,
     QPushButton, QTextEdit, QVBoxLayout
 )
 
@@ -40,6 +40,7 @@ class YouTubeDownloadDialog(QDialog):
     """Dialog for downloading YouTube videos"""
 
     AUTO_FETCH_DELAY_MS = 350
+    DOWNLOAD_STALL_DELAY_MS = 20000
     
     # Signal emitted when download completes with file path
     video_downloaded = Signal(str)
@@ -50,6 +51,7 @@ class YouTubeDownloadDialog(QDialog):
         self.download_thread = None
         self.info_fetch_thread = None
         self._current_info_url = None
+        self._current_video_title = None
         self._active_info_url = None
         self._queued_info_url = None
         self._queued_info_show_dialog = False
@@ -58,6 +60,9 @@ class YouTubeDownloadDialog(QDialog):
         self.auto_fetch_timer = QTimer(self)
         self.auto_fetch_timer.setSingleShot(True)
         self.auto_fetch_timer.timeout.connect(self._auto_fetch_video_info)
+        self.download_stall_timer = QTimer(self)
+        self.download_stall_timer.setSingleShot(True)
+        self.download_stall_timer.timeout.connect(self._on_download_stall)
         self.setup_ui()
         
     def setup_ui(self):
@@ -100,8 +105,15 @@ class YouTubeDownloadDialog(QDialog):
         url_group.setLayout(url_layout)
         layout.addWidget(url_group)
         
+        self.quality_combo = QComboBox()
+        self.quality_combo.addItem("1080p", "1080p")
+        self.quality_combo.addItem("720p - faster processing, higher calibration risk", "720p")
+        self.quality_combo.addItem("480p - fastest processing, highest calibration risk", "480p")
+        self.quality_combo.setEnabled(False)
+        layout.addWidget(self.quality_combo)
+
         # Fetch info button
-        self.fetch_info_btn = QPushButton("Fetch Video Info")
+        self.fetch_info_btn = QPushButton("Refresh Info")
         self.fetch_info_btn.clicked.connect(self.fetch_video_info)
         self.fetch_info_btn.setEnabled(False)
         layout.addWidget(self.fetch_info_btn)
@@ -151,6 +163,8 @@ class YouTubeDownloadDialog(QDialog):
         has_current_info = is_valid and url == self._current_info_url
         if not has_current_info:
             self.info_widget.hide()
+            self.quality_combo.setEnabled(False)
+            self._current_video_title = None
         self.download_btn.setEnabled(has_current_info)
         
         if not is_valid and text:
@@ -181,6 +195,8 @@ class YouTubeDownloadDialog(QDialog):
             self.download_btn.setEnabled(False)
             self.info_widget.hide()
             self._current_info_url = None
+            self._current_video_title = None
+            self.quality_combo.setEnabled(False)
             self.status_label.setText("Invalid YouTube URL" if url else "Ready to download")
             return
 
@@ -218,7 +234,9 @@ class YouTubeDownloadDialog(QDialog):
         self.uploader_label.setText(f"<b>Uploader:</b> {info['uploader']}")
 
         self._current_info_url = url
+        self._current_video_title = info['title']
         self.info_widget.show()
+        self.quality_combo.setEnabled(True)
         self.download_btn.setEnabled(True)
         self.status_label.setText("Ready to download")
 
@@ -227,7 +245,9 @@ class YouTubeDownloadDialog(QDialog):
             return
 
         self._current_info_url = None
+        self._current_video_title = None
         self.info_widget.hide()
+        self.quality_combo.setEnabled(False)
         self.download_btn.setEnabled(False)
         if self._show_info_error_dialog:
             QMessageBox.warning(self, "Error", f"Failed to fetch video info: {error}")
@@ -251,13 +271,32 @@ class YouTubeDownloadDialog(QDialog):
 
     def start_download(self):
         """Start downloading the video"""
-        url = self.url_input.text()
-        # Use default quality of 1080p
-        quality = '1080p'
+        url = self.url_input.text().strip()
+        quality = self.quality_combo.currentData() or "1080p"
+        overwrite = False
+
+        if self._current_video_title:
+            existing_path = self.downloader.get_download_path(self._current_video_title, quality)
+            if existing_path.exists():
+                reply = QMessageBox.question(
+                    self,
+                    "Video Already Downloaded",
+                    "This quality is already downloaded. Use existing file?",
+                    QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel,
+                    QMessageBox.Yes,
+                )
+                if reply == QMessageBox.Yes:
+                    self.accept()
+                    self.video_downloaded.emit(str(existing_path))
+                    return
+                if reply == QMessageBox.Cancel:
+                    self.status_label.setText("Download cancelled")
+                    return
+                overwrite = True
         
         # Create download thread
         output_dir = str(self.downloader.output_dir)
-        self.download_thread = YouTubeDownloaderThread(url, output_dir, quality)
+        self.download_thread = YouTubeDownloaderThread(url, output_dir, quality, overwrite=overwrite)
         
         # Connect signals
         self.download_thread.progress_handler.progress.connect(self.update_progress)
@@ -268,16 +307,21 @@ class YouTubeDownloadDialog(QDialog):
         # Update UI
         self.download_btn.setEnabled(False)
         self.cancel_btn.setEnabled(True)
+        self.cancel_btn.setText("Cancel Download")
         self.url_input.setEnabled(False)
         self.fetch_info_btn.setEnabled(False)
+        self.quality_combo.setEnabled(False)
         self.progress_bar.show()
-        self.progress_bar.setValue(0)
+        self.progress_bar.setRange(0, 0)
+        self.status_label.setText("Starting download...")
+        self.download_stall_timer.start(self.DOWNLOAD_STALL_DELAY_MS)
         
         # Start download
         self.download_thread.start()
     
     def cancel_download(self):
         """Cancel the current download"""
+        self.download_stall_timer.stop()
         if self.download_thread and self.download_thread.isRunning():
             self.download_thread.cancel()
             self.download_thread.quit()
@@ -288,14 +332,33 @@ class YouTubeDownloadDialog(QDialog):
     
     def update_progress(self, value):
         """Update progress bar"""
+        self._restart_download_stall_timer()
+        if value < 0:
+            self.progress_bar.setRange(0, 0)
+            return
+        if self.progress_bar.maximum() == 0:
+            self.progress_bar.setRange(0, 100)
         self.progress_bar.setValue(value)
     
     def update_status(self, status):
         """Update status label"""
+        self._restart_download_stall_timer()
         self.status_label.setText(status)
+
+    def _restart_download_stall_timer(self):
+        if self.download_thread and self._download_thread_is_running():
+            self.download_stall_timer.start(self.DOWNLOAD_STALL_DELAY_MS)
+
+    def _download_thread_is_running(self):
+        return hasattr(self.download_thread, "isRunning") and self.download_thread.isRunning()
+
+    def _on_download_stall(self):
+        if self.download_thread and self._download_thread_is_running():
+            self.status_label.setText("Still waiting for YouTube...")
     
     def on_download_finished(self, file_path):
         """Handle successful download"""
+        self.download_stall_timer.stop()
         self.reset_ui()
         self.status_label.setText(f"Download complete!")
         
@@ -321,6 +384,7 @@ class YouTubeDownloadDialog(QDialog):
         
     def on_download_error(self, error):
         """Handle download error"""
+        self.download_stall_timer.stop()
         self.reset_ui()
         self.status_label.setText("Download failed")
         QMessageBox.critical(self, "Download Error", f"Failed to download video: {error}")
@@ -331,13 +395,17 @@ class YouTubeDownloadDialog(QDialog):
         is_valid = bool(url) and self.downloader.validate_url(url)
         self.download_btn.setEnabled(is_valid and url == self._current_info_url)
         self.cancel_btn.setEnabled(False)
+        self.cancel_btn.setText("Cancel")
         self.url_input.setEnabled(True)
         self.fetch_info_btn.setEnabled(is_valid)
+        self.quality_combo.setEnabled(is_valid and url == self._current_info_url)
         self.progress_bar.hide()
+        self.progress_bar.setRange(0, 100)
         
     def closeEvent(self, event):
         """Handle dialog close"""
         self.auto_fetch_timer.stop()
+        self.download_stall_timer.stop()
         if self.info_fetch_thread and self.info_fetch_thread.isRunning():
             self.info_fetch_thread.quit()
             self.info_fetch_thread.wait()

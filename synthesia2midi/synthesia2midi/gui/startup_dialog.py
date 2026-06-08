@@ -5,7 +5,6 @@ import os
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
-    QCommandLinkButton,
     QDialog,
     QFrame,
     QHBoxLayout,
@@ -88,7 +87,7 @@ class StartupDialog(QDialog):
             layout.addWidget(recent_label)
 
             recent_layout = QVBoxLayout()
-            recent_layout.setSpacing(8)
+            recent_layout.setSpacing(4)
             for path in self.recent_video_paths:
                 recent_button = self._create_recent_video_button(path)
                 recent_layout.addWidget(recent_button)
@@ -124,10 +123,12 @@ class StartupDialog(QDialog):
         self.accept()
         self.download_from_youtube.emit()
 
-    def _create_recent_video_button(self, path: str) -> QCommandLinkButton:
+    def _create_recent_video_button(self, path: str) -> QPushButton:
         filename = os.path.basename(path) or path
-        folder = os.path.dirname(path)
-        button = QCommandLinkButton(filename, folder)
+        button = QPushButton(filename)
+        button.setMinimumHeight(28)
+        button.setMaximumHeight(28)
+        button.setStyleSheet("QPushButton { text-align: left; padding: 3px 8px; }")
         button.setToolTip(path)
         button.clicked.connect(lambda checked=False, selected_path=path: self._on_recent_file_clicked(selected_path))
         return button

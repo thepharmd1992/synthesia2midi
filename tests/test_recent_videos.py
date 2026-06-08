@@ -1,6 +1,6 @@
 from types import SimpleNamespace
 
-from PySide6.QtWidgets import QApplication, QDialog
+from PySide6.QtWidgets import QApplication, QDialog, QPushButton
 
 from synthesia2midi.core.recent_videos import RecentVideoStore
 from synthesia2midi.gui.startup_dialog import StartupDialog
@@ -73,6 +73,25 @@ def test_startup_dialog_emits_recent_file_before_closing(tmp_path):
 
         assert emitted == [(str(recent_path), QDialog.Accepted)]
         assert dialog.result() == QDialog.Accepted
+    finally:
+        dialog.deleteLater()
+        QApplication.processEvents()
+
+
+def test_startup_dialog_recent_rows_are_compact_title_only(tmp_path):
+    QApplication.instance() or QApplication([])
+    recent_path = tmp_path / "nested" / "song.mp4"
+    recent_path.parent.mkdir()
+    recent_path.write_text("video")
+    dialog = StartupDialog(recent_video_paths=[str(recent_path)])
+
+    try:
+        recent_button = dialog.recent_video_buttons[0]
+
+        assert type(recent_button) is QPushButton
+        assert recent_button.text() == "song.mp4"
+        assert str(recent_path.parent) not in recent_button.text()
+        assert recent_button.maximumHeight() <= 32
     finally:
         dialog.deleteLater()
         QApplication.processEvents()

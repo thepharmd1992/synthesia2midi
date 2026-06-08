@@ -45,8 +45,8 @@ IDEALIZED_BLACK_KEY_Y = 874
 IDEALIZED_BLACK_KEY_HEIGHT = 124
 IDEALIZED_AVG_BLACK_KEY_WIDTH = 15 # Standard black keys are often ~2/3 width of white keys
 
-# Factor for positioning black keys: X_black = X_ref_white + W_ref_white * THIS_FACTOR
-IDEALIZED_BLACK_KEY_X_START_FACTOR = 0.60 
+# Factor for positioning black keys: black center = preceding white X + W_ref_white * THIS_FACTOR
+IDEALIZED_BLACK_KEY_X_START_FACTOR = 1.00
 
 @dataclass
 class OverlayConfig:

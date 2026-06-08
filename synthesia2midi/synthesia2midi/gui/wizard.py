@@ -464,7 +464,7 @@ class CalibrationWizard(QDialog):
         white_key_y = keyboard_y_position
         white_key_height = int(video_height * 0.15)  # 15% of video height
         black_key_height = int(white_key_height * 0.6)  # 60% of white key height
-        black_key_y = white_key_y - (black_key_height - white_key_height)
+        black_key_y = white_key_y
         
         # Calculate key widths based on video width and number of keys
         # Count white keys

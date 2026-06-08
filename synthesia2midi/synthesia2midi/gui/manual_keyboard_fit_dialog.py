@@ -24,10 +24,11 @@ from synthesia2midi.workflows.manual_keyboard_fit import ManualFitParams
 
 PARAM_SPECS = [
     ("keyboard_width_delta", "Keyboard Width", -1000, 1000),
-    ("keyboard_top_delta", "Keyboard Top", -500, 500),
     ("left_edge_drift", "Left Edge Drift", -500, 500),
     ("right_edge_drift", "Right Edge Drift", -500, 500),
-    ("black_width_delta", "Black Width", -500, 500),
+    ("white_detection_width_delta", "White Detection Width", -500, 500),
+    ("black_detection_width_delta", "Black Detection Width", -500, 500),
+    ("black_alignment_delta", "Black Alignment", -500, 500),
     ("left_slant_delta", "Left Slant", -45, 45),
     ("right_slant_delta", "Right Slant", -45, 45),
 ]

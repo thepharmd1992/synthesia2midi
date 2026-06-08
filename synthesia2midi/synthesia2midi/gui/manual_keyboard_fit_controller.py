@@ -67,6 +67,7 @@ class ManualKeyboardFitController:
 
         self.app.keyboard_canvas.set_manual_fit_callbacks(
             group_move_callback=self._handle_group_move,
+            local_group_move_callback=self._handle_local_group_move,
             single_move_callback=self._handle_single_move,
             single_resize_callback=self._handle_single_resize,
             override_ids_callback=self._override_ids,
@@ -138,6 +139,14 @@ class ManualKeyboardFitController:
         if self._session is None:
             return
         self._session.translate_group(dx, dy)
+        self._refresh_preview()
+
+    def _handle_local_group_move(self, dx: float, dy: float) -> None:
+        if self._session is None:
+            return
+        self._session.translate_active_local_fit(dx, dy)
+        if self._dialog is not None:
+            self._dialog.set_local_params(self._session.active_local_params())
         self._refresh_preview()
 
     def _handle_single_move(self, overlay_index: int, new_x: float, new_y: float) -> bool:

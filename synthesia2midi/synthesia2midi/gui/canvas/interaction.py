@@ -35,6 +35,7 @@ class CanvasInteraction(QObject):
     overlay_moved = Signal(int, float, float)  # overlay_index, new_x, new_y
     overlay_resized = Signal(int, float, float, float, float)  # index, x, y, w, h
     manual_fit_group_moved = Signal(float, float)  # image-space dx, dy
+    manual_fit_local_group_moved = Signal(float, float)  # image-space dx, dy
     manual_fit_region_selected = Signal(str, float, float)  # region_type, top_y, bottom_y
     manual_fit_local_selection_selected = Signal(float, float, float, float)  # left, top, right, bottom
     manual_fit_keyboard_box_selected = Signal(float, float, float, float)  # left, top, right, bottom
@@ -64,6 +65,8 @@ class CanvasInteraction(QObject):
         self._manual_fit_mode = "off"
         self._manual_fit_group_dragging = False
         self._manual_fit_group_drag_start = QPoint()
+        self._manual_fit_local_dragging = False
+        self._manual_fit_local_drag_start = QPoint()
         self._manual_fit_region_selecting = False
         self._manual_fit_region_start_pos = QPoint()
         self._manual_fit_region_rubber_band = None
@@ -91,6 +94,7 @@ class CanvasInteraction(QObject):
         
         # Callbacks for accessing canvas state (to avoid tight coupling)
         self._get_overlays_callback: Optional[Callable] = None
+        self._get_manual_fit_local_key_ids_callback: Optional[Callable] = None
         self._get_pixel_color_callback: Optional[Callable] = None
         self._get_current_frame_callback: Optional[Callable] = None
         
@@ -105,12 +109,18 @@ class CanvasInteraction(QObject):
             self.request_repaint.emit()
             self._last_repaint_request = current_time
     
-    def set_callbacks(self, get_overlays: Callable, get_pixel_color: Callable, 
-                     get_current_frame: Callable):
+    def set_callbacks(
+        self,
+        get_overlays: Callable,
+        get_pixel_color: Callable,
+        get_current_frame: Callable,
+        get_manual_fit_local_key_ids: Optional[Callable] = None,
+    ):
         """Set callback functions to access canvas state without tight coupling."""
         self._get_overlays_callback = get_overlays
         self._get_pixel_color_callback = get_pixel_color
         self._get_current_frame_callback = get_current_frame
+        self._get_manual_fit_local_key_ids_callback = get_manual_fit_local_key_ids
     
     def enter_spark_roi_selection_mode(self):
         """Enter spark ROI selection mode."""
@@ -168,6 +178,7 @@ class CanvasInteraction(QObject):
             raise ValueError(f"Unknown manual fit mode: {mode}")
         self._manual_fit_mode = mode
         self._manual_fit_group_dragging = False
+        self._manual_fit_local_dragging = False
         self._manual_fit_region_selecting = False
         self._manual_fit_line_dragging = False
 
@@ -234,6 +245,9 @@ class CanvasInteraction(QObject):
             self._emit_manual_fit_line_y(event.x(), event.y(), completed=False)
             self._request_throttled_repaint()
             return True
+        elif self._manual_fit_local_dragging:
+            self._handle_manual_fit_local_group_motion(event)
+            return True
         elif self._manual_fit_group_dragging:
             self._handle_manual_fit_group_motion(event)
             return True
@@ -264,6 +278,9 @@ class CanvasInteraction(QObject):
             return True
         elif self._manual_fit_line_dragging:
             self._handle_manual_fit_line_release(event)
+            return True
+        elif self._manual_fit_local_dragging:
+            self._finish_manual_fit_local_group_drag()
             return True
         elif self._manual_fit_group_dragging:
             self._finish_manual_fit_group_drag()
@@ -519,7 +536,28 @@ class CanvasInteraction(QObject):
         return self._start_manual_fit_rectangle_selection(event)
 
     def _handle_manual_fit_local_selection_press(self, event: QMouseEvent) -> bool:
+        if event.button() != Qt.LeftButton:
+            return False
+        canvas_x, canvas_y = event.x(), event.y()
+        if self._is_point_inside_manual_fit_local_overlay(canvas_x, canvas_y):
+            self._manual_fit_local_dragging = True
+            self._manual_fit_local_drag_start = QPoint(canvas_x, canvas_y)
+            return True
         return self._start_manual_fit_rectangle_selection(event)
+
+    def _handle_manual_fit_local_group_motion(self, event: QMouseEvent) -> None:
+        current = QPoint(event.x(), event.y())
+        canvas_delta_x = current.x() - self._manual_fit_local_drag_start.x()
+        canvas_delta_y = current.y() - self._manual_fit_local_drag_start.y()
+        image_delta_x, image_delta_y = self.coord_manager.scale_delta(canvas_delta_x, canvas_delta_y)
+        if image_delta_x or image_delta_y:
+            self.manual_fit_local_group_moved.emit(image_delta_x, image_delta_y)
+            self._manual_fit_local_drag_start = current
+            self._request_throttled_repaint()
+
+    def _finish_manual_fit_local_group_drag(self) -> None:
+        self._manual_fit_local_dragging = False
+        self.request_repaint.emit()
 
     def _handle_manual_fit_keyboard_box_release(self, event: QMouseEvent) -> None:
         if event.button() != Qt.LeftButton:
@@ -687,6 +725,25 @@ class CanvasInteraction(QObject):
         right = max(rect[0] + rect[2] for rect in rects)
         bottom = max(rect[1] + rect[3] for rect in rects)
         return left <= canvas_x <= right and top <= canvas_y <= bottom
+
+    def _is_point_inside_manual_fit_local_overlay(self, canvas_x: float, canvas_y: float) -> bool:
+        if not self._get_overlays_callback or not self._get_manual_fit_local_key_ids_callback:
+            return False
+        local_key_ids = set(self._get_manual_fit_local_key_ids_callback() or set())
+        if not local_key_ids:
+            return False
+        for overlay in self._get_overlays_callback() or []:
+            if overlay.key_id not in local_key_ids:
+                continue
+            x1, y1, width, height = self.coord_manager.image_rect_to_canvas(
+                overlay.x,
+                overlay.y,
+                overlay.width,
+                overlay.height,
+            )
+            if x1 <= canvas_x <= x1 + width and y1 <= canvas_y <= y1 + height:
+                return True
+        return False
     
     def _find_overlay_at_position(self, canvas_x: float, canvas_y: float) -> Optional[Tuple[int, OverlayConfig, str]]:
         """

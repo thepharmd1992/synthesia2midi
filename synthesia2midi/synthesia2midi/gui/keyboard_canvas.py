@@ -169,6 +169,7 @@ class KeyboardCanvas(QWidget):
         self.on_color_pick_callback = on_color_pick_callback
         self.on_overlay_select_callback = on_overlay_select_callback
         self.manual_fit_group_move_callback = None
+        self.manual_fit_local_group_move_callback = None
         self.manual_fit_single_move_callback = None
         self.manual_fit_single_resize_callback = None
         self.manual_fit_override_ids_callback = None
@@ -1973,6 +1974,8 @@ class KeyboardCanvas(QWidget):
         """Setup callback functions for interaction module to access canvas state."""
         self.interaction.set_callbacks(
             get_overlays=lambda: self.app_state.overlays,
+            get_manual_fit_local_key_ids=lambda: set(self.manual_fit_local_key_ids_callback() or set())
+            if self.manual_fit_local_key_ids_callback is not None else set(),
             get_pixel_color=self._get_pixel_color_at_position,
             get_current_frame=lambda: self.current_frame_rgb
         )
@@ -1983,6 +1986,7 @@ class KeyboardCanvas(QWidget):
         self.interaction.overlay_moved.connect(self._handle_overlay_moved)
         self.interaction.overlay_resized.connect(self._handle_overlay_resized)
         self.interaction.manual_fit_group_moved.connect(self._handle_manual_fit_group_moved)
+        self.interaction.manual_fit_local_group_moved.connect(self._handle_manual_fit_local_group_moved)
         self.interaction.manual_fit_region_selected.connect(self._handle_manual_fit_region_selected)
         self.interaction.manual_fit_local_selection_selected.connect(self._handle_manual_fit_local_selection_selected)
         self.interaction.manual_fit_keyboard_box_selected.connect(self._handle_manual_fit_keyboard_box_selected)
@@ -2000,6 +2004,7 @@ class KeyboardCanvas(QWidget):
             self.interaction.overlay_moved.disconnect()
             self.interaction.overlay_resized.disconnect()
             self.interaction.manual_fit_group_moved.disconnect()
+            self.interaction.manual_fit_local_group_moved.disconnect()
             self.interaction.manual_fit_region_selected.disconnect()
             self.interaction.manual_fit_local_selection_selected.disconnect()
             self.interaction.manual_fit_keyboard_box_selected.disconnect()
@@ -2093,6 +2098,12 @@ class KeyboardCanvas(QWidget):
             self.manual_fit_group_move_callback(dx, dy)
             self.update()
 
+    def _handle_manual_fit_local_group_moved(self, dx: float, dy: float):
+        """Handle selected local overlay movement from Manual Fit interaction mode."""
+        if self.manual_fit_local_group_move_callback is not None:
+            self.manual_fit_local_group_move_callback(dx, dy)
+            self.update()
+
     def _handle_manual_fit_region_selected(self, region_type: str, top: float, bottom: float):
         """Handle Manual Fit black/white detection-region selection."""
         if self.manual_fit_region_selected_callback is not None:
@@ -2131,6 +2142,7 @@ class KeyboardCanvas(QWidget):
         self,
         *,
         group_move_callback=None,
+        local_group_move_callback=None,
         single_move_callback=None,
         single_resize_callback=None,
         override_ids_callback=None,
@@ -2145,6 +2157,7 @@ class KeyboardCanvas(QWidget):
         overlays_visible_callback=None,
     ) -> None:
         self.manual_fit_group_move_callback = group_move_callback
+        self.manual_fit_local_group_move_callback = local_group_move_callback
         self.manual_fit_single_move_callback = single_move_callback
         self.manual_fit_single_resize_callback = single_resize_callback
         self.manual_fit_override_ids_callback = override_ids_callback

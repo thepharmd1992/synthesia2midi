@@ -204,6 +204,39 @@ def test_canvas_interaction_manual_fit_local_select_mode_emits_rectangle():
     assert boxes == [(15, 22, 45, 52)]
 
 
+def test_canvas_interaction_manual_fit_local_select_drag_emits_local_group_delta():
+    app_state = AppState()
+    overlays = [
+        _overlay(key_id=1),
+        _overlay(key_id=2),
+    ]
+    overlays[0].x = 0
+    overlays[0].y = 20
+    overlays[1].x = 40
+    overlays[1].y = 20
+    interaction = CanvasInteraction(None, _IdentityCoordManager(), app_state)
+    interaction.set_callbacks(
+        get_overlays=lambda: overlays,
+        get_pixel_color=lambda x, y: None,
+        get_current_frame=lambda: None,
+        get_manual_fit_local_key_ids=lambda: {2},
+    )
+    interaction.set_manual_fit_mode("manual_fit_local_select")
+    local_moves = []
+    boxes = []
+    interaction.manual_fit_local_group_moved.connect(lambda dx, dy: local_moves.append((dx, dy)))
+    interaction.manual_fit_local_selection_selected.connect(
+        lambda left, top, right, bottom: boxes.append((left, top, right, bottom))
+    )
+
+    assert interaction.handle_mouse_press(_MouseEvent(45, 30)) is True
+    assert interaction.handle_mouse_move(_MouseEvent(52, 34)) is True
+    assert interaction.handle_mouse_release(_MouseEvent(52, 34)) is True
+
+    assert local_moves == [(7, 4)]
+    assert boxes == []
+
+
 def test_canvas_interaction_manual_fit_line_mode_emits_single_guide_y():
     app_state = AppState()
     interaction = CanvasInteraction(None, _IdentityCoordManager(), app_state)

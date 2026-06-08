@@ -34,11 +34,11 @@ PARAM_SPECS = [
 ]
 
 LOCAL_PARAM_SPECS = [
-    ("x_delta", "Cluster X", -500, 500),
-    ("y_delta", "Cluster Y", -500, 500),
-    ("spread_delta", "Cluster Spread", -500, 500),
-    ("width_delta", "Cluster Width", -500, 500),
-    ("slant_delta", "Cluster Slant", -45, 45),
+    ("x_delta", "Move Left / Right", -500, 500),
+    ("y_delta", "Move Up / Down", -500, 500),
+    ("spread_delta", "Spacing", -500, 500),
+    ("width_delta", "Overlay Width", -500, 500),
+    ("slant_delta", "Tilt", -45, 45),
 ]
 
 
@@ -108,8 +108,9 @@ class ManualKeyboardFitDialog(QDialog):
         self.mode_group = QGroupBox("Edit Mode")
         mode_layout = QHBoxLayout(self.mode_group)
         self.mode_status_label = QLabel("Editing: Whole Keyboard")
-        self.group_fit_radio = QRadioButton("Group Fit")
-        self.local_fit_radio = QRadioButton("Local Fit")
+        self.mode_status_label.hide()
+        self.group_fit_radio = QRadioButton("All Overlays")
+        self.local_fit_radio = QRadioButton("Select Overlays")
         self.single_overlay_radio = QRadioButton("Single Overlay")
         self.group_fit_radio.setChecked(True)
         self._mode_button_group = QButtonGroup(self)
@@ -119,11 +120,10 @@ class ManualKeyboardFitDialog(QDialog):
         self.group_fit_radio.toggled.connect(self._handle_mode_toggled)
         self.local_fit_radio.toggled.connect(self._handle_mode_toggled)
         self.single_overlay_radio.toggled.connect(self._handle_mode_toggled)
-        mode_layout.addWidget(self.mode_status_label)
-        mode_layout.addStretch()
         mode_layout.addWidget(self.group_fit_radio)
         mode_layout.addWidget(self.local_fit_radio)
         mode_layout.addWidget(self.single_overlay_radio)
+        mode_layout.addStretch()
         fine_tune_layout.addWidget(self.mode_group)
 
         octave_row = QHBoxLayout()
@@ -139,7 +139,7 @@ class ManualKeyboardFitDialog(QDialog):
         octave_row.addStretch()
         fine_tune_layout.addLayout(octave_row)
 
-        self.controls_group = QGroupBox("Keyboard Fit")
+        self.controls_group = QGroupBox("")
         controls_layout = QGridLayout(self.controls_group)
         controls_layout.setHorizontalSpacing(10)
         controls_layout.setVerticalSpacing(6)
@@ -177,7 +177,7 @@ class ManualKeyboardFitDialog(QDialog):
 
         fine_tune_layout.addWidget(self.controls_group, 1)
 
-        self.local_controls_group = QGroupBox("Local Fit")
+        self.local_controls_group = QGroupBox("")
         local_layout = QGridLayout(self.local_controls_group)
         local_layout.setHorizontalSpacing(10)
         local_layout.setVerticalSpacing(6)

@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 import pytest
 from PySide6.QtCore import QCoreApplication, QEvent, Qt
-from PySide6.QtWidgets import QApplication, QMessageBox, QWidget
+from PySide6.QtWidgets import QApplication, QLabel, QMessageBox, QWidget
 
 from synthesia2midi.app_config import OverlayConfig
 from synthesia2midi.core.app_state import AppState
@@ -194,16 +194,29 @@ def test_manual_fit_dialog_modes_show_only_relevant_controls():
         dialog = controller.active_dialog
 
         assert dialog.group_fit_radio.isChecked()
+        assert dialog.group_fit_radio.text() == "All Overlays"
+        assert dialog.local_fit_radio.text() == "Select Overlays"
         assert dialog.controls_group.isVisible()
         assert not dialog.local_controls_group.isVisible()
+        assert not dialog.mode_status_label.isVisible()
+        assert dialog.controls_group.title() == ""
+        assert dialog.local_controls_group.title() == ""
         assert dialog.current_local_filter() == "black"
+        local_labels = {
+            label.text()
+            for label in dialog.local_controls_group.findChildren(QLabel)
+        }
+        assert "Cluster X" not in local_labels
+        assert "Cluster Spread" not in local_labels
+        assert {"Move Left / Right", "Move Up / Down", "Spacing", "Overlay Width", "Tilt"}.issubset(
+            local_labels
+        )
 
         dialog.local_fit_radio.click()
 
         assert app.keyboard_canvas.mode == "manual_fit_local_select"
         assert not dialog.controls_group.isVisible()
         assert dialog.local_controls_group.isVisible()
-        assert dialog.mode_status_label.text() == "Editing: Local Cluster"
         assert not dialog.local_param_spinboxes["x_delta"].isEnabled()
 
         dialog.single_overlay_radio.click()
@@ -211,7 +224,6 @@ def test_manual_fit_dialog_modes_show_only_relevant_controls():
         assert app.keyboard_canvas.mode == "manual_fit_single"
         assert not dialog.controls_group.isVisible()
         assert not dialog.local_controls_group.isVisible()
-        assert dialog.mode_status_label.text() == "Editing: Single Overlay"
     finally:
         if controller.active_dialog is not None:
             controller.active_dialog.reject()
@@ -248,6 +260,44 @@ def test_manual_fit_controller_local_fit_selects_black_cluster_and_applies_local
 
         assert app.app_state.overlays[0].x == pytest.approx(white_x)
         assert app.app_state.overlays[1].x == pytest.approx(black_x + 7)
+    finally:
+        if controller.active_dialog is not None:
+            controller.active_dialog.reject()
+        app.close()
+        app.deleteLater()
+        _flush_qt_deletes()
+
+
+def test_manual_fit_controller_local_drag_moves_active_selected_cluster_only():
+    QApplication.instance() or QApplication([])
+    app = _FakeApp()
+    app.app_state.overlays = [
+        _overlay(key_id=1, note="C", x=0, y=20, width=10, height=40),
+        _overlay(key_id=2, note="C♯", x=12, y=10, width=6, height=20),
+        _overlay(key_id=3, note="D", x=24, y=20, width=10, height=40),
+        _overlay(key_id=4, note="D♯", x=36, y=10, width=6, height=20),
+    ]
+    controller = ManualKeyboardFitController(app)
+
+    try:
+        assert controller.open() is True
+        dialog = controller.active_dialog
+        dialog.local_fit_radio.click()
+        app.keyboard_canvas.callbacks["local_selection_callback"](0, 0, 50, 50)
+
+        app.keyboard_canvas.callbacks["local_group_move_callback"](1, 0)
+        white_x = app.app_state.overlays[0].x
+        first_black_x = app.app_state.overlays[1].x
+        first_black_y = app.app_state.overlays[1].y
+        second_black_x = app.app_state.overlays[3].x
+        second_black_y = app.app_state.overlays[3].y
+        app.keyboard_canvas.callbacks["local_group_move_callback"](6, -4)
+
+        assert app.app_state.overlays[0].x == pytest.approx(white_x)
+        assert app.app_state.overlays[1].x == pytest.approx(first_black_x + 6)
+        assert app.app_state.overlays[1].y == pytest.approx(first_black_y - 4)
+        assert app.app_state.overlays[3].x == pytest.approx(second_black_x + 6)
+        assert app.app_state.overlays[3].y == pytest.approx(second_black_y - 4)
     finally:
         if controller.active_dialog is not None:
             controller.active_dialog.reject()

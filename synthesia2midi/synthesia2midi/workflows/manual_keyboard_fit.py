@@ -197,6 +197,14 @@ class ManualKeyboardFitSession:
         local_fit.params = LocalFitParams()
         self.apply_preview()
 
+    def translate_active_local_fit(self, dx: float, dy: float) -> None:
+        local_fit = self._active_local_fit()
+        if local_fit is None:
+            return
+        local_fit.params.x_delta += float(dx)
+        local_fit.params.y_delta += float(dy)
+        self.apply_preview()
+
     def active_local_key_ids(self) -> Set[int]:
         local_fit = self._active_local_fit()
         if local_fit is None:

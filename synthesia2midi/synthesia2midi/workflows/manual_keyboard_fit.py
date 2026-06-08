@@ -17,22 +17,20 @@ class ManualFitParams:
     group_dx: float = 0.0
     group_dy: float = 0.0
     keyboard_width_delta: float = 0.0
+    keyboard_top_delta: float = 0.0
     left_edge_drift: float = 0.0
     right_edge_drift: float = 0.0
-    white_detection_width_delta: float = 0.0
-    black_detection_width_delta: float = 0.0
-    black_alignment_delta: float = 0.0
+    black_width_delta: float = 0.0
     left_slant_delta: float = 0.0
     right_slant_delta: float = 0.0
 
 
 CONTROL_PARAM_NAMES = (
     "keyboard_width_delta",
+    "keyboard_top_delta",
     "left_edge_drift",
     "right_edge_drift",
-    "white_detection_width_delta",
-    "black_detection_width_delta",
-    "black_alignment_delta",
+    "black_width_delta",
     "left_slant_delta",
     "right_slant_delta",
 )
@@ -359,7 +357,7 @@ class ManualKeyboardFitSession:
             45.0,
         )
 
-        center_x = scaled_center_x + self.params.group_dx + edge_shift
+        x = scaled_center_x - scaled_width / 2 + self.params.group_dx + edge_shift
         width = scaled_width
         top = baseline.y + self.params.group_dy
         bottom = baseline.y + baseline.height + self.params.group_dy
@@ -368,13 +366,11 @@ class ManualKeyboardFitSession:
         is_white = overlay is not None and overlay.note_name_in_octave in WHITE_NOTE_NAMES
         if is_white:
             top, bottom = self._safe_region_bounds("white")
-            width = max(1.0, width + self.params.white_detection_width_delta)
         else:
             top, bottom = self._safe_region_bounds("black")
-            center_x += self.params.black_alignment_delta
-            width = max(1.0, width + self.params.black_detection_width_delta)
+            width = max(1.0, width + self.params.black_width_delta)
+            x = (scaled_center_x + self.params.group_dx + edge_shift) - width / 2
 
-        x = center_x - width / 2
         x, width = self._apply_fractional_x_inset(x, width)
 
         if bottom < top + 1.0:
@@ -384,7 +380,7 @@ class ManualKeyboardFitSession:
 
     def _safe_region_bounds(self, key_type: str) -> Tuple[float, float]:
         region = self._region_for_type(key_type)
-        top = region.top + self.params.group_dy
+        top = region.top + self.params.group_dy + self.params.keyboard_top_delta
         bottom = region.bottom + self.params.group_dy
         region_height = max(1.0, bottom - top)
         vertical_inset = region_height * VERTICAL_SAFE_INSET_FRACTION

@@ -143,40 +143,6 @@ def test_manual_fit_drawn_regions_apply_visible_safe_margins():
     assert (black.x, black.y, black.width, black.height) == pytest.approx((12.6, 14.5, 4.8, 21))
 
 
-def test_manual_fit_detection_width_controls_preserve_centers_by_key_type():
-    app_state = _state_with_overlays()
-    session = ManualKeyboardFitSession(app_state)
-    baseline_centers = [overlay.x + overlay.width / 2 for overlay in app_state.overlays]
-
-    session.update_control_params(
-        ManualFitParams(
-            white_detection_width_delta=-4,
-            black_detection_width_delta=4,
-        )
-    )
-
-    white_left, black, white_right = app_state.overlays
-    assert white_left.width == pytest.approx(4.8)
-    assert black.width == pytest.approx(8.0)
-    assert white_right.width == pytest.approx(4.8)
-    assert [overlay.x + overlay.width / 2 for overlay in app_state.overlays] == pytest.approx(
-        baseline_centers
-    )
-
-
-def test_manual_fit_black_alignment_moves_only_black_keys():
-    app_state = _state_with_overlays()
-    baseline_centers = [overlay.x + overlay.width / 2 for overlay in app_state.overlays]
-    session = ManualKeyboardFitSession(app_state)
-
-    session.set_param("black_alignment_delta", 5)
-
-    white_left, black, white_right = app_state.overlays
-    assert white_left.x + white_left.width / 2 == pytest.approx(baseline_centers[0])
-    assert black.x + black.width / 2 == pytest.approx(baseline_centers[1] + 5)
-    assert white_right.x + white_right.width / 2 == pytest.approx(baseline_centers[2])
-
-
 def test_manual_fit_setup_generates_initial_geometry_from_keyboard_box_and_guides():
     app_state = _state_with_overlays()
     session = ManualKeyboardFitSession(app_state)
@@ -199,12 +165,23 @@ def test_manual_fit_setup_generates_initial_geometry_from_keyboard_box_and_guide
     )
 
 
+def test_manual_fit_keyboard_top_moves_safe_top_only():
+    app_state = _state_with_overlays()
+    session = ManualKeyboardFitSession(app_state)
+
+    session.set_detection_region("white", 50, 100)
+    session.set_detection_region("black", 10, 40)
+    session.set_param("keyboard_top_delta", 10)
+
+    white_left, black, _white_right = app_state.overlays
+    assert (white_left.y, white_left.height) == pytest.approx((66, 28))
+    assert (black.y, black.height) == pytest.approx((23, 14))
+
+
 def test_manual_fit_removed_geometry_controls_are_not_backend_parameters():
     removed_names = {
-        "keyboard_top_delta",
         "white_y_delta",
         "white_width_delta",
-        "black_width_delta",
         "black_x_delta",
         "white_height_delta",
         "black_y_delta",

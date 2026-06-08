@@ -145,17 +145,14 @@ def test_manual_fit_dialog_uses_drawn_region_controls():
 
         expected_controls = {
             "keyboard_width_delta",
+            "keyboard_top_delta",
             "left_edge_drift",
             "right_edge_drift",
-            "white_detection_width_delta",
-            "black_detection_width_delta",
-            "black_alignment_delta",
+            "black_width_delta",
             "left_slant_delta",
             "right_slant_delta",
         }
         removed_controls = {
-            "keyboard_top_delta",
-            "black_width_delta",
             "white_y_delta",
             "white_width_delta",
             "black_x_delta",
@@ -193,8 +190,8 @@ def test_manual_fit_dialog_reset_and_clear_selected_override_update_preview():
         assert controller.open() is True
         dialog = controller.active_dialog
 
-        dialog.param_spinboxes["white_detection_width_delta"].setValue(6)
-        assert app.app_state.overlays[0].width == pytest.approx(12.8)
+        dialog.param_spinboxes["keyboard_top_delta"].setValue(6)
+        assert app.app_state.overlays[0].y == 31.1
 
         app.keyboard_canvas.callbacks["single_move_callback"](0, 100, 50)
         assert controller.session.overridden_key_ids() == {1}
@@ -203,7 +200,7 @@ def test_manual_fit_dialog_reset_and_clear_selected_override_update_preview():
         assert controller.session.overridden_key_ids() == set()
 
         dialog.reset_all_button.click()
-        assert dialog.param_spinboxes["white_detection_width_delta"].value() == 0
+        assert dialog.param_spinboxes["keyboard_top_delta"].value() == 0
         assert app.app_state.overlays[0].height == 28
 
         dialog.reject()
@@ -367,13 +364,13 @@ def test_manual_fit_dialog_resets_individual_parameter():
         assert controller.open() is True
         dialog = controller.active_dialog
 
-        dialog.param_spinboxes["white_detection_width_delta"].setValue(6)
-        assert app.app_state.overlays[0].width == pytest.approx(12.8)
+        dialog.param_spinboxes["keyboard_top_delta"].setValue(12)
+        assert app.app_state.overlays[0].y == pytest.approx(36.2)
 
-        dialog.param_reset_buttons["white_detection_width_delta"].click()
+        dialog.param_reset_buttons["keyboard_top_delta"].click()
 
-        assert dialog.param_spinboxes["white_detection_width_delta"].value() == 0
-        assert app.app_state.overlays[0].width == pytest.approx(8)
+        assert dialog.param_spinboxes["keyboard_top_delta"].value() == 0
+        assert app.app_state.overlays[0].y == pytest.approx(26)
     finally:
         if controller.active_dialog is not None:
             controller.active_dialog.reject()
@@ -392,18 +389,18 @@ def test_manual_fit_reset_position_preserves_other_controls():
         assert controller.open() is True
         dialog = controller.active_dialog
 
-        dialog.param_spinboxes["white_detection_width_delta"].setValue(6)
+        dialog.param_spinboxes["keyboard_top_delta"].setValue(6)
         app.keyboard_canvas.callbacks["group_move_callback"](30, 8)
-        assert app.app_state.overlays[0].x == pytest.approx(28.6)
-        assert app.app_state.overlays[0].y == pytest.approx(34)
+        assert app.app_state.overlays[0].x == pytest.approx(31)
+        assert app.app_state.overlays[0].y == pytest.approx(39.1)
 
         dialog.reset_position_button.click()
 
         assert controller.session.params.group_dx == pytest.approx(0)
         assert controller.session.params.group_dy == pytest.approx(0)
-        assert dialog.param_spinboxes["white_detection_width_delta"].value() == 6
-        assert app.app_state.overlays[0].x == pytest.approx(-1.4)
-        assert app.app_state.overlays[0].y == pytest.approx(26)
+        assert dialog.param_spinboxes["keyboard_top_delta"].value() == 6
+        assert app.app_state.overlays[0].x == pytest.approx(1)
+        assert app.app_state.overlays[0].y == pytest.approx(31.1)
     finally:
         if controller.active_dialog is not None:
             controller.active_dialog.reject()

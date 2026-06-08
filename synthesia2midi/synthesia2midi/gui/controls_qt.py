@@ -502,6 +502,24 @@ class ControlPanelQt(QWidget):
         self.black_width_inc_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("black", "width", 2))
         add_size_control(1, 1, self.black_width_label, self.black_width_dec_button, self.black_width_inc_button)
 
+        self.left_slant_label = QLabel("Left Slant")
+        self.left_slant_dec_button = QPushButton("-")
+        self.left_slant_dec_button.setFixedSize(30, 30)
+        self.left_slant_dec_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("all", "left_slant", -1))
+        self.left_slant_inc_button = QPushButton("+")
+        self.left_slant_inc_button.setFixedSize(30, 30)
+        self.left_slant_inc_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("all", "left_slant", 1))
+        add_size_control(2, 0, self.left_slant_label, self.left_slant_dec_button, self.left_slant_inc_button)
+
+        self.right_slant_label = QLabel("Right Slant")
+        self.right_slant_dec_button = QPushButton("-")
+        self.right_slant_dec_button.setFixedSize(30, 30)
+        self.right_slant_dec_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("all", "right_slant", -1))
+        self.right_slant_inc_button = QPushButton("+")
+        self.right_slant_inc_button.setFixedSize(30, 30)
+        self.right_slant_inc_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("all", "right_slant", 1))
+        add_size_control(2, 1, self.right_slant_label, self.right_slant_dec_button, self.right_slant_inc_button)
+
         size_layout.addLayout(size_grid)
 
         layout.addWidget(size_group)

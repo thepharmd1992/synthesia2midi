@@ -149,6 +149,8 @@ def test_manual_fit_dialog_uses_drawn_region_controls():
             "left_edge_drift",
             "right_edge_drift",
             "black_width_delta",
+            "left_slant_delta",
+            "right_slant_delta",
         }
         removed_controls = {
             "white_y_delta",

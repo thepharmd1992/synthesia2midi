@@ -23,6 +23,39 @@ def set_app_state_reference(app_state):
     _app_state = app_state
 
 
+def overlay_rotation_degrees(overlay: OverlayConfig) -> float:
+    return float(getattr(overlay, "rotation_degrees", 0.0) or 0.0)
+
+
+def rotated_overlay_corners(overlay: OverlayConfig) -> List[Tuple[float, float]]:
+    """Return overlay corners after center-pivot rotation in image coordinates."""
+    x = float(overlay.x)
+    y = float(overlay.y)
+    width = float(overlay.width)
+    height = float(overlay.height)
+    center_x = x + width / 2.0
+    center_y = y + height / 2.0
+    angle = math.radians(overlay_rotation_degrees(overlay))
+    cos_a = math.cos(angle)
+    sin_a = math.sin(angle)
+
+    corners = [
+        (x, y),
+        (x + width, y),
+        (x + width, y + height),
+        (x, y + height),
+    ]
+    rotated = []
+    for corner_x, corner_y in corners:
+        dx = corner_x - center_x
+        dy = corner_y - center_y
+        rotated.append((
+            center_x + (dx * cos_a) - (dy * sin_a),
+            center_y + (dx * sin_a) + (dy * cos_a),
+        ))
+    return rotated
+
+
 def extract_roi_bgr(image: np.ndarray, overlay: OverlayConfig) -> Optional[np.ndarray]:
     """
     Extract BGR ROI for an overlay from an image with optional downsampling.
@@ -35,6 +68,9 @@ def extract_roi_bgr(image: np.ndarray, overlay: OverlayConfig) -> Optional[np.nd
         BGR ROI array (potentially downsampled) or None if extraction fails
     """
     try:
+        if abs(overlay_rotation_degrees(overlay)) > 1e-6:
+            return _extract_rotated_roi(image, overlay)
+
         x1, y1 = int(overlay.x), int(overlay.y)
         x2, y2 = x1 + int(overlay.width), y1 + int(overlay.height)
 
@@ -58,6 +94,37 @@ def extract_roi_bgr(image: np.ndarray, overlay: OverlayConfig) -> Optional[np.nd
         return None
 
 
+def _extract_rotated_roi(image: np.ndarray, overlay: OverlayConfig) -> Optional[np.ndarray]:
+    corners = rotated_overlay_corners(overlay)
+    min_x = math.floor(min(x for x, _y in corners))
+    max_x = math.ceil(max(x for x, _y in corners))
+    min_y = math.floor(min(y for _x, y in corners))
+    max_y = math.ceil(max(y for _x, y in corners))
+
+    img_h, img_w = image.shape[:2]
+    x1 = max(0, min_x)
+    y1 = max(0, min_y)
+    x2 = min(img_w, max_x)
+    y2 = min(img_h, max_y)
+    if x2 <= x1 or y2 <= y1:
+        return None
+
+    crop = image[y1:y2, x1:x2]
+    if crop.size == 0:
+        return None
+
+    local_polygon = np.array(
+        [(int(x) - x1, int(y) - y1) for x, y in corners],
+        dtype=np.int32,
+    )
+    mask = np.zeros(crop.shape[:2], dtype=np.uint8)
+    cv2.fillConvexPoly(mask, local_polygon, 255)
+    pixels = crop[mask > 0]
+    if pixels.size == 0:
+        return None
+    return pixels.reshape((-1, 1, crop.shape[2]))
+
+
 
 def extract_roi_with_offset(image: np.ndarray, overlay: OverlayConfig,
                           x_offset: int, y_offset: int) -> Optional[np.ndarray]:
@@ -74,6 +141,14 @@ def extract_roi_with_offset(image: np.ndarray, overlay: OverlayConfig,
         BGR ROI array or None if extraction fails
     """
     try:
+        if abs(overlay_rotation_degrees(overlay)) > 1e-6:
+            shifted = replace(
+                overlay,
+                x=overlay.x + x_offset,
+                y=overlay.y + y_offset,
+            )
+            return extract_roi_bgr(image, shifted)
+
         x1, y1 = int(overlay.x) + x_offset, int(overlay.y) + y_offset
         x2, y2 = x1 + int(overlay.width), y1 + int(overlay.height)
 
@@ -309,20 +384,8 @@ def hist_distance(h1: np.ndarray, h2: np.ndarray) -> float:
 
 def get_average_color_from_roi(image: np.ndarray, overlay: OverlayConfig) -> Optional[Tuple[int, int, int]]:
     """Extracts ROI from image based on overlay and calculates average BGR color, then converts to RGB."""
-    # Ensure overlay coordinates are integers and define ROI boundaries
-    x, y, w, h = int(overlay.x), int(overlay.y), int(overlay.width), int(overlay.height)
-
-    img_h, img_w = image.shape[:2]
-    x1, y1 = max(0, x), max(0, y)
-    x2, y2 = min(img_w, x + w), min(img_h, y + h)
-
-    if x1 >= x2 or y1 >= y2: # Overlay is outside or has no area
-        logging.debug(f"Overlay {overlay.key_id} ROI is outside image or has no area.")
-        return None
-
-    roi = image[y1:y2, x1:x2]
-
-    if roi.size == 0:
+    roi = extract_roi_bgr(image, overlay)
+    if roi is None or roi.size == 0:
         logging.debug(f"Overlay {overlay.key_id} ROI is empty.")
         return None
 
@@ -335,22 +398,9 @@ def get_average_color_from_roi(image: np.ndarray, overlay: OverlayConfig) -> Opt
 
 def get_average_color_from_roi_with_offset(image: np.ndarray, overlay: OverlayConfig, x_off: int, y_off: int) -> Optional[Tuple[int, int, int]]:
     """Extracts ROI from image based on overlay and calculates average BGR color, then converts to RGB with coordinate offset."""
-    # Ensure overlay coordinates are integers and define ROI boundaries
-    x, y, w, h = int(overlay.x), int(overlay.y), int(overlay.width), int(overlay.height)
-    # Adjust coordinates for offset
-    x_adj, y_adj = x - x_off, y - y_off
-
-    img_h, img_w = image.shape[:2]
-    x1, y1 = max(0, x_adj), max(0, y_adj)
-    x2, y2 = min(img_w, x_adj + w), min(img_h, y_adj + h)
-
-    if x1 >= x2 or y1 >= y2: # Overlay is outside or has no area
-        logging.debug(f"Overlay {overlay.key_id} ROI is outside image or has no area.")
-        return None
-
-    roi = image[y1:y2, x1:x2]
-
-    if roi.size == 0:
+    adjusted_overlay = replace(overlay, x=overlay.x - x_off, y=overlay.y - y_off)
+    roi = extract_roi_bgr(image, adjusted_overlay)
+    if roi is None or roi.size == 0:
         logging.debug(f"Overlay {overlay.key_id} ROI is empty.")
         return None
 

@@ -87,6 +87,23 @@ def test_manual_fit_edge_drift_moves_edges_more_than_center():
     assert shifts[0] > shifts[1] > shifts[2]
 
 
+def test_manual_fit_left_and_right_slant_rotate_edges_more_than_center():
+    app_state = AppState()
+    app_state.overlays = [
+        _overlay(1, "C", 0),
+        _overlay(2, "D", 45),
+        _overlay(3, "E", 90),
+    ]
+    session = ManualKeyboardFitSession(app_state)
+
+    session.update_control_params(ManualFitParams(left_slant_delta=10, right_slant_delta=-20))
+
+    assert app_state.overlays[0].rotation_degrees > 0
+    assert abs(app_state.overlays[1].rotation_degrees) < 1
+    assert app_state.overlays[2].rotation_degrees < 0
+    assert abs(app_state.overlays[2].rotation_degrees) > abs(app_state.overlays[0].rotation_degrees)
+
+
 def test_manual_fit_drawn_regions_apply_visible_safe_margins():
     app_state = _state_with_overlays()
     session = ManualKeyboardFitSession(app_state)

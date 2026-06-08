@@ -9,7 +9,7 @@ import cv2
 import numpy as np
 from PIL import Image  # type: ignore
 from PySide6.QtCore import QPoint, QRect, Qt, Signal
-from PySide6.QtGui import QColor, QFont, QFontMetrics, QImage, QMouseEvent, QPaintEvent, QPainter, QPen, QPixmap
+from PySide6.QtGui import QColor, QFont, QFontMetrics, QImage, QMouseEvent, QPaintEvent, QPainter, QPen, QPixmap, QPolygon
 from PySide6.QtWidgets import QLabel, QWidget
 
 # PERFORMANCE FIX: Disable debug logging in paint methods to prevent progressive slowdown
@@ -25,7 +25,9 @@ from synthesia2midi.detection.roi_utils import (
     get_average_color_from_roi,
     get_average_color_from_roi_with_offset,
     get_hist_feature,
-    hist_distance
+    hist_distance,
+    overlay_rotation_degrees,
+    rotated_overlay_corners,
 )
 from synthesia2midi.detection.detection_utils import calculate_detection_parameters, calculate_delta_value
 from synthesia2midi.gui.canvas.coordinates import CoordinateManager
@@ -271,7 +273,9 @@ class KeyboardCanvas(QWidget):
             unlit_reference_color=overlay.unlit_reference_color,
             key_type=overlay.key_type,
             unlit_hist=overlay.unlit_hist,
-            lit_hist=overlay.lit_hist
+            lit_hist=overlay.lit_hist,
+            overlay_type=overlay.overlay_type,
+            rotation_degrees=overlay.rotation_degrees,
         )
 
         # Copy runtime state
@@ -506,8 +510,9 @@ class KeyboardCanvas(QWidget):
                     float(overlay.x), float(overlay.y),
                     float(overlay.width), float(overlay.height)
                 )
+                overlay_rect = self._overlay_canvas_bounding_rect(overlay, x1_c, y1_c, x2_c, y2_c)
                 # Add padding for overlay borders
-                self.update(QRect(x1_c - 5, y1_c - 5, x2_c - x1_c + 10, y2_c - y1_c + 10))
+                self.update(overlay_rect.adjusted(-5, -5, 5, 5))
 
     def paintEvent(self, event: QPaintEvent):
         """Custom paint event to handle partial updates efficiently."""
@@ -961,7 +966,7 @@ class KeyboardCanvas(QWidget):
             )
 
             # Check if overlay intersects with clip rectangle
-            overlay_rect = QRect(x1_c, y1_c, x2_c - x1_c, y2_c - y1_c)
+            overlay_rect = self._overlay_canvas_bounding_rect(overlay, x1_c, y1_c, x2_c, y2_c)
             if not overlay_rect.intersects(clip_rect):
                 overlays_skipped += 1
                 continue  # Skip overlays outside the update region
@@ -1039,8 +1044,32 @@ class KeyboardCanvas(QWidget):
                 float(overlay.width),
                 float(overlay.height),
             )
-            rects.append(QRect(x1_c, y1_c, x2_c - x1_c, y2_c - y1_c))
+            rects.append(self._overlay_canvas_bounding_rect(overlay, x1_c, y1_c, x2_c, y2_c))
         return rects
+
+    def _overlay_canvas_polygon(self, overlay: OverlayConfig) -> QPolygon:
+        points = []
+        for image_x, image_y in rotated_overlay_corners(overlay):
+            canvas_x, canvas_y, _canvas_w, _canvas_h = self.coord_manager.image_rect_to_canvas(
+                image_x,
+                image_y,
+                0,
+                0,
+            )
+            points.append(QPoint(int(round(canvas_x)), int(round(canvas_y))))
+        return QPolygon(points)
+
+    def _overlay_canvas_bounding_rect(
+        self,
+        overlay: OverlayConfig,
+        x1_c: int,
+        y1_c: int,
+        x2_c: int,
+        y2_c: int,
+    ) -> QRect:
+        if abs(overlay_rotation_degrees(overlay)) <= 1e-6:
+            return QRect(x1_c, y1_c, x2_c - x1_c, y2_c - y1_c)
+        return self._overlay_canvas_polygon(overlay).boundingRect()
 
     def _draw_overlay_border(
         self,
@@ -1056,6 +1085,10 @@ class KeyboardCanvas(QWidget):
     ) -> None:
         painter.setPen(QPen(color, pen_width))
         painter.setBrush(Qt.NoBrush)
+        if abs(overlay_rotation_degrees(overlay)) > 1e-6:
+            painter.drawPolygon(self._overlay_canvas_polygon(overlay))
+            return
+
         overlay_rect = QRect(x1_c, y1_c, x2_c - x1_c, y2_c - y1_c)
         blockers = black_overlay_rects if self._is_white_key_overlay(overlay) else []
         for start, end in self._overlay_border_segments(overlay_rect, blockers):

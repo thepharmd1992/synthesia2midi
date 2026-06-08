@@ -339,6 +339,10 @@ class OverlayManager:
             dimension: "width" or "height" - which dimension to adjust
             delta: Amount to adjust (typically +2 or -2 pixels)
         """
+        if dimension in {"left_slant", "right_slant"}:
+            self._adjust_overlay_slant(dimension, delta)
+            return
+
         white_key_note_names = {name for name in NOTE_NAMES_SHARP if "♯" not in name and "♭" not in name}
         modified_count = 0
         
@@ -400,3 +404,35 @@ class OverlayManager:
                 self.ui_updater.refresh_canvas()
             
             self.logger.info(f"Adjusted {dimension} by {delta} pixels for {modified_count} {key_color} keys")
+
+    def _adjust_overlay_slant(self, dimension: str, delta: int) -> None:
+        key_overlays = [
+            overlay
+            for overlay in self.app_state.overlays
+            if getattr(overlay, "overlay_type", "key") == "key"
+        ]
+        if not key_overlays:
+            return
+
+        left = min(float(overlay.x) for overlay in key_overlays)
+        right = max(float(overlay.x) + float(overlay.width) for overlay in key_overlays)
+        span = max(1.0, right - left)
+        modified_count = 0
+
+        for overlay in key_overlays:
+            center_x = float(overlay.x) + (float(overlay.width) / 2.0)
+            norm = (center_x - left) / span
+            left_weight = max(0.0, min(1.0, (0.5 - norm) / 0.5))
+            right_weight = max(0.0, min(1.0, (norm - 0.5) / 0.5))
+            weight = left_weight if dimension == "left_slant" else right_weight
+            if weight <= 0:
+                continue
+            current_rotation = float(getattr(overlay, "rotation_degrees", 0.0) or 0.0)
+            overlay.rotation_degrees = max(-45.0, min(45.0, current_rotation + (float(delta) * weight)))
+            modified_count += 1
+
+        if modified_count > 0:
+            self.app_state.unsaved_changes = True
+            if self.ui_updater and self.app_state.video.current_frame_index is not None:
+                self.ui_updater.refresh_canvas()
+            self.logger.info("Adjusted %s by %s for %s overlays", dimension, delta, modified_count)

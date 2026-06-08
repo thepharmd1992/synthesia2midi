@@ -28,6 +28,8 @@ PARAM_SPECS = [
     ("left_edge_drift", "Left Edge Drift", -500, 500),
     ("right_edge_drift", "Right Edge Drift", -500, 500),
     ("black_width_delta", "Black Width", -500, 500),
+    ("left_slant_delta", "Left Slant", -45, 45),
+    ("right_slant_delta", "Right Slant", -45, 45),
 ]
 
 
@@ -203,11 +205,11 @@ class ManualKeyboardFitDialog(QDialog):
             ),
             "black_bottom": (
                 "Step 2 of 3: Set Black Key Bottom",
-                "Drag the orange line to the bottom edge of the black keys.",
+                "Drag the orange line to slightly above the bottom of black keys.",
             ),
             "white_start": (
                 "Step 3 of 3: Set White Key Start",
-                "Drag the blue line to the start of the white-key detection area.",
+                "Drag the blue line to a bit under the black keys.",
             ),
         }
         title, instruction = labels[step_name]

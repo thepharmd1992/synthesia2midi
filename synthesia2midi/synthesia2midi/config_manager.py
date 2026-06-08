@@ -77,6 +77,7 @@ class ConfigManager:
                 "y": overlay.y,
                 "width": overlay.width,
                 "height": overlay.height,
+                "rotation_degrees": float(getattr(overlay, "rotation_degrees", 0.0) or 0.0),
                 "unlit_reference_color": list(overlay.unlit_reference_color) if overlay.unlit_reference_color else None,
                 "key_type": overlay.key_type,
                 "overlay_type": overlay.overlay_type if hasattr(overlay, 'overlay_type') else 'key',
@@ -130,6 +131,7 @@ class ConfigManager:
                     y=overlay_dict["y"],
                     width=overlay_dict["width"],
                     height=overlay_dict["height"],
+                    rotation_degrees=float(overlay_dict.get("rotation_degrees", 0.0) or 0.0),
                     unlit_reference_color=tuple(overlay_dict["unlit_reference_color"]) if overlay_dict["unlit_reference_color"] else None,
                     key_type=overlay_dict["key_type"],
                     overlay_type=overlay_dict.get("overlay_type", "key")  # Default to 'key' for backward compatibility
@@ -346,6 +348,7 @@ class ConfigManager:
                                 y=float(overlay_data['y']),
                                 width=float(overlay_data['width']),
                                 height=float(overlay_data['height']),
+                                rotation_degrees=overlay_data.getfloat('rotation_degrees', 0.0),
                                 unlit_reference_color=unlit_reference_color,
                                 key_type=key_type # Use the potentially defaulted key_type
                             )
@@ -687,6 +690,7 @@ class ConfigManager:
                             y=float(overlay_data['y']),
                             width=float(overlay_data['width']),
                             height=float(overlay_data['height']),
+                            rotation_degrees=overlay_data.getfloat('rotation_degrees', 0.0),
                             unlit_reference_color=unlit_reference_color,
                             key_type=key_type
                         )

@@ -150,6 +150,32 @@ def test_overlays_tab_exposes_manual_fit_entry_point(monkeypatch):
         app.close()
 
 
+def test_overlays_tab_exposes_left_and_right_slant_controls(monkeypatch):
+    app = _make_app(monkeypatch)
+    try:
+        emitted = []
+        try:
+            app.control_panel.overlay_size_adjustment_requested.disconnect()
+        except (TypeError, RuntimeError):
+            pass
+        app.control_panel.overlay_size_adjustment_requested.connect(
+            lambda key_color, dimension, delta: emitted.append((key_color, dimension, delta))
+        )
+
+        assert app.control_panel.left_slant_label.text() == "Left Slant"
+        assert app.control_panel.right_slant_label.text() == "Right Slant"
+
+        app.control_panel.left_slant_inc_button.click()
+        app.control_panel.right_slant_dec_button.click()
+
+        assert emitted == [
+            ("all", "left_slant", 1),
+            ("all", "right_slant", -1),
+        ]
+    finally:
+        app.close()
+
+
 def test_settings_rail_preserves_open_tool_window_position(monkeypatch):
     app = _make_app(monkeypatch)
     try:

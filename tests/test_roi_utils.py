@@ -1,7 +1,12 @@
 import numpy as np
+import pytest
 
 from synthesia2midi.app_config import OverlayConfig
-from synthesia2midi.detection.roi_utils import adjust_overlay_for_crop, extract_roi_bgr
+from synthesia2midi.detection.roi_utils import (
+    adjust_overlay_for_crop,
+    extract_roi_bgr,
+    rotated_overlay_corners,
+)
 
 
 def make_overlay(**overrides) -> OverlayConfig:
@@ -38,6 +43,36 @@ def test_extract_roi_bgr_returns_none_when_overlay_outside_frame():
     assert extract_roi_bgr(frame, overlay) is None
 
 
+def test_rotated_overlay_corners_pivot_around_overlay_center():
+    overlay = make_overlay(x=10, y=20, width=4, height=2, rotation_degrees=90)
+
+    corners = rotated_overlay_corners(overlay)
+
+    assert corners == pytest.approx([
+        (13, 19),
+        (13, 23),
+        (11, 23),
+        (11, 19),
+    ])
+
+
+def test_extract_roi_bgr_samples_only_rotated_overlay_pixels():
+    frame = np.zeros((20, 20, 3), dtype=np.uint8)
+    overlay = make_overlay(x=5, y=5, width=10, height=4, rotation_degrees=45)
+    import cv2
+
+    polygon = np.array(rotated_overlay_corners(overlay), dtype=np.int32)
+    cv2.fillConvexPoly(frame, polygon, (20, 40, 60))
+    frame[5:9, 5:15] = (200, 200, 200)
+    cv2.fillConvexPoly(frame, polygon, (20, 40, 60))
+
+    roi = extract_roi_bgr(frame, overlay)
+
+    assert roi is not None
+    assert roi.shape[2] == 3
+    assert tuple(np.round(np.mean(roi, axis=(0, 1))).astype(int)) == (20, 40, 60)
+
+
 def test_adjust_overlay_for_crop_preserves_note_fields_and_runtime_state():
     overlay = make_overlay(
         x=10,
@@ -63,6 +98,7 @@ def test_adjust_overlay_for_crop_preserves_note_fields_and_runtime_state():
     assert adjusted.unlit_reference_color == overlay.unlit_reference_color
     assert adjusted.key_type == overlay.key_type
     assert adjusted.overlay_type == overlay.overlay_type
+    assert adjusted.rotation_degrees == overlay.rotation_degrees
     assert adjusted.prev_progression_ratio == overlay.prev_progression_ratio
     assert adjusted.last_progression_ratio == overlay.last_progression_ratio
     assert adjusted.last_is_lit == overlay.last_is_lit

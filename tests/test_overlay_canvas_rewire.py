@@ -99,6 +99,28 @@ def test_overlay_manager_owns_index_based_move_and_resize_mutations():
     assert app_state.unsaved_changes is False
 
 
+def test_overlay_manager_applies_left_and_right_slant_proportionally_from_center():
+    app_state = AppState()
+    app_state.overlays = [
+        _overlay(key_id=1),
+        _overlay(key_id=2),
+        _overlay(key_id=3),
+    ]
+    app_state.overlays[0].x = 0
+    app_state.overlays[1].x = 45
+    app_state.overlays[2].x = 90
+    manager = OverlayManager(app_state)
+
+    manager.adjust_overlay_sizes("all", "left_slant", 10)
+    manager.adjust_overlay_sizes("all", "right_slant", -20)
+
+    assert app_state.overlays[0].rotation_degrees > 0
+    assert abs(app_state.overlays[1].rotation_degrees) < 1
+    assert app_state.overlays[2].rotation_degrees < 0
+    assert abs(app_state.overlays[2].rotation_degrees) > abs(app_state.overlays[0].rotation_degrees)
+    assert app_state.unsaved_changes is True
+
+
 def test_canvas_interaction_manual_fit_group_drag_emits_group_delta_not_single_move():
     app_state = AppState()
     overlays = [

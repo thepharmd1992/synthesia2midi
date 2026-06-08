@@ -21,6 +21,8 @@ class ManualFitParams:
     left_edge_drift: float = 0.0
     right_edge_drift: float = 0.0
     black_width_delta: float = 0.0
+    left_slant_delta: float = 0.0
+    right_slant_delta: float = 0.0
 
 
 CONTROL_PARAM_NAMES = (
@@ -29,6 +31,8 @@ CONTROL_PARAM_NAMES = (
     "left_edge_drift",
     "right_edge_drift",
     "black_width_delta",
+    "left_slant_delta",
+    "right_slant_delta",
 )
 
 
@@ -38,6 +42,7 @@ class OverlayGeometry:
     y: float
     width: float
     height: float
+    rotation_degrees: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -74,6 +79,7 @@ class ManualKeyboardFitSession:
                 float(overlay.y),
                 float(overlay.width),
                 float(overlay.height),
+                float(getattr(overlay, "rotation_degrees", 0.0) or 0.0),
             )
             for overlay in app_state.overlays
         }
@@ -301,11 +307,13 @@ class ManualKeyboardFitSession:
                     rect.y + override.y_delta,
                     max(1.0, rect.width + override.width_delta),
                     max(1.0, rect.height + override.height_delta),
+                    rect.rotation_degrees,
                 )
             overlay.x = rect.x
             overlay.y = rect.y
             overlay.width = rect.width
             overlay.height = rect.height
+            overlay.rotation_degrees = rect.rotation_degrees
         self.app_state.unsaved_changes = True
 
     def _restore_baseline(self) -> None:
@@ -317,6 +325,7 @@ class ManualKeyboardFitSession:
             overlay.y = baseline.y
             overlay.width = baseline.width
             overlay.height = baseline.height
+            overlay.rotation_degrees = baseline.rotation_degrees
 
     def _transformed_rect_without_override(self, key_id: int) -> OverlayGeometry | None:
         baseline = self._baseline.get(key_id)
@@ -334,6 +343,15 @@ class ManualKeyboardFitSession:
         scaled_center_x = center + ((baseline_center_x - center) * scale)
         edge_shift = (self.params.left_edge_drift * (1.0 - norm)) + (
             self.params.right_edge_drift * norm
+        )
+        left_slant_weight = max(0.0, min(1.0, (0.5 - norm) / 0.5))
+        right_slant_weight = max(0.0, min(1.0, (norm - 0.5) / 0.5))
+        rotation_degrees = self._clamp(
+            baseline.rotation_degrees
+            + (self.params.left_slant_delta * left_slant_weight)
+            + (self.params.right_slant_delta * right_slant_weight),
+            -45.0,
+            45.0,
         )
 
         x = scaled_center_x - scaled_width / 2 + self.params.group_dx + edge_shift
@@ -355,7 +373,7 @@ class ManualKeyboardFitSession:
         if bottom < top + 1.0:
             bottom = top + 1.0
 
-        return OverlayGeometry(x, top, width, bottom - top)
+        return OverlayGeometry(x, top, width, bottom - top, rotation_degrees)
 
     def _safe_region_bounds(self, key_type: str) -> Tuple[float, float]:
         region = self._region_for_type(key_type)
@@ -429,6 +447,7 @@ class ManualKeyboardFitSession:
                     box.top,
                     white_width,
                     box.bottom - box.top,
+                    float(getattr(overlay, "rotation_degrees", 0.0) or 0.0),
                 )
                 white_index += 1
                 continue
@@ -441,6 +460,7 @@ class ManualKeyboardFitSession:
                 box.top,
                 black_width,
                 max(1.0, self._setup_black_bottom_or_default() - box.top),
+                float(getattr(overlay, "rotation_degrees", 0.0) or 0.0),
             )
 
         return generated

@@ -63,6 +63,7 @@ class OverlayConfig:
     unlit_hist: Optional[np.ndarray] = None
     lit_hist:   Optional[np.ndarray] = field(default=None, repr=False) # Lit histogram (HSV)
     overlay_type: str = 'key'  # 'key' or 'spark'
+    rotation_degrees: float = 0.0
 
     # --- runtime tracking for delta detector ---
     last_progression_ratio: float = 0.0     # previous frame's ratio

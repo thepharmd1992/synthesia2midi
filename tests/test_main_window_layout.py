@@ -1,5 +1,5 @@
 from PySide6.QtCore import QSignalBlocker, QRect, Qt, QTimer
-from PySide6.QtWidgets import QApplication, QScrollArea
+from PySide6.QtWidgets import QApplication, QScrollArea, QTabWidget
 
 from synthesia2midi.main import Video2MidiApp
 
@@ -48,6 +48,12 @@ def test_main_window_prioritizes_video_with_settings_rail_and_tool_window(monkey
         assert app.control_panel.maximumWidth() >= 700
         assert app.control_panel.tab_widget.maximumWidth() >= 700
         assert app.control_panel.tab_widget.maximumHeight() == UNBOUNDED_WIDGET_SIZE
+        assert not isinstance(app.control_panel.tab_widget, QTabWidget)
+        assert app.control_panel.settings_section_rail.width() <= 125
+        assert [
+            app.control_panel.settings_section_rail.item(index).text()
+            for index in range(app.control_panel.settings_section_rail.count())
+        ] == ["Calibration", "Overlays", "Detection", "Spark", "MIDI", "Trim", "Optional"]
     finally:
         app.close()
 
@@ -201,6 +207,7 @@ def test_detection_mode_sliders_share_left_edge(monkeypatch):
     app = _make_app(monkeypatch)
     try:
         app.show()
+        app.settings_rail_button.click()
         app.control_panel.tab_widget.setCurrentIndex(2)
         QApplication.processEvents()
 
@@ -215,7 +222,55 @@ def test_detection_mode_sliders_share_left_edge(monkeypatch):
         widths = {rect.width() for rect in slider_rects}
 
         assert len(left_edges) == 1
-        assert widths == {150}
+        assert widths == {110}
+
+        for slider, label in [
+            (control_panel.histogram_threshold_slider, control_panel.histogram_threshold_label),
+            (control_panel.rise_delta_slider, control_panel.rise_delta_label),
+            (control_panel.fall_delta_slider, control_panel.fall_delta_label),
+            (control_panel.similarity_ratio_slider, control_panel.similarity_ratio_label),
+        ]:
+            slider_rect = _rect_in_control_panel(control_panel, slider)
+            label_rect = _rect_in_control_panel(control_panel, label)
+            assert slider_rect.right() < label_rect.left()
+    finally:
+        app.close()
+
+
+def test_overlay_size_controls_stack_for_narrow_settings_window(monkeypatch):
+    app = _make_app(monkeypatch)
+    try:
+        app.show()
+        app.settings_rail_button.click()
+        app.control_panel.tab_widget.setCurrentIndex(1)
+        QApplication.processEvents()
+
+        control_panel = app.control_panel
+        white_height_label_rect = _rect_in_control_panel(control_panel, control_panel.white_height_label)
+        white_height_dec_rect = _rect_in_control_panel(control_panel, control_panel.white_height_dec_button)
+        white_width_label_rect = _rect_in_control_panel(control_panel, control_panel.white_width_label)
+        white_width_dec_rect = _rect_in_control_panel(control_panel, control_panel.white_width_dec_button)
+
+        assert white_height_dec_rect.top() > white_height_label_rect.bottom()
+        assert white_width_dec_rect.top() > white_width_label_rect.bottom()
+    finally:
+        app.close()
+
+
+def test_spark_roi_controls_stack_and_stay_inside_panel(monkeypatch):
+    app = _make_app(monkeypatch)
+    try:
+        app.show()
+        app.settings_rail_button.click()
+        app.control_panel.tab_widget.setCurrentIndex(3)
+        QApplication.processEvents()
+
+        control_panel = app.control_panel
+        select_rect = _rect_in_control_panel(control_panel, control_panel.spark_roi_select_button)
+        toggle_rect = _rect_in_control_panel(control_panel, control_panel.spark_roi_toggle_button)
+
+        assert toggle_rect.top() > select_rect.bottom()
+        assert toggle_rect.right() <= control_panel.width()
     finally:
         app.close()
 
@@ -237,7 +292,7 @@ def test_spark_auto_calibration_controls_stack_vertically(monkeypatch):
         assert button_rects["LW"].y() < button_rects["LB"].y() < button_rects["RW"].y() < button_rects["RB"].y()
         for key_type in ["LW", "LB", "RW", "RB"]:
             status_rect = _rect_in_control_panel(control_panel, control_panel.auto_calib_status_labels[key_type])
-            assert button_rects[key_type].right() < status_rect.left()
+            assert status_rect.top() > button_rects[key_type].bottom()
             assert status_rect.right() <= control_panel.width()
     finally:
         app.close()

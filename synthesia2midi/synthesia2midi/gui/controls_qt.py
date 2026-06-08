@@ -11,8 +11,8 @@ from typing import Optional
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QGridLayout, QGroupBox,
-    QHBoxLayout, QLabel, QPushButton, QScrollArea, QSizePolicy,
-    QSlider, QSpinBox, QTabWidget, QToolButton, QVBoxLayout, QWidget
+    QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton, QScrollArea, QSizePolicy,
+    QSlider, QSpinBox, QStackedWidget, QToolButton, QVBoxLayout, QWidget
 )
 
 from synthesia2midi.core.app_state import AppState
@@ -157,10 +157,21 @@ class ControlPanelQt(QWidget):
         # Always-visible elements at top
         self._create_always_visible_section(main_layout)
         
-        # Main tab widget
-        self.tab_widget = QTabWidget()
-        self.tab_widget.setObjectName("main_tabs")
-        self.tab_widget.setMaximumWidth(760)  # Wide enough for readable tabs and settings
+        settings_layout = QHBoxLayout()
+        settings_layout.setContentsMargins(0, 0, 0, 0)
+        settings_layout.setSpacing(8)
+
+        self.settings_section_rail = QListWidget()
+        self.settings_section_rail.setObjectName("settings_section_rail")
+        self.settings_section_rail.setFixedWidth(98)
+        self.settings_section_rail.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.settings_section_rail.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        self.settings_section_rail.currentRowChanged.connect(self._set_settings_section)
+
+        self.tab_widget = QStackedWidget()
+        self.tab_widget.setObjectName("settings_section_stack")
+        self.tab_widget.setMaximumWidth(760)  # Wide enough for readable settings
+        self.tab_widget.currentChanged.connect(self.settings_section_rail.setCurrentRow)
         
         # Create all tabs
         self._create_mandatory_calibration_tab()
@@ -171,7 +182,21 @@ class ControlPanelQt(QWidget):
         self._create_video_trim_tab()
         self._create_optional_settings_tab()
         
-        main_layout.addWidget(self.tab_widget, 1)
+        settings_layout.addWidget(self.settings_section_rail)
+        settings_layout.addWidget(self.tab_widget, 1)
+        main_layout.addLayout(settings_layout, 1)
+
+        self.settings_section_rail.setCurrentRow(0)
+
+    def _add_settings_section(self, widget: QWidget, label: str) -> None:
+        item = QListWidgetItem(label)
+        item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.settings_section_rail.addItem(item)
+        self.tab_widget.addWidget(widget)
+
+    def _set_settings_section(self, index: int) -> None:
+        if index >= 0:
+            self.tab_widget.setCurrentIndex(index)
     
     def _create_always_visible_section(self, parent_layout):
         """Create elements that are always visible regardless of tab."""
@@ -250,7 +275,6 @@ class ControlPanelQt(QWidget):
         calibration_grid.setHorizontalSpacing(8)
         calibration_grid.setVerticalSpacing(8)
         calibration_grid.setColumnStretch(1, 1)
-        calibration_grid.setColumnStretch(2, 1)
 
         overlay_label = QLabel("Overlays")
         overlay_label.setStyleSheet("font-weight: bold; font-size: 11pt;")
@@ -290,13 +314,15 @@ class ControlPanelQt(QWidget):
             "Captures what unpressed overlays look like from the current frame. "
             "Pause on a frame with no highlighted notes first."
         )
-        calibration_grid.addWidget(self.calibrate_unlit_button, 2, 1)
-        
-        # Status indicator for unlit calibration
+        unlit_value_layout = QVBoxLayout()
+        unlit_value_layout.setContentsMargins(0, 0, 0, 0)
+        unlit_value_layout.setSpacing(3)
+        unlit_value_layout.addWidget(self.calibrate_unlit_button)
+
         self.unlit_status_label = QLabel("Not Set")
-        self.unlit_status_label.setFixedWidth(60)
         self.unlit_status_label.setStyleSheet("font-style: italic; color: #888;")
-        calibration_grid.addWidget(self.unlit_status_label, 2, 2)
+        unlit_value_layout.addWidget(self.unlit_status_label)
+        calibration_grid.addLayout(unlit_value_layout, 2, 1)
         
         layout.addLayout(calibration_grid)
         layout.addSpacing(10)  # Extra space before next section
@@ -355,7 +381,7 @@ class ControlPanelQt(QWidget):
         
         layout.addStretch()  # Push everything to the top
         
-        self.tab_widget.addTab(tab, "Calibration")
+        self._add_settings_section(tab, "Calibration")
     
     def _create_overlay_settings_tab(self):
         """Tab 2: Overlay Settings"""
@@ -391,87 +417,63 @@ class ControlPanelQt(QWidget):
         # Overlay size adjustment
         size_group = QGroupBox("Overlay Size Adjustment")
         size_layout = QVBoxLayout(size_group)
-        
-        # White key dimensions - horizontal layout
-        white_row = QHBoxLayout()
-        # Set fixed width for height label to ensure alignment
-        height_label_white = QLabel("White Key Height:")
-        height_label_white.setFixedWidth(180)  # Prevent text cutoff at narrower panel widths
-        white_row.addWidget(height_label_white)
-        white_row.addSpacing(10)  # Add spacing between label and buttons
-        
-        # Height adjustment buttons
+
+        size_grid = QGridLayout()
+        size_grid.setHorizontalSpacing(14)
+        size_grid.setVerticalSpacing(10)
+
+        def add_size_control(row, column, label, dec_button, inc_button):
+            cell = QVBoxLayout()
+            cell.setContentsMargins(0, 0, 0, 0)
+            cell.setSpacing(4)
+            cell.addWidget(label)
+            button_row = QHBoxLayout()
+            button_row.setContentsMargins(0, 0, 0, 0)
+            button_row.setSpacing(4)
+            button_row.addWidget(dec_button)
+            button_row.addWidget(inc_button)
+            button_row.addStretch()
+            cell.addLayout(button_row)
+            size_grid.addLayout(cell, row, column)
+
+        self.white_height_label = QLabel("White Key Height")
         self.white_height_dec_button = QPushButton("-")
         self.white_height_dec_button.setFixedSize(30, 30)
         self.white_height_dec_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("white", "height", -2))
-        white_row.addWidget(self.white_height_dec_button)
-        
         self.white_height_inc_button = QPushButton("+")
         self.white_height_inc_button.setFixedSize(30, 30)
         self.white_height_inc_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("white", "height", 2))
-        white_row.addWidget(self.white_height_inc_button)
-        
-        white_row.addSpacing(60)  # Further increased space between height and width to prevent cutoff
-        # Set fixed width for width label to ensure alignment
-        width_label_white = QLabel("White Key Width:")
-        width_label_white.setFixedWidth(180)  # Prevent text cutoff at narrower panel widths
-        white_row.addWidget(width_label_white)
-        white_row.addSpacing(10)  # Add spacing between label and buttons
-        
-        # Width adjustment buttons
+        add_size_control(0, 0, self.white_height_label, self.white_height_dec_button, self.white_height_inc_button)
+
+        self.white_width_label = QLabel("White Key Width")
         self.white_width_dec_button = QPushButton("-")
         self.white_width_dec_button.setFixedSize(30, 30)
         self.white_width_dec_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("white", "width", -2))
-        white_row.addWidget(self.white_width_dec_button)
-        
         self.white_width_inc_button = QPushButton("+")
         self.white_width_inc_button.setFixedSize(30, 30)
         self.white_width_inc_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("white", "width", 2))
-        white_row.addWidget(self.white_width_inc_button)
-        
-        white_row.addStretch()
-        size_layout.addLayout(white_row)
-        
-        # Black key dimensions - horizontal layout
-        black_row = QHBoxLayout()
-        # Set fixed width for height label to ensure alignment
-        height_label_black = QLabel("Black Key Height:")
-        height_label_black.setFixedWidth(180)  # Prevent text cutoff at narrower panel widths
-        black_row.addWidget(height_label_black)
-        black_row.addSpacing(10)  # Add spacing between label and buttons
-        
-        # Height adjustment buttons
+        add_size_control(0, 1, self.white_width_label, self.white_width_dec_button, self.white_width_inc_button)
+
+        self.black_height_label = QLabel("Black Key Height")
         self.black_height_dec_button = QPushButton("-")
         self.black_height_dec_button.setFixedSize(30, 30)
         self.black_height_dec_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("black", "height", -2))
-        black_row.addWidget(self.black_height_dec_button)
-        
         self.black_height_inc_button = QPushButton("+")
         self.black_height_inc_button.setFixedSize(30, 30)
         self.black_height_inc_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("black", "height", 2))
-        black_row.addWidget(self.black_height_inc_button)
-        
-        black_row.addSpacing(60)  # Further increased space between height and width to prevent cutoff
-        # Set fixed width for width label to ensure alignment
-        width_label_black = QLabel("Black Key Width:")
-        width_label_black.setFixedWidth(180)  # Prevent text cutoff at narrower panel widths
-        black_row.addWidget(width_label_black)
-        black_row.addSpacing(10)  # Add spacing between label and buttons
-        
-        # Width adjustment buttons
+        add_size_control(1, 0, self.black_height_label, self.black_height_dec_button, self.black_height_inc_button)
+
+        self.black_width_label = QLabel("Black Key Width")
         self.black_width_dec_button = QPushButton("-")
         self.black_width_dec_button.setFixedSize(30, 30)
         self.black_width_dec_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("black", "width", -2))
-        black_row.addWidget(self.black_width_dec_button)
-        
         self.black_width_inc_button = QPushButton("+")
         self.black_width_inc_button.setFixedSize(30, 30)
         self.black_width_inc_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("black", "width", 2))
-        black_row.addWidget(self.black_width_inc_button)
-        
-        black_row.addStretch()
-        size_layout.addLayout(black_row)
-        
+        add_size_control(1, 1, self.black_width_label, self.black_width_dec_button, self.black_width_inc_button)
+
+        size_layout.addLayout(size_grid)
+
         layout.addWidget(size_group)
         
         # Overlay color
@@ -501,7 +503,7 @@ class ControlPanelQt(QWidget):
         layout.addWidget(color_group)
         
         layout.addStretch()
-        self.tab_widget.addTab(tab, "Overlays")
+        self._add_settings_section(tab, "Overlays")
     
     def _create_basic_detection_tab(self):
         """Tab 3: Basic Detection Settings"""
@@ -560,14 +562,19 @@ class ControlPanelQt(QWidget):
         modes_layout = QVBoxLayout(modes_group)
         modes_layout.setContentsMargins(15, 10, 15, 10)
         
-        # Detection mode controls use a grid so every mode slider starts in the same column.
-        # The histogram row is the visual anchor for the rest of the group.
-        modes_grid = QGridLayout()
-        modes_grid.setHorizontalSpacing(12)
-        modes_grid.setVerticalSpacing(8)
-        modes_grid.setColumnStretch(0, 1)
-        modes_grid.setColumnStretch(1, 0)
-        modes_grid.setColumnStretch(2, 0)
+        slider_label_width = 62
+
+        def add_slider_row(label_text, slider, value_label, *, indent=0):
+            row = QHBoxLayout()
+            row.setContentsMargins(indent, 0, 0, 0)
+            row.setSpacing(6)
+            label = QLabel(label_text)
+            label.setFixedWidth(max(1, slider_label_width - indent))
+            row.addWidget(label)
+            row.addWidget(slider)
+            row.addWidget(value_label)
+            row.addStretch()
+            modes_layout.addLayout(row)
 
         # Histogram detection with sensitivity slider
         self.histogram_detection_cb = QCheckBox("Enable Histogram Detection")
@@ -576,11 +583,11 @@ class ControlPanelQt(QWidget):
         self.histogram_detection_cb.setToolTip(
             "Uses a color-pattern match inside the overlay. Helpful with gradients/uneven lighting."
         )
-        modes_grid.addWidget(self.histogram_detection_cb, 0, 0)
+        modes_layout.addWidget(self.histogram_detection_cb)
         
         # Add histogram threshold slider
         self.histogram_threshold_slider = QSlider(Qt.Horizontal)
-        self.histogram_threshold_slider.setFixedWidth(150)
+        self.histogram_threshold_slider.setFixedWidth(110)
         self.histogram_threshold_slider.setRange(10, 100)  # 0.1 to 1.0
         self.histogram_threshold_slider.setValue(self.DEFAULT_HISTOGRAM_THRESHOLD)  # Default 0.8
         self.histogram_threshold_slider.valueChanged.connect(self._handle_histogram_threshold_change)
@@ -588,14 +595,12 @@ class ControlPanelQt(QWidget):
         self.histogram_threshold_slider.setToolTip(
             "How strong the histogram match must be (only used when Histogram Detection is enabled)."
         )
-        modes_grid.addWidget(self.histogram_threshold_slider, 0, 1)
-        
         self.histogram_threshold_label = QLabel("0.80")
         self.histogram_threshold_label.setMinimumWidth(40)
         self.histogram_threshold_label.setToolTip(
             "How strong the histogram match must be (only used when Histogram Detection is enabled)."
         )
-        modes_grid.addWidget(self.histogram_threshold_label, 0, 2)
+        add_slider_row("Strength:", self.histogram_threshold_slider, self.histogram_threshold_label)
         
         # Delta detection with rise/fall sliders
         self.delta_detection_cb = QCheckBox("Enable Delta Detection")
@@ -604,15 +609,10 @@ class ControlPanelQt(QWidget):
         self.delta_detection_cb.setToolTip(
             "Uses frame-to-frame change to confirm press/release (helps when color fades)."
         )
-        modes_grid.addWidget(self.delta_detection_cb, 1, 0)
-        
-        # Rise delta threshold
-        rise_label = QLabel("Rise Threshold:")
-        rise_label.setContentsMargins(20, 0, 0, 0)  # Indent to show it's under Delta Detection
-        modes_grid.addWidget(rise_label, 2, 0)
+        modes_layout.addWidget(self.delta_detection_cb)
         
         self.rise_delta_slider = QSlider(Qt.Horizontal)
-        self.rise_delta_slider.setFixedWidth(150)
+        self.rise_delta_slider.setFixedWidth(110)
         self.rise_delta_slider.setRange(1, 50)  # 0.01 to 0.50
         self.rise_delta_slider.setValue(self.DEFAULT_RISE_DELTA_THRESHOLD)  # Default 0.15
         self.rise_delta_slider.valueChanged.connect(self._handle_rise_delta_change)
@@ -620,22 +620,15 @@ class ControlPanelQt(QWidget):
         self.rise_delta_slider.setToolTip(
             "How big the change must be to count as a press (only used when Delta Detection is enabled)."
         )
-        modes_grid.addWidget(self.rise_delta_slider, 2, 1)
-        
         self.rise_delta_label = QLabel("0.15")
         self.rise_delta_label.setMinimumWidth(40)
         self.rise_delta_label.setToolTip(
             "How big the change must be to count as a press (only used when Delta Detection is enabled)."
         )
-        modes_grid.addWidget(self.rise_delta_label, 2, 2)
-        
-        # Fall delta threshold
-        fall_label = QLabel("Fall Threshold:")
-        fall_label.setContentsMargins(20, 0, 0, 0)  # Indent to show it's under Delta Detection
-        modes_grid.addWidget(fall_label, 3, 0)
+        add_slider_row("Rise:", self.rise_delta_slider, self.rise_delta_label, indent=16)
         
         self.fall_delta_slider = QSlider(Qt.Horizontal)
-        self.fall_delta_slider.setFixedWidth(150)
+        self.fall_delta_slider.setFixedWidth(110)
         self.fall_delta_slider.setRange(1, 50)  # 0.01 to 0.50
         self.fall_delta_slider.setValue(self.DEFAULT_FALL_DELTA_THRESHOLD)  # Default 0.05
         self.fall_delta_slider.valueChanged.connect(self._handle_fall_delta_change)
@@ -643,14 +636,12 @@ class ControlPanelQt(QWidget):
         self.fall_delta_slider.setToolTip(
             "How big the change must be to count as a release (only used when Delta Detection is enabled)."
         )
-        modes_grid.addWidget(self.fall_delta_slider, 3, 1)
-        
         self.fall_delta_label = QLabel("0.05")
         self.fall_delta_label.setMinimumWidth(40)
         self.fall_delta_label.setToolTip(
             "How big the change must be to count as a release (only used when Delta Detection is enabled)."
         )
-        modes_grid.addWidget(self.fall_delta_label, 3, 2)
+        add_slider_row("Fall:", self.fall_delta_slider, self.fall_delta_label, indent=16)
         
         # Black key filter with similarity ratio slider
         self.black_key_filter_cb = QCheckBox("Enable Black Key Filter")
@@ -659,11 +650,11 @@ class ControlPanelQt(QWidget):
         self.black_key_filter_cb.setToolTip(
             "Reduces false black-key presses from nearby overlays."
         )
-        modes_grid.addWidget(self.black_key_filter_cb, 4, 0)
+        modes_layout.addWidget(self.black_key_filter_cb)
         
         # Add similarity ratio slider
         self.similarity_ratio_slider = QSlider(Qt.Horizontal)
-        self.similarity_ratio_slider.setFixedWidth(150)
+        self.similarity_ratio_slider.setFixedWidth(110)
         self.similarity_ratio_slider.setRange(10, 100)  # 0.1 to 1.0
         self.similarity_ratio_slider.setValue(self.DEFAULT_SIMILARITY_RATIO)  # Default 0.6
         self.similarity_ratio_slider.valueChanged.connect(self._handle_similarity_ratio_change)
@@ -671,16 +662,12 @@ class ControlPanelQt(QWidget):
         self.similarity_ratio_slider.setToolTip(
             "Controls how strict black-key filtering is (only used when Black Key Filter is enabled)."
         )
-        modes_grid.addWidget(self.similarity_ratio_slider, 4, 1)
-        
         self.similarity_ratio_label = QLabel("0.60")
         self.similarity_ratio_label.setMinimumWidth(40)
         self.similarity_ratio_label.setToolTip(
             "Controls how strict black-key filtering is (only used when Black Key Filter is enabled)."
         )
-        modes_grid.addWidget(self.similarity_ratio_label, 4, 2)
-        
-        modes_layout.addLayout(modes_grid)
+        add_slider_row("Similarity:", self.similarity_ratio_slider, self.similarity_ratio_label)
         
         layout.addWidget(modes_group)
 
@@ -693,7 +680,7 @@ class ControlPanelQt(QWidget):
         layout.addWidget(self.restore_detection_defaults_button, alignment=Qt.AlignLeft)
         
         layout.addStretch()
-        self.tab_widget.addTab(tab, "Detection")
+        self._add_settings_section(tab, "Detection")
     
     def _create_spark_detection_tab(self):
         """Tab 4: Spark Detection (scrollable to avoid clipping)."""
@@ -762,28 +749,26 @@ class ControlPanelQt(QWidget):
         calibration_layout = QVBoxLayout(calibration_group)
 
         # ROI selection
-        roi_layout = QHBoxLayout()
-        roi_button = QPushButton("Select Spark ROI")
-        roi_button.setMaximumWidth(264)  # Increased by 10% from 240
-        roi_button.clicked.connect(self.spark_roi_selection_requested.emit)
-        roi_button.setToolTip(
+        roi_layout = QVBoxLayout()
+        roi_layout.setContentsMargins(0, 0, 0, 0)
+        roi_layout.setSpacing(6)
+        self.spark_roi_select_button = QPushButton("Select Spark ROI")
+        self.spark_roi_select_button.setMaximumWidth(264)
+        self.spark_roi_select_button.clicked.connect(self.spark_roi_selection_requested.emit)
+        self.spark_roi_select_button.setToolTip(
             "Select the region above the keys where spark bars and sparks appear."
         )
-        roi_layout.addWidget(roi_button)
-
-        # Add spacing between buttons
-        roi_layout.addSpacing(35)  # Increased spacing to move Hide button more to the right
+        roi_layout.addWidget(self.spark_roi_select_button)
 
         # Add toggle button for showing/hiding spark overlays
         self.spark_roi_toggle_button = QPushButton("Hide Spark Overlays")
-        self.spark_roi_toggle_button.setMaximumWidth(396)  # Increased by 10% from 360
+        self.spark_roi_toggle_button.setMaximumWidth(264)
         self.spark_roi_toggle_button.setCheckable(True)
         self.spark_roi_toggle_button.clicked.connect(self._toggle_spark_roi_visibility)
         self.spark_roi_toggle_button.setToolTip(
             "Show or hide the spark ROI overlay on the video."
         )
         roi_layout.addWidget(self.spark_roi_toggle_button)
-        roi_layout.addStretch()
 
         calibration_layout.addLayout(roi_layout)
 
@@ -849,12 +834,12 @@ class ControlPanelQt(QWidget):
         # Create one vertical auto-calibration row per key type so the Spark tab
         # fits in the settings pane without horizontal scrolling.
         for key_type in ["LW", "LB", "RW", "RB"]:
-            row = QHBoxLayout()
+            row = QVBoxLayout()
             row.setSpacing(5)
             row.setContentsMargins(0, 0, 0, 0)
 
             button = QPushButton(f"Auto {KEY_TYPE_LABELS[key_type]}")
-            button.setFixedWidth(180)
+            button.setMaximumWidth(210)
             button.clicked.connect(lambda checked=False, kt=key_type: self.auto_spark_calibration_requested.emit(kt))
             button.setToolTip(
                 "Recommended: auto-calibrate spark detection for this key type. "
@@ -865,10 +850,8 @@ class ControlPanelQt(QWidget):
 
             status = QLabel("Not Set")
             status.setStyleSheet("color: grey; font-style: italic;")
-            status.setFixedWidth(52)
             self.auto_calib_status_labels[key_type] = status
             row.addWidget(status)
-            row.addStretch()
 
             auto_layout.addLayout(row)
 
@@ -894,7 +877,7 @@ class ControlPanelQt(QWidget):
 
         scroll_area.setWidget(content)
         tab_layout.addWidget(scroll_area)
-        self.tab_widget.addTab(tab, "Spark Detection")
+        self._add_settings_section(tab, "Spark")
     
     def _create_midi_settings_tab(self):
         """Tab 5: MIDI Settings"""
@@ -989,7 +972,7 @@ class ControlPanelQt(QWidget):
         # Octave transpose is configured in the Calibration tab.
         
         layout.addStretch()
-        self.tab_widget.addTab(tab, "MIDI")
+        self._add_settings_section(tab, "MIDI")
     
     def _create_video_trim_tab(self):
         """Tab 6: Video Trim Settings"""
@@ -1052,7 +1035,7 @@ class ControlPanelQt(QWidget):
         layout.addWidget(trim_group)
         
         layout.addStretch()
-        self.tab_widget.addTab(tab, "Video Trim")
+        self._add_settings_section(tab, "Trim")
     
     def _create_optional_settings_tab(self):
         """Tab 7: Optional Settings"""
@@ -1076,7 +1059,7 @@ class ControlPanelQt(QWidget):
         layout.addWidget(optional_group)
         
         layout.addStretch()
-        self.tab_widget.addTab(tab, "Optional")
+        self._add_settings_section(tab, "Optional")
     
     def _handle_conversion_request(self):
         """Handle conversion button click."""

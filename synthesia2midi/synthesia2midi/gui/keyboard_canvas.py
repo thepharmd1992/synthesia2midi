@@ -173,7 +173,9 @@ class KeyboardCanvas(QWidget):
         self.manual_fit_region_selected_callback = None
         self.manual_fit_region_guides_callback = None
         self.manual_fit_keyboard_box_selected_callback = None
+        self.manual_fit_guide_line_changed_callback = None
         self.manual_fit_guide_line_selected_callback = None
+        self.manual_fit_setup_instruction_callback = None
         self.manual_fit_overlays_visible_callback = None
 
         # Set widget properties
@@ -1188,8 +1190,11 @@ class KeyboardCanvas(QWidget):
         region_guides = {}
         if self.manual_fit_region_guides_callback is not None:
             region_guides = dict(self.manual_fit_region_guides_callback())
+        setup_instruction = ""
+        if self.manual_fit_setup_instruction_callback is not None:
+            setup_instruction = str(self.manual_fit_setup_instruction_callback())
 
-        if mode != "manual_fit_group" and not override_ids and not region_guides:
+        if mode != "manual_fit_group" and not override_ids and not region_guides and not setup_instruction:
             return
         if not self.app_state.overlays:
             return
@@ -1243,6 +1248,44 @@ class KeyboardCanvas(QWidget):
                 painter.setBrush(Qt.NoBrush)
                 painter.drawRect(rect)
 
+                if setup_instruction:
+                    text_x = rect.left() + 8
+                    if region_type == "black":
+                        text_y = rect.bottom() - 8
+                    elif region_type == "white":
+                        text_y = rect.top() + 20
+                    else:
+                        text_y = rect.top() + 20
+                    self._draw_manual_fit_instruction_text(
+                        painter,
+                        setup_instruction,
+                        text_x,
+                        text_y,
+                    )
+                    setup_instruction = ""
+
+            if setup_instruction:
+                if keyboard_box is not None:
+                    x1_c, y1_c, _x2_c, _y2_c = self._map_image_to_canvas_coords(
+                        float(getattr(keyboard_box, "left", 0.0)),
+                        float(getattr(keyboard_box, "top", 0.0)),
+                        1.0,
+                        1.0,
+                    )
+                    self._draw_manual_fit_instruction_text(
+                        painter,
+                        setup_instruction,
+                        x1_c + 8,
+                        y1_c + 24,
+                    )
+                else:
+                    self._draw_manual_fit_instruction_text(
+                        painter,
+                        setup_instruction,
+                        24,
+                        36,
+                    )
+
             if mode == "manual_fit_group":
                 bounds = []
                 for overlay in self.app_state.overlays:
@@ -1280,6 +1323,20 @@ class KeyboardCanvas(QWidget):
                     painter.drawLine(x1_c + 3, y1_c + 3, x1_c + 3, y1_c + 12)
         finally:
             painter.restore()
+
+    @staticmethod
+    def _draw_manual_fit_instruction_text(painter: QPainter, text: str, x: int, y: int) -> None:
+        font = painter.font()
+        font.setBold(True)
+        painter.setFont(font)
+        metrics = QFontMetrics(font)
+        padding = 6
+        width = metrics.horizontalAdvance(text)
+        height = metrics.height()
+        rect = QRect(x - padding, y - height, width + padding * 2, height + padding)
+        painter.fillRect(rect, QColor(0, 0, 0, 180))
+        painter.setPen(QColor("white"))
+        painter.drawText(x, y, text)
 
     def _map_image_to_canvas_coords(self, img_x: float, img_y: float, img_width: float, img_height: float) -> Tuple[int, int, int, int]:
         """Maps image coordinates to canvas coordinates."""
@@ -1867,6 +1924,7 @@ class KeyboardCanvas(QWidget):
         self.interaction.manual_fit_group_moved.connect(self._handle_manual_fit_group_moved)
         self.interaction.manual_fit_region_selected.connect(self._handle_manual_fit_region_selected)
         self.interaction.manual_fit_keyboard_box_selected.connect(self._handle_manual_fit_keyboard_box_selected)
+        self.interaction.manual_fit_guide_line_changed.connect(self._handle_manual_fit_guide_line_changed)
         self.interaction.manual_fit_guide_line_selected.connect(self._handle_manual_fit_guide_line_selected)
         self.interaction.color_picked.connect(self._handle_color_picked)
         self.interaction.request_repaint.connect(self._handle_repaint_request)
@@ -1882,6 +1940,7 @@ class KeyboardCanvas(QWidget):
             self.interaction.manual_fit_group_moved.disconnect()
             self.interaction.manual_fit_region_selected.disconnect()
             self.interaction.manual_fit_keyboard_box_selected.disconnect()
+            self.interaction.manual_fit_guide_line_changed.disconnect()
             self.interaction.manual_fit_guide_line_selected.disconnect()
             self.interaction.color_picked.disconnect()
             self.interaction.request_repaint.disconnect()
@@ -1983,6 +2042,12 @@ class KeyboardCanvas(QWidget):
             self.manual_fit_keyboard_box_selected_callback(left, top, right, bottom)
             self.update()
 
+    def _handle_manual_fit_guide_line_changed(self, line_type: str, y: float):
+        """Handle Manual Fit setup guide-line preview movement."""
+        if self.manual_fit_guide_line_changed_callback is not None:
+            self.manual_fit_guide_line_changed_callback(line_type, y)
+            self.update()
+
     def _handle_manual_fit_guide_line_selected(self, line_type: str, y: float):
         """Handle Manual Fit setup guide-line selection."""
         if self.manual_fit_guide_line_selected_callback is not None:
@@ -2003,7 +2068,9 @@ class KeyboardCanvas(QWidget):
         region_selected_callback=None,
         region_guides_callback=None,
         keyboard_box_selected_callback=None,
+        guide_line_changed_callback=None,
         guide_line_selected_callback=None,
+        setup_instruction_callback=None,
         overlays_visible_callback=None,
     ) -> None:
         self.manual_fit_group_move_callback = group_move_callback
@@ -2013,7 +2080,9 @@ class KeyboardCanvas(QWidget):
         self.manual_fit_region_selected_callback = region_selected_callback
         self.manual_fit_region_guides_callback = region_guides_callback
         self.manual_fit_keyboard_box_selected_callback = keyboard_box_selected_callback
+        self.manual_fit_guide_line_changed_callback = guide_line_changed_callback
         self.manual_fit_guide_line_selected_callback = guide_line_selected_callback
+        self.manual_fit_setup_instruction_callback = setup_instruction_callback
         self.manual_fit_overlays_visible_callback = overlays_visible_callback
 
     def clear_manual_fit_callbacks(self) -> None:

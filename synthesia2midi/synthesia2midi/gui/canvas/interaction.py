@@ -37,6 +37,7 @@ class CanvasInteraction(QObject):
     manual_fit_group_moved = Signal(float, float)  # image-space dx, dy
     manual_fit_region_selected = Signal(str, float, float)  # region_type, top_y, bottom_y
     manual_fit_keyboard_box_selected = Signal(float, float, float, float)  # left, top, right, bottom
+    manual_fit_guide_line_changed = Signal(str, float)  # line_type, image_y
     manual_fit_guide_line_selected = Signal(str, float)  # line_type, image_y
     color_picked = Signal(int, int, int, int, int)  # r, g, b, image_x, image_y from Ctrl+click
     request_repaint = Signal()  # Request canvas repaint after interaction
@@ -226,7 +227,7 @@ class CanvasInteraction(QObject):
             self._handle_manual_fit_region_move(event)
             return True
         elif self._manual_fit_line_dragging:
-            self._emit_manual_fit_line_y(event.x(), event.y())
+            self._emit_manual_fit_line_y(event.x(), event.y(), completed=False)
             self._request_throttled_repaint()
             return True
         elif self._manual_fit_group_dragging:
@@ -547,11 +548,11 @@ class CanvasInteraction(QObject):
     def _handle_manual_fit_line_release(self, event: QMouseEvent) -> None:
         if event.button() != Qt.LeftButton:
             return
-        self._emit_manual_fit_line_y(event.x(), event.y())
+        self._emit_manual_fit_line_y(event.x(), event.y(), completed=True)
         self._manual_fit_line_dragging = False
         self.request_repaint.emit()
 
-    def _emit_manual_fit_line_y(self, canvas_x: float, canvas_y: float) -> None:
+    def _emit_manual_fit_line_y(self, canvas_x: float, canvas_y: float, *, completed: bool) -> None:
         image_pos = self.coord_manager.canvas_to_image(
             canvas_x,
             canvas_y,
@@ -560,7 +561,10 @@ class CanvasInteraction(QObject):
         if not image_pos:
             return
         line_type = "black_bottom" if self._manual_fit_mode == "manual_fit_black_bottom" else "white_start"
-        self.manual_fit_guide_line_selected.emit(line_type, float(image_pos[1]))
+        if completed:
+            self.manual_fit_guide_line_selected.emit(line_type, float(image_pos[1]))
+        else:
+            self.manual_fit_guide_line_changed.emit(line_type, float(image_pos[1]))
 
     def _handle_manual_fit_region_press(self, event: QMouseEvent) -> bool:
         if event.button() == Qt.RightButton:

@@ -170,16 +170,23 @@ def test_canvas_interaction_manual_fit_line_mode_emits_single_guide_y():
     app_state = AppState()
     interaction = CanvasInteraction(None, _IdentityCoordManager(), app_state)
     interaction.set_manual_fit_mode("manual_fit_black_bottom")
-    lines = []
+    changed = []
+    selected = []
+    interaction.manual_fit_guide_line_changed.connect(
+        lambda line_type, y: changed.append((line_type, y))
+    )
     interaction.manual_fit_guide_line_selected.connect(
-        lambda line_type, y: lines.append((line_type, y))
+        lambda line_type, y: selected.append((line_type, y))
     )
 
     assert interaction.handle_mouse_press(_MouseEvent(10, 12)) is True
     assert interaction.handle_mouse_move(_MouseEvent(40, 42)) is True
+    assert changed == [("black_bottom", 42)]
+    assert selected == []
+
     assert interaction.handle_mouse_release(_MouseEvent(40, 42)) is True
 
-    assert lines[-1] == ("black_bottom", 42)
+    assert selected == [("black_bottom", 42)]
     assert interaction.manual_fit_mode() == "manual_fit_black_bottom"
 
 

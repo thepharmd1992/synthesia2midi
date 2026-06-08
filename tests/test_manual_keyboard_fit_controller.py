@@ -211,7 +211,7 @@ def test_manual_fit_dialog_reset_and_clear_selected_override_update_preview():
         _flush_qt_deletes()
 
 
-def test_manual_fit_setup_wizard_confirms_keyboard_box_then_guides_then_enters_fine_tune():
+def test_manual_fit_setup_uses_compact_coach_and_auto_advances_to_fine_tune():
     QApplication.instance() or QApplication([])
     app = _FakeApp()
     app.app_state.overlays = [
@@ -226,28 +226,50 @@ def test_manual_fit_setup_wizard_confirms_keyboard_box_then_guides_then_enters_f
         dialog = controller.active_dialog
 
         assert app.keyboard_canvas.mode == "manual_fit_keyboard_box"
-        assert dialog.setup_step_label.text() == "Draw Keyboard Area"
-        assert dialog.confirm_step_button.isEnabled() is False
+        assert dialog.setup_step_label.text() == "Step 1 of 3: Draw Keyboard Area"
+        assert dialog.setup_cancel_button.isVisible()
+        assert not dialog.setup_back_button.isVisible()
+        assert not dialog.setup_use_suggested_button.isVisible()
+        assert dialog.setup_group.isVisible()
+        assert not dialog.fine_tune_widget.isVisible()
         assert app.keyboard_canvas.callbacks["overlays_visible_callback"]() is False
+        assert app.keyboard_canvas.callbacks["setup_instruction_callback"]() == (
+            "Draw a box around the visible keyboard"
+        )
 
         app.keyboard_canvas.callbacks["keyboard_box_selected_callback"](10, 100, 70, 200)
-        assert dialog.confirm_step_button.isEnabled() is True
-        dialog.confirm_step_button.click()
-
         assert app.keyboard_canvas.mode == "manual_fit_black_bottom"
-        assert dialog.setup_step_label.text() == "Set Black Key Bottom"
+        assert dialog.setup_step_label.text() == "Step 2 of 3: Set Black Key Bottom"
+        assert dialog.setup_back_button.isVisible()
+        assert dialog.setup_use_suggested_button.isVisible()
+        assert set(app.keyboard_canvas.callbacks["region_guides_callback"]()) == {
+            "keyboard_box",
+            "black",
+        }
+        assert app.keyboard_canvas.callbacks["setup_instruction_callback"]() == (
+            "Drag to bottom of black keys"
+        )
 
+        app.keyboard_canvas.callbacks["guide_line_changed_callback"]("black_bottom", 140)
+        assert app.keyboard_canvas.mode == "manual_fit_black_bottom"
         app.keyboard_canvas.callbacks["guide_line_selected_callback"]("black_bottom", 140)
-        dialog.confirm_step_button.click()
 
         assert app.keyboard_canvas.mode == "manual_fit_white_start"
-        assert dialog.setup_step_label.text() == "Set White Key Start"
+        assert dialog.setup_step_label.text() == "Step 3 of 3: Set White Key Start"
+        assert set(app.keyboard_canvas.callbacks["region_guides_callback"]()) == {
+            "keyboard_box",
+            "black",
+            "white",
+        }
+        assert app.keyboard_canvas.callbacks["setup_instruction_callback"]() == (
+            "Drag to start of white-key detection area"
+        )
 
         app.keyboard_canvas.callbacks["guide_line_selected_callback"]("white_start", 152)
-        dialog.confirm_step_button.click()
 
         assert app.keyboard_canvas.mode == "manual_fit_group"
-        assert dialog.setup_step_label.text() == "Fine Tune Overlays"
+        assert not dialog.setup_group.isVisible()
+        assert dialog.fine_tune_widget.isVisible()
         assert app.keyboard_canvas.callbacks["overlays_visible_callback"]() is True
         white_left, black, white_right = app.app_state.overlays
         assert (white_left.x, white_left.y, white_left.width, white_left.height) == pytest.approx(
@@ -259,6 +281,43 @@ def test_manual_fit_setup_wizard_confirms_keyboard_box_then_guides_then_enters_f
         assert (white_right.x, white_right.y, white_right.width, white_right.height) == pytest.approx(
             (43, 159.2, 24, 33.6)
         )
+    finally:
+        if controller.active_dialog is not None:
+            controller.active_dialog.reject()
+        app.close()
+        app.deleteLater()
+        _flush_qt_deletes()
+
+
+def test_manual_fit_setup_back_and_use_suggested_keep_user_on_canvas_flow():
+    QApplication.instance() or QApplication([])
+    app = _FakeApp()
+    app.app_state.overlays = [
+        _overlay(key_id=1, note="C", x=0, y=20, width=10, height=40),
+        _overlay(key_id=2, note="C♯", x=12, y=10, width=6, height=20),
+        _overlay(key_id=3, note="D", x=24, y=20, width=10, height=40),
+    ]
+    controller = ManualKeyboardFitController(app)
+
+    try:
+        assert controller.open(start_setup=True) is True
+        dialog = controller.active_dialog
+
+        app.keyboard_canvas.callbacks["keyboard_box_selected_callback"](10, 100, 70, 200)
+        assert app.keyboard_canvas.mode == "manual_fit_black_bottom"
+
+        dialog.setup_back_button.click()
+        assert app.keyboard_canvas.mode == "manual_fit_keyboard_box"
+        assert dialog.setup_step_label.text() == "Step 1 of 3: Draw Keyboard Area"
+        assert set(app.keyboard_canvas.callbacks["region_guides_callback"]()) == {"keyboard_box"}
+
+        app.keyboard_canvas.callbacks["keyboard_box_selected_callback"](10, 100, 70, 200)
+        dialog.setup_use_suggested_button.click()
+        assert app.keyboard_canvas.mode == "manual_fit_white_start"
+
+        dialog.setup_use_suggested_button.click()
+        assert app.keyboard_canvas.mode == "manual_fit_group"
+        assert app.keyboard_canvas.callbacks["overlays_visible_callback"]() is True
     finally:
         if controller.active_dialog is not None:
             controller.active_dialog.reject()

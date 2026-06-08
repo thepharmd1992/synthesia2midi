@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
     QSlider,
     QSpinBox,
     QVBoxLayout,
+    QWidget,
 )
 
 from synthesia2midi.workflows.manual_keyboard_fit import ManualFitParams
@@ -39,7 +40,8 @@ class ManualKeyboardFitDialog(QDialog):
     reset_all_requested = Signal()
     reset_position_requested = Signal()
     clear_selected_override_requested = Signal()
-    setup_confirm_requested = Signal()
+    setup_back_requested = Signal()
+    setup_use_suggested_requested = Signal()
 
     def __init__(self, parent=None, *, initial_octave: int = 0):
         super().__init__(parent, Qt.Tool | Qt.WindowCloseButtonHint)
@@ -61,18 +63,31 @@ class ManualKeyboardFitDialog(QDialog):
         layout.setSpacing(10)
 
         self.setup_group = QGroupBox("Setup")
-        setup_layout = QGridLayout(self.setup_group)
+        setup_layout = QVBoxLayout(self.setup_group)
         self.setup_step_label = QLabel("Fine Tune Overlays")
         self.setup_step_label.setStyleSheet("font-weight: bold;")
         self.setup_instruction_label = QLabel("")
         self.setup_instruction_label.setWordWrap(True)
-        self.confirm_step_button = QPushButton("Confirm")
-        self.confirm_step_button.setEnabled(False)
-        self.confirm_step_button.clicked.connect(self.setup_confirm_requested.emit)
-        setup_layout.addWidget(self.setup_step_label, 0, 0)
-        setup_layout.addWidget(self.confirm_step_button, 0, 1)
-        setup_layout.addWidget(self.setup_instruction_label, 1, 0, 1, 2)
+        self.setup_back_button = QPushButton("Back")
+        self.setup_use_suggested_button = QPushButton("Use Suggested")
+        self.setup_cancel_button = QPushButton("Cancel")
+        self.setup_back_button.clicked.connect(self.setup_back_requested.emit)
+        self.setup_use_suggested_button.clicked.connect(self.setup_use_suggested_requested.emit)
+        self.setup_cancel_button.clicked.connect(self.reject)
+        setup_button_row = QHBoxLayout()
+        setup_button_row.addWidget(self.setup_back_button)
+        setup_button_row.addWidget(self.setup_use_suggested_button)
+        setup_button_row.addStretch()
+        setup_button_row.addWidget(self.setup_cancel_button)
+        setup_layout.addWidget(self.setup_step_label)
+        setup_layout.addWidget(self.setup_instruction_label)
+        setup_layout.addLayout(setup_button_row)
         layout.addWidget(self.setup_group)
+
+        self.fine_tune_widget = QWidget(self)
+        fine_tune_layout = QVBoxLayout(self.fine_tune_widget)
+        fine_tune_layout.setContentsMargins(0, 0, 0, 0)
+        fine_tune_layout.setSpacing(10)
 
         self.mode_group = QGroupBox("Edit Mode")
         mode_layout = QHBoxLayout(self.mode_group)
@@ -89,7 +104,7 @@ class ManualKeyboardFitDialog(QDialog):
         mode_layout.addStretch()
         mode_layout.addWidget(self.group_fit_radio)
         mode_layout.addWidget(self.single_overlay_radio)
-        layout.addWidget(self.mode_group)
+        fine_tune_layout.addWidget(self.mode_group)
 
         octave_row = QHBoxLayout()
         octave_label = QLabel("Octave")
@@ -102,7 +117,7 @@ class ManualKeyboardFitDialog(QDialog):
         octave_row.addWidget(octave_label)
         octave_row.addWidget(self.octave_spinbox)
         octave_row.addStretch()
-        layout.addLayout(octave_row)
+        fine_tune_layout.addLayout(octave_row)
 
         self.controls_group = QGroupBox("Keyboard Fit")
         controls_layout = QGridLayout(self.controls_group)
@@ -140,7 +155,7 @@ class ManualKeyboardFitDialog(QDialog):
             controls_layout.addWidget(spinbox, row, 2)
             controls_layout.addWidget(reset_button, row, 3)
 
-        layout.addWidget(self.controls_group, 1)
+        fine_tune_layout.addWidget(self.controls_group, 1)
 
         action_row = QHBoxLayout()
         self.reset_all_button = QPushButton("Reset All")
@@ -161,7 +176,8 @@ class ManualKeyboardFitDialog(QDialog):
         action_row.addStretch()
         action_row.addWidget(self.cancel_button)
         action_row.addWidget(self.apply_button)
-        layout.addLayout(action_row)
+        fine_tune_layout.addLayout(action_row)
+        layout.addWidget(self.fine_tune_widget, 1)
         self.finish_setup()
 
     def current_params(self) -> ManualFitParams:
@@ -179,49 +195,37 @@ class ManualKeyboardFitDialog(QDialog):
         with QSignalBlocker(self.octave_spinbox):
             self.octave_spinbox.setValue(int(octave_value))
 
-    def enter_setup_step(self, step_name: str, *, can_confirm: bool = False) -> None:
+    def enter_setup_step(self, step_name: str) -> None:
         labels = {
             "keyboard_box": (
-                "Draw Keyboard Area",
+                "Step 1 of 3: Draw Keyboard Area",
                 "Draw one rectangle around the visible keyboard area.",
             ),
             "black_bottom": (
-                "Set Black Key Bottom",
+                "Step 2 of 3: Set Black Key Bottom",
                 "Drag the orange line to the bottom edge of the black keys.",
             ),
             "white_start": (
-                "Set White Key Start",
+                "Step 3 of 3: Set White Key Start",
                 "Drag the blue line to the start of the white-key detection area.",
             ),
         }
         title, instruction = labels[step_name]
         self.setup_group.show()
+        self.fine_tune_widget.hide()
         self.setup_step_label.setText(title)
         self.setup_instruction_label.setText(instruction)
-        self.confirm_step_button.show()
-        self.confirm_step_button.setEnabled(can_confirm)
-        self.mode_group.setEnabled(False)
-        self.controls_group.setEnabled(False)
-        self.reset_all_button.setEnabled(False)
-        self.reset_position_button.setEnabled(False)
-        self.clear_selected_override_button.setEnabled(False)
-        self.apply_button.setEnabled(False)
-
-    def mark_setup_step_ready(self) -> None:
-        self.confirm_step_button.setEnabled(True)
+        show_step_controls = step_name in {"black_bottom", "white_start"}
+        self.setup_back_button.setVisible(show_step_controls)
+        self.setup_use_suggested_button.setVisible(show_step_controls)
+        self.adjustSize()
 
     def finish_setup(self) -> None:
-        self.setup_group.show()
+        self.setup_group.hide()
+        self.fine_tune_widget.show()
         self.setup_step_label.setText("Fine Tune Overlays")
         self.setup_instruction_label.setText("")
-        self.confirm_step_button.hide()
-        self.confirm_step_button.setEnabled(False)
-        self.mode_group.setEnabled(True)
-        self.controls_group.setEnabled(True)
-        self.reset_all_button.setEnabled(True)
-        self.reset_position_button.setEnabled(True)
-        self.clear_selected_override_button.setEnabled(True)
-        self.apply_button.setEnabled(True)
+        self.resize(760, 560)
 
     def _set_control_value(self, name: str, value: int) -> None:
         slider = self.param_sliders[name]

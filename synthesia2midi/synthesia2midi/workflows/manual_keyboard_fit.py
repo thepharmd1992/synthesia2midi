@@ -171,6 +171,28 @@ class ManualKeyboardFitSession:
             )
         return guides
 
+    def setup_guides_for_step(self, step: str) -> Dict[str, object]:
+        guides = self.setup_guides()
+        if step == "keyboard_box":
+            return {
+                key: value
+                for key, value in guides.items()
+                if key == "keyboard_box"
+            }
+        if step == "black_bottom":
+            return {
+                key: value
+                for key, value in guides.items()
+                if key in {"keyboard_box", "black"}
+            }
+        if step == "white_start":
+            return {
+                key: value
+                for key, value in guides.items()
+                if key in {"keyboard_box", "black", "white"}
+            }
+        return guides
+
     def finalize_setup_geometry(self) -> None:
         box = self._require_setup_keyboard_box()
         black_bottom = self._setup_black_bottom_or_default()

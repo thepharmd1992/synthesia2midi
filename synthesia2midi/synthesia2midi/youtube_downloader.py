@@ -3,11 +3,21 @@
 import logging
 import os
 import re
+import shutil
 from typing import Optional, Dict, Any, Tuple
 from pathlib import Path
 from PySide6.QtCore import QObject, Signal, QThread
 
 import yt_dlp
+
+
+_SUPPORTED_JS_RUNTIMES = ("node", "deno", "bun", "quickjs")
+_COMMON_RUNTIME_DIRS = (
+    Path.home() / ".local" / "bin",
+    Path("/opt/homebrew/bin"),
+    Path("/usr/local/bin"),
+    Path("/usr/bin"),
+)
 
 
 def _ensure_cert_store():
@@ -23,6 +33,50 @@ def _ensure_cert_store():
         os.environ.setdefault("REQUESTS_CA_BUNDLE", ca_bundle)
     except Exception as exc:  # pragma: no cover - defensive only
         logging.warning("Could not set cert bundle for yt-dlp: %s", exc)
+
+
+def _find_js_runtime_path(runtime: str) -> Optional[str]:
+    runtime_path = shutil.which(runtime)
+    if runtime_path:
+        return runtime_path
+
+    executable_name = f"{runtime}.exe" if os.name == "nt" else runtime
+    for directory in _COMMON_RUNTIME_DIRS:
+        candidate = directory / executable_name
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return str(candidate)
+
+    return None
+
+
+def _discover_js_runtimes() -> Dict[str, Dict[str, str]]:
+    runtimes = {}
+    for runtime in _SUPPORTED_JS_RUNTIMES:
+        runtime_path = _find_js_runtime_path(runtime)
+        if runtime_path:
+            runtimes[runtime] = {"path": runtime_path}
+    return runtimes
+
+
+def _youtube_ydl_opts(base_opts: Dict[str, Any]) -> Dict[str, Any]:
+    opts = dict(base_opts)
+    js_runtimes = _discover_js_runtimes()
+    if js_runtimes:
+        opts["js_runtimes"] = js_runtimes
+        remote_components = set(opts.get("remote_components", []))
+        remote_components.add("ejs:github")
+        opts["remote_components"] = sorted(remote_components)
+    return opts
+
+
+def _format_youtube_error(error: Exception) -> str:
+    message = str(error)
+    if "This video is not available" in message and not _discover_js_runtimes():
+        return (
+            f"{message}. No JavaScript runtime was found for YouTube challenge solving. "
+            "Install Node.js, Deno, Bun, or QuickJS, then retry."
+        )
+    return message
 
 class DownloadProgress(QObject):
     """Signals for download progress updates"""
@@ -111,11 +165,11 @@ class YouTubeDownloader:
         if not self.validate_url(url):
             raise ValueError("Invalid YouTube URL")
             
-        ydl_opts = {
+        ydl_opts = _youtube_ydl_opts({
             'quiet': True,
             'no_warnings': True,
             'noplaylist': True,  # Avoid pulling entire mixes/radio playlists
-        }
+        })
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             try:
@@ -129,7 +183,7 @@ class YouTubeDownloader:
                     'thumbnail': info.get('thumbnail', ''),
                 }
             except Exception as e:
-                raise Exception(f"Failed to get video info: {str(e)}")
+                raise Exception(f"Failed to get video info: {_format_youtube_error(e)}")
     
     def sanitize_filename(self, filename: str) -> str:
         """Sanitize filename for safe file system usage"""
@@ -186,15 +240,18 @@ class YouTubeDownloader:
         height = self.QUALITY_PRESETS[quality]['height']
         
         # First get video info to determine folder name
-        ydl_opts_info = {
+        ydl_opts_info = _youtube_ydl_opts({
             'quiet': True,
             'no_warnings': True,
             'noplaylist': True,  # Avoid accidentally downloading full mixes
-        }
+        })
         
-        with yt_dlp.YoutubeDL(ydl_opts_info) as ydl:
-            info = ydl.extract_info(url, download=False)
-            video_title = info.get('title', 'Unknown')
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts_info) as ydl:
+                info = ydl.extract_info(url, download=False)
+                video_title = info.get('title', 'Unknown')
+        except Exception as e:
+            raise Exception(f"Failed to get video info: {_format_youtube_error(e)}")
             
         # Create sanitized folder name
         folder_name = self.sanitize_filename(video_title)
@@ -208,7 +265,7 @@ class YouTubeDownloader:
         video_folder.mkdir(exist_ok=True)
         
         # Configure download options
-        ydl_opts = {
+        ydl_opts = _youtube_ydl_opts({
             'outtmpl': str(video_folder / f'{folder_name}.%(ext)s'),
             # Select best video format up to specified quality, prefer mp4
             'format': f'bestvideo[height<={height}][ext=mp4]/bestvideo[height<={height}]',
@@ -219,7 +276,7 @@ class YouTubeDownloader:
                 'key': 'FFmpegVideoConvertor',
                 'preferedformat': 'mp4',  # Convert to mp4 if needed
             }],
-        }
+        })
         
         if progress_hook:
             ydl_opts['progress_hooks'] = [progress_hook]
@@ -240,17 +297,17 @@ class YouTubeDownloader:
                 return filename
                 
             except Exception as e:
-                raise Exception(f"Download failed: {str(e)}")
+                raise Exception(f"Download failed: {_format_youtube_error(e)}")
     
     def get_available_qualities(self, url: str) -> Dict[str, Dict[str, Any]]:
         """Get available quality options for a video"""
         if not self.validate_url(url):
             raise ValueError("Invalid YouTube URL")
             
-        ydl_opts = {
+        ydl_opts = _youtube_ydl_opts({
             'quiet': True,
             'no_warnings': True,
-        }
+        })
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             try:
@@ -290,7 +347,7 @@ class YouTubeDownloader:
                 return available_qualities
                 
             except Exception as e:
-                raise Exception(f"Failed to get quality options: {str(e)}")
+                raise Exception(f"Failed to get quality options: {_format_youtube_error(e)}")
 
 
 # Example usage

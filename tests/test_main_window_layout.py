@@ -1,5 +1,5 @@
 from PySide6.QtCore import QSignalBlocker, QRect, Qt, QTimer
-from PySide6.QtWidgets import QApplication, QScrollArea, QTabWidget
+from PySide6.QtWidgets import QApplication, QGroupBox, QScrollArea, QTabWidget
 
 from synthesia2midi.main import Video2MidiApp
 
@@ -23,6 +23,15 @@ def _assert_no_overlap(control_panel, widgets):
     for index, rect in enumerate(rects):
         for other in rects[index + 1:]:
             assert not rect.intersects(other), f"{rect} overlaps {other}"
+
+
+def _has_ancestor(widget, ancestor):
+    parent = widget.parentWidget()
+    while parent is not None:
+        if parent is ancestor:
+            return True
+        parent = parent.parentWidget()
+    return False
 
 
 def test_main_window_prioritizes_video_with_settings_rail_and_tool_window(monkeypatch):
@@ -72,6 +81,36 @@ def test_settings_rail_opens_floating_tool_window(monkeypatch):
         assert app.settings_tool_window.isVisible()
         assert app.settings_tool_window.windowFlags() & Qt.Tool
         assert app.settings_rail_button.isVisible()
+    finally:
+        app.close()
+
+
+def test_settings_lower_rail_holds_global_actions_and_status(monkeypatch):
+    app = _make_app(monkeypatch)
+    try:
+        app.show()
+        app.settings_rail_button.click()
+        QApplication.processEvents()
+
+        control_panel = app.control_panel
+        action_widgets = [
+            control_panel.convert_button,
+            control_panel.conversion_status,
+            control_panel.midi_touchup_button,
+            control_panel.selected_overlay_label,
+        ]
+
+        assert hasattr(control_panel, "settings_rail_actions")
+        assert all(_has_ancestor(widget, control_panel.settings_rail_actions) for widget in action_widgets)
+        assert all(group.title() != "Main Actions" for group in control_panel.findChildren(QGroupBox))
+
+        rail_rect = _rect_in_control_panel(control_panel, control_panel.settings_section_rail)
+        actions_rect = _rect_in_control_panel(control_panel, control_panel.settings_rail_actions)
+        stack_rect = _rect_in_control_panel(control_panel, control_panel.tab_widget)
+
+        assert actions_rect.top() > rail_rect.bottom()
+        assert actions_rect.left() < stack_rect.left()
+        assert actions_rect.width() <= control_panel.settings_section_rail.width()
     finally:
         app.close()
 

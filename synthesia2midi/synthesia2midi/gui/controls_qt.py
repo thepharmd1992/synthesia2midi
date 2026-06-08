@@ -153,19 +153,26 @@ class ControlPanelQt(QWidget):
         main_layout.setContentsMargins(10, 2, 10, 10)  # Reduced top margin from 10 to 2
         main_layout.setSpacing(5)  # Reduce spacing between elements
         main_layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)  # Align content to left side
-        
-        # Always-visible elements at top
-        self._create_always_visible_section(main_layout)
+
+        self._create_global_action_widgets()
         
         settings_layout = QHBoxLayout()
         settings_layout.setContentsMargins(0, 0, 0, 0)
         settings_layout.setSpacing(8)
 
+        self.settings_section_rail_container = QWidget()
+        self.settings_section_rail_container.setObjectName("settings_section_rail_container")
+        self.settings_section_rail_container.setFixedWidth(98)
+        self.settings_section_rail_container.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        settings_rail_layout = QVBoxLayout(self.settings_section_rail_container)
+        settings_rail_layout.setContentsMargins(0, 0, 0, 0)
+        settings_rail_layout.setSpacing(8)
+
         self.settings_section_rail = QListWidget()
         self.settings_section_rail.setObjectName("settings_section_rail")
         self.settings_section_rail.setFixedWidth(98)
         self.settings_section_rail.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.settings_section_rail.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        self.settings_section_rail.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.settings_section_rail.currentRowChanged.connect(self._set_settings_section)
 
         self.tab_widget = QStackedWidget()
@@ -181,8 +188,13 @@ class ControlPanelQt(QWidget):
         self._create_midi_settings_tab()
         self._create_video_trim_tab()
         self._create_optional_settings_tab()
+
+        self._fit_settings_section_rail_to_items()
+        settings_rail_layout.addWidget(self.settings_section_rail)
+        settings_rail_layout.addStretch(1)
+        self._create_settings_rail_actions(settings_rail_layout)
         
-        settings_layout.addWidget(self.settings_section_rail)
+        settings_layout.addWidget(self.settings_section_rail_container)
         settings_layout.addWidget(self.tab_widget, 1)
         main_layout.addLayout(settings_layout, 1)
 
@@ -197,51 +209,56 @@ class ControlPanelQt(QWidget):
     def _set_settings_section(self, index: int) -> None:
         if index >= 0:
             self.tab_widget.setCurrentIndex(index)
+
+    def _fit_settings_section_rail_to_items(self) -> None:
+        if self.settings_section_rail.count() == 0:
+            return
+
+        row_height = self.settings_section_rail.sizeHintForRow(0)
+        if row_height <= 0:
+            row_height = 30
+        frame = self.settings_section_rail.frameWidth() * 2
+        self.settings_section_rail.setFixedHeight(
+            (row_height * self.settings_section_rail.count()) + frame + 4
+        )
     
-    def _create_always_visible_section(self, parent_layout):
-        """Create elements that are always visible regardless of tab."""
-        always_visible_group = QGroupBox("Main Actions")
-        always_visible_group.setMaximumWidth(520)  # Keep settings compact on laptop screens
-        always_visible_layout = QVBoxLayout(always_visible_group)
-        always_visible_layout.setContentsMargins(10, 5, 10, 10)  # Reduce top margin inside group box
-        
-        # Convert to MIDI button
-        convert_layout = QHBoxLayout()
-        self.convert_button = QPushButton("Convert to MIDI")
+    def _create_global_action_widgets(self):
+        """Create section-independent actions shown in the lower rail."""
+        self.convert_button = QPushButton("Convert")
         self.convert_button.setObjectName("convert_button")
         self.convert_button.clicked.connect(self._handle_conversion_request)
-        self.convert_button.setMinimumHeight(40)
-        convert_layout.addWidget(self.convert_button)
-        
-        # Status labels
-        status_layout = QVBoxLayout()
-        self.conversion_status = QLabel("Ready to convert")
-        status_layout.addWidget(self.conversion_status)
-        
-        
-        convert_layout.addLayout(status_layout)
-        
-        always_visible_layout.addLayout(convert_layout)
+        self.convert_button.setMinimumHeight(34)
 
-        touchup_layout = QHBoxLayout()
+        self.conversion_status = QLabel("Ready to convert")
+        self.conversion_status.setWordWrap(True)
+
         self.midi_touchup_button = QPushButton("Edit MIDI")
         self.midi_touchup_button.setObjectName("midi_touchup_button")
         self.midi_touchup_button.setMinimumHeight(34)
         self.midi_touchup_button.clicked.connect(self.midi_touchup_requested.emit)
-        touchup_layout.addWidget(self.midi_touchup_button)
-        touchup_layout.addStretch()
-        always_visible_layout.addLayout(touchup_layout)
-        
-        # Keyboard selection (if needed)
-        keyboard_layout = QHBoxLayout()
-        keyboard_layout.addWidget(QLabel("Selected Overlay:"))
+
+        self.selected_overlay_caption = QLabel("Overlay")
         self.selected_overlay_label = QLabel("None")
-        keyboard_layout.addWidget(self.selected_overlay_label)
-        keyboard_layout.addStretch()
-        
-        always_visible_layout.addLayout(keyboard_layout)
-        
-        parent_layout.addWidget(always_visible_group)
+        self.selected_overlay_label.setWordWrap(True)
+
+    def _create_settings_rail_actions(self, parent_layout):
+        self.settings_rail_actions = QWidget()
+        self.settings_rail_actions.setObjectName("settings_rail_actions")
+        self.settings_rail_actions.setFixedWidth(self.settings_section_rail.width())
+        self.settings_rail_actions.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+
+        actions_layout = QVBoxLayout(self.settings_rail_actions)
+        actions_layout.setContentsMargins(0, 0, 0, 0)
+        actions_layout.setSpacing(6)
+        actions_layout.addWidget(self.convert_button)
+        actions_layout.addWidget(self.conversion_status)
+        actions_layout.addSpacing(4)
+        actions_layout.addWidget(self.midi_touchup_button)
+        actions_layout.addSpacing(4)
+        actions_layout.addWidget(self.selected_overlay_caption)
+        actions_layout.addWidget(self.selected_overlay_label)
+
+        parent_layout.addWidget(self.settings_rail_actions, alignment=Qt.AlignBottom)
     
     def _create_mandatory_calibration_tab(self):
         """Tab 1: Mandatory Calibration"""
@@ -1474,7 +1491,7 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
     
     def set_conversion_result(self, success: bool, message: str):
         """Update the conversion status."""
-        self.convert_button.setText("Convert to MIDI")
+        self.convert_button.setText("Convert")
         self.convert_button.setEnabled(True)
         
         if success:

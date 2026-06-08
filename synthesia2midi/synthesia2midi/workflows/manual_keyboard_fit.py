@@ -86,6 +86,7 @@ class ManualKeyboardFitSession:
         self._baseline: Dict[int, OverlayGeometry] = dict(self._cancel_baseline)
         self._overrides: Dict[int, OverlayOverride] = {}
         self._bounds = self._calculate_bounds(self._baseline.values())
+        self._center_bounds = self._calculate_center_bounds(self._baseline.values())
         self._default_regions = self._calculate_default_regions()
         self._custom_regions: Dict[str, DetectionRegion] = {}
         self._setup_keyboard_box: KeyboardBox | None = None
@@ -208,6 +209,7 @@ class ManualKeyboardFitSession:
         self._custom_regions.clear()
         self._baseline = self._generate_baseline_from_setup_box(box)
         self._bounds = self._calculate_bounds(self._baseline.values())
+        self._center_bounds = self._calculate_center_bounds(self._baseline.values())
         self._default_regions = {
             "black": DetectionRegion(box.top, black_bottom),
             "white": DetectionRegion(white_start, box.bottom),
@@ -341,8 +343,9 @@ class ManualKeyboardFitSession:
         norm = (baseline_center_x - left) / span
         scaled_width = max(1.0, baseline.width * scale)
         scaled_center_x = center + ((baseline_center_x - center) * scale)
-        edge_shift = (self.params.left_edge_drift * (1.0 - norm)) + (
-            self.params.right_edge_drift * norm
+        left_edge_weight, right_edge_weight = self._edge_drift_weights(baseline_center_x)
+        edge_shift = (self.params.left_edge_drift * left_edge_weight) + (
+            self.params.right_edge_drift * right_edge_weight
         )
         left_slant_weight = max(0.0, min(1.0, (0.5 - norm) / 0.5))
         right_slant_weight = max(0.0, min(1.0, (norm - 0.5) / 0.5))
@@ -427,6 +430,34 @@ class ManualKeyboardFitSession:
         span = max(1.0, right - left)
         center = left + span / 2
         return left, right, span, center
+
+    @staticmethod
+    def _calculate_center_bounds(geometries: Iterable[OverlayGeometry]) -> Tuple[float, float, float]:
+        centers = [geometry.x + geometry.width / 2.0 for geometry in geometries]
+        if not centers:
+            return 0.0, 1.0, 0.5
+        left_center = min(centers)
+        right_center = max(centers)
+        midpoint = left_center + ((right_center - left_center) / 2.0)
+        return left_center, right_center, midpoint
+
+    def _edge_drift_weights(self, baseline_center_x: float) -> Tuple[float, float]:
+        left_center, right_center, midpoint = self._center_bounds
+        if right_center <= left_center:
+            return 0.0, 0.0
+
+        left_weight = 0.0
+        if baseline_center_x < midpoint:
+            left_weight = (midpoint - baseline_center_x) / max(1.0, midpoint - left_center)
+
+        right_weight = 0.0
+        if baseline_center_x > midpoint:
+            right_weight = (baseline_center_x - midpoint) / max(1.0, right_center - midpoint)
+
+        return (
+            max(0.0, min(1.0, left_weight)),
+            max(0.0, min(1.0, right_weight)),
+        )
 
     def _generate_baseline_from_setup_box(self, box: KeyboardBox) -> Dict[int, OverlayGeometry]:
         ordered_overlays = sorted(self.app_state.overlays, key=lambda overlay: overlay.key_id)

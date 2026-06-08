@@ -68,12 +68,14 @@ def test_manual_fit_keyboard_width_scales_centers_and_safe_widths_from_same_span
     assert app_state.overlays[2].width == pytest.approx(16)
 
 
-def test_manual_fit_edge_drift_moves_edges_more_than_center():
+def test_manual_fit_left_edge_drift_only_moves_left_half():
     app_state = AppState()
     app_state.overlays = [
         _overlay(1, "C", 0),
-        _overlay(2, "D", 45),
-        _overlay(3, "E", 90),
+        _overlay(2, "D", 20),
+        _overlay(3, "E", 45),
+        _overlay(4, "F", 70),
+        _overlay(5, "G", 90),
     ]
     baseline_centers = [overlay.x + overlay.width / 2 for overlay in app_state.overlays]
     session = ManualKeyboardFitSession(app_state)
@@ -84,7 +86,31 @@ def test_manual_fit_edge_drift_moves_edges_more_than_center():
         (overlay.x + overlay.width / 2) - baseline_center
         for overlay, baseline_center in zip(app_state.overlays, baseline_centers)
     ]
-    assert shifts[0] > shifts[1] > shifts[2]
+    assert shifts[0] > shifts[1] > 0
+    assert shifts[2:] == pytest.approx([0, 0, 0])
+
+
+def test_manual_fit_right_edge_drift_only_moves_right_half():
+    app_state = AppState()
+    app_state.overlays = [
+        _overlay(1, "C", 0),
+        _overlay(2, "D", 20),
+        _overlay(3, "E", 45),
+        _overlay(4, "F", 70),
+        _overlay(5, "G", 90),
+    ]
+    baseline_centers = [overlay.x + overlay.width / 2 for overlay in app_state.overlays]
+    session = ManualKeyboardFitSession(app_state)
+
+    session.set_param("right_edge_drift", -20)
+
+    shifts = [
+        (overlay.x + overlay.width / 2) - baseline_center
+        for overlay, baseline_center in zip(app_state.overlays, baseline_centers)
+    ]
+    assert shifts[:3] == pytest.approx([0, 0, 0])
+    assert shifts[3] < 0
+    assert shifts[4] < shifts[3]
 
 
 def test_manual_fit_left_and_right_slant_rotate_edges_more_than_center():

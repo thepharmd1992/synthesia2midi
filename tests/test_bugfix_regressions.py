@@ -260,10 +260,11 @@ class DummyAutoDetectTuningControllerForRestore:
 
 
 class DummySuccessfulWizardForController:
-    def __init__(self):
+    def __init__(self, *, manual_overlays_generated=False):
         self.keyboard_region_selection_requested = RecordingSignal()
         self.edit_current_calibration_requested = RecordingSignal()
         self.result = True
+        self.manual_overlays_generated = manual_overlays_generated
 
     def set_edit_current_calibration_enabled(self, enabled, tooltip=None):
         self.edit_enabled = (enabled, tooltip)
@@ -409,6 +410,39 @@ def test_calibration_wizard_controller_shows_manual_overlays_after_success():
     assert convert_button.enabled is True
     assert draw_calls == [True]
     assert display_calls == [11]
+
+
+def test_calibration_wizard_controller_opens_manual_fit_after_manual_overlay_generation():
+    wizard = DummySuccessfulWizardForController(manual_overlays_generated=True)
+    workflow = DummySuccessfulCalibrationWorkflowForController(wizard)
+    manual_fit_calls = []
+    convert_button = SimpleNamespace(setEnabled=lambda _enabled: None)
+    app = SimpleNamespace(
+        app_state=SimpleNamespace(
+            overlays=[SimpleNamespace(key_id=0)],
+            ui=SimpleNamespace(show_overlays=False),
+            video=SimpleNamespace(current_frame_index=11),
+        ),
+        calibration_workflow=workflow,
+        control_panel=SimpleNamespace(
+            convert_button=convert_button,
+            _can_convert=lambda: True,
+        ),
+        keyboard_canvas=SimpleNamespace(
+            draw_overlays=lambda: None,
+            display_frame=lambda _frame_idx: None,
+        ),
+        show_overlays_action=DummyShowOverlaysAction(),
+        manual_keyboard_fit_controller=SimpleNamespace(open=lambda: manual_fit_calls.append(True)),
+        video_loading_workflow=None,
+        video_session=None,
+    )
+    controller = CalibrationWizardController(app)
+
+    controller.run_calibration_wizard()
+
+    assert manual_fit_calls == [True]
+    assert controller.calibration_wizard is None
 
 
 def test_calibration_wizard_controller_resets_edit_flag_when_tuning_context_missing(monkeypatch):

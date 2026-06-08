@@ -117,6 +117,9 @@ class CalibrationWizardController:
             return
 
         wizard_success = self.calibration_wizard.result is True
+        manual_overlays_generated = bool(
+            getattr(self.calibration_wizard, "manual_overlays_generated", False)
+        )
 
         # Handle wizard completion
         if self.calibration_workflow.handle_wizard_completed(wizard_success):
@@ -137,6 +140,10 @@ class CalibrationWizardController:
 
         # Refresh UI elements
         self.keyboard_canvas.display_frame(self.app_state.video.current_frame_index) # Redraw frame and overlays
+        if manual_overlays_generated and self.app_state.overlays:
+            manual_fit_controller = getattr(self.app, "manual_keyboard_fit_controller", None)
+            if manual_fit_controller is not None:
+                manual_fit_controller.open()
 
     def _handle_keyboard_region_selection_request(self):
         """Wizard signal callback; kept as a named slot for Qt signal wiring."""

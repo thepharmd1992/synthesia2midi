@@ -40,6 +40,7 @@ class CalibrationWizard(QDialog):
         self.parent_app = parent  # Store reference to access video frame
         self.result: Optional[bool] = None # True if submitted, False/None if cancelled
         self.detected_overlays: Optional[List[OverlayConfig]] = None  # Store auto-detected overlays
+        self.manual_overlays_generated = False
         self.auto_detect_source_frame_rgb: Optional[np.ndarray] = None
         self.auto_detect_keyboard_roi: Optional[Tuple[int, int, int, int]] = None
         self.auto_detect_saved_params_fallback_used: bool = False
@@ -147,6 +148,7 @@ class CalibrationWizard(QDialog):
             return
         
         logging.info("Using autodetected values")
+        self.manual_overlays_generated = False
         
         logging.info("Calling _generate_initial_overlays")
         self._generate_initial_overlays()
@@ -171,6 +173,7 @@ class CalibrationWizard(QDialog):
         
         # Clear detected_overlays to force manual generation
         self.detected_overlays = None
+        self.manual_overlays_generated = True
         
         # Generate overlays using existing logic
         self._generate_initial_overlays()

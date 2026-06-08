@@ -31,6 +31,7 @@ from .app_config import APP_NAME, FRAME_NAV_INTERVALS
 from synthesia2midi.config_manager import ConfigManager
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.core.logging_config import LoggingConfig
+from synthesia2midi.core.recent_videos import RecentVideoStore
 from synthesia2midi.core.state_manager import StateManager
 
 from synthesia2midi.gui.controls_qt import ControlPanelQt
@@ -82,6 +83,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.state_manager = StateManager(self.app_state)
         self.video_session: VideoSession | None = None
         self.config_manager = ConfigManager(self.app_state)
+        self.recent_video_store = RecentVideoStore()
 
         # Initialize ROI utils with app_state reference for downsampling
         from synthesia2midi.detection.roi_utils import set_app_state_reference
@@ -396,8 +398,9 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         """Show the startup dialog for choosing video source."""
         logging.info("_show_startup_dialog: Showing startup dialog.")
 
-        dialog = StartupDialog(self)
+        dialog = StartupDialog(self, recent_video_paths=self.recent_video_store.recent_paths())
         dialog.open_local_file.connect(self.video_session_ui_controller.open_video_file)
+        dialog.open_recent_file.connect(self.video_session_ui_controller.open_recent_video_file)
         dialog.download_from_youtube.connect(self.video_session_ui_controller.show_youtube_download_dialog)
 
         # If user cancels, just continue with empty application

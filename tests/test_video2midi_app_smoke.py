@@ -55,9 +55,11 @@ class FakeStartupSignal:
 
 
 class FakeStartupDialog:
-    def __init__(self, parent):
+    def __init__(self, parent, *, recent_video_paths=None):
         self.parent = parent
+        self.recent_video_paths = list(recent_video_paths or [])
         self.open_local_file = FakeStartupSignal()
+        self.open_recent_file = FakeStartupSignal()
         self.download_from_youtube = FakeStartupSignal()
 
     def exec(self):

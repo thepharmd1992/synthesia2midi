@@ -1,10 +1,17 @@
 """Startup dialog for Synthesia2MIDI - Choose between local file or YouTube download"""
+import os
+
 # Third-party imports
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
-    QDialog, QDialogButtonBox, QFrame, QHBoxLayout, 
-    QLabel, QPushButton, QVBoxLayout
+    QCommandLinkButton,
+    QDialog,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QVBoxLayout,
 )
 
 
@@ -14,12 +21,15 @@ class StartupDialog(QDialog):
     # Signals for different choices
     open_local_file = Signal()
     download_from_youtube = Signal()
+    open_recent_file = Signal(str)
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, *, recent_video_paths=None):
         super().__init__(parent)
-        self.setWindowTitle("Synthesia2MIDI - Select Video Source")
+        self.recent_video_paths = list(recent_video_paths or [])
+        self.recent_video_buttons = []
+        self.setWindowTitle("Synthesia to MIDI - Select Video Source")
         self.setModal(True)
-        self.setMinimumWidth(400)
+        self.setMinimumWidth(500)
         self.setup_ui()
         
     def setup_ui(self):
@@ -29,7 +39,7 @@ class StartupDialog(QDialog):
         layout.setContentsMargins(30, 30, 30, 30)
         
         # Title
-        title_label = QLabel("Welcome to Synthesia2MIDI")
+        title_label = QLabel("Welcome to Synthesia to MIDI")
         title_font = QFont()
         title_font.setPointSize(16)
         title_font.setBold(True)
@@ -50,7 +60,7 @@ class StartupDialog(QDialog):
         button_layout.setSpacing(15)
         
         # Local file button
-        self.local_file_btn = QPushButton("Open Local Video File")
+        self.local_file_btn = QPushButton("Open Video File")
         self.local_file_btn.setMinimumHeight(50)
         self.local_file_btn.setToolTip("Browse for a video file on your computer")
         self.local_file_btn.clicked.connect(self._on_local_file_clicked)
@@ -64,6 +74,26 @@ class StartupDialog(QDialog):
         button_layout.addWidget(self.youtube_btn)
         
         layout.addLayout(button_layout)
+
+        if self.recent_video_paths:
+            recent_separator = QFrame()
+            recent_separator.setFrameShape(QFrame.HLine)
+            recent_separator.setFrameShadow(QFrame.Sunken)
+            layout.addWidget(recent_separator)
+
+            recent_label = QLabel("Recent Videos")
+            recent_font = QFont()
+            recent_font.setBold(True)
+            recent_label.setFont(recent_font)
+            layout.addWidget(recent_label)
+
+            recent_layout = QVBoxLayout()
+            recent_layout.setSpacing(8)
+            for path in self.recent_video_paths:
+                recent_button = self._create_recent_video_button(path)
+                recent_layout.addWidget(recent_button)
+                self.recent_video_buttons.append(recent_button)
+            layout.addLayout(recent_layout)
         
         # Add separator
         layout.addSpacing(20)
@@ -93,3 +123,16 @@ class StartupDialog(QDialog):
         """Handle YouTube button click"""
         self.accept()
         self.download_from_youtube.emit()
+
+    def _create_recent_video_button(self, path: str) -> QCommandLinkButton:
+        filename = os.path.basename(path) or path
+        folder = os.path.dirname(path)
+        button = QCommandLinkButton(filename, folder)
+        button.setToolTip(path)
+        button.clicked.connect(lambda checked=False, selected_path=path: self._on_recent_file_clicked(selected_path))
+        return button
+
+    def _on_recent_file_clicked(self, path: str):
+        """Handle recent file click"""
+        self.accept()
+        self.open_recent_file.emit(path)

@@ -45,14 +45,26 @@ class VideoSessionUiController:
             if selected_paths:
                 filepath = selected_paths[0]
                 logging.info("_open_video_file: User selected %s", filepath)
-                app.video_session_coordinator.load_path(
+                loaded = app.video_session_coordinator.load_path(
                     filepath,
                     log_prefix="_open_video_file",
                     update_fps_display=True,
                 )
+                if loaded:
+                    self._record_recent_video(filepath)
             return
 
         logging.info("_open_video_file: User cancelled file dialog, continuing with empty application.")
+
+    def open_recent_video_file(self, filepath: str) -> None:
+        logging.info("_open_recent_video_file: Loading recent video %s", filepath)
+        loaded = self.app.video_session_coordinator.load_path(
+            filepath,
+            log_prefix="_open_recent_video_file",
+            update_fps_display=True,
+        )
+        if loaded:
+            self._record_recent_video(filepath)
 
     def handle_youtube_video_downloaded(self, filepath: str) -> None:
         logging.info("_handle_youtube_video_downloaded: Video downloaded to %s", filepath)
@@ -61,6 +73,11 @@ class VideoSessionUiController:
             log_prefix="_handle_youtube_video_downloaded",
             update_fps_display=False,
         )
+
+    def _record_recent_video(self, filepath: str) -> None:
+        recent_video_store = getattr(self.app, "recent_video_store", None)
+        if recent_video_store is not None:
+            recent_video_store.add(filepath)
 
     def handle_video_to_frames_request(self) -> None:
         return self.app.video_to_frames_controller.handle_request()

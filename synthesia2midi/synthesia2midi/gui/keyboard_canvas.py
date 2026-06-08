@@ -17,7 +17,7 @@ from PySide6.QtWidgets import QLabel, QWidget
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
-from synthesia2midi.app_config import OverlayConfig
+from synthesia2midi.app_config import NOTE_NAMES_SHARP, OverlayConfig
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.detection.factory import DetectionFactory
 from synthesia2midi.detection.roi_utils import (
@@ -786,6 +786,7 @@ class KeyboardCanvas(QWidget):
 
     def _draw_overlays_no_detection(self, painter: QPainter):
         """Draws overlays without running expensive detection algorithms."""
+        black_overlay_rects = self._black_key_overlay_canvas_rects()
         for overlay in self.app_state.overlays:
             # Map overlay image coordinates to canvas coordinates
             x1_c, y1_c, x2_c, y2_c = self._map_image_to_canvas_coords(
@@ -809,19 +810,21 @@ class KeyboardCanvas(QWidget):
             if self.app_state.ui.selected_overlay_id == overlay.key_id:
                 color = QColor("blue")
 
-            # Draw rectangle
-            pen = QPen(color, pen_width)
-            painter.setPen(pen)
-            painter.setBrush(Qt.NoBrush)
-            painter.drawRect(x1_c, y1_c, x2_c - x1_c, y2_c - y1_c)
+            self._draw_overlay_border(
+                painter,
+                overlay,
+                x1_c,
+                y1_c,
+                x2_c,
+                y2_c,
+                color,
+                pen_width,
+                black_overlay_rects,
+            )
 
             # Add note label
             # Apply the current octave transpose for display
             note_name = overlay.get_full_note_name(self.app_state.midi.octave_transpose)
-            # Calculate center position for text
-            text_x = (x1_c + x2_c) // 2
-            text_y = (y1_c + y2_c) // 2
-
             # Measure text to center it properly
             from PySide6.QtGui import QFontMetrics
             from synthesia2midi.utils.font_helper import create_scaled_font
@@ -831,10 +834,18 @@ class KeyboardCanvas(QWidget):
             text_width = fm.horizontalAdvance(note_name)
             text_height = fm.height()
 
-            # Draw text centered with same color as overlay
-            text_color = QColor(overlay_color) if self.app_state.ui.selected_overlay_id != overlay.key_id else QColor("blue")
-            painter.setPen(text_color)
-            painter.drawText(QPoint(text_x - text_width // 2, text_y + text_height // 4), note_name)
+            self._draw_overlay_label(
+                painter,
+                overlay,
+                overlay_color,
+                x1_c,
+                y1_c,
+                x2_c,
+                y2_c,
+                text_width,
+                text_height,
+                note_name,
+            )
 
     def _draw_overlays_on_painter(self, painter: QPainter):
         """Draws all configured overlays on the painter."""
@@ -843,6 +854,7 @@ class KeyboardCanvas(QWidget):
         if self.app_state.ui.live_detection_feedback:
             # Reuse detection results from main detection run instead of running detection again
             pressed_key_ids_live = self.last_detection_results.copy()
+        black_overlay_rects = self._black_key_overlay_canvas_rects()
 
         for overlay in self.app_state.overlays:
             # Map overlay image coordinates to canvas coordinates
@@ -872,18 +884,20 @@ class KeyboardCanvas(QWidget):
             else:
                 pass  # Keep overlay_color
 
-            # Draw normal rectangle for overlays
-            pen = QPen(color, pen_width)
-            painter.setPen(pen)
-            painter.setBrush(Qt.NoBrush)
-            painter.drawRect(x1_c, y1_c, x2_c - x1_c, y2_c - y1_c)
+            self._draw_overlay_border(
+                painter,
+                overlay,
+                x1_c,
+                y1_c,
+                x2_c,
+                y2_c,
+                color,
+                pen_width,
+                black_overlay_rects,
+            )
 
             # Add note label
             note_name = overlay.get_full_note_name(self.app_state.midi.octave_transpose)
-            # Calculate center position for text
-            text_x = (x1_c + x2_c) // 2
-            text_y = (y1_c + y2_c) // 2
-
             # Measure text to center it properly
             from PySide6.QtGui import QFontMetrics
             from synthesia2midi.utils.font_helper import create_scaled_font
@@ -893,10 +907,18 @@ class KeyboardCanvas(QWidget):
             text_width = fm.horizontalAdvance(note_name)
             text_height = fm.height()
 
-            # Draw text centered with same color as overlay
-            text_color = QColor(overlay_color) if self.app_state.ui.selected_overlay_id != overlay.key_id else QColor("blue")
-            painter.setPen(text_color)
-            painter.drawText(QPoint(text_x - text_width // 2, text_y + text_height // 4), note_name)
+            self._draw_overlay_label(
+                painter,
+                overlay,
+                overlay_color,
+                x1_c,
+                y1_c,
+                x2_c,
+                y2_c,
+                text_width,
+                text_height,
+                note_name,
+            )
 
     def _draw_overlays_on_painter_in_rect(self, painter: QPainter, clip_rect: QRect):
         """Draws only overlays that intersect with the given clip rectangle."""
@@ -905,6 +927,7 @@ class KeyboardCanvas(QWidget):
         if self.app_state.ui.live_detection_feedback:
             # Reuse detection results from main detection run instead of running detection again
             pressed_key_ids_live = self.last_detection_results.copy()
+        black_overlay_rects = self._black_key_overlay_canvas_rects()
 
         # Log critical info about overlays
         overlays_drawn = 0
@@ -954,17 +977,20 @@ class KeyboardCanvas(QWidget):
             else:
                 pass  # Keep overlay_color
 
-            # Draw normal rectangle for overlays
-            pen = QPen(color, pen_width)
-            painter.setPen(pen)
-            painter.setBrush(Qt.NoBrush)
-            painter.drawRect(x1_c, y1_c, x2_c - x1_c, y2_c - y1_c)
+            self._draw_overlay_border(
+                painter,
+                overlay,
+                x1_c,
+                y1_c,
+                x2_c,
+                y2_c,
+                color,
+                pen_width,
+                black_overlay_rects,
+            )
 
             # Add note label
             note_name = overlay.get_full_note_name(self.app_state.midi.octave_transpose)
-            text_x = (x1_c + x2_c) // 2
-            text_y = (y1_c + y2_c) // 2
-
             # Measure text to center it properly
             from PySide6.QtGui import QFontMetrics
             from synthesia2midi.utils.font_helper import create_scaled_font
@@ -974,12 +1000,175 @@ class KeyboardCanvas(QWidget):
             text_width = fm.horizontalAdvance(note_name)
             text_height = fm.height()
 
-            # Draw text centered with same color as overlay
-            text_color = QColor(overlay_color) if self.app_state.ui.selected_overlay_id != overlay.key_id else QColor("blue")
-            painter.setPen(text_color)
-            painter.drawText(QPoint(text_x - text_width // 2, text_y + text_height // 4), note_name)
+            self._draw_overlay_label(
+                painter,
+                overlay,
+                overlay_color,
+                x1_c,
+                y1_c,
+                x2_c,
+                y2_c,
+                text_width,
+                text_height,
+                note_name,
+            )
 
         # Previously logged debug info about overlays drawn/skipped
+
+    def _black_key_overlay_canvas_rects(self) -> List[QRect]:
+        rects = []
+        for overlay in self.app_state.overlays:
+            if self._is_white_key_overlay(overlay):
+                continue
+            if getattr(overlay, "overlay_type", "key") != "key":
+                continue
+            x1_c, y1_c, x2_c, y2_c = self._map_image_to_canvas_coords(
+                float(overlay.x),
+                float(overlay.y),
+                float(overlay.width),
+                float(overlay.height),
+            )
+            rects.append(QRect(x1_c, y1_c, x2_c - x1_c, y2_c - y1_c))
+        return rects
+
+    def _draw_overlay_border(
+        self,
+        painter: QPainter,
+        overlay: OverlayConfig,
+        x1_c: int,
+        y1_c: int,
+        x2_c: int,
+        y2_c: int,
+        color: QColor,
+        pen_width: int,
+        black_overlay_rects: List[QRect],
+    ) -> None:
+        painter.setPen(QPen(color, pen_width))
+        painter.setBrush(Qt.NoBrush)
+        overlay_rect = QRect(x1_c, y1_c, x2_c - x1_c, y2_c - y1_c)
+        blockers = black_overlay_rects if self._is_white_key_overlay(overlay) else []
+        for start, end in self._overlay_border_segments(overlay_rect, blockers):
+            painter.drawLine(start[0], start[1], end[0], end[1])
+
+    def _draw_overlay_label(
+        self,
+        painter: QPainter,
+        overlay: OverlayConfig,
+        overlay_color: str,
+        x1_c: int,
+        y1_c: int,
+        x2_c: int,
+        y2_c: int,
+        text_width: int,
+        text_height: int,
+        note_name: str,
+    ) -> None:
+        point = self._overlay_label_point(
+            overlay,
+            x1_c,
+            y1_c,
+            x2_c,
+            y2_c,
+            text_width,
+            text_height,
+        )
+        text_color, shadow_color = self._overlay_label_colors(overlay_color)
+        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            painter.setPen(shadow_color)
+            painter.drawText(QPoint(point.x() + dx, point.y() + dy), note_name)
+        painter.setPen(text_color)
+        painter.drawText(point, note_name)
+
+    @staticmethod
+    def _is_white_key_overlay(overlay: OverlayConfig) -> bool:
+        note_name = getattr(overlay, "note_name_in_octave", "")
+        return note_name in {name for name in NOTE_NAMES_SHARP if "♯" not in name and "♭" not in name}
+
+    @staticmethod
+    def _overlay_label_point(
+        overlay: OverlayConfig,
+        x1: int,
+        y1: int,
+        x2: int,
+        y2: int,
+        text_width: int,
+        text_height: int,
+    ) -> QPoint:
+        text_x = (x1 + x2) // 2
+        if KeyboardCanvas._is_white_key_overlay(overlay):
+            text_y = int(round(y1 + ((y2 - y1) * 0.80)))
+        else:
+            text_y = (y1 + y2) // 2
+        return QPoint(text_x - text_width // 2, text_y + text_height // 4)
+
+    @staticmethod
+    def _overlay_label_colors(overlay_color: str) -> Tuple[QColor, QColor]:
+        color = QColor(overlay_color)
+        if not color.isValid():
+            color = QColor("red")
+        luminance = (0.299 * color.red()) + (0.587 * color.green()) + (0.114 * color.blue())
+        if luminance >= 150:
+            return QColor("black"), QColor("white")
+        return QColor("white"), QColor("black")
+
+    @staticmethod
+    def _overlay_border_segments(
+        overlay_rect: QRect,
+        blocking_rects: List[QRect],
+    ) -> List[Tuple[Tuple[int, int], Tuple[int, int]]]:
+        left = overlay_rect.left()
+        right = overlay_rect.right()
+        top = overlay_rect.top()
+        bottom = overlay_rect.bottom()
+        segments: List[Tuple[Tuple[int, int], Tuple[int, int]]] = []
+        horizontal_lines = [
+            (top, left, right),
+            (bottom, left, right),
+        ]
+        vertical_lines = [
+            (left, top, bottom),
+            (right, top, bottom),
+        ]
+
+        for y, x_start, x_end in horizontal_lines:
+            intervals = [
+                (blocker.left(), blocker.right())
+                for blocker in blocking_rects
+                if blocker.top() <= y <= blocker.bottom()
+            ]
+            for start, end in KeyboardCanvas._subtract_intervals(x_start, x_end, intervals):
+                segments.append(((start, y), (end, y)))
+
+        for x, y_start, y_end in vertical_lines:
+            intervals = [
+                (blocker.top(), blocker.bottom())
+                for blocker in blocking_rects
+                if blocker.left() <= x <= blocker.right()
+            ]
+            for start, end in KeyboardCanvas._subtract_intervals(y_start, y_end, intervals):
+                segments.append(((x, start), (x, end)))
+
+        return segments
+
+    @staticmethod
+    def _subtract_intervals(
+        start: int,
+        end: int,
+        blockers: List[Tuple[int, int]],
+    ) -> List[Tuple[int, int]]:
+        visible = [(start, end)]
+        for blocker_start, blocker_end in blockers:
+            next_visible = []
+            for segment_start, segment_end in visible:
+                if blocker_end < segment_start or blocker_start > segment_end:
+                    next_visible.append((segment_start, segment_end))
+                    continue
+                if blocker_start > segment_start:
+                    next_visible.append((segment_start, blocker_start - 1))
+                if blocker_end < segment_end:
+                    next_visible.append((blocker_end + 1, segment_end))
+            visible = next_visible
+        return [(segment_start, segment_end) for segment_start, segment_end in visible if segment_start <= segment_end]
 
     def _draw_manual_fit_guides(self, painter: QPainter, clip_rect: QRect):
         """Draw Manual Fit group bounds and single-overlay override markers."""

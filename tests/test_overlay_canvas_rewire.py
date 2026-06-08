@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QRect, QSize, Qt
 from PySide6.QtGui import QResizeEvent
 from PySide6.QtWidgets import QApplication, QMessageBox
 
@@ -208,6 +208,62 @@ def test_canvas_interaction_empty_click_only_emits_selection_signal():
 
     assert emitted == [-1]
     assert app_state.ui.selected_overlay_id == 7
+
+
+def test_keyboard_canvas_positions_white_labels_near_bottom_and_black_labels_centered():
+    white_overlay = _overlay()
+    white_overlay.note_name_in_octave = "C"
+    black_overlay = _overlay()
+    black_overlay.note_name_in_octave = "C♯"
+
+    white_point = KeyboardCanvas._overlay_label_point(
+        white_overlay,
+        x1=0,
+        y1=0,
+        x2=100,
+        y2=100,
+        text_width=20,
+        text_height=12,
+    )
+    black_point = KeyboardCanvas._overlay_label_point(
+        black_overlay,
+        x1=0,
+        y1=0,
+        x2=100,
+        y2=100,
+        text_width=20,
+        text_height=12,
+    )
+
+    assert white_point.x() == 40
+    assert white_point.y() == 83
+    assert black_point.x() == 40
+    assert black_point.y() == 53
+
+
+def test_keyboard_canvas_uses_readable_label_color_pair_for_overlay_colors():
+    dark_text, dark_shadow = KeyboardCanvas._overlay_label_colors("red")
+    bright_text, bright_shadow = KeyboardCanvas._overlay_label_colors("yellow")
+
+    assert dark_text.name() == "#ffffff"
+    assert dark_shadow.name() == "#000000"
+    assert bright_text.name() == "#000000"
+    assert bright_shadow.name() == "#ffffff"
+
+
+def test_keyboard_canvas_masks_white_border_segments_inside_black_overlay_rects():
+    white_rect = QRect(0, 0, 100, 100)
+    black_rect = QRect(70, 0, 60, 55)
+
+    segments = KeyboardCanvas._overlay_border_segments(
+        white_rect,
+        blocking_rects=[black_rect],
+    )
+
+    assert ((99, 0), (99, 54)) not in segments
+    assert ((99, 55), (99, 99)) in segments
+    assert ((0, 0), (69, 0)) in segments
+    assert ((70, 0), (99, 0)) not in segments
 
 
 def test_spark_roi_update_controller_owns_state_cache_refresh_and_ui(monkeypatch):

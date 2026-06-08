@@ -41,6 +41,7 @@ from synthesia2midi.gui.auto_detect_tuning_controller import AutoDetectTuningCon
 from synthesia2midi.gui.calibration_effects_controller import CalibrationEffectsController
 from synthesia2midi.gui.calibration_interaction_controller import CalibrationInteractionController
 from synthesia2midi.gui.calibration_wizard_controller import CalibrationWizardController
+from synthesia2midi.gui.manual_keyboard_fit_controller import ManualKeyboardFitController
 from synthesia2midi.gui.midi_conversion_controller import MidiConversionController
 from synthesia2midi.gui.midi_touchup_controller import MidiTouchupController
 from synthesia2midi.gui.settings_tool_window import SettingsToolWindow
@@ -108,6 +109,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.calibration_interaction_controller = CalibrationInteractionController(self)
         self.calibration_effects_controller = CalibrationEffectsController(self)
         self.auto_detect_tuning_controller = AutoDetectTuningController(self)
+        self.manual_keyboard_fit_controller = ManualKeyboardFitController(self)
         self.calibration_wizard_controller = CalibrationWizardController(
             self,
             self.auto_detect_tuning_controller,

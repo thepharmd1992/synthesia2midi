@@ -131,6 +131,25 @@ def test_settings_lower_rail_holds_global_actions_and_status(monkeypatch):
         app.close()
 
 
+def test_overlays_tab_exposes_manual_fit_entry_point(monkeypatch):
+    app = _make_app(monkeypatch)
+    try:
+        emitted = []
+        try:
+            app.control_panel.manual_fit_requested.disconnect()
+        except (TypeError, RuntimeError):
+            pass
+        app.control_panel.manual_fit_requested.connect(lambda: emitted.append(True))
+
+        assert app.control_panel.manual_fit_button.text() == "Manual Fit"
+
+        app.control_panel.manual_fit_button.click()
+
+        assert emitted == [True]
+    finally:
+        app.close()
+
+
 def test_settings_rail_preserves_open_tool_window_position(monkeypatch):
     app = _make_app(monkeypatch)
     try:

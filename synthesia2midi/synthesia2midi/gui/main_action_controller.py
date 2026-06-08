@@ -72,6 +72,11 @@ class MainActionController:
         if self.app.overlay_manager:
             self.app.overlay_manager.handle_align_black_keys_to_selected()
 
+    def handle_manual_fit_request(self) -> None:
+        controller = getattr(self.app, "manual_keyboard_fit_controller", None)
+        if controller is not None:
+            controller.open()
+
     def handle_overlay_size_adjustment(self, key_color: str, dimension: str, delta: int) -> None:
         self.app.overlay_manager.adjust_overlay_sizes(key_color, dimension, delta)
 

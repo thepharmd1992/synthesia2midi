@@ -118,6 +118,7 @@ class ControlPanelQt(QWidget):
     overlay_color_changed = Signal(str)
     overlay_type_changed = Signal(str)
     overlay_size_adjustment_requested = Signal(str, str, int)
+    manual_fit_requested = Signal()
     
     # ==================== MIDI Processing Signals ====================
     octave_transpose_changed = Signal(int)
@@ -424,6 +425,9 @@ class ControlPanelQt(QWidget):
         self.align_black_button = QPushButton("Align Black Keys")
         self.align_black_button.setMaximumWidth(432)  # Increased by 20% from 360
         self.align_black_button.clicked.connect(self.align_black_keys_requested.emit)
+        self.manual_fit_button = QPushButton("Manual Fit")
+        self.manual_fit_button.setMaximumWidth(432)
+        self.manual_fit_button.clicked.connect(self.manual_fit_requested.emit)
         
         # Place buttons side by side
         button_row = QHBoxLayout()
@@ -432,6 +436,10 @@ class ControlPanelQt(QWidget):
         button_row.addWidget(self.align_black_button)
         button_row.addStretch()
         align_layout.addLayout(button_row)
+        fit_row = QHBoxLayout()
+        fit_row.addWidget(self.manual_fit_button)
+        fit_row.addStretch()
+        align_layout.addLayout(fit_row)
         alignment_layout.addLayout(align_layout)
         
         layout.addWidget(alignment_group)

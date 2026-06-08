@@ -93,6 +93,7 @@ class ControlSignalManager(QObject):
         cp.refresh_overlay_display_requested.connect(mw.main_action_controller.handle_refresh_selected_overlay_display)
         cp.align_white_keys_requested.connect(mw.main_action_controller.handle_align_white_keys_to_selected)
         cp.align_black_keys_requested.connect(mw.main_action_controller.handle_align_black_keys_to_selected)
+        cp.manual_fit_requested.connect(mw.main_action_controller.handle_manual_fit_request)
         
         # Overlay size adjustments
         cp.overlay_size_adjustment_requested.connect(mw.main_action_controller.handle_overlay_size_adjustment)

@@ -88,6 +88,7 @@ class DummyControlPanel:
             "refresh_overlay_display_requested",
             "align_white_keys_requested",
             "align_black_keys_requested",
+            "manual_fit_requested",
             "overlay_size_adjustment_requested",
             "conversion_requested",
             "midi_touchup_requested",
@@ -471,6 +472,7 @@ def test_signal_manager_wires_histogram_and_similarity_slider_signals():
         handle_refresh_selected_overlay_display=lambda: None,
         handle_align_white_keys_to_selected=lambda: None,
         handle_align_black_keys_to_selected=lambda: None,
+        handle_manual_fit_request=lambda: None,
         handle_overlay_size_adjustment=lambda key_color, dimension, delta: None,
         handle_octave_transpose_change=lambda value: None,
         handle_fps_override_change=lambda value: None,
@@ -528,6 +530,9 @@ def test_signal_manager_wires_histogram_and_similarity_slider_signals():
     ]
     assert cp.similarity_ratio_changed.connected == [
         detection_manager.set_similarity_ratio
+    ]
+    assert cp.manual_fit_requested.connected == [
+        main_action_controller.handle_manual_fit_request
     ]
     assert cp.spark_roi_selection_requested.connected == [
         mw.calibration_effects_controller.spark.select_spark_roi

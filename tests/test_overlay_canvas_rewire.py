@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
-from PySide6.QtCore import QSize
+from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QResizeEvent
 from PySide6.QtWidgets import QApplication, QMessageBox
 
@@ -36,6 +36,38 @@ def _overlay(key_id=7):
     )
 
 
+class _MouseEvent:
+    def __init__(self, x, y, *, button=Qt.LeftButton, modifiers=Qt.NoModifier):
+        self._x = x
+        self._y = y
+        self._button = button
+        self._modifiers = modifiers
+
+    def x(self):
+        return self._x
+
+    def y(self):
+        return self._y
+
+    def button(self):
+        return self._button
+
+    def modifiers(self):
+        return self._modifiers
+
+
+class _IdentityCoordManager:
+    image_width = 200
+    image_height = 120
+    image_scale_factor = 1.0
+
+    def image_rect_to_canvas(self, x, y, width, height):
+        return x, y, width, height
+
+    def scale_delta(self, dx, dy):
+        return dx, dy
+
+
 def test_overlay_manager_owns_index_based_move_and_resize_mutations():
     app_state = AppState()
     app_state.overlays = [_overlay()]
@@ -59,6 +91,57 @@ def test_overlay_manager_owns_index_based_move_and_resize_mutations():
     assert manager.move_overlay_by_index(99, 0, 0) is False
     assert manager.resize_overlay_by_index(99, 0, 0, 1, 1) is False
     assert app_state.unsaved_changes is False
+
+
+def test_canvas_interaction_manual_fit_group_drag_emits_group_delta_not_single_move():
+    app_state = AppState()
+    overlays = [
+        _overlay(key_id=1),
+        _overlay(key_id=2),
+    ]
+    overlays[0].x = 0
+    overlays[0].y = 20
+    overlays[1].x = 40
+    overlays[1].y = 20
+    interaction = CanvasInteraction(None, _IdentityCoordManager(), app_state)
+    interaction.set_callbacks(
+        get_overlays=lambda: overlays,
+        get_pixel_color=lambda x, y: None,
+        get_current_frame=lambda: None,
+    )
+    interaction.set_manual_fit_mode("manual_fit_group")
+    group_moves = []
+    single_moves = []
+    interaction.manual_fit_group_moved.connect(lambda dx, dy: group_moves.append((dx, dy)))
+    interaction.overlay_moved.connect(lambda *args: single_moves.append(args))
+
+    assert interaction.handle_mouse_press(_MouseEvent(35, 30)) is True
+    assert interaction.handle_mouse_move(_MouseEvent(43, 34)) is True
+
+    assert group_moves == [(8, 4)]
+    assert single_moves == []
+
+
+def test_canvas_interaction_manual_fit_single_mode_keeps_existing_overlay_drag():
+    app_state = AppState()
+    overlays = [_overlay(key_id=1)]
+    interaction = CanvasInteraction(None, _IdentityCoordManager(), app_state)
+    interaction.set_callbacks(
+        get_overlays=lambda: overlays,
+        get_pixel_color=lambda x, y: None,
+        get_current_frame=lambda: None,
+    )
+    interaction.set_manual_fit_mode("manual_fit_single")
+    group_moves = []
+    single_moves = []
+    interaction.manual_fit_group_moved.connect(lambda dx, dy: group_moves.append((dx, dy)))
+    interaction.overlay_moved.connect(lambda *args: single_moves.append(args))
+
+    assert interaction.handle_mouse_press(_MouseEvent(25, 40)) is True
+    assert interaction.handle_mouse_move(_MouseEvent(30, 45)) is True
+
+    assert group_moves == []
+    assert single_moves == [(0, 15, 25)]
 
 
 def test_keyboard_canvas_overlay_handlers_delegate_geometry_to_overlay_manager():

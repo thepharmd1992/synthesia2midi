@@ -166,6 +166,10 @@ class KeyboardCanvas(QWidget):
 
         self.on_color_pick_callback = on_color_pick_callback
         self.on_overlay_select_callback = on_overlay_select_callback
+        self.manual_fit_group_move_callback = None
+        self.manual_fit_single_move_callback = None
+        self.manual_fit_single_resize_callback = None
+        self.manual_fit_override_ids_callback = None
 
         # Set widget properties
         # Keep a modest minimum so the window can fit smaller displays, but start larger
@@ -525,6 +529,7 @@ class KeyboardCanvas(QWidget):
                 # Draw overlays if enabled, but only those intersecting this rect
                 if self.app_state.ui.show_overlays:
                     self._draw_overlays_on_painter_in_rect(painter, rect)
+                    self._draw_manual_fit_guides(painter, rect)
 
                 # Draw spark ROI visualization and zones (if visible)
                 if self.app_state.detection.spark_roi_visible:
@@ -975,6 +980,58 @@ class KeyboardCanvas(QWidget):
             painter.drawText(QPoint(text_x - text_width // 2, text_y + text_height // 4), note_name)
 
         # Previously logged debug info about overlays drawn/skipped
+
+    def _draw_manual_fit_guides(self, painter: QPainter, clip_rect: QRect):
+        """Draw Manual Fit group bounds and single-overlay override markers."""
+        mode = self.interaction.manual_fit_mode()
+        override_ids = set()
+        if self.manual_fit_override_ids_callback is not None:
+            override_ids = set(self.manual_fit_override_ids_callback())
+
+        if mode != "manual_fit_group" and not override_ids:
+            return
+        if not self.app_state.overlays:
+            return
+
+        painter.save()
+        try:
+            if mode == "manual_fit_group":
+                bounds = []
+                for overlay in self.app_state.overlays:
+                    x1_c, y1_c, x2_c, y2_c = self._map_image_to_canvas_coords(
+                        float(overlay.x),
+                        float(overlay.y),
+                        float(overlay.width),
+                        float(overlay.height),
+                    )
+                    bounds.append((x1_c, y1_c, x2_c, y2_c))
+                left = min(bound[0] for bound in bounds)
+                top = min(bound[1] for bound in bounds)
+                right = max(bound[2] for bound in bounds)
+                bottom = max(bound[3] for bound in bounds)
+                rect = QRect(left, top, right - left, bottom - top)
+                if rect.intersects(clip_rect):
+                    pen = QPen(QColor("#ffb000"), 2, Qt.DashLine)
+                    painter.setPen(pen)
+                    painter.setBrush(Qt.NoBrush)
+                    painter.drawRect(rect)
+
+            if override_ids:
+                pen = QPen(QColor("#ffb000"), 3)
+                painter.setPen(pen)
+                for overlay in self.app_state.overlays:
+                    if overlay.key_id not in override_ids:
+                        continue
+                    x1_c, y1_c, _x2_c, _y2_c = self._map_image_to_canvas_coords(
+                        float(overlay.x),
+                        float(overlay.y),
+                        float(overlay.width),
+                        float(overlay.height),
+                    )
+                    painter.drawLine(x1_c + 3, y1_c + 3, x1_c + 12, y1_c + 3)
+                    painter.drawLine(x1_c + 3, y1_c + 3, x1_c + 3, y1_c + 12)
+        finally:
+            painter.restore()
 
     def _map_image_to_canvas_coords(self, img_x: float, img_y: float, img_width: float, img_height: float) -> Tuple[int, int, int, int]:
         """Maps image coordinates to canvas coordinates."""
@@ -1559,6 +1616,7 @@ class KeyboardCanvas(QWidget):
         self.interaction.overlay_selected.connect(self._handle_overlay_selected)
         self.interaction.overlay_moved.connect(self._handle_overlay_moved)
         self.interaction.overlay_resized.connect(self._handle_overlay_resized)
+        self.interaction.manual_fit_group_moved.connect(self._handle_manual_fit_group_moved)
         self.interaction.color_picked.connect(self._handle_color_picked)
         self.interaction.request_repaint.connect(self._handle_repaint_request)
         self.interaction.spark_roi_selected.connect(self._handle_spark_roi_selected)
@@ -1570,6 +1628,7 @@ class KeyboardCanvas(QWidget):
             self.interaction.overlay_selected.disconnect()
             self.interaction.overlay_moved.disconnect()
             self.interaction.overlay_resized.disconnect()
+            self.interaction.manual_fit_group_moved.disconnect()
             self.interaction.color_picked.disconnect()
             self.interaction.request_repaint.disconnect()
             self.interaction.spark_roi_selected.disconnect()
@@ -1613,12 +1672,36 @@ class KeyboardCanvas(QWidget):
 
     def _handle_overlay_moved(self, overlay_index: int, new_x: float, new_y: float):
         """Handle overlay movement from interaction module."""
+        interaction = getattr(self, "interaction", None)
+        if (
+            interaction is not None
+            and interaction.manual_fit_mode() == "manual_fit_single"
+            and getattr(self, "manual_fit_single_move_callback", None) is not None
+        ):
+            self.manual_fit_single_move_callback(overlay_index, new_x, new_y)
+            self.update()
+            return
         if self._overlay_manager:
             self._overlay_manager.move_overlay_by_index(overlay_index, new_x, new_y)
 
     def _handle_overlay_resized(self, overlay_index: int, new_x: float, new_y: float,
                               new_width: float, new_height: float):
         """Handle overlay resizing from interaction module."""
+        interaction = getattr(self, "interaction", None)
+        if (
+            interaction is not None
+            and interaction.manual_fit_mode() == "manual_fit_single"
+            and getattr(self, "manual_fit_single_resize_callback", None) is not None
+        ):
+            self.manual_fit_single_resize_callback(
+                overlay_index,
+                new_x,
+                new_y,
+                new_width,
+                new_height,
+            )
+            self.update()
+            return
         if self._overlay_manager:
             self._overlay_manager.resize_overlay_by_index(
                 overlay_index,
@@ -1627,6 +1710,33 @@ class KeyboardCanvas(QWidget):
                 new_width,
                 new_height,
             )
+
+    def _handle_manual_fit_group_moved(self, dx: float, dy: float):
+        """Handle whole-keyboard movement from Manual Fit interaction mode."""
+        if self.manual_fit_group_move_callback is not None:
+            self.manual_fit_group_move_callback(dx, dy)
+            self.update()
+
+    def set_manual_fit_mode(self, mode: str) -> None:
+        self.interaction.set_manual_fit_mode(mode)
+        self.update()
+
+    def set_manual_fit_callbacks(
+        self,
+        *,
+        group_move_callback=None,
+        single_move_callback=None,
+        single_resize_callback=None,
+        override_ids_callback=None,
+    ) -> None:
+        self.manual_fit_group_move_callback = group_move_callback
+        self.manual_fit_single_move_callback = single_move_callback
+        self.manual_fit_single_resize_callback = single_resize_callback
+        self.manual_fit_override_ids_callback = override_ids_callback
+
+    def clear_manual_fit_callbacks(self) -> None:
+        self.set_manual_fit_callbacks()
+        self.set_manual_fit_mode("off")
 
     def _handle_color_picked(self, r: int, g: int, b: int, image_x: int, image_y: int):
         """Handle color picking from interaction module."""

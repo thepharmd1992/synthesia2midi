@@ -34,6 +34,7 @@ class CanvasInteraction(QObject):
     overlay_selected = Signal(int)  # overlay_index
     overlay_moved = Signal(int, float, float)  # overlay_index, new_x, new_y
     overlay_resized = Signal(int, float, float, float, float)  # index, x, y, w, h
+    manual_fit_group_moved = Signal(float, float)  # image-space dx, dy
     color_picked = Signal(int, int, int, int, int)  # r, g, b, image_x, image_y from Ctrl+click
     request_repaint = Signal()  # Request canvas repaint after interaction
     spark_roi_selected = Signal(int, int)  # top_y, bottom_y coordinates for spark ROI
@@ -55,6 +56,9 @@ class CanvasInteraction(QObject):
             "mode": None  # "drag" or "resize"
         }
         self._resize_pivot = {"x": 0, "y": 0}  # For resize from opposite corner
+        self._manual_fit_mode = "off"
+        self._manual_fit_group_dragging = False
+        self._manual_fit_group_drag_start = QPoint()
         
         # Performance optimization: throttle repaint requests during drag
         self._last_repaint_request = 0
@@ -138,6 +142,16 @@ class CanvasInteraction(QObject):
     def set_overlay_drawing_type(self, overlay_type: str) -> None:
         """Update the interaction drawing mode through an explicit API."""
         self.overlay_drawing_type = overlay_type
+
+    def set_manual_fit_mode(self, mode: str) -> None:
+        """Set manual keyboard fit interaction mode."""
+        if mode not in {"off", "manual_fit_group", "manual_fit_single"}:
+            raise ValueError(f"Unknown manual fit mode: {mode}")
+        self._manual_fit_mode = mode
+        self._manual_fit_group_dragging = False
+
+    def manual_fit_mode(self) -> str:
+        return self._manual_fit_mode
     
     def enter_keyboard_region_selection_mode(self):
         """Enter keyboard region selection mode."""
@@ -169,6 +183,8 @@ class CanvasInteraction(QObject):
             return self._handle_keyboard_region_selection_press(event)
         elif self._roi_selection_mode:
             return self._handle_roi_selection_press(event)
+        elif self._manual_fit_mode == "manual_fit_group":
+            return self._handle_manual_fit_group_press(event)
         elif event.modifiers() & Qt.ControlModifier:
             return self._handle_ctrl_press(event)
         else:
@@ -181,6 +197,9 @@ class CanvasInteraction(QObject):
             return True
         elif self._roi_selecting:
             self._handle_roi_selection_move(event)
+            return True
+        elif self._manual_fit_group_dragging:
+            self._handle_manual_fit_group_motion(event)
             return True
         elif self._dragging:
             self._handle_drag_motion(event)
@@ -198,6 +217,9 @@ class CanvasInteraction(QObject):
             return True
         elif self._roi_selecting:
             self._handle_roi_selection_release(event)
+            return True
+        elif self._manual_fit_group_dragging:
+            self._finish_manual_fit_group_drag()
             return True
         elif self._dragging:
             self._finish_drag_operation(event)
@@ -420,6 +442,53 @@ class CanvasInteraction(QObject):
                 self.logger.warning(f"No color data at image position ({int(image_pos[0])}, {int(image_pos[1])})")
         else:
             self.logger.warning(f"Canvas position ({canvas_x}, {canvas_y}) is outside image bounds")
+
+    def _handle_manual_fit_group_press(self, event: QMouseEvent) -> bool:
+        if event.button() != Qt.LeftButton:
+            return False
+        canvas_x, canvas_y = event.x(), event.y()
+        if self._is_point_inside_overlay_bounds(canvas_x, canvas_y):
+            self._manual_fit_group_dragging = True
+            self._manual_fit_group_drag_start = QPoint(canvas_x, canvas_y)
+            return True
+        self.overlay_selected.emit(-1)
+        return True
+
+    def _handle_manual_fit_group_motion(self, event: QMouseEvent) -> None:
+        current = QPoint(event.x(), event.y())
+        canvas_delta_x = current.x() - self._manual_fit_group_drag_start.x()
+        canvas_delta_y = current.y() - self._manual_fit_group_drag_start.y()
+        image_delta_x, image_delta_y = self.coord_manager.scale_delta(canvas_delta_x, canvas_delta_y)
+        if image_delta_x or image_delta_y:
+            self.manual_fit_group_moved.emit(image_delta_x, image_delta_y)
+            self._manual_fit_group_drag_start = current
+            self._request_throttled_repaint()
+
+    def _finish_manual_fit_group_drag(self) -> None:
+        self._manual_fit_group_dragging = False
+        self.request_repaint.emit()
+
+    def _is_point_inside_overlay_bounds(self, canvas_x: float, canvas_y: float) -> bool:
+        if not self._get_overlays_callback:
+            return False
+        overlays = self._get_overlays_callback()
+        if not overlays:
+            return False
+
+        rects = [
+            self.coord_manager.image_rect_to_canvas(
+                overlay.x,
+                overlay.y,
+                overlay.width,
+                overlay.height,
+            )
+            for overlay in overlays
+        ]
+        left = min(rect[0] for rect in rects)
+        top = min(rect[1] for rect in rects)
+        right = max(rect[0] + rect[2] for rect in rects)
+        bottom = max(rect[1] + rect[3] for rect in rects)
+        return left <= canvas_x <= right and top <= canvas_y <= bottom
     
     def _find_overlay_at_position(self, canvas_x: float, canvas_y: float) -> Optional[Tuple[int, OverlayConfig, str]]:
         """

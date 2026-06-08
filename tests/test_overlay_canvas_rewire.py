@@ -188,6 +188,22 @@ def test_canvas_interaction_manual_fit_keyboard_box_mode_emits_rectangle():
     assert boxes == [(10, 12, 40, 42)]
 
 
+def test_canvas_interaction_manual_fit_local_select_mode_emits_rectangle():
+    app_state = AppState()
+    interaction = CanvasInteraction(None, _IdentityCoordManager(), app_state)
+    interaction.set_manual_fit_mode("manual_fit_local_select")
+    boxes = []
+    interaction.manual_fit_local_selection_selected.connect(
+        lambda left, top, right, bottom: boxes.append((left, top, right, bottom))
+    )
+
+    assert interaction.handle_mouse_press(_MouseEvent(45, 52)) is True
+    assert interaction.handle_mouse_move(_MouseEvent(15, 22)) is True
+    assert interaction.handle_mouse_release(_MouseEvent(15, 22)) is True
+
+    assert boxes == [(15, 22, 45, 52)]
+
+
 def test_canvas_interaction_manual_fit_line_mode_emits_single_guide_y():
     app_state = AppState()
     interaction = CanvasInteraction(None, _IdentityCoordManager(), app_state)

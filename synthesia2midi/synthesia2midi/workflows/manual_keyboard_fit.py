@@ -25,6 +25,15 @@ class ManualFitParams:
     right_slant_delta: float = 0.0
 
 
+@dataclass
+class LocalFitParams:
+    x_delta: float = 0.0
+    y_delta: float = 0.0
+    spread_delta: float = 0.0
+    width_delta: float = 0.0
+    slant_delta: float = 0.0
+
+
 CONTROL_PARAM_NAMES = (
     "keyboard_width_delta",
     "keyboard_top_delta",
@@ -67,6 +76,12 @@ class OverlayOverride:
     height_delta: float = 0.0
 
 
+@dataclass
+class LocalFitAdjustment:
+    key_ids: Tuple[int, ...]
+    params: LocalFitParams
+
+
 class ManualKeyboardFitSession:
     def __init__(self, app_state):
         self.app_state = app_state
@@ -84,6 +99,8 @@ class ManualKeyboardFitSession:
             for overlay in app_state.overlays
         }
         self._baseline: Dict[int, OverlayGeometry] = dict(self._cancel_baseline)
+        self._local_fits: list[LocalFitAdjustment] = []
+        self._active_local_fit_index: int | None = None
         self._overrides: Dict[int, OverlayOverride] = {}
         self._bounds = self._calculate_bounds(self._baseline.values())
         self._center_bounds = self._calculate_center_bounds(self._baseline.values())
@@ -131,6 +148,66 @@ class ManualKeyboardFitSession:
             "white": self._region_for_type("white"),
             "black": self._region_for_type("black"),
         }
+
+    def select_local_cluster(
+        self,
+        left: float,
+        top: float,
+        right: float,
+        bottom: float,
+        *,
+        key_filter: str = "black",
+    ) -> Set[int]:
+        box_left = min(float(left), float(right))
+        box_right = max(float(left), float(right))
+        box_top = min(float(top), float(bottom))
+        box_bottom = max(float(top), float(bottom))
+        selected = {
+            overlay.key_id
+            for overlay in self.app_state.overlays
+            if self._overlay_matches_local_filter(overlay, key_filter)
+            and box_left <= float(overlay.x) + (float(overlay.width) / 2.0) <= box_right
+            and box_top <= float(overlay.y) + (float(overlay.height) / 2.0) <= box_bottom
+        }
+        if not selected:
+            self._active_local_fit_index = None
+            return set()
+
+        key_ids = tuple(sorted(selected))
+        for index, local_fit in enumerate(self._local_fits):
+            if local_fit.key_ids == key_ids:
+                self._active_local_fit_index = index
+                return selected
+
+        self._local_fits.append(LocalFitAdjustment(key_ids, LocalFitParams()))
+        self._active_local_fit_index = len(self._local_fits) - 1
+        return selected
+
+    def update_active_local_params(self, params: LocalFitParams) -> None:
+        local_fit = self._active_local_fit()
+        if local_fit is None:
+            return
+        local_fit.params = params
+        self.apply_preview()
+
+    def reset_active_local_fit(self) -> None:
+        local_fit = self._active_local_fit()
+        if local_fit is None:
+            return
+        local_fit.params = LocalFitParams()
+        self.apply_preview()
+
+    def active_local_key_ids(self) -> Set[int]:
+        local_fit = self._active_local_fit()
+        if local_fit is None:
+            return set()
+        return set(local_fit.key_ids)
+
+    def active_local_params(self) -> LocalFitParams:
+        local_fit = self._active_local_fit()
+        if local_fit is None:
+            return LocalFitParams()
+        return local_fit.params
 
     def set_setup_keyboard_box(self, left: float, top: float, right: float, bottom: float) -> None:
         box_left = min(float(left), float(right))
@@ -207,6 +284,8 @@ class ManualKeyboardFitSession:
         self.params = ManualFitParams()
         self._overrides.clear()
         self._custom_regions.clear()
+        self._local_fits.clear()
+        self._active_local_fit_index = None
         self._baseline = self._generate_baseline_from_setup_box(box)
         self._bounds = self._calculate_bounds(self._baseline.values())
         self._center_bounds = self._calculate_center_bounds(self._baseline.values())
@@ -282,6 +361,8 @@ class ManualKeyboardFitSession:
     def reset_all(self) -> None:
         self.params = ManualFitParams()
         self._overrides.clear()
+        self._local_fits.clear()
+        self._active_local_fit_index = None
         self._custom_regions.clear()
         self.app_state.midi.octave_transpose = self._previous_octave_transpose
         self.apply_preview()
@@ -330,6 +411,12 @@ class ManualKeyboardFitSession:
             overlay.rotation_degrees = baseline.rotation_degrees
 
     def _transformed_rect_without_override(self, key_id: int) -> OverlayGeometry | None:
+        rect = self._global_transformed_rect(key_id)
+        if rect is None:
+            return None
+        return self._apply_local_fits(key_id, rect)
+
+    def _global_transformed_rect(self, key_id: int) -> OverlayGeometry | None:
         baseline = self._baseline.get(key_id)
         if baseline is None:
             return None
@@ -377,6 +464,63 @@ class ManualKeyboardFitSession:
             bottom = top + 1.0
 
         return OverlayGeometry(x, top, width, bottom - top, rotation_degrees)
+
+    def _apply_local_fits(self, key_id: int, rect: OverlayGeometry) -> OverlayGeometry:
+        adjusted = rect
+        for local_fit in self._local_fits:
+            if key_id not in local_fit.key_ids:
+                continue
+            adjusted = self._apply_local_fit(local_fit, key_id, adjusted)
+        return adjusted
+
+    def _apply_local_fit(
+        self,
+        local_fit: LocalFitAdjustment,
+        key_id: int,
+        rect: OverlayGeometry,
+    ) -> OverlayGeometry:
+        cluster_rects = [
+            global_rect
+            for member_key_id in local_fit.key_ids
+            if (global_rect := self._global_transformed_rect(member_key_id)) is not None
+        ]
+        if not cluster_rects:
+            return rect
+
+        centers = [geometry.x + geometry.width / 2.0 for geometry in cluster_rects]
+        left_center = min(centers)
+        right_center = max(centers)
+        span = max(1.0, right_center - left_center)
+        target_span = max(1.0, span + local_fit.params.spread_delta)
+        scale = target_span / span
+        cluster_center = left_center + (span / 2.0)
+        rect_center = rect.x + rect.width / 2.0
+        scaled_center = cluster_center + ((rect_center - cluster_center) * scale)
+        width = max(1.0, rect.width + local_fit.params.width_delta)
+        return OverlayGeometry(
+            scaled_center - (width / 2.0) + local_fit.params.x_delta,
+            rect.y + local_fit.params.y_delta,
+            width,
+            rect.height,
+            self._clamp(rect.rotation_degrees + local_fit.params.slant_delta, -45.0, 45.0),
+        )
+
+    def _active_local_fit(self) -> LocalFitAdjustment | None:
+        if self._active_local_fit_index is None:
+            return None
+        if not 0 <= self._active_local_fit_index < len(self._local_fits):
+            return None
+        return self._local_fits[self._active_local_fit_index]
+
+    @staticmethod
+    def _overlay_matches_local_filter(overlay, key_filter: str) -> bool:
+        normalized = key_filter.lower()
+        is_white = overlay.note_name_in_octave in WHITE_NOTE_NAMES
+        if normalized == "all":
+            return True
+        if normalized == "white":
+            return is_white
+        return not is_white
 
     def _safe_region_bounds(self, key_type: str) -> Tuple[float, float]:
         region = self._region_for_type(key_type)

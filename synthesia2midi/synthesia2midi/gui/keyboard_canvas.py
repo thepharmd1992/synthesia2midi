@@ -172,6 +172,8 @@ class KeyboardCanvas(QWidget):
         self.manual_fit_single_move_callback = None
         self.manual_fit_single_resize_callback = None
         self.manual_fit_override_ids_callback = None
+        self.manual_fit_local_key_ids_callback = None
+        self.manual_fit_local_selection_callback = None
         self.manual_fit_region_selected_callback = None
         self.manual_fit_region_guides_callback = None
         self.manual_fit_keyboard_box_selected_callback = None
@@ -1220,6 +1222,9 @@ class KeyboardCanvas(QWidget):
         override_ids = set()
         if self.manual_fit_override_ids_callback is not None:
             override_ids = set(self.manual_fit_override_ids_callback())
+        local_key_ids = set()
+        if self.manual_fit_local_key_ids_callback is not None:
+            local_key_ids = set(self.manual_fit_local_key_ids_callback())
         region_guides = {}
         if self.manual_fit_region_guides_callback is not None:
             region_guides = dict(self.manual_fit_region_guides_callback())
@@ -1227,7 +1232,13 @@ class KeyboardCanvas(QWidget):
         if self.manual_fit_setup_instruction_callback is not None:
             setup_instruction = str(self.manual_fit_setup_instruction_callback())
 
-        if mode != "manual_fit_group" and not override_ids and not region_guides and not setup_instruction:
+        if (
+            mode != "manual_fit_group"
+            and not override_ids
+            and not local_key_ids
+            and not region_guides
+            and not setup_instruction
+        ):
             return
         if not self.app_state.overlays:
             return
@@ -1354,6 +1365,23 @@ class KeyboardCanvas(QWidget):
                     )
                     painter.drawLine(x1_c + 3, y1_c + 3, x1_c + 12, y1_c + 3)
                     painter.drawLine(x1_c + 3, y1_c + 3, x1_c + 3, y1_c + 12)
+
+            if local_key_ids:
+                pen = QPen(QColor("#00a7ff"), 3, Qt.DashLine)
+                painter.setPen(pen)
+                painter.setBrush(Qt.NoBrush)
+                for overlay in self.app_state.overlays:
+                    if overlay.key_id not in local_key_ids:
+                        continue
+                    x1_c, y1_c, x2_c, y2_c = self._map_image_to_canvas_coords(
+                        float(overlay.x),
+                        float(overlay.y),
+                        float(overlay.width),
+                        float(overlay.height),
+                    )
+                    rect = QRect(x1_c, y1_c, x2_c - x1_c, y2_c - y1_c)
+                    if rect.intersects(clip_rect):
+                        painter.drawRect(rect)
         finally:
             painter.restore()
 
@@ -1956,6 +1984,7 @@ class KeyboardCanvas(QWidget):
         self.interaction.overlay_resized.connect(self._handle_overlay_resized)
         self.interaction.manual_fit_group_moved.connect(self._handle_manual_fit_group_moved)
         self.interaction.manual_fit_region_selected.connect(self._handle_manual_fit_region_selected)
+        self.interaction.manual_fit_local_selection_selected.connect(self._handle_manual_fit_local_selection_selected)
         self.interaction.manual_fit_keyboard_box_selected.connect(self._handle_manual_fit_keyboard_box_selected)
         self.interaction.manual_fit_guide_line_changed.connect(self._handle_manual_fit_guide_line_changed)
         self.interaction.manual_fit_guide_line_selected.connect(self._handle_manual_fit_guide_line_selected)
@@ -1972,6 +2001,7 @@ class KeyboardCanvas(QWidget):
             self.interaction.overlay_resized.disconnect()
             self.interaction.manual_fit_group_moved.disconnect()
             self.interaction.manual_fit_region_selected.disconnect()
+            self.interaction.manual_fit_local_selection_selected.disconnect()
             self.interaction.manual_fit_keyboard_box_selected.disconnect()
             self.interaction.manual_fit_guide_line_changed.disconnect()
             self.interaction.manual_fit_guide_line_selected.disconnect()
@@ -2069,6 +2099,12 @@ class KeyboardCanvas(QWidget):
             self.manual_fit_region_selected_callback(region_type, top, bottom)
             self.update()
 
+    def _handle_manual_fit_local_selection_selected(self, left: float, top: float, right: float, bottom: float):
+        """Handle Manual Fit local-cluster selection."""
+        if self.manual_fit_local_selection_callback is not None:
+            self.manual_fit_local_selection_callback(left, top, right, bottom)
+            self.update()
+
     def _handle_manual_fit_keyboard_box_selected(self, left: float, top: float, right: float, bottom: float):
         """Handle Manual Fit setup keyboard-box selection."""
         if self.manual_fit_keyboard_box_selected_callback is not None:
@@ -2098,6 +2134,8 @@ class KeyboardCanvas(QWidget):
         single_move_callback=None,
         single_resize_callback=None,
         override_ids_callback=None,
+        local_key_ids_callback=None,
+        local_selection_callback=None,
         region_selected_callback=None,
         region_guides_callback=None,
         keyboard_box_selected_callback=None,
@@ -2110,6 +2148,8 @@ class KeyboardCanvas(QWidget):
         self.manual_fit_single_move_callback = single_move_callback
         self.manual_fit_single_resize_callback = single_resize_callback
         self.manual_fit_override_ids_callback = override_ids_callback
+        self.manual_fit_local_key_ids_callback = local_key_ids_callback
+        self.manual_fit_local_selection_callback = local_selection_callback
         self.manual_fit_region_selected_callback = region_selected_callback
         self.manual_fit_region_guides_callback = region_guides_callback
         self.manual_fit_keyboard_box_selected_callback = keyboard_box_selected_callback

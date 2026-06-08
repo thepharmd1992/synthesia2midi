@@ -180,6 +180,82 @@ def test_manual_fit_dialog_uses_drawn_region_controls():
         _flush_qt_deletes()
 
 
+def test_manual_fit_dialog_modes_show_only_relevant_controls():
+    QApplication.instance() or QApplication([])
+    app = _FakeApp()
+    app.app_state.overlays = [
+        _overlay(key_id=1, note="C", x=0, y=20, width=10, height=40),
+        _overlay(key_id=2, note="C♯", x=12, y=10, width=6, height=20),
+    ]
+    controller = ManualKeyboardFitController(app)
+
+    try:
+        assert controller.open() is True
+        dialog = controller.active_dialog
+
+        assert dialog.group_fit_radio.isChecked()
+        assert dialog.controls_group.isVisible()
+        assert not dialog.local_controls_group.isVisible()
+        assert dialog.current_local_filter() == "black"
+
+        dialog.local_fit_radio.click()
+
+        assert app.keyboard_canvas.mode == "manual_fit_local_select"
+        assert not dialog.controls_group.isVisible()
+        assert dialog.local_controls_group.isVisible()
+        assert dialog.mode_status_label.text() == "Editing: Local Cluster"
+        assert not dialog.local_param_spinboxes["x_delta"].isEnabled()
+
+        dialog.single_overlay_radio.click()
+
+        assert app.keyboard_canvas.mode == "manual_fit_single"
+        assert not dialog.controls_group.isVisible()
+        assert not dialog.local_controls_group.isVisible()
+        assert dialog.mode_status_label.text() == "Editing: Single Overlay"
+    finally:
+        if controller.active_dialog is not None:
+            controller.active_dialog.reject()
+        app.close()
+        app.deleteLater()
+        _flush_qt_deletes()
+
+
+def test_manual_fit_controller_local_fit_selects_black_cluster_and_applies_local_controls():
+    QApplication.instance() or QApplication([])
+    app = _FakeApp()
+    app.app_state.overlays = [
+        _overlay(key_id=1, note="C", x=0, y=20, width=10, height=40),
+        _overlay(key_id=2, note="C♯", x=12, y=10, width=6, height=20),
+        _overlay(key_id=3, note="D", x=24, y=20, width=10, height=40),
+        _overlay(key_id=4, note="D♯", x=36, y=10, width=6, height=20),
+    ]
+    controller = ManualKeyboardFitController(app)
+
+    try:
+        assert controller.open() is True
+        dialog = controller.active_dialog
+        dialog.local_fit_radio.click()
+
+        app.keyboard_canvas.callbacks["local_selection_callback"](0, 0, 50, 50)
+        assert controller.session.active_local_key_ids() == {2, 4}
+        assert app.keyboard_canvas.callbacks["local_key_ids_callback"]() == {2, 4}
+        assert dialog.local_param_spinboxes["x_delta"].isEnabled()
+
+        dialog.local_param_spinboxes["x_delta"].setValue(1)
+        white_x = app.app_state.overlays[0].x
+        black_x = app.app_state.overlays[1].x
+        dialog.local_param_spinboxes["x_delta"].setValue(8)
+
+        assert app.app_state.overlays[0].x == pytest.approx(white_x)
+        assert app.app_state.overlays[1].x == pytest.approx(black_x + 7)
+    finally:
+        if controller.active_dialog is not None:
+            controller.active_dialog.reject()
+        app.close()
+        app.deleteLater()
+        _flush_qt_deletes()
+
+
 def test_manual_fit_dialog_reset_and_clear_selected_override_update_preview():
     QApplication.instance() or QApplication([])
     app = _FakeApp()
@@ -283,6 +359,47 @@ def test_manual_fit_setup_uses_compact_coach_and_auto_advances_to_fine_tune():
         assert (white_right.x, white_right.y, white_right.width, white_right.height) == pytest.approx(
             (43, 159.2, 24, 33.6)
         )
+    finally:
+        if controller.active_dialog is not None:
+            controller.active_dialog.reject()
+        app.close()
+        app.deleteLater()
+        _flush_qt_deletes()
+
+
+def test_manual_fit_start_setup_restarts_existing_session_without_restoring_stale_overlays():
+    QApplication.instance() or QApplication([])
+    app = _FakeApp()
+    app.app_state.overlays = [
+        _overlay(key_id=1, note="C", x=0, y=20, width=10, height=40),
+        _overlay(key_id=2, note="C♯", x=12, y=10, width=6, height=20),
+        _overlay(key_id=3, note="D", x=24, y=20, width=10, height=40),
+    ]
+    controller = ManualKeyboardFitController(app)
+
+    try:
+        assert controller.open() is True
+        stale_dialog = controller.active_dialog
+        assert app.keyboard_canvas.mode == "manual_fit_group"
+
+        app.settings_tool_window.visible = True
+        app.settings_tool_window.hidden = False
+        app.app_state.overlays = [
+            _overlay(key_id=1, note="C", x=100, y=120, width=14, height=44),
+            _overlay(key_id=2, note="C♯", x=116, y=110, width=8, height=24),
+            _overlay(key_id=3, note="D", x=132, y=120, width=14, height=44),
+        ]
+
+        assert controller.open(start_setup=True) is True
+
+        assert controller.active_dialog is not stale_dialog
+        assert app.keyboard_canvas.mode == "manual_fit_keyboard_box"
+        assert app.settings_tool_window.hidden is True
+        assert app.keyboard_canvas.callbacks["overlays_visible_callback"]() is False
+        assert app.keyboard_canvas.callbacks["setup_instruction_callback"]() == (
+            "Draw a box around the visible keyboard"
+        )
+        assert app.app_state.overlays[0].x == 100
     finally:
         if controller.active_dialog is not None:
             controller.active_dialog.reject()

@@ -6,6 +6,7 @@ from typing import Dict, Optional
 from PySide6.QtCore import QSignalBlocker, Qt, Signal
 from PySide6.QtWidgets import (
     QButtonGroup,
+    QComboBox,
     QDialog,
     QGridLayout,
     QGroupBox,
@@ -19,7 +20,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from synthesia2midi.workflows.manual_keyboard_fit import ManualFitParams
+from synthesia2midi.workflows.manual_keyboard_fit import LocalFitParams, ManualFitParams
 
 
 PARAM_SPECS = [
@@ -32,15 +33,25 @@ PARAM_SPECS = [
     ("right_slant_delta", "Right Slant", -45, 45),
 ]
 
+LOCAL_PARAM_SPECS = [
+    ("x_delta", "Cluster X", -500, 500),
+    ("y_delta", "Cluster Y", -500, 500),
+    ("spread_delta", "Cluster Spread", -500, 500),
+    ("width_delta", "Cluster Width", -500, 500),
+    ("slant_delta", "Cluster Slant", -45, 45),
+]
+
 
 class ManualKeyboardFitDialog(QDialog):
     """Modeless controls for manual overlay keyboard fitting."""
 
     params_changed = Signal(object)
+    local_params_changed = Signal(object)
     octave_changed = Signal(int)
     mode_changed = Signal(str)
     reset_all_requested = Signal()
     reset_position_requested = Signal()
+    reset_local_requested = Signal()
     clear_selected_override_requested = Signal()
     setup_back_requested = Signal()
     setup_use_suggested_requested = Signal()
@@ -56,6 +67,9 @@ class ManualKeyboardFitDialog(QDialog):
         self.param_sliders: Dict[str, QSlider] = {}
         self.param_spinboxes: Dict[str, QSpinBox] = {}
         self.param_reset_buttons: Dict[str, QPushButton] = {}
+        self.local_param_sliders: Dict[str, QSlider] = {}
+        self.local_param_spinboxes: Dict[str, QSpinBox] = {}
+        self.local_param_reset_buttons: Dict[str, QPushButton] = {}
 
         self._setup_ui()
 
@@ -95,16 +109,20 @@ class ManualKeyboardFitDialog(QDialog):
         mode_layout = QHBoxLayout(self.mode_group)
         self.mode_status_label = QLabel("Editing: Whole Keyboard")
         self.group_fit_radio = QRadioButton("Group Fit")
+        self.local_fit_radio = QRadioButton("Local Fit")
         self.single_overlay_radio = QRadioButton("Single Overlay")
         self.group_fit_radio.setChecked(True)
         self._mode_button_group = QButtonGroup(self)
         self._mode_button_group.addButton(self.group_fit_radio)
+        self._mode_button_group.addButton(self.local_fit_radio)
         self._mode_button_group.addButton(self.single_overlay_radio)
         self.group_fit_radio.toggled.connect(self._handle_mode_toggled)
+        self.local_fit_radio.toggled.connect(self._handle_mode_toggled)
         self.single_overlay_radio.toggled.connect(self._handle_mode_toggled)
         mode_layout.addWidget(self.mode_status_label)
         mode_layout.addStretch()
         mode_layout.addWidget(self.group_fit_radio)
+        mode_layout.addWidget(self.local_fit_radio)
         mode_layout.addWidget(self.single_overlay_radio)
         fine_tune_layout.addWidget(self.mode_group)
 
@@ -159,21 +177,73 @@ class ManualKeyboardFitDialog(QDialog):
 
         fine_tune_layout.addWidget(self.controls_group, 1)
 
+        self.local_controls_group = QGroupBox("Local Fit")
+        local_layout = QGridLayout(self.local_controls_group)
+        local_layout.setHorizontalSpacing(10)
+        local_layout.setVerticalSpacing(6)
+
+        local_filter_label = QLabel("Select")
+        self.local_filter_combo = QComboBox()
+        self.local_filter_combo.addItem("Black Keys", "black")
+        self.local_filter_combo.addItem("White Keys", "white")
+        self.local_filter_combo.addItem("All Keys", "all")
+        self.local_selection_label = QLabel("Draw a box around problem keys")
+        local_layout.addWidget(local_filter_label, 0, 0)
+        local_layout.addWidget(self.local_filter_combo, 0, 1)
+        local_layout.addWidget(self.local_selection_label, 0, 2, 1, 2)
+
+        for row, (name, label, minimum, maximum) in enumerate(LOCAL_PARAM_SPECS, start=1):
+            label_widget = QLabel(label)
+            slider = QSlider(Qt.Horizontal)
+            slider.setRange(minimum, maximum)
+            slider.setValue(0)
+            spinbox = QSpinBox()
+            spinbox.setRange(minimum, maximum)
+            spinbox.setValue(0)
+            spinbox.setFixedWidth(78)
+            reset_button = QPushButton("0")
+            reset_button.setFixedWidth(32)
+            reset_button.setToolTip(f"Reset {label}")
+
+            slider.valueChanged.connect(
+                lambda value, param_name=name: self._handle_local_slider_changed(param_name, value)
+            )
+            spinbox.valueChanged.connect(
+                lambda value, param_name=name: self._handle_local_spinbox_changed(param_name, value)
+            )
+            reset_button.clicked.connect(
+                lambda checked=False, param_name=name: self._handle_reset_local_param(param_name)
+            )
+
+            self.local_param_sliders[name] = slider
+            self.local_param_spinboxes[name] = spinbox
+            self.local_param_reset_buttons[name] = reset_button
+            local_layout.addWidget(label_widget, row, 0)
+            local_layout.addWidget(slider, row, 1)
+            local_layout.addWidget(spinbox, row, 2)
+            local_layout.addWidget(reset_button, row, 3)
+
+        fine_tune_layout.addWidget(self.local_controls_group, 1)
+        self.set_local_selection_count(0)
+
         action_row = QHBoxLayout()
         self.reset_all_button = QPushButton("Reset All")
         self.reset_position_button = QPushButton("Reset Position")
+        self.reset_local_button = QPushButton("Reset Local")
         self.clear_selected_override_button = QPushButton("Clear Selected Override")
         self.cancel_button = QPushButton("Cancel")
         self.apply_button = QPushButton("Apply")
 
         self.reset_all_button.clicked.connect(self.reset_all_requested.emit)
         self.reset_position_button.clicked.connect(self.reset_position_requested.emit)
+        self.reset_local_button.clicked.connect(self.reset_local_requested.emit)
         self.clear_selected_override_button.clicked.connect(self.clear_selected_override_requested.emit)
         self.cancel_button.clicked.connect(self.reject)
         self.apply_button.clicked.connect(self.accept)
 
         action_row.addWidget(self.reset_all_button)
         action_row.addWidget(self.reset_position_button)
+        action_row.addWidget(self.reset_local_button)
         action_row.addWidget(self.clear_selected_override_button)
         action_row.addStretch()
         action_row.addWidget(self.cancel_button)
@@ -189,13 +259,40 @@ class ManualKeyboardFitDialog(QDialog):
         }
         return ManualFitParams(**values)
 
+    def current_local_params(self) -> LocalFitParams:
+        values = {
+            name: float(spinbox.value())
+            for name, spinbox in self.local_param_spinboxes.items()
+        }
+        return LocalFitParams(**values)
+
+    def current_local_filter(self) -> str:
+        return str(self.local_filter_combo.currentData() or "black")
+
     def reset_controls(self, *, octave_value: Optional[int] = None) -> None:
         for name in self.param_spinboxes:
             self._set_control_value(name, 0)
+        self.reset_local_controls()
+        self.set_local_selection_count(0)
         if octave_value is None:
             octave_value = self._initial_octave
         with QSignalBlocker(self.octave_spinbox):
             self.octave_spinbox.setValue(int(octave_value))
+
+    def reset_local_controls(self) -> None:
+        for name in self.local_param_spinboxes:
+            self._set_local_control_value(name, 0)
+
+    def set_local_params(self, params: LocalFitParams) -> None:
+        for name in self.local_param_spinboxes:
+            self._set_local_control_value(name, int(getattr(params, name)))
+
+    def set_local_selection_count(self, count: int) -> None:
+        self._set_local_controls_enabled(count > 0)
+        if count <= 0:
+            self.local_selection_label.setText("Draw a box around problem keys")
+            return
+        self.local_selection_label.setText(f"{count} selected")
 
     def enter_setup_step(self, step_name: str) -> None:
         labels = {
@@ -227,6 +324,7 @@ class ManualKeyboardFitDialog(QDialog):
         self.fine_tune_widget.show()
         self.setup_step_label.setText("Fine Tune Overlays")
         self.setup_instruction_label.setText("")
+        self._sync_mode_control_visibility()
         self.resize(760, 560)
 
     def _set_control_value(self, name: str, value: int) -> None:
@@ -235,6 +333,22 @@ class ManualKeyboardFitDialog(QDialog):
         with QSignalBlocker(slider), QSignalBlocker(spinbox):
             slider.setValue(value)
             spinbox.setValue(value)
+
+    def _set_local_control_value(self, name: str, value: int) -> None:
+        slider = self.local_param_sliders[name]
+        spinbox = self.local_param_spinboxes[name]
+        with QSignalBlocker(slider), QSignalBlocker(spinbox):
+            slider.setValue(value)
+            spinbox.setValue(value)
+
+    def _set_local_controls_enabled(self, enabled: bool) -> None:
+        for widget_by_name in (
+            self.local_param_sliders,
+            self.local_param_spinboxes,
+            self.local_param_reset_buttons,
+        ):
+            for widget in widget_by_name.values():
+                widget.setEnabled(enabled)
 
     def _handle_slider_changed(self, name: str, value: int) -> None:
         with QSignalBlocker(self.param_spinboxes[name]):
@@ -246,14 +360,38 @@ class ManualKeyboardFitDialog(QDialog):
             self.param_sliders[name].setValue(value)
         self.params_changed.emit(self.current_params())
 
+    def _handle_local_slider_changed(self, name: str, value: int) -> None:
+        with QSignalBlocker(self.local_param_spinboxes[name]):
+            self.local_param_spinboxes[name].setValue(value)
+        self.local_params_changed.emit(self.current_local_params())
+
+    def _handle_local_spinbox_changed(self, name: str, value: int) -> None:
+        with QSignalBlocker(self.local_param_sliders[name]):
+            self.local_param_sliders[name].setValue(value)
+        self.local_params_changed.emit(self.current_local_params())
+
     def _handle_reset_param(self, name: str) -> None:
         self._set_control_value(name, 0)
         self.params_changed.emit(self.current_params())
+
+    def _handle_reset_local_param(self, name: str) -> None:
+        self._set_local_control_value(name, 0)
+        self.local_params_changed.emit(self.current_local_params())
 
     def _handle_mode_toggled(self) -> None:
         if self.group_fit_radio.isChecked():
             self.mode_status_label.setText("Editing: Whole Keyboard")
             self.mode_changed.emit("manual_fit_group")
-        else:
+        elif self.local_fit_radio.isChecked():
+            self.mode_status_label.setText("Editing: Local Cluster")
+            self.mode_changed.emit("manual_fit_local_select")
+        elif self.single_overlay_radio.isChecked():
             self.mode_status_label.setText("Editing: Single Overlay")
             self.mode_changed.emit("manual_fit_single")
+        self._sync_mode_control_visibility()
+
+    def _sync_mode_control_visibility(self) -> None:
+        self.controls_group.setVisible(self.group_fit_radio.isChecked())
+        self.local_controls_group.setVisible(self.local_fit_radio.isChecked())
+        self.reset_position_button.setVisible(self.group_fit_radio.isChecked())
+        self.reset_local_button.setVisible(self.local_fit_radio.isChecked())

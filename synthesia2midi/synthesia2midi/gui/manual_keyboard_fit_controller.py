@@ -8,7 +8,11 @@ from PySide6.QtWidgets import QMessageBox
 
 from synthesia2midi.gui.dialog_positioning import move_to_top_center_safe_zone
 from synthesia2midi.gui.manual_keyboard_fit_dialog import ManualKeyboardFitDialog
-from synthesia2midi.workflows.manual_keyboard_fit import ManualFitParams, ManualKeyboardFitSession
+from synthesia2midi.workflows.manual_keyboard_fit import (
+    LocalFitParams,
+    ManualFitParams,
+    ManualKeyboardFitSession,
+)
 
 
 class ManualKeyboardFitController:
@@ -46,13 +50,16 @@ class ManualKeyboardFitController:
             )
             return False
 
-        if self._dialog is not None:
+        if self._dialog is not None and start_setup:
+            self._discard_active_session_for_setup_restart()
+        elif self._dialog is not None:
             self._dialog.raise_()
             self._dialog.activateWindow()
             return True
 
         self._session = ManualKeyboardFitSession(self.app.app_state)
-        self._settings_tool_was_visible = self._hide_settings_tool_window()
+        settings_tool_was_visible = self._hide_settings_tool_window()
+        self._settings_tool_was_visible = self._settings_tool_was_visible or settings_tool_was_visible
 
         self.app.app_state.ui.show_overlays = True
         if hasattr(self.app, "show_overlays_action"):
@@ -63,6 +70,8 @@ class ManualKeyboardFitController:
             single_move_callback=self._handle_single_move,
             single_resize_callback=self._handle_single_resize,
             override_ids_callback=self._override_ids,
+            local_key_ids_callback=self._local_key_ids,
+            local_selection_callback=self._handle_local_selection,
             region_selected_callback=self._handle_region_selected,
             region_guides_callback=self._region_guides,
             keyboard_box_selected_callback=self._handle_keyboard_box_selected,
@@ -79,12 +88,14 @@ class ManualKeyboardFitController:
         dialog.setModal(False)
         dialog.setWindowModality(Qt.NonModal)
         dialog.params_changed.connect(self._handle_params_changed)
+        dialog.local_params_changed.connect(self._handle_local_params_changed)
         dialog.octave_changed.connect(self._handle_octave_changed)
         dialog.mode_changed.connect(self._handle_mode_changed)
         dialog.setup_back_requested.connect(self._handle_setup_back)
         dialog.setup_use_suggested_requested.connect(self._handle_setup_use_suggested)
         dialog.reset_all_requested.connect(self._handle_reset_all)
         dialog.reset_position_requested.connect(self._handle_reset_position)
+        dialog.reset_local_requested.connect(self._handle_reset_local)
         dialog.clear_selected_override_requested.connect(self._handle_clear_selected_override)
         dialog.accepted.connect(self._handle_apply)
         dialog.rejected.connect(self._handle_cancel)
@@ -105,6 +116,12 @@ class ManualKeyboardFitController:
         if self._session is None:
             return
         self._session.update_control_params(params)
+        self._refresh_preview()
+
+    def _handle_local_params_changed(self, params: LocalFitParams) -> None:
+        if self._session is None:
+            return
+        self._session.update_active_local_params(params)
         self._refresh_preview()
 
     def _handle_octave_changed(self, value: int) -> None:
@@ -135,6 +152,18 @@ class ManualKeyboardFitController:
             return
         self._session.set_detection_region(region_type, top, bottom)
         self.app.keyboard_canvas.set_manual_fit_mode("manual_fit_group")
+        self._refresh_preview()
+
+    def _handle_local_selection(self, left: float, top: float, right: float, bottom: float) -> None:
+        if self._session is None:
+            return
+        key_filter = "black"
+        if self._dialog is not None:
+            key_filter = self._dialog.current_local_filter()
+        selected = self._session.select_local_cluster(left, top, right, bottom, key_filter=key_filter)
+        if self._dialog is not None:
+            self._dialog.set_local_params(self._session.active_local_params())
+            self._dialog.set_local_selection_count(len(selected))
         self._refresh_preview()
 
     def _handle_keyboard_box_selected(self, left: float, top: float, right: float, bottom: float) -> None:
@@ -213,6 +242,15 @@ class ManualKeyboardFitController:
         self._session.reset_position()
         self._refresh_preview()
 
+    def _handle_reset_local(self) -> None:
+        if self._session is None:
+            return
+        self._session.reset_active_local_fit()
+        if self._dialog is not None:
+            self._dialog.reset_local_controls()
+            self._dialog.set_local_selection_count(len(self._session.active_local_key_ids()))
+        self._refresh_preview()
+
     def _handle_clear_selected_override(self) -> None:
         if self._session is None:
             return
@@ -248,10 +286,26 @@ class ManualKeyboardFitController:
         finally:
             self._finishing = False
 
+    def _discard_active_session_for_setup_restart(self) -> None:
+        dialog = self._dialog
+        self._setup_step = None
+        self._manual_fit_overlays_visible = True
+        self.app.keyboard_canvas.clear_manual_fit_callbacks()
+        self._dialog = None
+        self._session = None
+        if dialog is not None:
+            dialog.hide()
+            dialog.deleteLater()
+
     def _override_ids(self) -> set[int]:
         if self._session is None:
             return set()
         return self._session.overridden_key_ids()
+
+    def _local_key_ids(self) -> set[int]:
+        if self._session is None:
+            return set()
+        return self._session.active_local_key_ids()
 
     def _region_guides(self) -> dict:
         if self._session is None:

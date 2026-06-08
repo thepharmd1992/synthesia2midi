@@ -4,7 +4,11 @@ import pytest
 
 from synthesia2midi.app_config import OverlayConfig
 from synthesia2midi.core.app_state import AppState
-from synthesia2midi.workflows.manual_keyboard_fit import ManualFitParams, ManualKeyboardFitSession
+from synthesia2midi.workflows.manual_keyboard_fit import (
+    LocalFitParams,
+    ManualFitParams,
+    ManualKeyboardFitSession,
+)
 
 
 def _overlay(key_id, note, x, y=20, width=10, height=30):
@@ -208,6 +212,70 @@ def test_manual_fit_single_overlay_override_survives_later_group_changes():
     assert app_state.overlays[0].y == pytest.approx(50)
     assert app_state.overlays[1].x == pytest.approx(22.6)
     assert session.overridden_key_ids() == {1}
+
+
+def test_manual_fit_local_cluster_adjusts_selected_black_keys_only():
+    app_state = AppState()
+    app_state.overlays = [
+        _overlay(1, "C", 0, y=20, width=10, height=40),
+        _overlay(2, "C♯", 12, y=10, width=6, height=20),
+        _overlay(3, "D", 24, y=20, width=10, height=40),
+        _overlay(4, "D♯", 36, y=10, width=6, height=20),
+        _overlay(5, "E", 48, y=20, width=10, height=40),
+        _overlay(6, "F♯", 72, y=10, width=6, height=20),
+    ]
+    session = ManualKeyboardFitSession(app_state)
+    session.apply_preview()
+    baseline = {
+        overlay.key_id: (
+            overlay.x,
+            overlay.y,
+            overlay.width,
+            overlay.height,
+            overlay.rotation_degrees,
+        )
+        for overlay in app_state.overlays
+    }
+    baseline_span = (
+        (app_state.overlays[3].x + app_state.overlays[3].width / 2)
+        - (app_state.overlays[1].x + app_state.overlays[1].width / 2)
+    )
+
+    selected = session.select_local_cluster(0, 0, 50, 50, key_filter="black")
+    session.update_active_local_params(
+        LocalFitParams(
+            x_delta=5,
+            y_delta=3,
+            spread_delta=12,
+            width_delta=2,
+            slant_delta=7,
+        )
+    )
+
+    assert selected == {2, 4}
+    assert session.active_local_key_ids() == {2, 4}
+    assert (
+        app_state.overlays[0].x,
+        app_state.overlays[0].y,
+        app_state.overlays[0].width,
+        app_state.overlays[0].height,
+        app_state.overlays[0].rotation_degrees,
+    ) == pytest.approx(baseline[1])
+    assert (
+        app_state.overlays[5].x,
+        app_state.overlays[5].y,
+        app_state.overlays[5].width,
+        app_state.overlays[5].height,
+        app_state.overlays[5].rotation_degrees,
+    ) == pytest.approx(baseline[6])
+    assert app_state.overlays[1].y == pytest.approx(baseline[2][1] + 3)
+    assert app_state.overlays[1].width == pytest.approx(baseline[2][2] + 2)
+    assert app_state.overlays[1].rotation_degrees == pytest.approx(7)
+    adjusted_span = (
+        (app_state.overlays[3].x + app_state.overlays[3].width / 2)
+        - (app_state.overlays[1].x + app_state.overlays[1].width / 2)
+    )
+    assert adjusted_span == pytest.approx(baseline_span + 12)
 
 
 def test_manual_fit_control_updates_preserve_current_group_position():

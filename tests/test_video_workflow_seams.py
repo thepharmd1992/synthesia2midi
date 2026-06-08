@@ -301,6 +301,7 @@ def test_control_signal_manager_wires_video_range_and_trim_surfaces_to_controlle
             "handle_refresh_selected_overlay_display",
             "handle_align_white_keys_to_selected",
             "handle_align_black_keys_to_selected",
+            "handle_manual_fit_request",
             "handle_overlay_size_adjustment",
             "handle_octave_transpose_change",
             "handle_fps_override_change",

@@ -66,6 +66,7 @@ def _signal_manager_window(connections):
             "handle_refresh_selected_overlay_display",
             "handle_align_white_keys_to_selected",
             "handle_align_black_keys_to_selected",
+            "handle_manual_fit_request",
             "handle_overlay_size_adjustment",
             "handle_octave_transpose_change",
             "handle_fps_override_change",
@@ -104,6 +105,7 @@ def test_signal_manager_wires_detection_signals_directly_to_detection_manager():
     assert connections["hand_assignment_toggled"] is main_window.detection_manager.set_hand_assignment_enabled
     assert connections["histogram_threshold_changed"] is main_window.detection_manager.set_histogram_threshold
     assert connections["similarity_ratio_changed"] is main_window.detection_manager.set_similarity_ratio
+    assert connections["manual_fit_requested"] is main_window.main_action_controller.handle_manual_fit_request
 
 
 def test_detection_manager_toggle_setters_use_emitted_boolean_values():

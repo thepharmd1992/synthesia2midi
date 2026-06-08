@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 
 # Third-party imports
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QTimer, QThread
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QDialog, QDialogButtonBox, QGroupBox, QHBoxLayout, 
@@ -16,8 +16,30 @@ from PySide6.QtWidgets import (
 from ..youtube_downloader import YouTubeDownloader, YouTubeDownloaderThread
 
 
+class YouTubeInfoFetcherThread(QThread):
+    """Thread for fetching YouTube video info without blocking UI"""
+
+    info_fetched = Signal(str, dict)
+    error = Signal(str, str)
+
+    def __init__(self, url: str, output_dir: str):
+        super().__init__()
+        self.url = url
+        self.output_dir = output_dir
+
+    def run(self):
+        try:
+            downloader = YouTubeDownloader(self.output_dir)
+            info = downloader.get_video_info(self.url)
+            self.info_fetched.emit(self.url, info)
+        except Exception as exc:
+            self.error.emit(self.url, str(exc))
+
+
 class YouTubeDownloadDialog(QDialog):
     """Dialog for downloading YouTube videos"""
+
+    AUTO_FETCH_DELAY_MS = 350
     
     # Signal emitted when download completes with file path
     video_downloaded = Signal(str)
@@ -26,6 +48,16 @@ class YouTubeDownloadDialog(QDialog):
         super().__init__(parent)
         self.downloader = YouTubeDownloader(default_output_dir)
         self.download_thread = None
+        self.info_fetch_thread = None
+        self._current_info_url = None
+        self._active_info_url = None
+        self._queued_info_url = None
+        self._queued_info_show_dialog = False
+        self._show_info_error_dialog = True
+        self._auto_fetching = False
+        self.auto_fetch_timer = QTimer(self)
+        self.auto_fetch_timer.setSingleShot(True)
+        self.auto_fetch_timer.timeout.connect(self._auto_fetch_video_info)
         self.setup_ui()
         
     def setup_ui(self):
@@ -110,49 +142,113 @@ class YouTubeDownloadDialog(QDialog):
         
     def on_url_changed(self, text):
         """Handle URL input changes"""
-        is_valid = bool(text) and self.downloader.validate_url(text)
+        self.auto_fetch_timer.stop()
+
+        url = text.strip()
+        is_valid = bool(url) and self.downloader.validate_url(url)
         self.fetch_info_btn.setEnabled(is_valid)
-        self.download_btn.setEnabled(is_valid and self.info_widget.isVisible())
+
+        has_current_info = is_valid and url == self._current_info_url
+        if not has_current_info:
+            self.info_widget.hide()
+        self.download_btn.setEnabled(has_current_info)
         
         if not is_valid and text:
             self.status_label.setText("Invalid YouTube URL")
+            self._current_info_url = None
+        elif has_current_info:
+            self.status_label.setText("Ready to download")
+        elif is_valid:
+            self.status_label.setText("Fetching video information...")
+            self.auto_fetch_timer.start(self.AUTO_FETCH_DELAY_MS)
         else:
             self.status_label.setText("Ready to download")
+
+    def _auto_fetch_video_info(self):
+        self._auto_fetching = True
+        try:
+            self.fetch_video_info()
+        finally:
+            self._auto_fetching = False
     
     def fetch_video_info(self):
         """Fetch and display video information"""
-        url = self.url_input.text()
-        
-        try:
+        self.auto_fetch_timer.stop()
+        url = self.url_input.text().strip()
+
+        if not self.downloader.validate_url(url):
             self.fetch_info_btn.setEnabled(False)
-            self.status_label.setText("Fetching video information...")
-            
-            info = self.downloader.get_video_info(url)
-            
-            # Display info
-            self.title_label.setText(f"<b>Title:</b> {info['title']}")
-            
-            # Format duration
-            duration = info['duration']
-            minutes = duration // 60
-            seconds = duration % 60
-            self.duration_label.setText(f"<b>Duration:</b> {minutes}:{seconds:02d}")
-            
-            self.uploader_label.setText(f"<b>Uploader:</b> {info['uploader']}")
-            
-            self.info_widget.show()
-            self.download_btn.setEnabled(True)
-            self.status_label.setText("Ready to download")
-            
-            # No longer showing quality options - will use default quality
-                
-        except Exception as e:
-            QMessageBox.warning(self, "Error", f"Failed to fetch video info: {str(e)}")
-            self.status_label.setText("Failed to fetch video info")
-            
-        finally:
-            self.fetch_info_btn.setEnabled(True)
-    
+            self.download_btn.setEnabled(False)
+            self.info_widget.hide()
+            self._current_info_url = None
+            self.status_label.setText("Invalid YouTube URL" if url else "Ready to download")
+            return
+
+        self._start_video_info_fetch(url, show_error_dialog=not self._auto_fetching)
+
+    def _start_video_info_fetch(self, url, show_error_dialog=True):
+        if self.info_fetch_thread and self.info_fetch_thread.isRunning():
+            self._queued_info_url = url
+            self._queued_info_show_dialog = show_error_dialog
+            return
+
+        self.fetch_info_btn.setEnabled(False)
+        self.download_btn.setEnabled(False)
+        self.status_label.setText("Fetching video information...")
+        self._active_info_url = url
+        self._show_info_error_dialog = show_error_dialog
+        self.info_fetch_thread = YouTubeInfoFetcherThread(url, str(self.downloader.output_dir))
+        self.info_fetch_thread.info_fetched.connect(self._on_video_info_fetched)
+        self.info_fetch_thread.error.connect(self._on_video_info_error)
+        if hasattr(self.info_fetch_thread, "finished"):
+            self.info_fetch_thread.finished.connect(self._on_video_info_thread_finished)
+        self.info_fetch_thread.start()
+
+    def _on_video_info_fetched(self, url, info):
+        if url != self.url_input.text().strip():
+            return
+
+        self.title_label.setText(f"<b>Title:</b> {info['title']}")
+
+        duration = info['duration']
+        minutes = duration // 60
+        seconds = duration % 60
+        self.duration_label.setText(f"<b>Duration:</b> {minutes}:{seconds:02d}")
+
+        self.uploader_label.setText(f"<b>Uploader:</b> {info['uploader']}")
+
+        self._current_info_url = url
+        self.info_widget.show()
+        self.download_btn.setEnabled(True)
+        self.status_label.setText("Ready to download")
+
+    def _on_video_info_error(self, url, error):
+        if url != self.url_input.text().strip():
+            return
+
+        self._current_info_url = None
+        self.info_widget.hide()
+        self.download_btn.setEnabled(False)
+        if self._show_info_error_dialog:
+            QMessageBox.warning(self, "Error", f"Failed to fetch video info: {error}")
+        self.status_label.setText("Failed to fetch video info")
+
+    def _on_video_info_thread_finished(self):
+        self.info_fetch_thread = None
+        self._active_info_url = None
+
+        queued_url = self._queued_info_url
+        queued_show_dialog = self._queued_info_show_dialog
+        self._queued_info_url = None
+        self._queued_info_show_dialog = False
+
+        current_url = self.url_input.text().strip()
+        if queued_url and queued_url == current_url and self.downloader.validate_url(queued_url):
+            self._start_video_info_fetch(queued_url, queued_show_dialog)
+            return
+
+        self.fetch_info_btn.setEnabled(bool(current_url) and self.downloader.validate_url(current_url))
+
     def start_download(self):
         """Start downloading the video"""
         url = self.url_input.text()
@@ -231,14 +327,22 @@ class YouTubeDownloadDialog(QDialog):
     
     def reset_ui(self):
         """Reset UI to initial state"""
-        self.download_btn.setEnabled(bool(self.url_input.text()) and self.info_widget.isVisible())
+        url = self.url_input.text().strip()
+        is_valid = bool(url) and self.downloader.validate_url(url)
+        self.download_btn.setEnabled(is_valid and url == self._current_info_url)
         self.cancel_btn.setEnabled(False)
         self.url_input.setEnabled(True)
-        self.fetch_info_btn.setEnabled(bool(self.url_input.text()))
+        self.fetch_info_btn.setEnabled(is_valid)
         self.progress_bar.hide()
         
     def closeEvent(self, event):
         """Handle dialog close"""
+        self.auto_fetch_timer.stop()
+        if self.info_fetch_thread and self.info_fetch_thread.isRunning():
+            self.info_fetch_thread.quit()
+            self.info_fetch_thread.wait()
+            self.info_fetch_thread = None
+
         if self.download_thread and self.download_thread.isRunning():
             reply = QMessageBox.question(
                 self,

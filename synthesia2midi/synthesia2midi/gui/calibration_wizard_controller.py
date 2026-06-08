@@ -124,7 +124,8 @@ class CalibrationWizardController:
             # Apply template styles (kept in main class for UI coordination)
             self._apply_template_styles_to_overlays()
 
-
+            self.app_state.ui.show_overlays = True
+            self.show_overlays_action.setChecked(True)
             self.control_panel.convert_button.setEnabled(self.control_panel._can_convert())
             self.keyboard_canvas.draw_overlays() # Explicitly redraw overlays
         else:

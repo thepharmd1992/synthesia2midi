@@ -258,6 +258,44 @@ class DummyAutoDetectTuningControllerForRestore:
         return True
 
 
+class DummySuccessfulWizardForController:
+    def __init__(self):
+        self.keyboard_region_selection_requested = RecordingSignal()
+        self.edit_current_calibration_requested = RecordingSignal()
+        self.result = True
+
+    def set_edit_current_calibration_enabled(self, enabled, tooltip=None):
+        self.edit_enabled = (enabled, tooltip)
+
+    def exec(self):
+        return QDialog.Accepted
+
+
+class DummySuccessfulCalibrationWorkflowForController:
+    def __init__(self, wizard):
+        self.wizard = wizard
+        self.completed = []
+        self.template_calls = 0
+
+    def run_calibration_wizard(self):
+        return self.wizard
+
+    def handle_wizard_completed(self, success):
+        self.completed.append(success)
+        return success
+
+    def apply_template_styles_to_overlays(self):
+        self.template_calls += 1
+
+
+class DummyShowOverlaysAction:
+    def __init__(self):
+        self.checked_values = []
+
+    def setChecked(self, value):
+        self.checked_values.append(value)
+
+
 def test_calibration_wizard_controller_keeps_wizard_for_keyboard_region_selection():
     wizard = DummyWizardForController("keyboard_region_selection_requested")
     workflow = DummyCalibrationWorkflowForController(wizard)
@@ -330,6 +368,46 @@ def test_calibration_wizard_controller_requests_settings_restore_after_tuning():
 
     assert tuning_controller.open_kwargs["wizard"] is wizard
     assert tuning_controller.open_kwargs["restore_settings_on_finish"] is True
+
+
+def test_calibration_wizard_controller_shows_manual_overlays_after_success():
+    wizard = DummySuccessfulWizardForController()
+    workflow = DummySuccessfulCalibrationWorkflowForController(wizard)
+    convert_button = SimpleNamespace(
+        setEnabled=lambda enabled: setattr(convert_button, "enabled", enabled)
+    )
+    display_calls = []
+    draw_calls = []
+    app = SimpleNamespace(
+        app_state=SimpleNamespace(
+            overlays=[SimpleNamespace(key_id=0)],
+            ui=SimpleNamespace(show_overlays=False),
+            video=SimpleNamespace(current_frame_index=11),
+        ),
+        calibration_workflow=workflow,
+        control_panel=SimpleNamespace(
+            convert_button=convert_button,
+            _can_convert=lambda: True,
+        ),
+        keyboard_canvas=SimpleNamespace(
+            draw_overlays=lambda: draw_calls.append(True),
+            display_frame=lambda frame_idx: display_calls.append(frame_idx),
+        ),
+        show_overlays_action=DummyShowOverlaysAction(),
+        video_loading_workflow=None,
+        video_session=None,
+    )
+    controller = CalibrationWizardController(app)
+
+    controller.run_calibration_wizard()
+
+    assert workflow.completed == [True]
+    assert workflow.template_calls == 1
+    assert app.app_state.ui.show_overlays is True
+    assert app.show_overlays_action.checked_values == [True]
+    assert convert_button.enabled is True
+    assert draw_calls == [True]
+    assert display_calls == [11]
 
 
 def test_calibration_wizard_controller_resets_edit_flag_when_tuning_context_missing(monkeypatch):

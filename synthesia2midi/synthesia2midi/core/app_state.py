@@ -352,6 +352,7 @@ class CalibrationConfig:
     calibration_mode: Optional[str] = None  # e.g., "lit_exemplar", "spark_bar_only", "spark_dimmest_sparks"
     current_calibration_key_type: Optional[str] = None  # e.g., "LW", "LB", "RW", "RB"
     overlay_generation_source: Optional[str] = None  # "auto" or "manual"
+    manual_keyboard_box: Optional[Tuple[float, float, float, float]] = None
     
     # Calibration frame range
     calib_start_frame: int = 0
@@ -380,6 +381,14 @@ class CalibrationConfig:
 
         if self.overlay_generation_source not in {None, "auto", "manual"}:
             errors.append("overlay_generation_source must be 'auto', 'manual', or None")
+
+        if self.manual_keyboard_box is not None:
+            if len(self.manual_keyboard_box) != 4:
+                errors.append("manual_keyboard_box must have left, top, right, bottom")
+            else:
+                left, top, right, bottom = self.manual_keyboard_box
+                if right <= left or bottom <= top:
+                    errors.append("manual_keyboard_box must have positive width and height")
 
         # Normalize auto-detect parameter map so only active keys remain and all values are typed/clamped.
         try:

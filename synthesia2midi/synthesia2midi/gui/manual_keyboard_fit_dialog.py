@@ -54,6 +54,7 @@ class ManualKeyboardFitDialog(QDialog):
     reset_position_requested = Signal()
     reset_local_requested = Signal()
     clear_selected_override_requested = Signal()
+    edit_keyboard_box_requested = Signal()
     setup_back_requested = Signal()
     setup_use_suggested_requested = Signal()
 
@@ -241,6 +242,7 @@ class ManualKeyboardFitDialog(QDialog):
         self.reset_all_button = QPushButton("Reset All")
         self.reset_position_button = QPushButton("Reset Position")
         self.reset_local_button = QPushButton("Reset Local")
+        self.edit_keyboard_box_button = QPushButton("Edit Keyboard Box")
         self.clear_selected_override_button = QPushButton("Clear Selected Override")
         self.cancel_button = QPushButton("Cancel")
         self.apply_button = QPushButton("Apply")
@@ -248,6 +250,7 @@ class ManualKeyboardFitDialog(QDialog):
         self.reset_all_button.clicked.connect(self.reset_all_requested.emit)
         self.reset_position_button.clicked.connect(self.reset_position_requested.emit)
         self.reset_local_button.clicked.connect(self.reset_local_requested.emit)
+        self.edit_keyboard_box_button.clicked.connect(self.edit_keyboard_box_requested.emit)
         self.clear_selected_override_button.clicked.connect(self.clear_selected_override_requested.emit)
         self.cancel_button.clicked.connect(self.reject)
         self.apply_button.clicked.connect(self.accept)
@@ -255,6 +258,7 @@ class ManualKeyboardFitDialog(QDialog):
         action_row.addWidget(self.reset_all_button)
         action_row.addWidget(self.reset_position_button)
         action_row.addWidget(self.reset_local_button)
+        action_row.addWidget(self.edit_keyboard_box_button)
         action_row.addWidget(self.clear_selected_override_button)
         action_row.addStretch()
         action_row.addWidget(self.cancel_button)
@@ -315,6 +319,10 @@ class ManualKeyboardFitDialog(QDialog):
                 "Step 1 of 3: Draw Keyboard Area",
                 "Draw one rectangle around the visible keyboard area.",
             ),
+            "keyboard_box_edit": (
+                "Edit Keyboard Box",
+                "Draw a replacement box around the visible keyboard area.",
+            ),
             "black_bottom": (
                 "Step 2 of 3: Set Black Key Bottom",
                 "Drag the orange line to slightly above the bottom of black keys.",
@@ -330,8 +338,10 @@ class ManualKeyboardFitDialog(QDialog):
         self.setup_step_label.setText(title)
         self.setup_instruction_label.setText(instruction)
         show_step_controls = step_name in {"black_bottom", "white_start"}
+        if step_name == "keyboard_box_edit":
+            show_step_controls = True
         self.setup_back_button.setVisible(show_step_controls)
-        self.setup_use_suggested_button.setVisible(show_step_controls)
+        self.setup_use_suggested_button.setVisible(show_step_controls and step_name != "keyboard_box_edit")
         self.adjustSize()
 
     def finish_setup(self) -> None:

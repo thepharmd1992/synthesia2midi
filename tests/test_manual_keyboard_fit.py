@@ -2,6 +2,7 @@ from dataclasses import fields
 
 import pytest
 
+import synthesia2midi.workflows.manual_keyboard_fit as manual_fit
 from synthesia2midi.app_config import OverlayConfig
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.workflows.manual_keyboard_fit import (
@@ -206,6 +207,62 @@ def test_manual_fit_setup_generates_initial_geometry_from_keyboard_box_and_guide
     assert (white_right.x, white_right.y, white_right.width, white_right.height) == pytest.approx(
         (43, 159.2, 24, 33.6)
     )
+    assert app_state.calibration.manual_keyboard_box == pytest.approx((10, 100, 70, 200))
+    assert "keyboard_box" in session.detection_region_guides()
+
+
+def test_manual_fit_constrains_group_translation_to_keyboard_box():
+    app_state = _state_with_overlays()
+    app_state.calibration.manual_keyboard_box = (10, 0, 40, 80)
+    session = ManualKeyboardFitSession(app_state)
+
+    session.translate_group(-100, 0)
+
+    assert min(overlay.x for overlay in app_state.overlays) >= 10
+
+    session.translate_group(300, 0)
+
+    assert max(overlay.x + overlay.width for overlay in app_state.overlays) <= 40
+
+
+def test_manual_fit_constrains_width_expansion_to_keyboard_box():
+    app_state = _state_with_overlays()
+    app_state.calibration.manual_keyboard_box = (0, 0, 34, 80)
+    session = ManualKeyboardFitSession(app_state)
+
+    session.set_param("keyboard_width_delta", 1000)
+
+    assert all(0 <= overlay.x for overlay in app_state.overlays)
+    assert all(overlay.x + overlay.width <= 34 for overlay in app_state.overlays)
+
+
+def test_manual_fit_constrains_rotated_overlay_corners_to_keyboard_box():
+    app_state = AppState()
+    app_state.calibration.manual_keyboard_box = (0, 0, 40, 40)
+    app_state.overlays = [_overlay(1, "C", 16, y=16, width=8, height=8)]
+    app_state.overlays[0].rotation_degrees = 45
+    session = ManualKeyboardFitSession(app_state)
+
+    session.translate_group(100, 100)
+
+    corners = session.rotated_overlay_corners(app_state.overlays[0])
+    assert all(0 <= x <= 40 and 0 <= y <= 40 for x, y in corners)
+
+
+def test_manual_fit_keyboard_box_background_warning_flags_dark_lower_end_band():
+    frame = pytest.importorskip("numpy").full((100, 100, 3), 220, dtype="uint8")
+    frame[70:100, 0:5] = 0
+
+    warnings = manual_fit.keyboard_box_background_warnings(frame, (0, 0, 100, 100))
+
+    assert warnings
+    assert "left" in warnings[0].lower()
+
+
+def test_manual_fit_keyboard_box_background_warning_ignores_bright_end_bands():
+    frame = pytest.importorskip("numpy").full((100, 100, 3), 220, dtype="uint8")
+
+    assert manual_fit.keyboard_box_background_warnings(frame, (0, 0, 100, 100)) == []
 
 
 def test_manual_fit_keyboard_top_moves_safe_top_only():

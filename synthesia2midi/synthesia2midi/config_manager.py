@@ -29,6 +29,30 @@ from synthesia2midi.detection.auto_detect_param_specs import (
 )
 
 
+def _serialize_keyboard_box(box) -> str:
+    if not box:
+        return ""
+    return ",".join(str(float(value)) for value in box)
+
+
+def _parse_keyboard_box(value) -> Optional[Tuple[float, float, float, float]]:
+    if value in (None, ""):
+        return None
+    if isinstance(value, str):
+        parts = [part.strip() for part in value.split(",")]
+    else:
+        parts = list(value)
+    if len(parts) != 4:
+        return None
+    try:
+        left, top, right, bottom = (float(part) for part in parts)
+    except (TypeError, ValueError):
+        return None
+    if right <= left or bottom <= top:
+        return None
+    return left, top, right, bottom
+
+
 class ConfigManager:
     """Handles INI file operations for application state."""
 
@@ -66,6 +90,9 @@ class ConfigManager:
             "overlays": [],
             "exemplar_lit_histograms": {},
             "overlay_generation_source": self.app_state.calibration.overlay_generation_source,
+            "manual_keyboard_box": list(self.app_state.calibration.manual_keyboard_box)
+            if self.app_state.calibration.manual_keyboard_box
+            else None,
         }
         
         # Save overlay configurations
@@ -122,6 +149,9 @@ class ConfigManager:
             source = overlay_data.get("overlay_generation_source")
             if source in {"auto", "manual"}:
                 self.app_state.calibration.overlay_generation_source = source
+            keyboard_box = _parse_keyboard_box(overlay_data.get("manual_keyboard_box"))
+            if keyboard_box is not None:
+                self.app_state.calibration.manual_keyboard_box = keyboard_box
             
             # Clear existing overlays
             self.app_state.overlays.clear()
@@ -254,6 +284,9 @@ class ConfigManager:
                     overlay_generation_source
                     if overlay_generation_source in {"auto", "manual"}
                     else None
+                )
+                self.app_state.calibration.manual_keyboard_box = _parse_keyboard_box(
+                    settings_data.get('manual_keyboard_box', '')
                 )
                 # Exemplar key-type availability (default enabled for backward compatibility)
                 exemplar_enabled = self.app_state.detection.exemplar_key_type_enabled
@@ -545,6 +578,7 @@ class ConfigManager:
             # Octave transpose
             'octave_transpose': str(self.app_state.midi.octave_transpose),
             'overlay_generation_source': str(self.app_state.calibration.overlay_generation_source or ''),
+            'manual_keyboard_box': _serialize_keyboard_box(self.app_state.calibration.manual_keyboard_box),
             # Exemplar key-type availability
             'exemplar_enabled_lw': str(self.app_state.detection.exemplar_key_type_enabled.get("LW", True)),
             'exemplar_enabled_lb': str(self.app_state.detection.exemplar_key_type_enabled.get("LB", True)),

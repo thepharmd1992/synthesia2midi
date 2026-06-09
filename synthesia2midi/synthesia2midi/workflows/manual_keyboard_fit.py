@@ -1,15 +1,69 @@
 """Manual keyboard fit session model."""
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
-from typing import Dict, Iterable, Set, Tuple
+from typing import Dict, Iterable, Sequence, Set, Tuple
 
+import numpy as np
 from synthesia2midi.app_config import NOTE_NAMES_SHARP
 
 
 WHITE_NOTE_NAMES = {name for name in NOTE_NAMES_SHARP if "♯" not in name and "♭" not in name}
 HORIZONTAL_SAFE_INSET_FRACTION = 0.10
 VERTICAL_SAFE_INSET_FRACTION = 0.15
+
+
+def keyboard_box_background_warnings(
+    frame_rgb: np.ndarray | None,
+    keyboard_box: Sequence[float] | KeyboardBox | None,
+) -> list[str]:
+    if frame_rgb is None or keyboard_box is None:
+        return []
+    box = _coerce_keyboard_box(keyboard_box)
+    if box is None:
+        return []
+    height, width = frame_rgb.shape[:2]
+    left = max(0, min(int(round(box.left)), width - 1))
+    right = max(left + 1, min(int(round(box.right)), width))
+    top = max(0, min(int(round(box.top)), height - 1))
+    bottom = max(top + 1, min(int(round(box.bottom)), height))
+    box_width = right - left
+    box_height = bottom - top
+    if box_width < 20 or box_height < 20:
+        return []
+
+    lower_top = top + int(box_height * 0.70)
+    band_width = max(2, int(box_width * 0.04))
+    lower_region = frame_rgb[lower_top:bottom, left:right, :3].astype(float)
+    if lower_region.size == 0:
+        return []
+
+    center_left = max(band_width, int(box_width * 0.25))
+    center_right = min(box_width - band_width, int(box_width * 0.75))
+    if center_right <= center_left:
+        return []
+
+    center_luma = _luminance(lower_region[:, center_left:center_right, :])
+    reference = float(np.median(center_luma))
+    if reference <= 1.0:
+        return []
+
+    warnings: list[str] = []
+    side_bands = {
+        "left": lower_region[:, :band_width, :],
+        "right": lower_region[:, box_width - band_width:, :],
+    }
+    for side, band in side_bands.items():
+        band_luma = _luminance(band)
+        dark_threshold = reference * 0.55
+        dark_fraction = float(np.mean(band_luma < dark_threshold))
+        band_median = float(np.median(band_luma))
+        if dark_fraction >= 0.85 and band_median <= reference - 40.0:
+            warnings.append(
+                f"The keyboard box lower {side} edge looks like background, not white keys."
+            )
+    return warnings
 
 
 @dataclass
@@ -72,6 +126,24 @@ class KeyboardBox:
     bottom: float
 
 
+def _coerce_keyboard_box(value: Sequence[float] | KeyboardBox | None) -> KeyboardBox | None:
+    if value is None:
+        return None
+    if isinstance(value, KeyboardBox):
+        left, top, right, bottom = value.left, value.top, value.right, value.bottom
+    else:
+        if len(value) != 4:
+            return None
+        left, top, right, bottom = (float(part) for part in value)
+    if right <= left or bottom <= top:
+        return None
+    return KeyboardBox(float(left), float(top), float(right), float(bottom))
+
+
+def _luminance(rgb: np.ndarray) -> np.ndarray:
+    return (0.2126 * rgb[..., 0]) + (0.7152 * rgb[..., 1]) + (0.0722 * rgb[..., 2])
+
+
 @dataclass
 class OverlayOverride:
     x_delta: float = 0.0
@@ -116,6 +188,9 @@ class ManualKeyboardFitSession:
         self._center_bounds = self._calculate_center_bounds(self._baseline.values())
         self._default_regions = self._calculate_default_regions()
         self._custom_regions: Dict[str, DetectionRegion] = {}
+        self._keyboard_box: KeyboardBox | None = _coerce_keyboard_box(
+            getattr(app_state.calibration, "manual_keyboard_box", None)
+        )
         self._setup_keyboard_box: KeyboardBox | None = None
         self._setup_black_bottom: float | None = None
         self._setup_white_start: float | None = None
@@ -171,11 +246,23 @@ class ManualKeyboardFitSession:
         self._custom_regions[key_type] = DetectionRegion(region_top, region_bottom)
         self.apply_preview()
 
-    def detection_region_guides(self) -> Dict[str, DetectionRegion]:
-        return {
+    def detection_region_guides(self) -> Dict[str, object]:
+        guides: Dict[str, object] = {
             "white": self._region_for_type("white"),
             "black": self._region_for_type("black"),
         }
+        if self._keyboard_box is not None:
+            guides["keyboard_box"] = self._keyboard_box
+        return guides
+
+    def keyboard_box(self) -> KeyboardBox | None:
+        return self._keyboard_box
+
+    def set_keyboard_box(self, left: float, top: float, right: float, bottom: float) -> None:
+        box = self._normalize_keyboard_box(left, top, right, bottom)
+        self._keyboard_box = box
+        self._persist_keyboard_box()
+        self.apply_preview()
 
     def select_local_cluster(
         self,
@@ -246,15 +333,7 @@ class ManualKeyboardFitSession:
         return local_fit.params
 
     def set_setup_keyboard_box(self, left: float, top: float, right: float, bottom: float) -> None:
-        box_left = min(float(left), float(right))
-        box_right = max(float(left), float(right))
-        box_top = min(float(top), float(bottom))
-        box_bottom = max(float(top), float(bottom))
-        if box_right <= box_left:
-            box_right = box_left + 1.0
-        if box_bottom <= box_top:
-            box_bottom = box_top + 1.0
-        self._setup_keyboard_box = KeyboardBox(box_left, box_top, box_right, box_bottom)
+        self._setup_keyboard_box = self._normalize_keyboard_box(left, top, right, bottom)
         self._setup_black_bottom = self.default_setup_black_bottom()
         self._setup_white_start = self.default_setup_white_start()
 
@@ -293,6 +372,10 @@ class ManualKeyboardFitSession:
 
     def setup_guides_for_step(self, step: str) -> Dict[str, object]:
         guides = self.setup_guides()
+        if step == "keyboard_box_edit":
+            if self._keyboard_box is not None:
+                return {"keyboard_box": self._keyboard_box}
+            return {}
         if step == "keyboard_box":
             return {
                 key: value
@@ -331,6 +414,8 @@ class ManualKeyboardFitSession:
         self._baseline = self._generate_baseline_from_setup_box(box)
         self._bounds = self._calculate_bounds(self._baseline.values())
         self._center_bounds = self._calculate_center_bounds(self._baseline.values())
+        self._keyboard_box = box
+        self._persist_keyboard_box()
         self._default_regions = {
             "black": DetectionRegion(box.top, black_bottom),
             "white": DetectionRegion(white_start, box.bottom),
@@ -439,6 +524,7 @@ class ManualKeyboardFitSession:
                     max(1.0, rect.height + override.height_delta),
                     rect.rotation_degrees,
                 )
+            rect = self._constrain_rect_to_keyboard_box(rect)
             overlay.x = rect.x
             overlay.y = rect.y
             overlay.width = rect.width
@@ -744,6 +830,104 @@ class ManualKeyboardFitSession:
             None,
         )
         return overlay is not None and overlay.note_name_in_octave in WHITE_NOTE_NAMES
+
+    def rotated_overlay_corners(self, overlay) -> Tuple[Tuple[float, float], ...]:
+        return self._rotated_corners(
+            OverlayGeometry(
+                float(overlay.x),
+                float(overlay.y),
+                float(overlay.width),
+                float(overlay.height),
+                float(getattr(overlay, "rotation_degrees", 0.0) or 0.0),
+            )
+        )
+
+    def _constrain_rect_to_keyboard_box(self, rect: OverlayGeometry) -> OverlayGeometry:
+        box = self._keyboard_box
+        if box is None:
+            return rect
+        box_width = max(1.0, box.right - box.left)
+        box_height = max(1.0, box.bottom - box.top)
+        width = max(1.0, rect.width)
+        height = max(1.0, rect.height)
+        rotation = rect.rotation_degrees
+        x_margin, y_margin = self._rotated_margins(width, height, rotation)
+        if x_margin * 2.0 > box_width or y_margin * 2.0 > box_height:
+            scale = min(
+                box_width / max(1.0, x_margin * 2.0),
+                box_height / max(1.0, y_margin * 2.0),
+            )
+            width = max(1.0, width * scale)
+            height = max(1.0, height * scale)
+            x_margin, y_margin = self._rotated_margins(width, height, rotation)
+
+        center_x = rect.x + (rect.width / 2.0)
+        center_y = rect.y + (rect.height / 2.0)
+        center_x = self._clamp(center_x, box.left + x_margin, box.right - x_margin)
+        center_y = self._clamp(center_y, box.top + y_margin, box.bottom - y_margin)
+        return OverlayGeometry(
+            center_x - (width / 2.0),
+            center_y - (height / 2.0),
+            width,
+            height,
+            rotation,
+        )
+
+    @staticmethod
+    def _rotated_margins(width: float, height: float, rotation_degrees: float) -> Tuple[float, float]:
+        radians = math.radians(rotation_degrees)
+        cos_value = abs(math.cos(radians))
+        sin_value = abs(math.sin(radians))
+        return (
+            (width * cos_value + height * sin_value) / 2.0,
+            (width * sin_value + height * cos_value) / 2.0,
+        )
+
+    @staticmethod
+    def _rotated_corners(rect: OverlayGeometry) -> Tuple[Tuple[float, float], ...]:
+        center_x = rect.x + (rect.width / 2.0)
+        center_y = rect.y + (rect.height / 2.0)
+        radians = math.radians(rect.rotation_degrees)
+        cos_value = math.cos(radians)
+        sin_value = math.sin(radians)
+        corners = (
+            (-rect.width / 2.0, -rect.height / 2.0),
+            (rect.width / 2.0, -rect.height / 2.0),
+            (rect.width / 2.0, rect.height / 2.0),
+            (-rect.width / 2.0, rect.height / 2.0),
+        )
+        return tuple(
+            (
+                center_x + (x * cos_value) - (y * sin_value),
+                center_y + (x * sin_value) + (y * cos_value),
+            )
+            for x, y in corners
+        )
+
+    def _persist_keyboard_box(self) -> None:
+        self.app_state.calibration.manual_keyboard_box = self._keyboard_box_tuple()
+
+    def _keyboard_box_tuple(self) -> Tuple[float, float, float, float] | None:
+        if self._keyboard_box is None:
+            return None
+        return (
+            self._keyboard_box.left,
+            self._keyboard_box.top,
+            self._keyboard_box.right,
+            self._keyboard_box.bottom,
+        )
+
+    @staticmethod
+    def _normalize_keyboard_box(left: float, top: float, right: float, bottom: float) -> KeyboardBox:
+        box_left = min(float(left), float(right))
+        box_right = max(float(left), float(right))
+        box_top = min(float(top), float(bottom))
+        box_bottom = max(float(top), float(bottom))
+        if box_right <= box_left:
+            box_right = box_left + 1.0
+        if box_bottom <= box_top:
+            box_bottom = box_top + 1.0
+        return KeyboardBox(box_left, box_top, box_right, box_bottom)
 
     @staticmethod
     def _params_are_neutral(params: ManualFitParams) -> bool:

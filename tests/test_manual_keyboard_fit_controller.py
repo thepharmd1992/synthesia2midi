@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 
+import numpy as np
 import pytest
 from PySide6.QtCore import QCoreApplication, QEvent, Qt
 from PySide6.QtWidgets import QApplication, QLabel, QMessageBox, QWidget
@@ -51,6 +52,7 @@ class _KeyboardCanvas:
         self.mode = "off"
         self.callbacks = {}
         self.updates = 0
+        self.current_frame_rgb = None
 
     def set_manual_fit_mode(self, mode):
         self.mode = mode
@@ -169,9 +171,65 @@ def test_manual_fit_dialog_uses_drawn_region_controls():
 
         assert expected_controls.issubset(dialog.param_spinboxes)
         assert removed_controls.isdisjoint(dialog.param_spinboxes)
+        assert dialog.edit_keyboard_box_button.text() == "Edit Keyboard Box"
         assert dialog.setup_step_label.text() == "Fine Tune Overlays"
         assert not hasattr(dialog, "set_black_region_button")
         assert not hasattr(dialog, "set_white_region_button")
+    finally:
+        if controller.active_dialog is not None:
+            controller.active_dialog.reject()
+        app.close()
+        app.deleteLater()
+        _flush_qt_deletes()
+
+
+def test_manual_fit_edit_keyboard_box_replaces_boundary_and_returns_to_fit_mode():
+    QApplication.instance() or QApplication([])
+    app = _FakeApp()
+    app.app_state.overlays = [_overlay()]
+    app.app_state.calibration.manual_keyboard_box = (0, 0, 20, 80)
+    controller = ManualKeyboardFitController(app)
+
+    try:
+        assert controller.open() is True
+        dialog = controller.active_dialog
+
+        dialog.edit_keyboard_box_button.click()
+
+        assert app.keyboard_canvas.mode == "manual_fit_keyboard_box"
+        assert dialog.setup_group.isVisible()
+
+        app.keyboard_canvas.callbacks["keyboard_box_selected_callback"](5, 10, 45, 90)
+
+        assert app.app_state.calibration.manual_keyboard_box == pytest.approx((5, 10, 45, 90))
+        assert app.keyboard_canvas.mode == "manual_fit_group"
+        assert dialog.fine_tune_widget.isVisible()
+    finally:
+        if controller.active_dialog is not None:
+            controller.active_dialog.reject()
+        app.close()
+        app.deleteLater()
+        _flush_qt_deletes()
+
+
+def test_manual_fit_apply_warns_when_keyboard_box_lower_edge_looks_like_background(monkeypatch):
+    QApplication.instance() or QApplication([])
+    app = _FakeApp()
+    app.app_state.overlays = [_overlay()]
+    app.app_state.calibration.manual_keyboard_box = (0, 0, 100, 100)
+    app.keyboard_canvas.current_frame_rgb = np.full((100, 100, 3), 220, dtype="uint8")
+    app.keyboard_canvas.current_frame_rgb[70:100, 0:5] = 0
+    warnings = []
+    monkeypatch.setattr(QMessageBox, "warning", lambda *args: warnings.append(args))
+    controller = ManualKeyboardFitController(app)
+
+    try:
+        assert controller.open() is True
+
+        controller.active_dialog.accept()
+
+        assert warnings
+        assert "keyboard box" in warnings[0][2].lower()
     finally:
         if controller.active_dialog is not None:
             controller.active_dialog.reject()

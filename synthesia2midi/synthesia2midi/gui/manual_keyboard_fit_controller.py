@@ -12,6 +12,7 @@ from synthesia2midi.workflows.manual_keyboard_fit import (
     LocalFitParams,
     ManualFitParams,
     ManualKeyboardFitSession,
+    keyboard_box_background_warnings,
 )
 
 
@@ -97,6 +98,7 @@ class ManualKeyboardFitController:
         dialog.reset_all_requested.connect(self._handle_reset_all)
         dialog.reset_position_requested.connect(self._handle_reset_position)
         dialog.reset_local_requested.connect(self._handle_reset_local)
+        dialog.edit_keyboard_box_requested.connect(self._handle_edit_keyboard_box)
         dialog.clear_selected_override_requested.connect(self._handle_clear_selected_override)
         dialog.accepted.connect(self._handle_apply)
         dialog.rejected.connect(self._handle_cancel)
@@ -191,7 +193,12 @@ class ManualKeyboardFitController:
         self._refresh_preview()
 
     def _handle_keyboard_box_selected(self, left: float, top: float, right: float, bottom: float) -> None:
-        if self._session is None or self._setup_step != "keyboard_box":
+        if self._session is None or self._setup_step not in {"keyboard_box", "keyboard_box_edit"}:
+            return
+        if self._setup_step == "keyboard_box_edit":
+            self._session.set_keyboard_box(left, top, right, bottom)
+            self._finish_setup()
+            self._refresh_preview()
             return
         self._session.set_setup_keyboard_box(left, top, right, bottom)
         self._enter_setup_step("black_bottom")
@@ -218,7 +225,9 @@ class ManualKeyboardFitController:
             self._finish_setup_from_session()
 
     def _handle_setup_back(self) -> None:
-        if self._setup_step == "black_bottom":
+        if self._setup_step == "keyboard_box_edit":
+            self._finish_setup()
+        elif self._setup_step == "black_bottom":
             self._enter_setup_step("keyboard_box")
         elif self._setup_step == "white_start":
             self._enter_setup_step("black_bottom")
@@ -275,6 +284,11 @@ class ManualKeyboardFitController:
             self._dialog.set_local_selection_count(len(self._session.active_local_key_ids()))
         self._refresh_preview()
 
+    def _handle_edit_keyboard_box(self) -> None:
+        if self._session is None:
+            return
+        self._enter_setup_step("keyboard_box_edit")
+
     def _handle_clear_selected_override(self) -> None:
         if self._session is None:
             return
@@ -283,6 +297,7 @@ class ManualKeyboardFitController:
 
     def _handle_apply(self) -> None:
         if self._session is not None:
+            self._warn_if_keyboard_box_looks_like_background()
             self._session.apply()
         self._finish()
 
@@ -344,6 +359,7 @@ class ManualKeyboardFitController:
     def _setup_instruction(self) -> str:
         instructions = {
             "keyboard_box": "Draw a box around the visible keyboard",
+            "keyboard_box_edit": "Draw replacement keyboard box",
             "black_bottom": "Drag to slightly above the bottom of black keys",
             "white_start": "Drag to a bit under the black keys",
         }
@@ -357,6 +373,7 @@ class ManualKeyboardFitController:
         self._setup_step = step
         mode_by_step = {
             "keyboard_box": "manual_fit_keyboard_box",
+            "keyboard_box_edit": "manual_fit_keyboard_box",
             "black_bottom": "manual_fit_black_bottom",
             "white_start": "manual_fit_white_start",
         }
@@ -400,6 +417,19 @@ class ManualKeyboardFitController:
             return
         if hasattr(control_panel, "update_controls_from_state"):
             control_panel.update_controls_from_state()
+
+    def _warn_if_keyboard_box_looks_like_background(self) -> None:
+        if self._session is None:
+            return
+        frame_rgb = getattr(self.app.keyboard_canvas, "current_frame_rgb", None)
+        warnings = keyboard_box_background_warnings(frame_rgb, self._session.keyboard_box())
+        if not warnings:
+            return
+        QMessageBox.warning(
+            self.app,
+            "Keyboard Box Warning",
+            "The keyboard box may extend past the visible keys.\n\n" + "\n".join(warnings),
+        )
 
     def _hide_settings_tool_window(self) -> bool:
         settings_tool_window = getattr(self.app, "settings_tool_window", None)

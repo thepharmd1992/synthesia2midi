@@ -2,11 +2,14 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
-from PySide6.QtCore import QCoreApplication, QEvent, Qt
+from PySide6.QtCore import QCoreApplication, QEvent, QPointF, Qt
+from PySide6.QtGui import QMouseEvent
 from PySide6.QtWidgets import QApplication, QLabel, QMessageBox, QWidget
 
 from synthesia2midi.app_config import OverlayConfig
 from synthesia2midi.core.app_state import AppState
+from synthesia2midi.gui.canvas.coordinates import CoordinateManager
+from synthesia2midi.gui.canvas.interaction import CanvasInteraction
 from synthesia2midi.gui.manual_keyboard_fit_controller import ManualKeyboardFitController
 
 
@@ -183,7 +186,7 @@ def test_manual_fit_dialog_uses_drawn_region_controls():
         _flush_qt_deletes()
 
 
-def test_manual_fit_edit_keyboard_box_replaces_boundary_and_returns_to_fit_mode():
+def test_manual_fit_edit_keyboard_box_drags_edges_and_still_supports_redraw():
     QApplication.instance() or QApplication([])
     app = _FakeApp()
     app.app_state.overlays = [_overlay()]
@@ -196,8 +199,14 @@ def test_manual_fit_edit_keyboard_box_replaces_boundary_and_returns_to_fit_mode(
 
         dialog.edit_keyboard_box_button.click()
 
-        assert app.keyboard_canvas.mode == "manual_fit_keyboard_box"
+        assert app.keyboard_canvas.mode == "manual_fit_keyboard_box_edges"
         assert dialog.setup_group.isVisible()
+        assert dialog.setup_step_label.text() == "Edit Keyboard Box"
+
+        app.keyboard_canvas.callbacks["keyboard_box_edge_changed_callback"]("left", 5)
+
+        assert app.app_state.calibration.manual_keyboard_box == pytest.approx((5, 0, 20, 80))
+        assert app.keyboard_canvas.mode == "manual_fit_keyboard_box_edges"
 
         app.keyboard_canvas.callbacks["keyboard_box_selected_callback"](5, 10, 45, 90)
 
@@ -209,6 +218,60 @@ def test_manual_fit_edit_keyboard_box_replaces_boundary_and_returns_to_fit_mode(
             controller.active_dialog.reject()
         app.close()
         app.deleteLater()
+        _flush_qt_deletes()
+
+
+def test_manual_fit_keyboard_box_edge_handle_drag_emits_edge_change():
+    QApplication.instance() or QApplication([])
+    widget = QWidget()
+    coord_manager = CoordinateManager()
+    coord_manager.update_image_size(100, 100)
+    coord_manager.update_canvas_size(100, 100)
+    interaction = CanvasInteraction(widget, coord_manager, AppState())
+    interaction.set_callbacks(
+        get_overlays=lambda: [],
+        get_pixel_color=lambda *_args: None,
+        get_current_frame=lambda: None,
+        get_manual_fit_keyboard_box=lambda: SimpleNamespace(left=10, top=20, right=90, bottom=80),
+    )
+    edge_changes = []
+    interaction.manual_fit_keyboard_box_edge_changed.connect(
+        lambda edge, value: edge_changes.append((edge, value))
+    )
+    interaction.set_manual_fit_mode("manual_fit_keyboard_box_edges")
+
+    try:
+        press = QMouseEvent(
+            QEvent.MouseButtonPress,
+            QPointF(10, 0),
+            Qt.LeftButton,
+            Qt.LeftButton,
+            Qt.NoModifier,
+        )
+        move = QMouseEvent(
+            QEvent.MouseMove,
+            QPointF(5, 0),
+            Qt.NoButton,
+            Qt.LeftButton,
+            Qt.NoModifier,
+        )
+        release = QMouseEvent(
+            QEvent.MouseButtonRelease,
+            QPointF(5, 0),
+            Qt.LeftButton,
+            Qt.NoButton,
+            Qt.NoModifier,
+        )
+
+        assert interaction.handle_mouse_press(press) is True
+        assert interaction.handle_mouse_move(move) is True
+        assert interaction.handle_mouse_release(release) is True
+
+        assert edge_changes[-1][0] == "left"
+        assert edge_changes[-1][1] == pytest.approx(5)
+    finally:
+        widget.close()
+        widget.deleteLater()
         _flush_qt_deletes()
 
 

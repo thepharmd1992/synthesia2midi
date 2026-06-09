@@ -264,6 +264,21 @@ class ManualKeyboardFitSession:
         self._persist_keyboard_box()
         self.apply_preview()
 
+    def set_keyboard_box_edge(self, edge: str, value: float) -> None:
+        if self._keyboard_box is None:
+            return
+        if edge not in {"left", "right"}:
+            raise ValueError(f"Unknown keyboard box edge: {edge}")
+        left = self._keyboard_box.left
+        right = self._keyboard_box.right
+        if edge == "left":
+            left = min(float(value), right - 1.0)
+        else:
+            right = max(float(value), left + 1.0)
+        self._keyboard_box = KeyboardBox(left, self._keyboard_box.top, right, self._keyboard_box.bottom)
+        self._persist_keyboard_box()
+        self.apply_preview()
+
     def select_local_cluster(
         self,
         left: float,

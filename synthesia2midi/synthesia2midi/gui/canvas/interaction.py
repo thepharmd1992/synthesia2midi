@@ -39,6 +39,7 @@ class CanvasInteraction(QObject):
     manual_fit_region_selected = Signal(str, float, float)  # region_type, top_y, bottom_y
     manual_fit_local_selection_selected = Signal(float, float, float, float)  # left, top, right, bottom
     manual_fit_keyboard_box_selected = Signal(float, float, float, float)  # left, top, right, bottom
+    manual_fit_keyboard_box_edge_changed = Signal(str, float)  # edge, image_x
     manual_fit_guide_line_changed = Signal(str, float)  # line_type, image_y
     manual_fit_guide_line_selected = Signal(str, float)  # line_type, image_y
     color_picked = Signal(int, int, int, int, int)  # r, g, b, image_x, image_y from Ctrl+click
@@ -71,6 +72,8 @@ class CanvasInteraction(QObject):
         self._manual_fit_region_start_pos = QPoint()
         self._manual_fit_region_rubber_band = None
         self._manual_fit_line_dragging = False
+        self._manual_fit_keyboard_box_edge_dragging = False
+        self._manual_fit_keyboard_box_edge = ""
         
         # Performance optimization: throttle repaint requests during drag
         self._last_repaint_request = 0
@@ -95,6 +98,7 @@ class CanvasInteraction(QObject):
         # Callbacks for accessing canvas state (to avoid tight coupling)
         self._get_overlays_callback: Optional[Callable] = None
         self._get_manual_fit_local_key_ids_callback: Optional[Callable] = None
+        self._get_manual_fit_keyboard_box_callback: Optional[Callable] = None
         self._get_pixel_color_callback: Optional[Callable] = None
         self._get_current_frame_callback: Optional[Callable] = None
         
@@ -115,12 +119,14 @@ class CanvasInteraction(QObject):
         get_pixel_color: Callable,
         get_current_frame: Callable,
         get_manual_fit_local_key_ids: Optional[Callable] = None,
+        get_manual_fit_keyboard_box: Optional[Callable] = None,
     ):
         """Set callback functions to access canvas state without tight coupling."""
         self._get_overlays_callback = get_overlays
         self._get_pixel_color_callback = get_pixel_color
         self._get_current_frame_callback = get_current_frame
         self._get_manual_fit_local_key_ids_callback = get_manual_fit_local_key_ids
+        self._get_manual_fit_keyboard_box_callback = get_manual_fit_keyboard_box
     
     def enter_spark_roi_selection_mode(self):
         """Enter spark ROI selection mode."""
@@ -170,6 +176,7 @@ class CanvasInteraction(QObject):
             "manual_fit_single",
             "manual_fit_local_select",
             "manual_fit_keyboard_box",
+            "manual_fit_keyboard_box_edges",
             "manual_fit_black_bottom",
             "manual_fit_white_start",
             "manual_fit_black_region",
@@ -181,6 +188,8 @@ class CanvasInteraction(QObject):
         self._manual_fit_local_dragging = False
         self._manual_fit_region_selecting = False
         self._manual_fit_line_dragging = False
+        self._manual_fit_keyboard_box_edge_dragging = False
+        self._manual_fit_keyboard_box_edge = ""
 
     def manual_fit_mode(self) -> str:
         return self._manual_fit_mode
@@ -217,6 +226,8 @@ class CanvasInteraction(QObject):
             return self._handle_roi_selection_press(event)
         elif self._manual_fit_mode == "manual_fit_keyboard_box":
             return self._handle_manual_fit_keyboard_box_press(event)
+        elif self._manual_fit_mode == "manual_fit_keyboard_box_edges":
+            return self._handle_manual_fit_keyboard_box_edge_press(event)
         elif self._manual_fit_mode in {"manual_fit_black_bottom", "manual_fit_white_start"}:
             return self._handle_manual_fit_line_press(event)
         elif self._manual_fit_mode in {"manual_fit_black_region", "manual_fit_white_region"}:
@@ -245,6 +256,10 @@ class CanvasInteraction(QObject):
             self._emit_manual_fit_line_y(event.x(), event.y(), completed=False)
             self._request_throttled_repaint()
             return True
+        elif self._manual_fit_keyboard_box_edge_dragging:
+            self._emit_manual_fit_keyboard_box_edge_x(event.x(), event.y())
+            self._request_throttled_repaint()
+            return True
         elif self._manual_fit_local_dragging:
             self._handle_manual_fit_local_group_motion(event)
             return True
@@ -269,7 +284,7 @@ class CanvasInteraction(QObject):
             self._handle_roi_selection_release(event)
             return True
         elif self._manual_fit_region_selecting:
-            if self._manual_fit_mode == "manual_fit_keyboard_box":
+            if self._manual_fit_mode in {"manual_fit_keyboard_box", "manual_fit_keyboard_box_edges"}:
                 self._handle_manual_fit_keyboard_box_release(event)
             elif self._manual_fit_mode == "manual_fit_local_select":
                 self._handle_manual_fit_local_selection_release(event)
@@ -278,6 +293,9 @@ class CanvasInteraction(QObject):
             return True
         elif self._manual_fit_line_dragging:
             self._handle_manual_fit_line_release(event)
+            return True
+        elif self._manual_fit_keyboard_box_edge_dragging:
+            self._handle_manual_fit_keyboard_box_edge_release(event)
             return True
         elif self._manual_fit_local_dragging:
             self._finish_manual_fit_local_group_drag()
@@ -535,6 +553,36 @@ class CanvasInteraction(QObject):
     def _handle_manual_fit_keyboard_box_press(self, event: QMouseEvent) -> bool:
         return self._start_manual_fit_rectangle_selection(event)
 
+    def _handle_manual_fit_keyboard_box_edge_press(self, event: QMouseEvent) -> bool:
+        if event.button() != Qt.LeftButton:
+            return False
+        edge = self._manual_fit_keyboard_box_edge_at_position(event.x(), event.y())
+        if edge is None:
+            return self._start_manual_fit_rectangle_selection(event)
+        self._manual_fit_keyboard_box_edge_dragging = True
+        self._manual_fit_keyboard_box_edge = edge
+        return True
+
+    def _handle_manual_fit_keyboard_box_edge_release(self, event: QMouseEvent) -> None:
+        if event.button() == Qt.LeftButton:
+            self._emit_manual_fit_keyboard_box_edge_x(event.x(), event.y())
+        self._manual_fit_keyboard_box_edge_dragging = False
+        self._manual_fit_keyboard_box_edge = ""
+        self.request_repaint.emit()
+
+    def _emit_manual_fit_keyboard_box_edge_x(self, canvas_x: float, canvas_y: float) -> None:
+        image_pos = self.coord_manager.canvas_to_image(
+            canvas_x,
+            canvas_y,
+            clamp_to_bounds=True,
+        )
+        if not image_pos or not self._manual_fit_keyboard_box_edge:
+            return
+        self.manual_fit_keyboard_box_edge_changed.emit(
+            self._manual_fit_keyboard_box_edge,
+            float(image_pos[0]),
+        )
+
     def _handle_manual_fit_local_selection_press(self, event: QMouseEvent) -> bool:
         if event.button() != Qt.LeftButton:
             return False
@@ -585,6 +633,38 @@ class CanvasInteraction(QObject):
             return
         self.manual_fit_keyboard_box_selected.emit(left, top, right, bottom)
         self.request_repaint.emit()
+
+    def _manual_fit_keyboard_box_edge_at_position(self, canvas_x: float, canvas_y: float) -> Optional[str]:
+        box = self._current_manual_fit_keyboard_box()
+        if box is None:
+            return None
+        left = float(getattr(box, "left", 0.0))
+        right = float(getattr(box, "right", left + 1.0))
+        top = float(getattr(box, "top", 0.0))
+        bottom = float(getattr(box, "bottom", top + 1.0))
+        box_height = max(1.0, bottom - top)
+        left_x, top_y = self.coord_manager.image_to_canvas(left, top)
+        right_x, bottom_y = self.coord_manager.image_to_canvas(right, bottom)
+        _unused, protrusion_top_y = self.coord_manager.image_to_canvas(left, top - (box_height * 2.0))
+        hit_top = min(protrusion_top_y, top_y, bottom_y)
+        hit_bottom = max(top_y, bottom_y)
+        if not hit_top <= canvas_y <= hit_bottom:
+            return None
+        tolerance = max(8.0, 6.0 * self.coord_manager.image_scale_factor)
+        if abs(canvas_x - left_x) <= tolerance:
+            return "left"
+        if abs(canvas_x - right_x) <= tolerance:
+            return "right"
+        return None
+
+    def _current_manual_fit_keyboard_box(self):
+        if self._get_manual_fit_keyboard_box_callback is None:
+            return None
+        try:
+            return self._get_manual_fit_keyboard_box_callback()
+        except Exception:
+            self.logger.debug("Manual Fit keyboard box callback failed", exc_info=True)
+            return None
 
     def _handle_manual_fit_local_selection_release(self, event: QMouseEvent) -> None:
         if event.button() != Qt.LeftButton:

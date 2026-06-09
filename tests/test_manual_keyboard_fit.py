@@ -225,6 +225,20 @@ def test_manual_fit_constrains_group_translation_to_keyboard_box():
     assert max(overlay.x + overlay.width for overlay in app_state.overlays) <= 40
 
 
+def test_manual_fit_keyboard_box_edge_update_preserves_opposite_edge_and_clamps():
+    app_state = _state_with_overlays()
+    app_state.calibration.manual_keyboard_box = (10, 0, 50, 80)
+    session = ManualKeyboardFitSession(app_state)
+
+    session.set_keyboard_box_edge("left", 20)
+
+    assert app_state.calibration.manual_keyboard_box == pytest.approx((20, 0, 50, 80))
+
+    session.set_keyboard_box_edge("right", 15)
+
+    assert app_state.calibration.manual_keyboard_box == pytest.approx((20, 0, 21, 80))
+
+
 def test_manual_fit_constrains_width_expansion_to_keyboard_box():
     app_state = _state_with_overlays()
     app_state.calibration.manual_keyboard_box = (0, 0, 34, 80)

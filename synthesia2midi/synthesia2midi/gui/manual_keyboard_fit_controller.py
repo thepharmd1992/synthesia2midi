@@ -77,6 +77,7 @@ class ManualKeyboardFitController:
             region_selected_callback=self._handle_region_selected,
             region_guides_callback=self._region_guides,
             keyboard_box_selected_callback=self._handle_keyboard_box_selected,
+            keyboard_box_edge_changed_callback=self._handle_keyboard_box_edge_changed,
             guide_line_changed_callback=self._handle_guide_line_changed,
             guide_line_selected_callback=self._handle_guide_line_selected,
             setup_instruction_callback=self._setup_instruction,
@@ -202,6 +203,12 @@ class ManualKeyboardFitController:
             return
         self._session.set_setup_keyboard_box(left, top, right, bottom)
         self._enter_setup_step("black_bottom")
+
+    def _handle_keyboard_box_edge_changed(self, edge: str, value: float) -> None:
+        if self._session is None or self._setup_step != "keyboard_box_edit":
+            return
+        self._session.set_keyboard_box_edge(edge, value)
+        self._refresh_preview()
 
     def _handle_guide_line_changed(self, line_type: str, y: float) -> None:
         if self._session is None:
@@ -373,7 +380,7 @@ class ManualKeyboardFitController:
         self._setup_step = step
         mode_by_step = {
             "keyboard_box": "manual_fit_keyboard_box",
-            "keyboard_box_edit": "manual_fit_keyboard_box",
+            "keyboard_box_edit": "manual_fit_keyboard_box_edges",
             "black_bottom": "manual_fit_black_bottom",
             "white_start": "manual_fit_white_start",
         }

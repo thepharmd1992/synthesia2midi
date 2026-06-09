@@ -3,6 +3,7 @@ from types import SimpleNamespace
 from PySide6.QtCore import QObject
 
 from synthesia2midi.gui.midi_touchup_controller import MidiTouchupController
+from synthesia2midi.runtime_paths import RuntimePaths
 
 
 class RecordingSignal:
@@ -153,3 +154,51 @@ def test_handle_process_finished_emits_failure_for_error_result(monkeypatch, tmp
     assert len(critical_calls) == 1
     assert "load failed" in critical_calls[0][2]
     assert failures == [(str(tmp_path / "song.mid"), "load failed")]
+
+
+def test_resolve_binary_path_uses_runtime_paths(monkeypatch, tmp_path):
+    app = _fake_app()
+    controller = MidiTouchupController(app)
+    binary_path = tmp_path / "bundle" / "bin" / "midi-touchup-editor"
+    binary_path.parent.mkdir(parents=True)
+    binary_path.write_text("", encoding="utf-8")
+    binary_path.chmod(0o755)
+
+    monkeypatch.setattr(
+        "synthesia2midi.gui.midi_touchup_controller.detect_runtime_paths",
+        lambda: RuntimePaths(
+            frozen=True,
+            app_root=tmp_path / "bundle",
+            repo_root=tmp_path / "repo",
+            home_dir=tmp_path / "home",
+            platform_name="darwin",
+        ),
+    )
+
+    assert controller.resolve_binary_path() == str(binary_path)
+
+
+def test_show_setup_dialog_uses_packaged_message_when_frozen(monkeypatch, tmp_path):
+    app = _fake_app()
+    controller = MidiTouchupController(app)
+    warnings = []
+
+    monkeypatch.setattr(
+        "synthesia2midi.gui.midi_touchup_controller.detect_runtime_paths",
+        lambda: RuntimePaths(
+            frozen=True,
+            app_root=tmp_path / "bundle",
+            repo_root=tmp_path / "repo",
+            home_dir=tmp_path / "home",
+            platform_name="darwin",
+        ),
+    )
+    monkeypatch.setattr(
+        "synthesia2midi.gui.midi_touchup_controller.QMessageBox.warning",
+        lambda *args: warnings.append(args),
+    )
+
+    controller.show_setup_dialog(str(tmp_path / "song.mid"))
+
+    assert len(warnings) == 1
+    assert "Bundled Rust touch-up editor files were not found." in warnings[0][2]

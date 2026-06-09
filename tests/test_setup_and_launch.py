@@ -123,3 +123,53 @@ def test_package_launcher_has_no_interactive_windows_pause():
     package_launcher = (ROOT / "synthesia2midi" / "run.py").read_text(encoding="utf-8")
 
     assert "input()" not in package_launcher
+
+
+def test_find_ffmpeg_prefers_runtime_bundle(monkeypatch, tmp_path):
+    from synthesia2midi.runtime_paths import RuntimePaths
+    from synthesia2midi.utils import ffmpeg_helper
+
+    ffmpeg = tmp_path / "bundle" / "bin" / "ffmpeg"
+    ffmpeg.parent.mkdir(parents=True)
+    ffmpeg.write_text("", encoding="utf-8")
+    ffmpeg.chmod(0o755)
+
+    monkeypatch.setattr(
+        ffmpeg_helper,
+        "detect_runtime_paths",
+        lambda: RuntimePaths(
+            frozen=True,
+            app_root=tmp_path / "bundle",
+            repo_root=tmp_path / "repo",
+            home_dir=tmp_path / "home",
+            platform_name="darwin",
+        ),
+    )
+    monkeypatch.setattr(ffmpeg_helper.shutil, "which", lambda name: None)
+
+    assert ffmpeg_helper.find_ffmpeg() == str(ffmpeg)
+
+
+def test_find_ffprobe_prefers_runtime_bundle(monkeypatch, tmp_path):
+    from synthesia2midi.runtime_paths import RuntimePaths
+    from synthesia2midi.utils import ffmpeg_helper
+
+    ffprobe = tmp_path / "bundle" / "bin" / "ffprobe"
+    ffprobe.parent.mkdir(parents=True)
+    ffprobe.write_text("", encoding="utf-8")
+    ffprobe.chmod(0o755)
+
+    monkeypatch.setattr(
+        ffmpeg_helper,
+        "detect_runtime_paths",
+        lambda: RuntimePaths(
+            frozen=True,
+            app_root=tmp_path / "bundle",
+            repo_root=tmp_path / "repo",
+            home_dir=tmp_path / "home",
+            platform_name="darwin",
+        ),
+    )
+    monkeypatch.setattr(ffmpeg_helper.shutil, "which", lambda name: None)
+
+    assert ffmpeg_helper.find_ffprobe() == str(ffprobe)

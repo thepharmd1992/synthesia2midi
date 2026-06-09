@@ -11,6 +11,8 @@ import logging
 from fractions import Fraction
 from typing import Optional, List, Tuple
 
+from synthesia2midi.runtime_paths import detect_runtime_paths
+
 logger = logging.getLogger(__name__)
 
 
@@ -21,6 +23,10 @@ def find_ffmpeg() -> Optional[str]:
     Returns:
         Path to ffmpeg executable, or None if not found
     """
+    runtime_path = detect_runtime_paths().ffmpeg_path()
+    if runtime_path is not None:
+        return str(runtime_path)
+
     # First, check if ffmpeg is in PATH
     ffmpeg_path = shutil.which("ffmpeg")
     if ffmpeg_path:
@@ -65,6 +71,19 @@ def find_ffmpeg() -> Optional[str]:
         if os.path.isfile(path) and os.access(path, os.X_OK):
             return path
     
+    return None
+
+
+def find_ffprobe() -> Optional[str]:
+    """Find ffprobe executable path on the system or in the app bundle."""
+    runtime_path = detect_runtime_paths().ffprobe_path()
+    if runtime_path is not None:
+        return str(runtime_path)
+
+    ffprobe_path = shutil.which("ffprobe")
+    if ffprobe_path:
+        return ffprobe_path
+
     return None
 
 
@@ -227,7 +246,7 @@ def get_video_info(video_path: str) -> Optional[dict]:
         ]
         
         # Use ffprobe if available, otherwise parse ffmpeg output
-        ffprobe_path = shutil.which("ffprobe")
+        ffprobe_path = find_ffprobe()
         if ffprobe_path:
             cmd = [ffprobe_path] + args
             result = subprocess.run(cmd, capture_output=True, text=True)

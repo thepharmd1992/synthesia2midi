@@ -9,6 +9,8 @@ from typing import Any, Dict, Optional
 from PySide6.QtCore import QObject, QProcess, Signal
 from PySide6.QtWidgets import QFileDialog, QMessageBox
 
+from synthesia2midi.runtime_paths import detect_runtime_paths
+
 
 class MidiTouchupController(QObject):
     """Owns the Rust MIDI touch-up editor process lifecycle."""
@@ -45,9 +47,9 @@ class MidiTouchupController(QObject):
             return
 
     def open_from_picker(self) -> None:
-        repo_root = self._repo_root()
-        videos_dir = os.path.join(repo_root, "videos")
-        start_dir = videos_dir if os.path.isdir(videos_dir) else os.path.expanduser("~")
+        runtime_paths = detect_runtime_paths()
+        videos_dir = runtime_paths.default_video_dir()
+        start_dir = str(videos_dir if videos_dir.exists() else runtime_paths.home_dir)
 
         midi_path, _ = QFileDialog.getOpenFileName(
             self.app,
@@ -110,28 +112,25 @@ class MidiTouchupController(QObject):
         self.editor_started.emit(midi_path, binary_path)
 
     def resolve_binary_path(self) -> Optional[str]:
-        repo_root = self._repo_root()
-        binary_name = "midi-touchup-editor.exe" if os.name == "nt" else "midi-touchup-editor"
-        primary = os.path.join(
-            repo_root, "tools", "midi_touchup_editor_rust", "target", "release", binary_name
-        )
-        alternate = os.path.join(
-            repo_root,
-            "tools",
-            "midi_touchup_editor_rust",
-            "target",
-            "release",
-            "midi_touchup_editor_rust.exe" if os.name == "nt" else "midi_touchup_editor_rust",
-        )
-
-        for candidate in (primary, alternate):
-            if os.path.isfile(candidate):
-                if os.name == "nt" or os.access(candidate, os.X_OK):
-                    return candidate
-        return None
+        binary_path = detect_runtime_paths().rust_editor_path()
+        return str(binary_path) if binary_path is not None else None
 
     def show_setup_dialog(self, midi_path: str) -> None:
-        repo_root = self._repo_root()
+        runtime_paths = detect_runtime_paths()
+        if runtime_paths.frozen:
+            QMessageBox.warning(
+                self.app,
+                "Touch-Up Editor Missing",
+                (
+                    "Bundled Rust touch-up editor files were not found.\n\n"
+                    f"MIDI requested: {midi_path}\n\n"
+                    "Re-download the app build or use the repository developer setup if you "
+                    "are running from source."
+                ),
+            )
+            return
+
+        repo_root = str(runtime_paths.repo_root)
         setup_cmd = "py setup_env.py" if os.name == "nt" else "python3 setup_env.py"
         expected_rel = os.path.join(
             "tools",
@@ -255,7 +254,3 @@ class MidiTouchupController(QObject):
 
         for process in list(self.processes):
             self.cleanup_process(process)
-
-    @staticmethod
-    def _repo_root() -> str:
-        return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))

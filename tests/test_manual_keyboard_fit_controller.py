@@ -286,6 +286,60 @@ def test_manual_fit_keyboard_box_edge_handle_drag_emits_edge_change():
         _flush_qt_deletes()
 
 
+def test_manual_fit_keyboard_box_inward_edge_arm_drags_hidden_edge_without_jump():
+    QApplication.instance() or QApplication([])
+    widget = QWidget()
+    coord_manager = CoordinateManager()
+    coord_manager.update_image_size(100, 100)
+    coord_manager.update_canvas_size(100, 100)
+    interaction = CanvasInteraction(widget, coord_manager, AppState())
+    interaction.set_callbacks(
+        get_overlays=lambda: [],
+        get_pixel_color=lambda *_args: None,
+        get_current_frame=lambda: None,
+        get_manual_fit_keyboard_box=lambda: SimpleNamespace(left=-20, top=50, right=90, bottom=70),
+    )
+    edge_changes = []
+    interaction.manual_fit_keyboard_box_edge_changed.connect(
+        lambda edge, value: edge_changes.append((edge, value))
+    )
+    interaction.set_manual_fit_mode("manual_fit_keyboard_box_edges")
+
+    try:
+        press = QMouseEvent(
+            QEvent.MouseButtonPress,
+            QPointF(5, 10),
+            Qt.LeftButton,
+            Qt.LeftButton,
+            Qt.NoModifier,
+        )
+        move = QMouseEvent(
+            QEvent.MouseMove,
+            QPointF(15, 10),
+            Qt.NoButton,
+            Qt.LeftButton,
+            Qt.NoModifier,
+        )
+        release = QMouseEvent(
+            QEvent.MouseButtonRelease,
+            QPointF(15, 10),
+            Qt.LeftButton,
+            Qt.NoButton,
+            Qt.NoModifier,
+        )
+
+        assert interaction.handle_mouse_press(press) is True
+        assert interaction.handle_mouse_move(move) is True
+        assert interaction.handle_mouse_release(release) is True
+
+        assert edge_changes[-1][0] == "left"
+        assert edge_changes[-1][1] == pytest.approx(-10)
+    finally:
+        widget.close()
+        widget.deleteLater()
+        _flush_qt_deletes()
+
+
 def test_manual_fit_apply_warns_when_keyboard_box_lower_edge_looks_like_background(monkeypatch):
     QApplication.instance() or QApplication([])
     app = _FakeApp()

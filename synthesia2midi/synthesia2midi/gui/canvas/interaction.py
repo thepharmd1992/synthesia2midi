@@ -74,6 +74,7 @@ class CanvasInteraction(QObject):
         self._manual_fit_line_dragging = False
         self._manual_fit_keyboard_box_edge_dragging = False
         self._manual_fit_keyboard_box_edge = ""
+        self._manual_fit_keyboard_box_edge_image_offset = 0.0
         
         # Performance optimization: throttle repaint requests during drag
         self._last_repaint_request = 0
@@ -190,6 +191,7 @@ class CanvasInteraction(QObject):
         self._manual_fit_line_dragging = False
         self._manual_fit_keyboard_box_edge_dragging = False
         self._manual_fit_keyboard_box_edge = ""
+        self._manual_fit_keyboard_box_edge_image_offset = 0.0
 
     def manual_fit_mode(self) -> str:
         return self._manual_fit_mode
@@ -561,6 +563,11 @@ class CanvasInteraction(QObject):
             return self._start_manual_fit_rectangle_selection(event)
         self._manual_fit_keyboard_box_edge_dragging = True
         self._manual_fit_keyboard_box_edge = edge
+        self._manual_fit_keyboard_box_edge_image_offset = self._manual_fit_keyboard_box_edge_press_offset(
+            edge,
+            event.x(),
+            event.y(),
+        )
         return True
 
     def _handle_manual_fit_keyboard_box_edge_release(self, event: QMouseEvent) -> None:
@@ -568,6 +575,7 @@ class CanvasInteraction(QObject):
             self._emit_manual_fit_keyboard_box_edge_x(event.x(), event.y())
         self._manual_fit_keyboard_box_edge_dragging = False
         self._manual_fit_keyboard_box_edge = ""
+        self._manual_fit_keyboard_box_edge_image_offset = 0.0
         self.request_repaint.emit()
 
     def _emit_manual_fit_keyboard_box_edge_x(self, canvas_x: float, canvas_y: float) -> None:
@@ -580,7 +588,7 @@ class CanvasInteraction(QObject):
             return
         self.manual_fit_keyboard_box_edge_changed.emit(
             self._manual_fit_keyboard_box_edge,
-            float(image_pos[0]),
+            float(image_pos[0]) - self._manual_fit_keyboard_box_edge_image_offset,
         )
 
     def _handle_manual_fit_local_selection_press(self, event: QMouseEvent) -> bool:
@@ -643,19 +651,68 @@ class CanvasInteraction(QObject):
         top = float(getattr(box, "top", 0.0))
         bottom = float(getattr(box, "bottom", top + 1.0))
         box_height = max(1.0, bottom - top)
-        left_x, top_y = self.coord_manager.image_to_canvas(left, top)
+        left_x, _top_y = self.coord_manager.image_to_canvas(left, top)
         right_x, bottom_y = self.coord_manager.image_to_canvas(right, bottom)
         _unused, protrusion_top_y = self.coord_manager.image_to_canvas(left, top - (box_height * 2.0))
-        hit_top = min(protrusion_top_y, top_y, bottom_y)
-        hit_bottom = max(top_y, bottom_y)
-        if not hit_top <= canvas_y <= hit_bottom:
-            return None
         tolerance = max(8.0, 6.0 * self.coord_manager.image_scale_factor)
-        if abs(canvas_x - left_x) <= tolerance:
+        if self._is_point_on_manual_fit_keyboard_box_edge_handle(
+            canvas_x,
+            canvas_y,
+            edge_x=left_x,
+            handle_top_y=protrusion_top_y,
+            handle_bottom_y=bottom_y,
+            inward_direction=1.0,
+            tolerance=tolerance,
+        ):
             return "left"
-        if abs(canvas_x - right_x) <= tolerance:
+        if self._is_point_on_manual_fit_keyboard_box_edge_handle(
+            canvas_x,
+            canvas_y,
+            edge_x=right_x,
+            handle_top_y=protrusion_top_y,
+            handle_bottom_y=bottom_y,
+            inward_direction=-1.0,
+            tolerance=tolerance,
+        ):
             return "right"
         return None
+
+    def _is_point_on_manual_fit_keyboard_box_edge_handle(
+        self,
+        canvas_x: float,
+        canvas_y: float,
+        *,
+        edge_x: float,
+        handle_top_y: float,
+        handle_bottom_y: float,
+        inward_direction: float,
+        tolerance: float,
+    ) -> bool:
+        hit_top = min(handle_top_y, handle_bottom_y)
+        hit_bottom = max(handle_top_y, handle_bottom_y)
+        if hit_top <= canvas_y <= hit_bottom and abs(canvas_x - edge_x) <= tolerance:
+            return True
+
+        arm_length = abs(handle_bottom_y - handle_top_y) * 0.5
+        arm_end_x = edge_x + (arm_length * inward_direction)
+        arm_left = min(edge_x, arm_end_x) - tolerance
+        arm_right = max(edge_x, arm_end_x) + tolerance
+        return arm_left <= canvas_x <= arm_right and abs(canvas_y - handle_top_y) <= tolerance
+
+    def _manual_fit_keyboard_box_edge_press_offset(self, edge: str, canvas_x: float, canvas_y: float) -> float:
+        box = self._current_manual_fit_keyboard_box()
+        image_pos = self.coord_manager.canvas_to_image(
+            canvas_x,
+            canvas_y,
+            clamp_to_bounds=True,
+        )
+        if box is None or image_pos is None:
+            return 0.0
+        if edge == "left":
+            edge_x = float(getattr(box, "left", 0.0))
+        else:
+            edge_x = float(getattr(box, "right", 0.0))
+        return float(image_pos[0]) - edge_x
 
     def _current_manual_fit_keyboard_box(self):
         if self._get_manual_fit_keyboard_box_callback is None:

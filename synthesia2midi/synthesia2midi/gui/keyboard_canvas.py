@@ -1276,6 +1276,24 @@ class KeyboardCanvas(QWidget):
                         painter.setPen(QPen(QColor("#00ff66"), 5, Qt.SolidLine))
                         painter.drawLine(int(left_x_c), int(handle_top_c), int(left_x_c), int(bottom_c))
                         painter.drawLine(int(right_x_c), int(handle_top_c), int(right_x_c), int(bottom_c))
+                        arm_length = abs(float(bottom_c) - float(handle_top_c)) * 0.5
+                        cap_half_height = 12
+                        left_arm_end_x = left_x_c + arm_length
+                        right_arm_end_x = right_x_c - arm_length
+                        painter.drawLine(int(left_x_c), int(handle_top_c), int(left_arm_end_x), int(handle_top_c))
+                        painter.drawLine(int(right_x_c), int(handle_top_c), int(right_arm_end_x), int(handle_top_c))
+                        painter.drawLine(
+                            int(left_arm_end_x),
+                            int(handle_top_c - cap_half_height),
+                            int(left_arm_end_x),
+                            int(handle_top_c + cap_half_height),
+                        )
+                        painter.drawLine(
+                            int(right_arm_end_x),
+                            int(handle_top_c - cap_half_height),
+                            int(right_arm_end_x),
+                            int(handle_top_c + cap_half_height),
+                        )
             else:
                 overlay_left = min(float(overlay.x) for overlay in self.app_state.overlays)
                 overlay_right = max(float(overlay.x + overlay.width) for overlay in self.app_state.overlays)

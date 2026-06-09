@@ -62,3 +62,11 @@ def test_urlopen_with_headers_sets_user_agent(monkeypatch):
 
     assert seen["url"] == "https://example.com/test"
     assert seen["user_agent"] == "Mozilla/5.0"
+
+
+def test_deno_release_url_normalizes_leading_v():
+    module = _load_module("build_release_version_under_test", ROOT / "packaging" / "build_release.py")
+
+    url = module.deno_release_url(version="v9.9.9", target_tuple="x86_64-pc-windows-msvc")
+
+    assert url == "https://dl.deno.land/release/v9.9.9/deno-x86_64-pc-windows-msvc.zip"

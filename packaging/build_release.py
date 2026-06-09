@@ -165,7 +165,8 @@ def latest_deno_version() -> str:
 
 
 def deno_release_url(*, version: str, target_tuple: str) -> str:
-    return f"https://dl.deno.land/release/v{version}/deno-{target_tuple}.zip"
+    normalized = version.removeprefix("v")
+    return f"https://dl.deno.land/release/v{normalized}/deno-{target_tuple}.zip"
 
 
 def download_to_file(url: str, destination: Path) -> Path:

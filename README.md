@@ -16,6 +16,13 @@ Acknowledgments: see [ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md).
 - Run detection 
 - Convert detected key states into note on/off events and write a `.mid`.
 
+## Download
+
+End users should use GitHub Releases, not the repo setup flow.
+
+- macOS Apple Silicon: download the `Synthesia2MIDI-macos-arm64-<tag>.zip` asset, unzip it, then open the app. If Gatekeeper blocks launch, open System Settings > Privacy & Security and use `Open Anyway`.
+- Windows x64: download the `Synthesia2MIDI-windows-x64-<tag>.zip` asset, unzip it, then launch `Synthesia2MIDI.exe`. If SmartScreen warns, click `More info` and `Run anyway`.
+
 ## Quick Start
 
 ### Requirements
@@ -57,6 +64,16 @@ python3 run.py
 ```
 
 On Windows, use `py run.py`.
+
+### Packaged Release Build
+
+Portable end-user bundles are built from version tags:
+
+```bash
+.venv/bin/python packaging/build_release.py --version v0.1.0
+```
+
+The build script bundles FFmpeg/ffprobe from `PATH`, bundles the Rust touch-up editor and soundfont assets, installs Deno if needed, creates a zip under `dist/release/`, and smoke-launches the packaged app offscreen.
 
 ### Touch-Up Editor (Rust binary)
 

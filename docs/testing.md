@@ -57,6 +57,15 @@ git diff --check
 
 `run.py` should remain the only launcher. It re-execs through `.venv` automatically and fails clearly if setup or FFmpeg is missing.
 
+## Packaged Release Gate
+
+```bash
+.venv/bin/python -m pytest tests/test_version.py tests/test_packaged_entrypoint.py tests/test_youtube_downloader.py tests/test_youtube_download_dialog.py
+.venv/bin/python packaging/build_release.py --version v0.1.0
+```
+
+Expected result: a zipped portable bundle appears under `dist/release/`, and the build script smoke-launches the packaged app with `QT_QPA_PLATFORM=offscreen`.
+
 ## Import Smoke
 
 `tests/test_import_smoke.py` imports the core app modules plus the manual auto-detector stage modules. Run the default pytest gate after adding detector modules so new files are covered by import smoke.

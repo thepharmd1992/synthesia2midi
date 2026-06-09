@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+env:
+  PYTHONPATH: synthesia2midi
+  QT_QPA_PLATFORM: offscreen
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create GitHub release if missing
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
+          gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes --title "$GITHUB_REF_NAME"
+
+  build-and-upload:
+    needs: create-release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+          - os: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install FFmpeg
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            choco install ffmpeg -y --no-progress
+          else
+            brew install ffmpeg
+          fi
+
+      - name: Setup repo environment
+        shell: bash
+        run: python setup_env.py --dev
+
+      - name: Build packaged release
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            .venv/Scripts/python.exe packaging/build_release.py --version "$GITHUB_REF_NAME"
+          else
+            .venv/bin/python packaging/build_release.py --version "$GITHUB_REF_NAME"
+          fi
+
+      - name: Upload packaged archive to release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
+        run: gh release upload "$GITHUB_REF_NAME" dist/release/*.zip --clobber

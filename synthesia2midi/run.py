@@ -10,6 +10,9 @@ import sys
 import logging
 import traceback
 
+from synthesia2midi.runtime_paths import detect_runtime_paths
+from synthesia2midi.version import APP_VERSION, RELEASE_APP_NAME
+
 # Ensure the local package is importable (run.py lives next to the package directory)
 current_dir = os.path.dirname(os.path.abspath(__file__))
 if current_dir not in sys.path:
@@ -18,10 +21,13 @@ if current_dir not in sys.path:
 # Centralized logging (single folder + single file per run)
 from synthesia2midi.core.logging_config import LoggingConfig
 
+runtime_paths = detect_runtime_paths()
+
 log_file = LoggingConfig.setup_logging(
     log_to_file=True,
-    log_to_console=True,
+    log_to_console=not runtime_paths.frozen,
     log_level=logging.INFO,
+    log_dir=str(runtime_paths.log_dir()),
 )
 
 logger = logging.getLogger(__name__)
@@ -35,6 +41,13 @@ logger.info("Script path: %s", os.path.abspath(__file__))
 logger.info("Log file: %s", log_file)
 
 def _missing_dep_instructions(missing_module: str) -> str:
+    if runtime_paths.frozen:
+        return (
+            f"Missing required dependency inside this app build: {missing_module}\n\n"
+            "This packaged app is incomplete or corrupted. Re-download the release asset "
+            "or use the developer setup flow from the repository."
+        )
+
     setup_hint = (
         "Setup instructions:\n"
         "- macOS/Linux: from the repo root, run: python3 setup_env.py, then python3 run.py\n"
@@ -76,6 +89,8 @@ try:
     logger.info("Qt modules imported successfully")
     
     # Log Qt version info
+    QCoreApplication.setApplicationName(RELEASE_APP_NAME)
+    QCoreApplication.setApplicationVersion(APP_VERSION)
     logger.info(f"Qt version: {QCoreApplication.applicationVersion()}")
     
     logger.info("Importing Video2MidiApp...")

@@ -18,6 +18,7 @@ from synthesia2midi.detection.factory import DetectionFactory
 from synthesia2midi.detection.roi_utils import get_hist_feature
 from synthesia2midi.gui.controls_qt import KEY_TYPES
 from synthesia2midi.config_manager import ConfigManager
+from synthesia2midi.runtime_paths import detect_runtime_paths
 from synthesia2midi.app_config import (
     OverlayConfig, 
     DEFAULT_WHITE_KEY_STYLE, 
@@ -294,12 +295,12 @@ class CalibrationWorkflow:
 
     def apply_template_styles_to_overlays(self):
         """Apply template styles from my_immortal.ini or defaults to current overlays."""
-        template_ini_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "my_immortal.ini")
+        template_ini_path = detect_runtime_paths().package_root / "my_immortal.ini"
         template_overlays = None
-        if os.path.exists(template_ini_path):
+        if template_ini_path.exists():
             logging.info(f"Attempting to apply style from template: {template_ini_path}")
             config_manager = ConfigManager(self.app_state)
-            template_overlays = config_manager.parse_overlays_from_file(template_ini_path)
+            template_overlays = config_manager.parse_overlays_from_file(str(template_ini_path))
         
         if template_overlays:
             self.apply_template_style(self.app_state.overlays, template_overlays)

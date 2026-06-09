@@ -1,6 +1,10 @@
 """Visualization output for the manual piano keyboard detector."""
 
+import os
+
 import cv2
+
+from synthesia2midi.runtime_paths import detect_runtime_paths
 
 
 class DetectorVisualizationMixin:
@@ -59,8 +63,8 @@ class DetectorVisualizationMixin:
                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
 
         # Save final result
-        import os
-        output_dir = os.path.dirname(os.path.abspath(__file__))
+        output_dir = str(detect_runtime_paths().debug_dir())
+        os.makedirs(output_dir, exist_ok=True)
         output_path = os.path.join(output_dir, 'final_detection_result.jpg')
         cv2.imwrite(output_path, final_image)
         self.logger.debug(f"Final detection saved to: {output_path}")

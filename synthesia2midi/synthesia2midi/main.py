@@ -52,6 +52,7 @@ from synthesia2midi.gui.ui_update_interface import UIUpdateInterface
 from synthesia2midi.gui.video_session_ui_controller import VideoSessionUiController
 from synthesia2midi.gui.video_controls import VideoControls
 from synthesia2midi.gui.window_manager import WindowManager
+from synthesia2midi.runtime_paths import detect_runtime_paths
 from synthesia2midi.video_loader import VideoSession
 from synthesia2midi.workflows.detection_manager import DetectionManager
 from synthesia2midi.workflows.overlay_manager import OverlayManager
@@ -497,7 +498,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         """Capture a screenshot of the current window and save with timestamp."""
         try:
             # Create screenshots directory if it doesn't exist
-            screenshot_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "screenshots")
+            screenshot_dir = str(detect_runtime_paths().debug_dir())
             os.makedirs(screenshot_dir, exist_ok=True)
 
             # Generate timestamp filename

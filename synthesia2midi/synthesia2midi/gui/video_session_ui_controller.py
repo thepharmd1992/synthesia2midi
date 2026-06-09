@@ -7,6 +7,7 @@ import os
 from PySide6.QtWidgets import QAbstractItemView, QDialog, QFileDialog, QListView, QTreeView
 
 from synthesia2midi.gui.youtube_download_dialog import YouTubeDownloadDialog
+from synthesia2midi.runtime_paths import detect_runtime_paths
 
 
 class VideoSessionUiController:
@@ -18,7 +19,7 @@ class VideoSessionUiController:
     def show_youtube_download_dialog(self) -> None:
         app = self.app
         logging.info("_show_youtube_download_dialog: Showing YouTube download dialog.")
-        videos_dir = os.path.join(self._project_root(), "videos")
+        videos_dir = str(detect_runtime_paths().default_video_dir())
         dialog = YouTubeDownloadDialog(app, default_output_dir=videos_dir)
         dialog.video_downloaded.connect(self.handle_youtube_video_downloaded)
 
@@ -33,7 +34,7 @@ class VideoSessionUiController:
         dialog.setFileMode(QFileDialog.AnyFile)
         dialog.setOption(QFileDialog.DontUseNativeDialog, True)
         dialog.setNameFilter("Video Files (*.mp4 *.avi *.mov *.mkv *.webm);;Image Sequence Directories (*)")
-        dialog.setDirectory(self._project_root())
+        dialog.setDirectory(str(detect_runtime_paths().default_video_dir()))
 
         for view_type in (QListView, QTreeView):
             file_view = dialog.findChild(view_type)
@@ -218,6 +219,3 @@ class VideoSessionUiController:
             if hasattr(app.control_panel, "processing_start_frame_spin"):
                 app.control_panel.processing_start_frame_spin.setValue(video.processing_start_frame)
                 app.control_panel.processing_end_frame_spin.setValue(video.processing_end_frame)
-
-    def _project_root(self) -> str:
-        return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

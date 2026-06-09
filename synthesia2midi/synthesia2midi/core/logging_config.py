@@ -11,10 +11,16 @@ import sys
 from pathlib import Path
 from typing import Optional, Dict, Any
 
+from synthesia2midi.runtime_paths import detect_runtime_paths
+
 def _default_log_dir() -> str:
     override = os.getenv("SYNTHESIA2MIDI_LOG_DIR") or os.getenv("S2M_LOG_DIR")
     if override:
         return override
+
+    runtime_paths = detect_runtime_paths()
+    if runtime_paths.frozen:
+        return str(runtime_paths.log_dir())
 
     # Prefer a project-local logs directory when running from a checkout/zip.
     here = Path(__file__).resolve()
@@ -22,13 +28,7 @@ def _default_log_dir() -> str:
         if (parent / ".git").exists() or (parent / "videos").exists():
             return str(parent / "logs")
 
-    # Fallback to a per-user directory if we can't locate a project root.
-    if sys.platform == "win32":
-        base = Path(os.getenv("LOCALAPPDATA") or (Path.home() / "AppData" / "Local")) / "synthesia2midi"
-        return str(base / "logs")
-    if sys.platform == "darwin":
-        return str(Path.home() / "Library" / "Logs" / "synthesia2midi")
-    return str(Path.home() / ".synthesia2midi" / "logs")
+    return str(runtime_paths.log_dir())
 
 
 class LoggingConfig:

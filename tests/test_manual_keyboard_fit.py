@@ -239,6 +239,34 @@ def test_manual_fit_keyboard_box_edge_update_preserves_opposite_edge_and_clamps(
     assert app_state.calibration.manual_keyboard_box == pytest.approx((20, 0, 21, 80))
 
 
+def test_manual_fit_cancel_restores_previous_keyboard_box():
+    app_state = _state_with_overlays()
+    app_state.calibration.manual_keyboard_box = (10, 0, 50, 80)
+    app_state.unsaved_changes = False
+    session = ManualKeyboardFitSession(app_state)
+
+    session.set_keyboard_box_edge("left", 25)
+    session.cancel()
+
+    assert app_state.calibration.manual_keyboard_box == pytest.approx((10, 0, 50, 80))
+    assert app_state.unsaved_changes is False
+
+
+def test_manual_fit_reset_all_restores_current_baseline_keyboard_box():
+    app_state = _state_with_overlays()
+    session = ManualKeyboardFitSession(app_state)
+
+    session.set_setup_keyboard_box(10, 100, 70, 200)
+    session.set_setup_black_bottom(140)
+    session.set_setup_white_start(152)
+    session.finalize_setup_geometry()
+    session.set_keyboard_box_edge("left", 25)
+
+    session.reset_all()
+
+    assert app_state.calibration.manual_keyboard_box == pytest.approx((10, 100, 70, 200))
+
+
 def test_manual_fit_constrains_width_expansion_to_keyboard_box():
     app_state = _state_with_overlays()
     app_state.calibration.manual_keyboard_box = (0, 0, 34, 80)

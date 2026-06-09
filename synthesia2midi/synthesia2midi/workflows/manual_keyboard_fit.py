@@ -191,6 +191,8 @@ class ManualKeyboardFitSession:
         self._keyboard_box: KeyboardBox | None = _coerce_keyboard_box(
             getattr(app_state.calibration, "manual_keyboard_box", None)
         )
+        self._cancel_keyboard_box = self._keyboard_box
+        self._reset_keyboard_box = self._keyboard_box
         self._setup_keyboard_box: KeyboardBox | None = None
         self._setup_black_bottom: float | None = None
         self._setup_white_start: float | None = None
@@ -431,6 +433,7 @@ class ManualKeyboardFitSession:
         self._center_bounds = self._calculate_center_bounds(self._baseline.values())
         self._keyboard_box = box
         self._persist_keyboard_box()
+        self._reset_keyboard_box = box
         self._default_regions = {
             "black": DetectionRegion(box.top, black_bottom),
             "white": DetectionRegion(white_start, box.bottom),
@@ -512,10 +515,14 @@ class ManualKeyboardFitSession:
         self._active_local_fit_index = None
         self._custom_regions.clear()
         self.app_state.midi.octave_transpose = self._previous_octave_transpose
+        self._keyboard_box = self._reset_keyboard_box
+        self._persist_keyboard_box()
         self.apply_preview()
 
     def cancel(self) -> None:
         self._restore_baseline()
+        self._keyboard_box = self._cancel_keyboard_box
+        self._persist_keyboard_box()
         self.app_state.midi.octave_transpose = self._previous_octave_transpose
         self.app_state.unsaved_changes = self._previous_unsaved_changes
 

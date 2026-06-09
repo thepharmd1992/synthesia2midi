@@ -370,7 +370,7 @@ class ManualKeyboardFitController:
     def _setup_instruction(self) -> str:
         instructions = {
             "keyboard_box": "Draw a box around the visible keyboard",
-            "keyboard_box_edit": "Draw replacement keyboard box",
+            "keyboard_box_edit": "Adjust the green boundary bars",
             "black_bottom": "Drag to slightly above the bottom of black keys",
             "white_start": "Drag to a bit under the black keys",
         }

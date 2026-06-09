@@ -203,6 +203,7 @@ def test_manual_fit_edit_keyboard_box_drags_edges_and_still_supports_redraw():
         assert dialog.setup_group.isVisible()
         assert dialog.setup_step_label.text() == "Edit Keyboard Box"
         assert "green boundary bars" in dialog.setup_instruction_label.text()
+        assert "green boundary bars" in app.keyboard_canvas.callbacks["setup_instruction_callback"]()
         assert not dialog.setup_use_suggested_button.isVisible()
 
         app.keyboard_canvas.callbacks["keyboard_box_edge_changed_callback"]("left", 5)

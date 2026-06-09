@@ -1,4 +1,5 @@
 import importlib.util
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -123,6 +124,36 @@ def test_package_launcher_has_no_interactive_windows_pause():
     package_launcher = (ROOT / "synthesia2midi" / "run.py").read_text(encoding="utf-8")
 
     assert "input()" not in package_launcher
+
+
+def test_package_launcher_imports_from_repo_root_pythonpath(tmp_path):
+    script = """
+import importlib.util
+from pathlib import Path
+
+path = Path("synthesia2midi/run.py").resolve()
+spec = importlib.util.spec_from_file_location("package_launcher_under_test", path)
+module = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(module)
+"""
+
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(ROOT)
+    env["QT_QPA_PLATFORM"] = "offscreen"
+    env["SYNTHESIA2MIDI_LOG_DIR"] = str(tmp_path / "logs")
+
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=ROOT,
+        env=env,
+        text=True,
+        capture_output=True,
+        timeout=30,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 def test_find_ffmpeg_prefers_runtime_bundle(monkeypatch, tmp_path):

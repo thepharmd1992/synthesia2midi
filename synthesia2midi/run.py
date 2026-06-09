@@ -10,13 +10,13 @@ import sys
 import logging
 import traceback
 
-from synthesia2midi.runtime_paths import detect_runtime_paths
-from synthesia2midi.version import APP_VERSION, RELEASE_APP_NAME
-
-# Ensure the local package is importable (run.py lives next to the package directory)
+# Ensure the real package root is importable before package-local imports.
 current_dir = os.path.dirname(os.path.abspath(__file__))
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
+
+from synthesia2midi.runtime_paths import detect_runtime_paths
+from synthesia2midi.version import APP_VERSION, RELEASE_APP_NAME
 
 # Centralized logging (single folder + single file per run)
 from synthesia2midi.core.logging_config import LoggingConfig

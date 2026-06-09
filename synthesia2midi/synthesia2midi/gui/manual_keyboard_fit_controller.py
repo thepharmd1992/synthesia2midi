@@ -208,6 +208,8 @@ class ManualKeyboardFitController:
         if self._session is None or self._setup_step != "keyboard_box_edit":
             return
         self._session.set_keyboard_box_edge(edge, value)
+        if self._dialog is not None and hasattr(self._dialog, "set_keyboard_box_edit_confirm_visible"):
+            self._dialog.set_keyboard_box_edit_confirm_visible(True)
         self._refresh_preview()
 
     def _handle_guide_line_changed(self, line_type: str, y: float) -> None:
@@ -242,7 +244,9 @@ class ManualKeyboardFitController:
     def _handle_setup_use_suggested(self) -> None:
         if self._session is None:
             return
-        if self._setup_step == "black_bottom":
+        if self._setup_step == "keyboard_box_edit":
+            self._finish_setup()
+        elif self._setup_step == "black_bottom":
             self._enter_setup_step("white_start")
         elif self._setup_step == "white_start":
             self._finish_setup_from_session()

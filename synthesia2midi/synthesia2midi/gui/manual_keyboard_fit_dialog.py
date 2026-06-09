@@ -321,7 +321,7 @@ class ManualKeyboardFitDialog(QDialog):
             ),
             "keyboard_box_edit": (
                 "Edit Keyboard Box",
-                "Draw a replacement box around the visible keyboard area.",
+                "Adjust the green boundary bars, or draw a replacement box around the visible keyboard area.",
             ),
             "black_bottom": (
                 "Step 2 of 3: Set Black Key Bottom",
@@ -340,6 +340,9 @@ class ManualKeyboardFitDialog(QDialog):
         show_step_controls = step_name in {"black_bottom", "white_start"}
         if step_name == "keyboard_box_edit":
             show_step_controls = True
+            self.setup_use_suggested_button.setText("OK")
+        else:
+            self.setup_use_suggested_button.setText("Use Suggested")
         self.setup_back_button.setVisible(show_step_controls)
         self.setup_use_suggested_button.setVisible(show_step_controls and step_name != "keyboard_box_edit")
         self.adjustSize()
@@ -349,8 +352,14 @@ class ManualKeyboardFitDialog(QDialog):
         self.fine_tune_widget.show()
         self.setup_step_label.setText("Fine Tune Overlays")
         self.setup_instruction_label.setText("")
+        self.setup_use_suggested_button.setText("Use Suggested")
         self._sync_mode_control_visibility()
         self.resize(760, 560)
+
+    def set_keyboard_box_edit_confirm_visible(self, visible: bool) -> None:
+        self.setup_use_suggested_button.setText("OK")
+        self.setup_use_suggested_button.setVisible(visible)
+        self.adjustSize()
 
     def _set_control_value(self, name: str, value: int) -> None:
         slider = self.param_sliders[name]

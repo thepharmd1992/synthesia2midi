@@ -202,11 +202,22 @@ def test_manual_fit_edit_keyboard_box_drags_edges_and_still_supports_redraw():
         assert app.keyboard_canvas.mode == "manual_fit_keyboard_box_edges"
         assert dialog.setup_group.isVisible()
         assert dialog.setup_step_label.text() == "Edit Keyboard Box"
+        assert "green boundary bars" in dialog.setup_instruction_label.text()
+        assert not dialog.setup_use_suggested_button.isVisible()
 
         app.keyboard_canvas.callbacks["keyboard_box_edge_changed_callback"]("left", 5)
 
         assert app.app_state.calibration.manual_keyboard_box == pytest.approx((5, 0, 20, 80))
         assert app.keyboard_canvas.mode == "manual_fit_keyboard_box_edges"
+        assert dialog.setup_use_suggested_button.isVisible()
+        assert dialog.setup_use_suggested_button.text() == "OK"
+
+        dialog.setup_use_suggested_button.click()
+
+        assert app.keyboard_canvas.mode == "manual_fit_group"
+        assert dialog.fine_tune_widget.isVisible()
+
+        dialog.edit_keyboard_box_button.click()
 
         app.keyboard_canvas.callbacks["keyboard_box_selected_callback"](5, 10, 45, 90)
 

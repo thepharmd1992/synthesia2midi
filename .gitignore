@@ -59,6 +59,9 @@ HANDOFF_DELETE_AFTER_READING.md
 # Logs
 *.log
 logs/
+build/
+dist/
+.release-tools/
 
 # Video files
 *.mp4

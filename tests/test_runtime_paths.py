@@ -21,6 +21,32 @@ def test_ffmpeg_path_prefers_bundled_binary_in_frozen_mode(tmp_path):
     assert paths.ffmpeg_path() == ffmpeg
 
 
+def test_frozen_macos_bundle_finds_frameworks_and_resources_assets(tmp_path):
+    app_root = tmp_path / "Synthesia2MIDI.app" / "Contents" / "MacOS"
+    frameworks_root = tmp_path / "Synthesia2MIDI.app" / "Contents" / "Frameworks"
+    resources_root = tmp_path / "Synthesia2MIDI.app" / "Contents" / "Resources"
+    ffprobe = resources_root / "bin" / "ffprobe"
+    soundfont = frameworks_root / "assets" / "soundfonts" / "TouchUpPiano.sf2"
+
+    ffprobe.parent.mkdir(parents=True)
+    ffprobe.write_text("", encoding="utf-8")
+    ffprobe.chmod(0o755)
+
+    soundfont.parent.mkdir(parents=True)
+    soundfont.write_text("", encoding="utf-8")
+
+    paths = RuntimePaths(
+        frozen=True,
+        app_root=app_root,
+        repo_root=frameworks_root,
+        home_dir=tmp_path / "home",
+        platform_name="darwin",
+    )
+
+    assert paths.ffprobe_path() == ffprobe
+    assert paths.rust_soundfont_path() == soundfont
+
+
 def test_rust_editor_path_uses_repo_release_binary_in_source_mode(tmp_path):
     repo_root = tmp_path / "repo"
     rust_binary = (

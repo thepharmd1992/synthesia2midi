@@ -44,39 +44,39 @@ class RuntimePaths:
     def ffmpeg_path(self) -> Path | None:
         return self._find_binary(
             "ffmpeg",
-            self.app_root / "bin" / self.binary_name("ffmpeg"),
+            *self._bundle_binary_candidates("ffmpeg"),
             self.repo_root / "ffmpeg" / self.binary_name("ffmpeg"),
         )
 
     def ffprobe_path(self) -> Path | None:
         return self._find_binary(
             "ffprobe",
-            self.app_root / "bin" / self.binary_name("ffprobe"),
+            *self._bundle_binary_candidates("ffprobe"),
             self.repo_root / "ffmpeg" / self.binary_name("ffprobe"),
         )
 
     def deno_path(self) -> Path | None:
         return self._find_binary(
             "deno",
-            self.app_root / "bin" / self.binary_name("deno"),
+            *self._bundle_binary_candidates("deno"),
         )
 
     def rust_editor_path(self) -> Path | None:
         return self._first_executable(
-            self.app_root / "bin" / self.binary_name("midi-touchup-editor"),
+            *self._bundle_binary_candidates("midi-touchup-editor"),
             self.repo_root / "tools" / "midi_touchup_editor_rust" / "target" / "release" / self.binary_name("midi-touchup-editor"),
             self.repo_root / "tools" / "midi_touchup_editor_rust" / "target" / "release" / self.binary_name("midi_touchup_editor_rust"),
         )
 
     def rust_soundfont_path(self) -> Path | None:
         return self._first_file(
-            self.app_root / "assets" / "soundfonts" / "TouchUpPiano.sf2",
+            *self._bundle_asset_candidates("soundfonts", "TouchUpPiano.sf2"),
             self.repo_root / "tools" / "midi_touchup_editor_rust" / "assets" / "soundfonts" / "TouchUpPiano.sf2",
         )
 
     def rust_soundfont_license_path(self) -> Path | None:
         return self._first_file(
-            self.app_root / "assets" / "soundfonts" / "TouchUpPiano_LICENSE.txt",
+            *self._bundle_asset_candidates("soundfonts", "TouchUpPiano_LICENSE.txt"),
             self.repo_root / "tools" / "midi_touchup_editor_rust" / "assets" / "soundfonts" / "TouchUpPiano_LICENSE.txt",
         )
 
@@ -100,6 +100,36 @@ class RuntimePaths:
 
     def binary_name(self, stem: str) -> str:
         return _platform_binary_name(stem, platform_name=self.platform_name)
+
+    def _bundle_binary_candidates(self, stem: str) -> tuple[Path, ...]:
+        binary_name = self.binary_name(stem)
+        return tuple(root / "bin" / binary_name for root in self._bundle_roots())
+
+    def _bundle_asset_candidates(self, *relative_parts: str) -> tuple[Path, ...]:
+        return tuple(root / "assets" / Path(*relative_parts) for root in self._bundle_roots())
+
+    def _bundle_roots(self) -> tuple[Path, ...]:
+        candidates = [self.app_root]
+        if self.frozen:
+            candidates.append(self.repo_root)
+            if self.platform_name == "darwin":
+                contents_root = self.app_root.parent
+                candidates.extend(
+                    [
+                        contents_root / "Frameworks",
+                        contents_root / "Resources",
+                    ]
+                )
+
+        deduped: list[Path] = []
+        seen: set[Path] = set()
+        for candidate in candidates:
+            resolved = Path(candidate)
+            if resolved in seen:
+                continue
+            deduped.append(resolved)
+            seen.add(resolved)
+        return tuple(deduped)
 
     def _find_binary(self, command_name: str, *candidates: Path) -> Path | None:
         path = self._first_executable(*candidates)

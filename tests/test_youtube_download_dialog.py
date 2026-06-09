@@ -17,6 +17,17 @@ class FakeSettings:
         self.values[key] = value
 
 
+def _wait_until(predicate, *, timeout_ms=500):
+    deadline = timeout_ms
+    while deadline >= 0:
+        QApplication.processEvents()
+        if predicate():
+            return True
+        QTest.qWait(10)
+        deadline -= 10
+    return predicate()
+
+
 def test_valid_url_auto_fetches_after_debounce(monkeypatch, tmp_path):
     QApplication.instance() or QApplication([])
     monkeypatch.setattr(YouTubeDownloadDialog, "AUTO_FETCH_DELAY_MS", 1)
@@ -30,7 +41,7 @@ def test_valid_url_auto_fetches_after_debounce(monkeypatch, tmp_path):
 
     dialog.url_input.setText("https://www.youtube.com/watch?v=SFFSZQCnU_M")
 
-    QTest.qWait(20)
+    assert _wait_until(lambda: len(calls) == 1, timeout_ms=500)
 
     assert calls == ["https://www.youtube.com/watch?v=SFFSZQCnU_M"]
 
@@ -255,7 +266,10 @@ def test_download_stall_timer_shows_waiting_status(monkeypatch, tmp_path):
     dialog.download_btn.setEnabled(True)
     dialog.start_download()
 
-    QTest.qWait(20)
+    assert _wait_until(
+        lambda: dialog.status_label.text() == "Still waiting for YouTube...",
+        timeout_ms=500,
+    )
 
     assert dialog.status_label.text() == "Still waiting for YouTube..."
 

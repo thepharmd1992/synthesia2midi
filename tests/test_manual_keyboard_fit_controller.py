@@ -122,8 +122,11 @@ def test_manual_fit_controller_opens_modeless_top_center_and_restores_settings()
 
         screen_rect = QApplication.primaryScreen().availableGeometry()
         dialog_rect = dialog.frameGeometry()
-        assert abs(dialog_rect.center().x() - screen_rect.center().x()) <= 80
         assert dialog_rect.top() <= screen_rect.top() + 40
+        if dialog_rect.width() <= screen_rect.width():
+            assert abs(dialog_rect.center().x() - screen_rect.center().x()) <= 80
+        else:
+            assert dialog_rect.left() <= screen_rect.left() + 40
 
         dialog.reject()
         QApplication.processEvents()

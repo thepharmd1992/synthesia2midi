@@ -64,7 +64,8 @@ class ConfigManager:
         
         overlay_data = {
             "overlays": [],
-            "exemplar_lit_histograms": {}
+            "exemplar_lit_histograms": {},
+            "overlay_generation_source": self.app_state.calibration.overlay_generation_source,
         }
         
         # Save overlay configurations
@@ -117,6 +118,10 @@ class ConfigManager:
         try:
             with open(overlay_json_path, 'r', encoding='utf-8') as f:
                 overlay_data = json.load(f)
+
+            source = overlay_data.get("overlay_generation_source")
+            if source in {"auto", "manual"}:
+                self.app_state.calibration.overlay_generation_source = source
             
             # Clear existing overlays
             self.app_state.overlays.clear()
@@ -244,6 +249,12 @@ class ConfigManager:
                 self.app_state.detection.hand_detection_calibrated = settings_data.getboolean('hand_detection_calibrated', self.app_state.detection.hand_detection_calibrated)
                 # Octave transpose setting
                 self.app_state.midi.octave_transpose = settings_data.getint('octave_transpose', self.app_state.midi.octave_transpose)
+                overlay_generation_source = settings_data.get('overlay_generation_source', '').strip()
+                self.app_state.calibration.overlay_generation_source = (
+                    overlay_generation_source
+                    if overlay_generation_source in {"auto", "manual"}
+                    else None
+                )
                 # Exemplar key-type availability (default enabled for backward compatibility)
                 exemplar_enabled = self.app_state.detection.exemplar_key_type_enabled
                 exemplar_enabled["LW"] = settings_data.getboolean('exemplar_enabled_lw', exemplar_enabled.get("LW", True))
@@ -533,6 +544,7 @@ class ConfigManager:
             'hand_detection_calibrated': str(self.app_state.detection.hand_detection_calibrated),
             # Octave transpose
             'octave_transpose': str(self.app_state.midi.octave_transpose),
+            'overlay_generation_source': str(self.app_state.calibration.overlay_generation_source or ''),
             # Exemplar key-type availability
             'exemplar_enabled_lw': str(self.app_state.detection.exemplar_key_type_enabled.get("LW", True)),
             'exemplar_enabled_lb': str(self.app_state.detection.exemplar_key_type_enabled.get("LB", True)),

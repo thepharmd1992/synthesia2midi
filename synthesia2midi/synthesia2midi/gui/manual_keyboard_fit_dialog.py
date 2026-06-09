@@ -28,6 +28,7 @@ PARAM_SPECS = [
     ("keyboard_top_delta", "Keyboard Top", -500, 500),
     ("left_edge_drift", "Left Edge Drift", -500, 500),
     ("right_edge_drift", "Right Edge Drift", -500, 500),
+    ("white_width_delta", "White Width", -500, 500),
     ("black_width_delta", "Black Width", -500, 500),
     ("left_slant_delta", "Left Slant", -45, 45),
     ("right_slant_delta", "Right Slant", -45, 45),
@@ -67,6 +68,7 @@ class ManualKeyboardFitDialog(QDialog):
         self.param_sliders: Dict[str, QSlider] = {}
         self.param_spinboxes: Dict[str, QSpinBox] = {}
         self.param_reset_buttons: Dict[str, QPushButton] = {}
+        self.param_row_widgets: Dict[str, list[QWidget]] = {}
         self.local_param_sliders: Dict[str, QSlider] = {}
         self.local_param_spinboxes: Dict[str, QSpinBox] = {}
         self.local_param_reset_buttons: Dict[str, QPushButton] = {}
@@ -110,17 +112,25 @@ class ManualKeyboardFitDialog(QDialog):
         self.mode_status_label = QLabel("Editing: Whole Keyboard")
         self.mode_status_label.hide()
         self.group_fit_radio = QRadioButton("All Overlays")
+        self.all_white_radio = QRadioButton("All Whites")
+        self.all_black_radio = QRadioButton("All Blacks")
         self.local_fit_radio = QRadioButton("Select Overlays")
         self.single_overlay_radio = QRadioButton("Single Overlay")
         self.group_fit_radio.setChecked(True)
         self._mode_button_group = QButtonGroup(self)
         self._mode_button_group.addButton(self.group_fit_radio)
+        self._mode_button_group.addButton(self.all_white_radio)
+        self._mode_button_group.addButton(self.all_black_radio)
         self._mode_button_group.addButton(self.local_fit_radio)
         self._mode_button_group.addButton(self.single_overlay_radio)
         self.group_fit_radio.toggled.connect(self._handle_mode_toggled)
+        self.all_white_radio.toggled.connect(self._handle_mode_toggled)
+        self.all_black_radio.toggled.connect(self._handle_mode_toggled)
         self.local_fit_radio.toggled.connect(self._handle_mode_toggled)
         self.single_overlay_radio.toggled.connect(self._handle_mode_toggled)
         mode_layout.addWidget(self.group_fit_radio)
+        mode_layout.addWidget(self.all_white_radio)
+        mode_layout.addWidget(self.all_black_radio)
         mode_layout.addWidget(self.local_fit_radio)
         mode_layout.addWidget(self.single_overlay_radio)
         mode_layout.addStretch()
@@ -170,6 +180,7 @@ class ManualKeyboardFitDialog(QDialog):
             self.param_sliders[name] = slider
             self.param_spinboxes[name] = spinbox
             self.param_reset_buttons[name] = reset_button
+            self.param_row_widgets[name] = [label_widget, slider, spinbox, reset_button]
             controls_layout.addWidget(label_widget, row, 0)
             controls_layout.addWidget(slider, row, 1)
             controls_layout.addWidget(spinbox, row, 2)
@@ -283,6 +294,10 @@ class ManualKeyboardFitDialog(QDialog):
         for name in self.local_param_spinboxes:
             self._set_local_control_value(name, 0)
 
+    def set_params(self, params: ManualFitParams) -> None:
+        for name in self.param_spinboxes:
+            self._set_control_value(name, int(getattr(params, name)))
+
     def set_local_params(self, params: LocalFitParams) -> None:
         for name in self.local_param_spinboxes:
             self._set_local_control_value(name, int(getattr(params, name)))
@@ -382,6 +397,12 @@ class ManualKeyboardFitDialog(QDialog):
         if self.group_fit_radio.isChecked():
             self.mode_status_label.setText("Editing: Whole Keyboard")
             self.mode_changed.emit("manual_fit_group")
+        elif self.all_white_radio.isChecked():
+            self.mode_status_label.setText("Editing: All Whites")
+            self.mode_changed.emit("manual_fit_all_white")
+        elif self.all_black_radio.isChecked():
+            self.mode_status_label.setText("Editing: All Blacks")
+            self.mode_changed.emit("manual_fit_all_black")
         elif self.local_fit_radio.isChecked():
             self.mode_status_label.setText("Editing: Local Cluster")
             self.mode_changed.emit("manual_fit_local_select")
@@ -391,7 +412,18 @@ class ManualKeyboardFitDialog(QDialog):
         self._sync_mode_control_visibility()
 
     def _sync_mode_control_visibility(self) -> None:
-        self.controls_group.setVisible(self.group_fit_radio.isChecked())
+        group_controls_visible = (
+            self.group_fit_radio.isChecked()
+            or self.all_white_radio.isChecked()
+            or self.all_black_radio.isChecked()
+        )
+        self.controls_group.setVisible(group_controls_visible)
         self.local_controls_group.setVisible(self.local_fit_radio.isChecked())
-        self.reset_position_button.setVisible(self.group_fit_radio.isChecked())
+        self.reset_position_button.setVisible(group_controls_visible)
         self.reset_local_button.setVisible(self.local_fit_radio.isChecked())
+        self._set_param_row_visible("white_width_delta", not self.all_black_radio.isChecked())
+        self._set_param_row_visible("black_width_delta", not self.all_white_radio.isChecked())
+
+    def _set_param_row_visible(self, name: str, visible: bool) -> None:
+        for widget in self.param_row_widgets.get(name, []):
+            widget.setVisible(visible)

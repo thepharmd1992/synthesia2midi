@@ -20,6 +20,7 @@ class ManualFitParams:
     keyboard_top_delta: float = 0.0
     left_edge_drift: float = 0.0
     right_edge_drift: float = 0.0
+    white_width_delta: float = 0.0
     black_width_delta: float = 0.0
     left_slant_delta: float = 0.0
     right_slant_delta: float = 0.0
@@ -39,10 +40,13 @@ CONTROL_PARAM_NAMES = (
     "keyboard_top_delta",
     "left_edge_drift",
     "right_edge_drift",
+    "white_width_delta",
     "black_width_delta",
     "left_slant_delta",
     "right_slant_delta",
 )
+
+GROUP_FIT_SCOPES = {"all", "white", "black"}
 
 
 @dataclass(frozen=True)
@@ -85,7 +89,13 @@ class LocalFitAdjustment:
 class ManualKeyboardFitSession:
     def __init__(self, app_state):
         self.app_state = app_state
-        self.params = ManualFitParams()
+        self._group_params: Dict[str, ManualFitParams] = {
+            "all": ManualFitParams(),
+            "white": ManualFitParams(),
+            "black": ManualFitParams(),
+        }
+        self._active_group_scope = "all"
+        self.params = self._group_params["all"]
         self._previous_unsaved_changes = bool(app_state.unsaved_changes)
         self._previous_octave_transpose = int(getattr(app_state.midi, "octave_transpose", 0))
         self._cancel_baseline: Dict[int, OverlayGeometry] = {
@@ -111,35 +121,53 @@ class ManualKeyboardFitSession:
         self._setup_white_start: float | None = None
 
     def update_params(self, params: ManualFitParams) -> None:
+        self._group_params[self._active_group_scope] = params
         self.params = params
         self.apply_preview()
 
     def update_control_params(self, params: ManualFitParams) -> None:
+        active_params = self.active_group_params()
         for name in CONTROL_PARAM_NAMES:
-            setattr(self.params, name, getattr(params, name))
+            setattr(active_params, name, getattr(params, name))
         self.apply_preview()
 
     def set_param(self, name: str, value: float) -> None:
-        if not hasattr(self.params, name):
+        active_params = self.active_group_params()
+        if not hasattr(active_params, name):
             raise AttributeError(f"Unknown manual fit parameter: {name}")
-        setattr(self.params, name, float(value))
+        setattr(active_params, name, float(value))
         self.apply_preview()
 
+    def set_group_scope(self, scope: str) -> None:
+        if scope not in GROUP_FIT_SCOPES:
+            raise ValueError(f"Unknown manual fit group scope: {scope}")
+        self._active_group_scope = scope
+        self.params = self._group_params[scope]
+
+    def active_group_scope(self) -> str:
+        return self._active_group_scope
+
+    def active_group_params(self) -> ManualFitParams:
+        return self._group_params[self._active_group_scope]
+
     def translate_group(self, dx: float, dy: float) -> None:
-        self.params.group_dx += float(dx)
-        self.params.group_dy += float(dy)
+        active_params = self.active_group_params()
+        active_params.group_dx += float(dx)
+        active_params.group_dy += float(dy)
         self.apply_preview()
 
     def reset_position(self) -> None:
-        self.params.group_dx = 0.0
-        self.params.group_dy = 0.0
+        active_params = self.active_group_params()
+        active_params.group_dx = 0.0
+        active_params.group_dy = 0.0
         self.apply_preview()
 
     def set_detection_region(self, key_type: str, top: float, bottom: float) -> None:
         if key_type not in {"white", "black"}:
             raise ValueError(f"Unknown detection region type: {key_type}")
-        region_top = min(float(top), float(bottom)) - self.params.group_dy
-        region_bottom = max(float(top), float(bottom)) - self.params.group_dy
+        all_params = self._group_params["all"]
+        region_top = min(float(top), float(bottom)) - all_params.group_dy
+        region_bottom = max(float(top), float(bottom)) - all_params.group_dy
         self._custom_regions[key_type] = DetectionRegion(region_top, region_bottom)
         self.apply_preview()
 
@@ -289,7 +317,13 @@ class ManualKeyboardFitSession:
         box = self._require_setup_keyboard_box()
         black_bottom = self._setup_black_bottom_or_default()
         white_start = self._setup_white_start_or_default()
-        self.params = ManualFitParams()
+        self._group_params = {
+            "all": ManualFitParams(),
+            "white": ManualFitParams(),
+            "black": ManualFitParams(),
+        }
+        self._active_group_scope = "all"
+        self.params = self._group_params["all"]
         self._overrides.clear()
         self._custom_regions.clear()
         self._local_fits.clear()
@@ -367,7 +401,12 @@ class ManualKeyboardFitSession:
         return self.clear_override_for_key_id(int(selected_key_id))
 
     def reset_all(self) -> None:
-        self.params = ManualFitParams()
+        self._group_params = {
+            "all": ManualFitParams(),
+            "white": ManualFitParams(),
+            "black": ManualFitParams(),
+        }
+        self.params = self._group_params[self._active_group_scope]
         self._overrides.clear()
         self._local_fits.clear()
         self._active_local_fit_index = None
@@ -425,12 +464,26 @@ class ManualKeyboardFitSession:
         return self._apply_local_fits(key_id, rect)
 
     def _global_transformed_rect(self, key_id: int) -> OverlayGeometry | None:
+        rect = self._all_group_transformed_rect(key_id)
+        if rect is None:
+            return None
+
+        scope = "white" if self._is_white_key_id(key_id) else "black"
+        params = self._group_params[scope]
+        if self._params_are_neutral(params):
+            return rect
+
+        bounds, center_bounds = self._scope_bounds_after_all_group(scope)
+        return self._scoped_group_transformed_rect(key_id, rect, params, bounds, center_bounds)
+
+    def _all_group_transformed_rect(self, key_id: int) -> OverlayGeometry | None:
         baseline = self._baseline.get(key_id)
         if baseline is None:
             return None
 
+        params = self._group_params["all"]
         span = max(1.0, self._bounds[2])
-        target_span = max(1.0, span + self.params.keyboard_width_delta)
+        target_span = max(1.0, span + params.keyboard_width_delta)
         scale = target_span / span
         left, _right, _span, center = self._bounds
 
@@ -439,38 +492,82 @@ class ManualKeyboardFitSession:
         scaled_width = max(1.0, baseline.width * scale)
         scaled_center_x = center + ((baseline_center_x - center) * scale)
         left_edge_weight, right_edge_weight = self._edge_drift_weights(baseline_center_x)
-        edge_shift = (self.params.left_edge_drift * left_edge_weight) + (
-            self.params.right_edge_drift * right_edge_weight
+        edge_shift = (params.left_edge_drift * left_edge_weight) + (
+            params.right_edge_drift * right_edge_weight
         )
         left_slant_weight = max(0.0, min(1.0, (0.5 - norm) / 0.5))
         right_slant_weight = max(0.0, min(1.0, (norm - 0.5) / 0.5))
         rotation_degrees = self._clamp(
             baseline.rotation_degrees
-            + (self.params.left_slant_delta * left_slant_weight)
-            + (self.params.right_slant_delta * right_slant_weight),
+            + (params.left_slant_delta * left_slant_weight)
+            + (params.right_slant_delta * right_slant_weight),
             -45.0,
             45.0,
         )
 
-        x = scaled_center_x - scaled_width / 2 + self.params.group_dx + edge_shift
+        x = scaled_center_x - scaled_width / 2 + params.group_dx + edge_shift
         width = scaled_width
-        top = baseline.y + self.params.group_dy
-        bottom = baseline.y + baseline.height + self.params.group_dy
+        top = baseline.y + params.group_dy
+        bottom = baseline.y + baseline.height + params.group_dy
 
-        overlay = next((candidate for candidate in self.app_state.overlays if candidate.key_id == key_id), None)
-        is_white = overlay is not None and overlay.note_name_in_octave in WHITE_NOTE_NAMES
-        if is_white:
+        if self._is_white_key_id(key_id):
             top, bottom = self._safe_region_bounds("white")
+            width = max(1.0, width + params.white_width_delta)
+            x = (scaled_center_x + params.group_dx + edge_shift) - width / 2
         else:
             top, bottom = self._safe_region_bounds("black")
-            width = max(1.0, width + self.params.black_width_delta)
-            x = (scaled_center_x + self.params.group_dx + edge_shift) - width / 2
+            width = max(1.0, width + params.black_width_delta)
+            x = (scaled_center_x + params.group_dx + edge_shift) - width / 2
 
         x, width = self._apply_fractional_x_inset(x, width)
 
         if bottom < top + 1.0:
             bottom = top + 1.0
 
+        return OverlayGeometry(x, top, width, bottom - top, rotation_degrees)
+
+    def _scoped_group_transformed_rect(
+        self,
+        key_id: int,
+        rect: OverlayGeometry,
+        params: ManualFitParams,
+        bounds: Tuple[float, float, float, float],
+        center_bounds: Tuple[float, float, float],
+    ) -> OverlayGeometry:
+        span = max(1.0, bounds[2])
+        target_span = max(1.0, span + params.keyboard_width_delta)
+        scale = target_span / span
+        left, _right, _span, center = bounds
+        rect_center_x = rect.x + rect.width / 2.0
+        norm = (rect_center_x - left) / span
+        scaled_width = max(1.0, rect.width * scale)
+        scaled_center_x = center + ((rect_center_x - center) * scale)
+        left_edge_weight, right_edge_weight = self._edge_drift_weights_from_bounds(
+            rect_center_x,
+            center_bounds,
+        )
+        edge_shift = (params.left_edge_drift * left_edge_weight) + (
+            params.right_edge_drift * right_edge_weight
+        )
+        left_slant_weight = max(0.0, min(1.0, (0.5 - norm) / 0.5))
+        right_slant_weight = max(0.0, min(1.0, (norm - 0.5) / 0.5))
+        rotation_degrees = self._clamp(
+            rect.rotation_degrees
+            + (params.left_slant_delta * left_slant_weight)
+            + (params.right_slant_delta * right_slant_weight),
+            -45.0,
+            45.0,
+        )
+
+        if self._is_white_key_id(key_id):
+            width = max(1.0, scaled_width + params.white_width_delta)
+        else:
+            width = max(1.0, scaled_width + params.black_width_delta)
+        x = (scaled_center_x + params.group_dx + edge_shift) - (width / 2.0)
+        top = rect.y + params.group_dy + params.keyboard_top_delta
+        bottom = rect.y + rect.height + params.group_dy
+        if bottom < top + 1.0:
+            bottom = top + 1.0
         return OverlayGeometry(x, top, width, bottom - top, rotation_degrees)
 
     def _apply_local_fits(self, key_id: int, rect: OverlayGeometry) -> OverlayGeometry:
@@ -532,8 +629,9 @@ class ManualKeyboardFitSession:
 
     def _safe_region_bounds(self, key_type: str) -> Tuple[float, float]:
         region = self._region_for_type(key_type)
-        top = region.top + self.params.group_dy + self.params.keyboard_top_delta
-        bottom = region.bottom + self.params.group_dy
+        all_params = self._group_params["all"]
+        top = region.top + all_params.group_dy + all_params.keyboard_top_delta
+        bottom = region.bottom + all_params.group_dy
         region_height = max(1.0, bottom - top)
         vertical_inset = region_height * VERTICAL_SAFE_INSET_FRACTION
         return top + vertical_inset, bottom - vertical_inset
@@ -594,7 +692,14 @@ class ManualKeyboardFitSession:
         return left_center, right_center, midpoint
 
     def _edge_drift_weights(self, baseline_center_x: float) -> Tuple[float, float]:
-        left_center, right_center, midpoint = self._center_bounds
+        return self._edge_drift_weights_from_bounds(baseline_center_x, self._center_bounds)
+
+    def _edge_drift_weights_from_bounds(
+        self,
+        baseline_center_x: float,
+        center_bounds: Tuple[float, float, float],
+    ) -> Tuple[float, float]:
+        left_center, right_center, midpoint = center_bounds
         if right_center <= left_center:
             return 0.0, 0.0
 
@@ -609,6 +714,41 @@ class ManualKeyboardFitSession:
         return (
             max(0.0, min(1.0, left_weight)),
             max(0.0, min(1.0, right_weight)),
+        )
+
+    def _scope_bounds_after_all_group(
+        self,
+        scope: str,
+    ) -> Tuple[Tuple[float, float, float, float], Tuple[float, float, float]]:
+        rects = [
+            rect
+            for key_id in self._baseline
+            if self._key_matches_scope(key_id, scope)
+            and (rect := self._all_group_transformed_rect(key_id)) is not None
+        ]
+        return self._calculate_bounds(rects), self._calculate_center_bounds(rects)
+
+    def _key_matches_scope(self, key_id: int, scope: str) -> bool:
+        if scope == "all":
+            return True
+        is_white = self._is_white_key_id(key_id)
+        if scope == "white":
+            return is_white
+        if scope == "black":
+            return not is_white
+        return False
+
+    def _is_white_key_id(self, key_id: int) -> bool:
+        overlay = next(
+            (candidate for candidate in self.app_state.overlays if candidate.key_id == key_id),
+            None,
+        )
+        return overlay is not None and overlay.note_name_in_octave in WHITE_NOTE_NAMES
+
+    @staticmethod
+    def _params_are_neutral(params: ManualFitParams) -> bool:
+        return all(getattr(params, name) == 0 for name in CONTROL_PARAM_NAMES) and (
+            params.group_dx == 0 and params.group_dy == 0
         )
 
     def _generate_baseline_from_setup_box(self, box: KeyboardBox) -> Dict[int, OverlayGeometry]:

@@ -247,6 +247,7 @@ class DummyPassiveWizardForPlacement:
 class DummyAutoDetectTuningControllerForRestore:
     def __init__(self):
         self.open_kwargs = None
+        self.open_calls = 0
 
     def set_apply_template_styles_callback(self, _callback):
         pass
@@ -255,8 +256,12 @@ class DummyAutoDetectTuningControllerForRestore:
         return True
 
     def open(self, wizard, **kwargs):
+        self.open_calls += 1
         self.open_kwargs = {"wizard": wizard, **kwargs}
         return True
+
+    def cache_context(self, context):
+        self.cached_context = context
 
 
 class DummySuccessfulWizardForController:
@@ -472,6 +477,74 @@ def test_calibration_wizard_controller_resets_edit_flag_when_tuning_context_miss
     assert workflow.completed == [False]
     assert convert_button.enabled is False
     assert display_calls == [7]
+
+
+def test_edit_current_manual_calibration_opens_manual_fit_instead_of_auto_tuning(monkeypatch):
+    wizard = DummyWizardForController("edit_current_calibration_requested")
+    workflow = DummyCalibrationWorkflowForController(wizard)
+    tuning_controller = DummyAutoDetectTuningControllerForRestore()
+    manual_fit_calls = []
+    app = SimpleNamespace(
+        app_state=SimpleNamespace(
+            overlays=[SimpleNamespace(key_id=1)],
+            calibration=SimpleNamespace(overlay_generation_source="manual"),
+            video=SimpleNamespace(current_frame_index=7),
+        ),
+        calibration_workflow=workflow,
+        control_panel=SimpleNamespace(),
+        keyboard_canvas=SimpleNamespace(current_frame_rgb=None),
+        manual_keyboard_fit_controller=SimpleNamespace(open=lambda **kwargs: manual_fit_calls.append(kwargs)),
+        video_loading_workflow=None,
+        video_session=None,
+    )
+    controller = CalibrationWizardController(app, tuning_controller)
+
+    controller.run_calibration_wizard()
+
+    assert wizard.edit_enabled[0] is True
+    assert "Manual Fit" in wizard.edit_enabled[1]
+    assert manual_fit_calls == [{"start_setup": False}]
+    assert tuning_controller.open_calls == 0
+    assert controller.calibration_wizard is None
+
+
+def test_auto_detect_keyboard_region_marks_overlay_generation_source_auto():
+    class _Wizard:
+        def handle_keyboard_region_selected(self, *_args):
+            app.app_state.overlays = [SimpleNamespace(key_id=1)]
+            return True
+
+        def get_auto_detect_tuning_context(self):
+            return {"frame_rgb": object(), "keyboard_roi": (1, 2, 3, 4)}
+
+    app = SimpleNamespace(
+        app_state=SimpleNamespace(
+            overlays=[],
+            calibration=SimpleNamespace(overlay_generation_source=None),
+            ui=SimpleNamespace(show_overlays=False),
+            video=SimpleNamespace(current_frame_index=7),
+        ),
+        calibration_workflow=SimpleNamespace(apply_template_styles_to_overlays=lambda: None),
+        control_panel=SimpleNamespace(
+            convert_button=SimpleNamespace(setEnabled=lambda _enabled: None),
+            _can_convert=lambda: True,
+            update_controls_from_state=lambda: None,
+            update_trim_controls_from_state=lambda: None,
+            update_selected_overlay_display=lambda: None,
+        ),
+        keyboard_canvas=SimpleNamespace(
+            setCursor=lambda _cursor: None,
+            display_frame=lambda _frame_idx: None,
+        ),
+        show_overlays_action=DummyShowOverlaysAction(),
+    )
+    tuning_controller = DummyAutoDetectTuningControllerForRestore()
+    controller = CalibrationWizardController(app, tuning_controller)
+    controller.calibration_wizard = _Wizard()
+
+    controller._handle_keyboard_region_selected(1, 2, 3, 4)
+
+    assert app.app_state.calibration.overlay_generation_source == "auto"
 
 
 def test_main_action_controller_delegates_histogram_and_similarity_thresholds():

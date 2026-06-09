@@ -72,6 +72,45 @@ def test_manual_fit_keyboard_width_scales_centers_and_safe_widths_from_same_span
     assert app_state.overlays[2].width == pytest.approx(16)
 
 
+def test_manual_fit_white_width_control_changes_white_keys_only():
+    app_state = _state_with_overlays()
+    session = ManualKeyboardFitSession(app_state)
+
+    session.set_param("white_width_delta", 10)
+
+    white_left, black, white_right = app_state.overlays
+    assert white_left.width == pytest.approx(16)
+    assert white_right.width == pytest.approx(16)
+    assert black.width == pytest.approx(4.8)
+
+
+def test_manual_fit_all_white_scope_moves_only_white_keys():
+    app_state = _state_with_overlays()
+    session = ManualKeyboardFitSession(app_state)
+    session.apply_preview()
+    baseline = [(overlay.x, overlay.y) for overlay in app_state.overlays]
+
+    session.set_group_scope("white")
+    session.translate_group(20, 5)
+
+    assert app_state.overlays[0].x > baseline[0][0]
+    assert app_state.overlays[2].x > baseline[2][0]
+    assert (app_state.overlays[1].x, app_state.overlays[1].y) == pytest.approx(baseline[1])
+
+
+def test_manual_fit_all_black_scope_width_changes_only_black_keys():
+    app_state = _state_with_overlays()
+    session = ManualKeyboardFitSession(app_state)
+
+    session.set_group_scope("black")
+    session.set_param("black_width_delta", 10)
+
+    white_left, black, white_right = app_state.overlays
+    assert white_left.width == pytest.approx(8)
+    assert white_right.width == pytest.approx(8)
+    assert black.width > 4.8
+
+
 def test_manual_fit_left_edge_drift_only_moves_left_half():
     app_state = AppState()
     app_state.overlays = [
@@ -185,7 +224,6 @@ def test_manual_fit_keyboard_top_moves_safe_top_only():
 def test_manual_fit_removed_geometry_controls_are_not_backend_parameters():
     removed_names = {
         "white_y_delta",
-        "white_width_delta",
         "black_x_delta",
         "white_height_delta",
         "black_y_delta",

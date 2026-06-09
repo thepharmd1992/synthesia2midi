@@ -133,6 +133,21 @@ class ManualKeyboardFitController:
         self._refresh_preview()
 
     def _handle_mode_changed(self, mode: str) -> None:
+        scope_by_mode = {
+            "manual_fit_group": "all",
+            "manual_fit_all_white": "white",
+            "manual_fit_all_black": "black",
+        }
+        scope = scope_by_mode.get(mode)
+        if scope is not None:
+            if self._session is not None:
+                self._session.set_group_scope(scope)
+                if self._dialog is not None and hasattr(self._dialog, "set_params"):
+                    self._dialog.set_params(self._session.active_group_params())
+            self.app.keyboard_canvas.set_manual_fit_mode("manual_fit_group")
+            self._refresh_preview()
+            return
+
         self.app.keyboard_canvas.set_manual_fit_mode(mode)
 
     def _handle_group_move(self, dx: float, dy: float) -> None:
@@ -360,6 +375,8 @@ class ManualKeyboardFitController:
     def _finish_setup(self) -> None:
         self._setup_step = None
         self._manual_fit_overlays_visible = True
+        if self._session is not None:
+            self._session.set_group_scope("all")
         self.app.keyboard_canvas.set_manual_fit_mode("manual_fit_group")
         if self._dialog is not None:
             self._dialog.finish_setup()

@@ -148,13 +148,13 @@ def test_manual_fit_dialog_uses_drawn_region_controls():
             "keyboard_top_delta",
             "left_edge_drift",
             "right_edge_drift",
+            "white_width_delta",
             "black_width_delta",
             "left_slant_delta",
             "right_slant_delta",
         }
         removed_controls = {
             "white_y_delta",
-            "white_width_delta",
             "black_x_delta",
             "white_height_delta",
             "black_y_delta",
@@ -195,6 +195,8 @@ def test_manual_fit_dialog_modes_show_only_relevant_controls():
 
         assert dialog.group_fit_radio.isChecked()
         assert dialog.group_fit_radio.text() == "All Overlays"
+        assert dialog.all_white_radio.text() == "All Whites"
+        assert dialog.all_black_radio.text() == "All Blacks"
         assert dialog.local_fit_radio.text() == "Select Overlays"
         assert dialog.controls_group.isVisible()
         assert not dialog.local_controls_group.isVisible()
@@ -226,11 +228,27 @@ def test_manual_fit_dialog_modes_show_only_relevant_controls():
         assert dialog.local_controls_group.isVisible()
         assert not dialog.local_param_spinboxes["x_delta"].isEnabled()
 
+        dialog.all_white_radio.click()
+
+        assert app.keyboard_canvas.mode == "manual_fit_group"
+        assert dialog.controls_group.isVisible()
+        assert not dialog.local_controls_group.isVisible()
+        assert dialog.param_spinboxes["white_width_delta"].isVisible()
+        assert not dialog.param_spinboxes["black_width_delta"].isVisible()
+
+        dialog.all_black_radio.click()
+
+        assert app.keyboard_canvas.mode == "manual_fit_group"
+        assert not dialog.param_spinboxes["white_width_delta"].isVisible()
+        assert dialog.param_spinboxes["black_width_delta"].isVisible()
+
+        mode_y = dialog.mode_group.geometry().y()
         dialog.single_overlay_radio.click()
 
         assert app.keyboard_canvas.mode == "manual_fit_single"
         assert not dialog.controls_group.isVisible()
         assert not dialog.local_controls_group.isVisible()
+        assert dialog.mode_group.geometry().y() == mode_y
     finally:
         if controller.active_dialog is not None:
             controller.active_dialog.reject()

@@ -23,6 +23,7 @@ class CalibrationWizardController:
         )
         self._keyboard_region_requested = False
         self._edit_current_calibration_requested = False
+        self._manual_edit_current_calibration_requested = False
 
     @property
     def app_state(self):
@@ -55,6 +56,7 @@ class CalibrationWizardController:
     def _reset_wizard_lifecycle_flags(self) -> None:
         self._keyboard_region_requested = False
         self._edit_current_calibration_requested = False
+        self._manual_edit_current_calibration_requested = False
 
     def _clear_calibration_wizard(self) -> None:
         self.calibration_wizard = None
@@ -91,11 +93,9 @@ class CalibrationWizardController:
             self._handle_edit_current_calibration_request
         )
 
-        edit_context_available = self._has_editable_auto_detect_tuning_context()
+        edit_context_available = self._has_editable_current_calibration_context()
         edit_tooltip = (
-            "Open the auto-detect tuning panel for the current calibration."
-            if edit_context_available
-            else "Edit Current Calibration becomes available after an auto-detect run."
+            self._edit_current_calibration_tooltip(edit_context_available)
         )
         self.calibration_wizard.set_edit_current_calibration_enabled(
             edit_context_available,
@@ -112,6 +112,10 @@ class CalibrationWizardController:
             logging.info("Keyboard region selection was requested, keeping wizard instance alive")
             return
         if self._edit_current_calibration_requested:
+            if self._manual_edit_current_calibration_requested:
+                self._clear_calibration_wizard()
+                logging.info("Manual calibration edit was requested; cleaned up wizard instance")
+                return
             # Keep wizard alive for modeless tuning apply callbacks.
             logging.info("Edit current calibration was requested, keeping wizard instance alive")
             return
@@ -124,6 +128,8 @@ class CalibrationWizardController:
         # Handle wizard completion
         if self.calibration_workflow.handle_wizard_completed(wizard_success):
             logging.info("Wizard submitted successfully and overlays generated.")
+            if manual_overlays_generated:
+                self._set_overlay_generation_source("manual")
             # Apply template styles (kept in main class for UI coordination)
             self._apply_template_styles_to_overlays()
 
@@ -189,6 +195,21 @@ class CalibrationWizardController:
         """Open tuning dialog for the currently loaded calibration without redrawing ROI."""
         self._edit_current_calibration_requested = True
 
+        if self._current_overlay_generation_source() == "manual":
+            manual_fit_controller = getattr(self.app, "manual_keyboard_fit_controller", None)
+            if manual_fit_controller is not None:
+                opened = manual_fit_controller.open(start_setup=False)
+                if opened is not False:
+                    self._manual_edit_current_calibration_requested = True
+                    return
+            self._edit_current_calibration_requested = False
+            QMessageBox.warning(
+                self.app,
+                "Manual Fit",
+                "No reusable manual calibration is available yet.",
+            )
+            return
+
         opened = self._open_auto_detect_tuning_dialog(use_wizard_context=False)
         if not opened:
             self._edit_current_calibration_requested = False
@@ -205,6 +226,33 @@ class CalibrationWizardController:
 
     def _has_editable_auto_detect_tuning_context(self) -> bool:
         return self.auto_detect_tuning_controller.has_editable_context()
+
+    def _current_overlay_generation_source(self) -> Optional[str]:
+        calibration = getattr(self.app_state, "calibration", None)
+        return getattr(calibration, "overlay_generation_source", None)
+
+    def _set_overlay_generation_source(self, source: str) -> None:
+        calibration = getattr(self.app_state, "calibration", None)
+        if calibration is not None:
+            calibration.overlay_generation_source = source
+
+    def _has_editable_current_calibration_context(self) -> bool:
+        if self._current_overlay_generation_source() == "manual":
+            return bool(getattr(self.app_state, "overlays", []))
+        return self._has_editable_auto_detect_tuning_context()
+
+    def _edit_current_calibration_tooltip(self, enabled: bool) -> str:
+        if self._current_overlay_generation_source() == "manual":
+            return (
+                "Open Manual Fit for the current manual calibration."
+                if enabled
+                else "Edit Current Calibration becomes available after manual overlays exist."
+            )
+        return (
+            "Open the auto-detect tuning panel for the current calibration."
+            if enabled
+            else "Edit Current Calibration becomes available after an auto-detect run."
+        )
 
     def _handle_keyboard_region_selected(self, x: int, y: int, width: int, height: int):
         """Handle the keyboard region selection from canvas."""
@@ -227,6 +275,7 @@ class CalibrationWizardController:
             tuning_dialog_opened = False
             detection_success = self.calibration_wizard.handle_keyboard_region_selected(x, y, width, height)
             if detection_success and self.app_state.overlays:
+                self._set_overlay_generation_source("auto")
                 logging.info(f"Successfully created {len(self.app_state.overlays)} overlays")
                 wizard_context = self.calibration_wizard.get_auto_detect_tuning_context()
                 if wizard_context:

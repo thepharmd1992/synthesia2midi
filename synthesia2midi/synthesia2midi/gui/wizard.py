@@ -174,6 +174,7 @@ class CalibrationWizard(QDialog):
         # Clear detected_overlays to force manual generation
         self.detected_overlays = None
         self.manual_overlays_generated = True
+        self.app_state.calibration.overlay_generation_source = "manual"
         
         # Generate overlays using existing logic
         self._generate_initial_overlays()
@@ -352,6 +353,7 @@ class CalibrationWizard(QDialog):
 
         self._apply_detected_overlays(detected_overlays)
 
+        self.app_state.calibration.overlay_generation_source = "auto"
         self.app_state.unsaved_changes = True
         logging.info(
             "Applied autodetect overlays: %s overlays, leftmost=%s%s",

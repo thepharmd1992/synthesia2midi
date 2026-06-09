@@ -31,3 +31,32 @@ def test_config_manager_round_trips_overlay_rotation(tmp_path):
 
     assert len(loaded_state.overlays) == 1
     assert loaded_state.overlays[0].rotation_degrees == 12.5
+
+
+def test_config_manager_round_trips_overlay_generation_source(tmp_path):
+    video_path = tmp_path / "sample.mp4"
+    video_path.write_bytes(b"")
+    app_state = AppState()
+    app_state.calibration.overlay_generation_source = "manual"
+    app_state.overlays = [
+        OverlayConfig(
+            key_id=1,
+            note_octave=4,
+            note_name_in_octave="C",
+            x=10,
+            y=20,
+            width=30,
+            height=40,
+            key_type="LW",
+        )
+    ]
+
+    manager = ConfigManager(app_state)
+
+    assert manager.save_config(str(video_path)) is True
+
+    loaded_state = AppState()
+    loaded_manager = ConfigManager(loaded_state)
+    assert loaded_manager.load_config(str(tmp_path / "sample.ini")) is True
+
+    assert loaded_state.calibration.overlay_generation_source == "manual"

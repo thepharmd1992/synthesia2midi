@@ -351,6 +351,7 @@ class CalibrationConfig:
     # Calibration mode and state
     calibration_mode: Optional[str] = None  # e.g., "lit_exemplar", "spark_bar_only", "spark_dimmest_sparks"
     current_calibration_key_type: Optional[str] = None  # e.g., "LW", "LB", "RW", "RB"
+    overlay_generation_source: Optional[str] = None  # "auto" or "manual"
     
     # Calibration frame range
     calib_start_frame: int = 0
@@ -376,6 +377,9 @@ class CalibrationConfig:
             if (self.current_calibration_key_type not in valid_base_types and 
                 not is_additional_color):
                 errors.append(f"Calibration key type '{self.current_calibration_key_type}' must be one of {valid_base_types} or COLOR_N_W/COLOR_N_B format")
+
+        if self.overlay_generation_source not in {None, "auto", "manual"}:
+            errors.append("overlay_generation_source must be 'auto', 'manual', or None")
 
         # Normalize auto-detect parameter map so only active keys remain and all values are typed/clamped.
         try:

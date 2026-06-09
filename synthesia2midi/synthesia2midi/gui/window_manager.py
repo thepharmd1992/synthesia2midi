@@ -109,10 +109,10 @@ class WindowManager:
         # Force layout update to ensure everything is positioned correctly
         QApplication.processEvents()
         
-        settings_rail_width = getattr(getattr(self.main_window, "settings_rail_button", None), "width", lambda: 0)()
+        settings_toggle_width = getattr(getattr(self.main_window, "settings_toggle_button", None), "width", lambda: 0)()
         logging.info(f"Window positioned at top-left ({screen_rect.left()}, {screen_rect.top()}) "
                      f"with size {optimal_width}x{optimal_height}, "
-                     f"settings rail width: {settings_rail_width}px")
+                     f"settings toggle width: {settings_toggle_width}px")
         
         # Update controls and redraw frame if available
         if hasattr(self.main_window, 'control_panel'):

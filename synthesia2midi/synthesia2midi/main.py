@@ -25,7 +25,7 @@ from typing import Optional
 
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QApplication, QDialog, QHBoxLayout, QLabel, QMainWindow, QMessageBox, QPushButton, QSizePolicy, QSlider, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QApplication, QDialog, QHBoxLayout, QLabel, QMainWindow, QMessageBox, QSizePolicy, QSlider, QToolButton, QVBoxLayout, QWidget
 
 from .app_config import APP_NAME, FRAME_NAV_INTERVALS
 from synthesia2midi.config_manager import ConfigManager
@@ -238,6 +238,36 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         left_layout.setContentsMargins(5, 5, 5, 10)
         left_layout.setSpacing(5)
 
+        settings_toggle_layout = QHBoxLayout()
+        settings_toggle_layout.setContentsMargins(0, 0, 0, 0)
+        settings_toggle_layout.setSpacing(0)
+        settings_toggle_layout.addStretch(1)
+        self.settings_toggle_button = QToolButton()
+        self.settings_toggle_button.setObjectName("settings_toggle_button")
+        self.settings_toggle_button.setText("\u2699")
+        self.settings_toggle_button.setCheckable(True)
+        self.settings_toggle_button.setFixedSize(32, 32)
+        self.settings_toggle_button.setToolTip("Show settings")
+        self.settings_toggle_button.setStyleSheet(
+            "QToolButton#settings_toggle_button {"
+            "background-color: rgba(34, 38, 45, 0.82);"
+            "color: white;"
+            "border: 1px solid rgba(255, 255, 255, 0.45);"
+            "border-radius: 16px;"
+            "font-size: 18px;"
+            "font-weight: 600;"
+            "}"
+            "QToolButton#settings_toggle_button:hover {"
+            "background-color: rgba(13, 101, 202, 0.92);"
+            "}"
+            "QToolButton#settings_toggle_button:checked {"
+            "background-color: #0d65ca;"
+            "}"
+        )
+        self.settings_toggle_button.clicked.connect(self._toggle_settings_tool_window)
+        settings_toggle_layout.addWidget(self.settings_toggle_button, 0, Qt.AlignRight)
+        left_layout.addLayout(settings_toggle_layout, 0)
+
         # Canvas - Variable width
         self.keyboard_canvas = KeyboardCanvas(self.app_state, width=720, height=450,
                                               on_color_pick_callback=self.calibration_interaction_controller._handle_color_pick,
@@ -287,30 +317,12 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
 
         self.settings_tool_window = SettingsToolWindow(self)
         self.settings_scroll_area = self.settings_tool_window.scroll_area
+        self.settings_tool_window.visibility_changed.connect(self._sync_settings_toggle_state)
+        self._settings_tool_window_has_opened = False
 
         # Control Panel lives in a floating tool window so the video canvas keeps priority.
         self.control_panel = ControlPanelQt(self.settings_tool_window, self.app_state, self.state_manager)
         self.settings_tool_window.set_settings_widget(self.control_panel)
-
-        self.settings_rail_button = QPushButton("Settings")
-        self.settings_rail_button.setObjectName("settings_rail_button")
-        self.settings_rail_button.setFixedWidth(64)
-        self.settings_rail_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
-        self.settings_rail_button.setToolTip("Open settings")
-        self.settings_rail_button.setStyleSheet(
-            "QPushButton#settings_rail_button {"
-            "background-color: #0d65ca;"
-            "color: white;"
-            "font-weight: bold;"
-            "border: 0;"
-            "padding: 8px 2px;"
-            "}"
-            "QPushButton#settings_rail_button:hover {"
-            "background-color: #0a58b0;"
-            "}"
-        )
-        self.settings_rail_button.clicked.connect(self._show_settings_tool_window)
-        content_layout.addWidget(self.settings_rail_button, 0)
 
         # Connect control panel to canvas for ROI visualization updates
         self.control_panel.canvas_refresh_callback = lambda: self.keyboard_canvas.refresh_spark_roi_visualization()
@@ -337,22 +349,42 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.control_panel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self._settings_tool_was_visible_before_focus = False
 
+    def _sync_settings_toggle_state(self, visible: bool) -> None:
+        if hasattr(self, "settings_toggle_button"):
+            self.settings_toggle_button.setChecked(visible)
+            self.settings_toggle_button.setToolTip("Hide settings" if visible else "Show settings")
+
+    def _toggle_settings_tool_window(self, checked: bool) -> None:
+        """Show or hide the floating settings tool window from the gear button."""
+        if checked:
+            self._show_settings_tool_window()
+            return
+
+        self.settings_tool_window.hide()
+        self._sync_settings_toggle_state(False)
+
     def _show_settings_tool_window(self) -> None:
         """Open the floating settings tool window."""
         if hasattr(self, "control_panel"):
             self.control_panel.update_controls_from_state()
-        self.settings_tool_window.show_near_parent()
+        if self._settings_tool_window_has_opened:
+            self.settings_tool_window.show_preserving_geometry()
+        else:
+            self.settings_tool_window.show_near_parent()
+            self._settings_tool_window_has_opened = True
+        self._sync_settings_toggle_state(True)
 
     def _toggle_focus_video_mode(self, enabled: bool) -> None:
         """Hide or restore the settings pane so calibration can prioritize video."""
         if enabled:
             self._settings_tool_was_visible_before_focus = self.settings_tool_window.isVisible()
             self.settings_tool_window.hide()
-            self.settings_rail_button.hide()
+            self.settings_toggle_button.hide()
+            self._sync_settings_toggle_state(False)
             self.focus_video_action.setText("Show Settings Panel")
             return
 
-        self.settings_rail_button.show()
+        self.settings_toggle_button.show()
         self.focus_video_action.setText("Focus Video (Hide Settings)")
         if getattr(self, "_settings_tool_was_visible_before_focus", False):
             self._show_settings_tool_window()

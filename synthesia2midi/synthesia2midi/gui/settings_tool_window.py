@@ -1,12 +1,14 @@
 """Floating settings window for the main control panel."""
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QApplication, QDialog, QScrollArea, QVBoxLayout, QWidget
 
 
 class SettingsToolWindow(QDialog):
     """Non-modal tool window that hosts the settings panel without taking canvas width."""
+
+    visibility_changed = Signal(bool)
 
     def __init__(self, parent: QWidget):
         super().__init__(parent, Qt.Tool | Qt.WindowCloseButtonHint)
@@ -64,3 +66,11 @@ class SettingsToolWindow(QDialog):
         self.show()
         self.raise_()
         self.activateWindow()
+
+    def showEvent(self, event) -> None:
+        super().showEvent(event)
+        self.visibility_changed.emit(True)
+
+    def hideEvent(self, event) -> None:
+        super().hideEvent(event)
+        self.visibility_changed.emit(False)

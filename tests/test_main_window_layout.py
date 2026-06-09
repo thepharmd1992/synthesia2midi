@@ -1,5 +1,5 @@
 from PySide6.QtCore import QSignalBlocker, QRect, Qt, QTimer
-from PySide6.QtWidgets import QApplication, QGroupBox, QScrollArea, QTabWidget
+from PySide6.QtWidgets import QApplication, QGroupBox, QScrollArea, QTabWidget, QToolButton
 
 from synthesia2midi.main import Video2MidiApp
 
@@ -34,7 +34,7 @@ def _has_ancestor(widget, ancestor):
     return False
 
 
-def test_main_window_prioritizes_video_with_settings_rail_and_tool_window(monkeypatch):
+def test_main_window_prioritizes_video_with_settings_gear_and_tool_window(monkeypatch):
     app = _make_app(monkeypatch)
     try:
         screen_rect = QApplication.primaryScreen().availableGeometry()
@@ -45,9 +45,15 @@ def test_main_window_prioritizes_video_with_settings_rail_and_tool_window(monkey
         assert app.width() == max_width
         assert app.height() == max_height
         assert app.windowState() & Qt.WindowMaximized
-        assert not app.settings_rail_button.isHidden()
-        assert app.settings_rail_button.width() <= 72
-        assert "#0d65ca" in app.settings_rail_button.styleSheet()
+        assert not hasattr(app, "settings_rail_button")
+        assert isinstance(app.settings_toggle_button, QToolButton)
+        assert not app.settings_toggle_button.isHidden()
+        assert app.settings_toggle_button.text() == "\u2699"
+        assert app.settings_toggle_button.toolTip() == "Show settings"
+        assert app.settings_toggle_button.width() <= 36
+        assert app.settings_toggle_button.height() <= 36
+        assert app.settings_toggle_button.isCheckable()
+        assert not app.settings_toggle_button.isChecked()
         assert app.settings_tool_window.windowFlags() & Qt.Tool
         assert not app.settings_tool_window.isVisible()
         assert isinstance(app.settings_scroll_area, QScrollArea)
@@ -67,7 +73,7 @@ def test_main_window_prioritizes_video_with_settings_rail_and_tool_window(monkey
         app.close()
 
 
-def test_settings_rail_opens_floating_tool_window(monkeypatch):
+def test_settings_gear_toggles_floating_tool_window(monkeypatch):
     app = _make_app(monkeypatch)
     try:
         app.show()
@@ -75,18 +81,27 @@ def test_settings_rail_opens_floating_tool_window(monkeypatch):
 
         assert not app.settings_tool_window.isVisible()
 
-        app.settings_rail_button.click()
+        app.settings_toggle_button.click()
         QApplication.processEvents()
 
         assert app.settings_tool_window.isVisible()
         assert app.settings_tool_window.windowFlags() & Qt.Tool
-        assert app.settings_rail_button.isVisible()
+        assert app.settings_toggle_button.isVisible()
+        assert app.settings_toggle_button.isChecked()
+        assert app.settings_toggle_button.toolTip() == "Hide settings"
 
         screen_rect = QApplication.primaryScreen().availableGeometry()
         settings_rect = app.settings_tool_window.frameGeometry()
         assert settings_rect.right() >= screen_rect.right() - 80
         assert settings_rect.top() <= screen_rect.top() + 80
         assert app.settings_tool_window.height() <= 620
+
+        app.settings_toggle_button.click()
+        QApplication.processEvents()
+
+        assert not app.settings_tool_window.isVisible()
+        assert not app.settings_toggle_button.isChecked()
+        assert app.settings_toggle_button.toolTip() == "Show settings"
     finally:
         app.close()
 
@@ -95,7 +110,7 @@ def test_settings_lower_rail_holds_global_actions_and_status(monkeypatch):
     app = _make_app(monkeypatch)
     try:
         app.show()
-        app.settings_rail_button.click()
+        app.settings_toggle_button.click()
         QApplication.processEvents()
 
         control_panel = app.control_panel
@@ -176,18 +191,20 @@ def test_overlays_tab_exposes_left_and_right_slant_controls(monkeypatch):
         app.close()
 
 
-def test_settings_rail_preserves_open_tool_window_position(monkeypatch):
+def test_settings_gear_preserves_tool_window_position_after_hide_show(monkeypatch):
     app = _make_app(monkeypatch)
     try:
         app.show()
-        app.settings_rail_button.click()
+        app.settings_toggle_button.click()
         QApplication.processEvents()
         custom_pos = app.settings_tool_window.pos()
         custom_pos.setX(custom_pos.x() + 80)
         custom_pos.setY(custom_pos.y() + 40)
         app.settings_tool_window.move(custom_pos)
 
-        app.settings_rail_button.click()
+        app.settings_toggle_button.click()
+        QApplication.processEvents()
+        app.settings_toggle_button.click()
         QApplication.processEvents()
 
         assert app.settings_tool_window.pos() == custom_pos
@@ -195,26 +212,30 @@ def test_settings_rail_preserves_open_tool_window_position(monkeypatch):
         app.close()
 
 
-def test_focus_video_action_hides_and_restores_settings_rail(monkeypatch):
+def test_focus_video_action_hides_and_restores_settings_gear(monkeypatch):
     app = _make_app(monkeypatch)
     try:
         app.show()
-        app.settings_rail_button.click()
+        app.settings_toggle_button.click()
         QApplication.processEvents()
         assert app.settings_tool_window.isVisible()
 
         app.focus_video_action.setChecked(True)
         app._toggle_focus_video_mode(True)
 
-        assert app.settings_rail_button.isHidden()
+        assert app.settings_toggle_button.isHidden()
         assert not app.settings_tool_window.isVisible()
         assert app.focus_video_action.text() == "Show Settings Panel"
+        assert not app.settings_toggle_button.isChecked()
+        assert app.settings_toggle_button.toolTip() == "Show settings"
 
         app.focus_video_action.setChecked(False)
         app._toggle_focus_video_mode(False)
 
-        assert not app.settings_rail_button.isHidden()
+        assert not app.settings_toggle_button.isHidden()
         assert app.settings_tool_window.isVisible()
+        assert app.settings_toggle_button.isChecked()
+        assert app.settings_toggle_button.toolTip() == "Hide settings"
         assert app.focus_video_action.text() == "Focus Video (Hide Settings)"
         assert app.focus_video_action.shortcutContext() == Qt.ApplicationShortcut
         assert app.focus_video_action in app.actions()
@@ -307,7 +328,7 @@ def test_detection_mode_sliders_share_left_edge(monkeypatch):
     app = _make_app(monkeypatch)
     try:
         app.show()
-        app.settings_rail_button.click()
+        app.settings_toggle_button.click()
         app.control_panel.tab_widget.setCurrentIndex(2)
         QApplication.processEvents()
 
@@ -341,7 +362,7 @@ def test_overlay_size_controls_stack_for_narrow_settings_window(monkeypatch):
     app = _make_app(monkeypatch)
     try:
         app.show()
-        app.settings_rail_button.click()
+        app.settings_toggle_button.click()
         app.control_panel.tab_widget.setCurrentIndex(1)
         QApplication.processEvents()
 
@@ -361,7 +382,7 @@ def test_spark_roi_controls_stack_and_stay_inside_panel(monkeypatch):
     app = _make_app(monkeypatch)
     try:
         app.show()
-        app.settings_rail_button.click()
+        app.settings_toggle_button.click()
         app.control_panel.tab_widget.setCurrentIndex(3)
         QApplication.processEvents()
 
@@ -379,7 +400,7 @@ def test_spark_auto_calibration_controls_stack_vertically(monkeypatch):
     app = _make_app(monkeypatch)
     try:
         app.show()
-        app.settings_rail_button.click()
+        app.settings_toggle_button.click()
         app.control_panel.tab_widget.setCurrentIndex(3)
         QApplication.processEvents()
 

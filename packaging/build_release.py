@@ -7,6 +7,8 @@ import shutil
 import subprocess
 import sys
 import time
+import urllib.request
+import zipfile
 from pathlib import Path
 
 
@@ -15,6 +17,7 @@ PACKAGE_ROOT = ROOT / "synthesia2midi"
 BUILD_ROOT = ROOT / "build" / "release"
 DIST_ROOT = ROOT / "dist" / "release"
 TOOLS_ROOT = ROOT / ".release-tools"
+DENO_LATEST_VERSION_URL = "https://dl.deno.land/release-latest.txt"
 VENV_PYTHON = ROOT / ".venv" / ("Scripts/python.exe" if sys.platform.startswith("win") else "bin/python")
 RUST_EDITOR_DIR = ROOT / "tools" / "midi_touchup_editor_rust"
 RUST_EDITOR_BINARY = RUST_EDITOR_DIR / "target" / "release" / ("midi-touchup-editor.exe" if sys.platform.startswith("win") else "midi-touchup-editor")
@@ -139,6 +142,52 @@ def install_deno_with_script(install_root: Path) -> Path:
     return require_file(deno_path, f"Deno install script completed but no binary was found at {deno_path}")
 
 
+def deno_target_tuple() -> str:
+    if sys.platform.startswith("win"):
+        return "x86_64-pc-windows-msvc"
+    if sys.platform == "darwin":
+        return "aarch64-apple-darwin"
+    raise ReleaseBuildError(f"Unsupported Deno platform: {sys.platform}")
+
+
+def latest_deno_version() -> str:
+    with urllib.request.urlopen(DENO_LATEST_VERSION_URL) as response:
+        version = response.read().decode("utf-8").strip()
+    if not version:
+        raise ReleaseBuildError("Could not determine the latest Deno version.")
+    return version
+
+
+def deno_release_url(*, version: str, target_tuple: str) -> str:
+    return f"https://dl.deno.land/release/v{version}/deno-{target_tuple}.zip"
+
+
+def download_to_file(url: str, destination: Path) -> Path:
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with urllib.request.urlopen(url) as response, destination.open("wb") as handle:
+        shutil.copyfileobj(response, handle)
+    return destination
+
+
+def install_deno_from_zip(install_root: Path) -> Path:
+    install_root.mkdir(parents=True, exist_ok=True)
+    bin_dir = install_root / "bin"
+    shutil.rmtree(bin_dir, ignore_errors=True)
+    bin_dir.mkdir(parents=True, exist_ok=True)
+
+    version = latest_deno_version()
+    target_tuple = deno_target_tuple()
+    archive_path = install_root / f"deno-{target_tuple}.zip"
+    download_to_file(deno_release_url(version=version, target_tuple=target_tuple), archive_path)
+    with zipfile.ZipFile(archive_path) as archive:
+        archive.extractall(bin_dir)
+
+    deno_path = bin_dir / _binary_name("deno")
+    if deno_path.exists() and not sys.platform.startswith("win"):
+        deno_path.chmod(0o755)
+    return require_file(deno_path, f"Deno archive completed but no binary was found at {deno_path}")
+
+
 def ensure_deno() -> Path:
     resolved = shutil.which("deno")
     if resolved:
@@ -147,6 +196,8 @@ def ensure_deno() -> Path:
     cached_binary = install_root / "bin" / _binary_name("deno")
     if cached_binary.is_file():
         return cached_binary
+    if sys.platform.startswith("win"):
+        return install_deno_from_zip(install_root)
     return install_deno_with_script(install_root)
 
 

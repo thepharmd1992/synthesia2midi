@@ -36,3 +36,29 @@ def test_install_deno_from_zip_extracts_windows_binary(monkeypatch, tmp_path):
     assert seen["url"] == "https://dl.deno.land/release/v9.9.9/deno-x86_64-pc-windows-msvc.zip"
     assert deno_path.name == "deno.exe"
     assert deno_path.read_bytes() == b"fake-deno"
+
+
+def test_urlopen_with_headers_sets_user_agent(monkeypatch):
+    module = _load_module("build_release_headers_under_test", ROOT / "packaging" / "build_release.py")
+
+    seen = {}
+
+    def fake_urlopen(request):
+        seen["url"] = request.full_url
+        seen["user_agent"] = request.get_header("User-agent")
+        class _Response:
+            def __enter__(self):
+                return self
+            def __exit__(self, exc_type, exc, tb):
+                return False
+            def read(self):
+                return b""
+        return _Response()
+
+    monkeypatch.setattr(module.urllib.request, "urlopen", fake_urlopen)
+
+    with module.urlopen_with_headers("https://example.com/test"):
+        pass
+
+    assert seen["url"] == "https://example.com/test"
+    assert seen["user_agent"] == "Mozilla/5.0"

@@ -18,6 +18,7 @@ BUILD_ROOT = ROOT / "build" / "release"
 DIST_ROOT = ROOT / "dist" / "release"
 TOOLS_ROOT = ROOT / ".release-tools"
 DENO_LATEST_VERSION_URL = "https://dl.deno.land/release-latest.txt"
+DENO_DOWNLOAD_HEADERS = {"User-Agent": "Mozilla/5.0"}
 VENV_PYTHON = ROOT / ".venv" / ("Scripts/python.exe" if sys.platform.startswith("win") else "bin/python")
 RUST_EDITOR_DIR = ROOT / "tools" / "midi_touchup_editor_rust"
 RUST_EDITOR_BINARY = RUST_EDITOR_DIR / "target" / "release" / ("midi-touchup-editor.exe" if sys.platform.startswith("win") else "midi-touchup-editor")
@@ -150,8 +151,13 @@ def deno_target_tuple() -> str:
     raise ReleaseBuildError(f"Unsupported Deno platform: {sys.platform}")
 
 
+def urlopen_with_headers(url: str):
+    request = urllib.request.Request(url, headers=DENO_DOWNLOAD_HEADERS)
+    return urllib.request.urlopen(request)
+
+
 def latest_deno_version() -> str:
-    with urllib.request.urlopen(DENO_LATEST_VERSION_URL) as response:
+    with urlopen_with_headers(DENO_LATEST_VERSION_URL) as response:
         version = response.read().decode("utf-8").strip()
     if not version:
         raise ReleaseBuildError("Could not determine the latest Deno version.")
@@ -164,7 +170,7 @@ def deno_release_url(*, version: str, target_tuple: str) -> str:
 
 def download_to_file(url: str, destination: Path) -> Path:
     destination.parent.mkdir(parents=True, exist_ok=True)
-    with urllib.request.urlopen(url) as response, destination.open("wb") as handle:
+    with urlopen_with_headers(url) as response, destination.open("wb") as handle:
         shutil.copyfileobj(response, handle)
     return destination
 

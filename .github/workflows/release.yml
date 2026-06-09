@@ -67,6 +67,17 @@ jobs:
             .venv/bin/python packaging/build_release.py --version "$GITHUB_REF_NAME"
           fi
 
+      - name: Create stable latest archive alias
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            cp dist/release/Synthesia2MIDI-windows-x64-v*.zip \
+              dist/release/Synthesia2MIDI-windows-x64-latest.zip
+          else
+            cp dist/release/Synthesia2MIDI-macos-arm64-v*.zip \
+              dist/release/Synthesia2MIDI-macos-arm64-latest.zip
+          fi
+
       - name: Upload packaged archive to release
         env:
           GITHUB_TOKEN: ${{ github.token }}

@@ -6,6 +6,17 @@ from synthesia2midi.gui import youtube_download_dialog
 from synthesia2midi.gui.youtube_download_dialog import YouTubeDownloadDialog
 
 
+class FakeSettings:
+    def __init__(self, initial=None):
+        self.values = dict(initial or {})
+
+    def value(self, key, default=None):
+        return self.values.get(key, default)
+
+    def setValue(self, key, value):
+        self.values[key] = value
+
+
 def test_valid_url_auto_fetches_after_debounce(monkeypatch, tmp_path):
     QApplication.instance() or QApplication([])
     monkeypatch.setattr(YouTubeDownloadDialog, "AUTO_FETCH_DELAY_MS", 1)
@@ -110,7 +121,36 @@ def test_dialog_uses_refresh_info_label_and_default_1080p_quality(tmp_path):
         "720p",
         "480p",
     ]
+    assert dialog.browser_combo.currentData() == "chrome"
+    assert dialog.auto_retry_checkbox.isChecked()
     assert "faster processing" in dialog.quality_combo.itemText(1)
+
+
+def test_dialog_restores_saved_cookie_retry_preferences(tmp_path):
+    QApplication.instance() or QApplication([])
+    settings = FakeSettings(
+        {
+            youtube_download_dialog.YOUTUBE_PREFERRED_BROWSER_KEY: "safari",
+            youtube_download_dialog.YOUTUBE_AUTO_COOKIE_RETRY_KEY: False,
+        }
+    )
+
+    dialog = YouTubeDownloadDialog(default_output_dir=str(tmp_path), settings=settings)
+
+    assert dialog.browser_combo.currentData() == "safari"
+    assert not dialog.auto_retry_checkbox.isChecked()
+
+
+def test_dialog_persists_cookie_retry_preferences(tmp_path):
+    QApplication.instance() or QApplication([])
+    settings = FakeSettings()
+    dialog = YouTubeDownloadDialog(default_output_dir=str(tmp_path), settings=settings)
+
+    dialog.browser_combo.setCurrentIndex(dialog.browser_combo.findData("edge"))
+    dialog.auto_retry_checkbox.setChecked(False)
+
+    assert settings.values[youtube_download_dialog.YOUTUBE_PREFERRED_BROWSER_KEY] == "edge"
+    assert settings.values[youtube_download_dialog.YOUTUBE_AUTO_COOKIE_RETRY_KEY] is False
 
 
 def test_video_info_success_enables_quality_selector(tmp_path):
@@ -128,7 +168,8 @@ def test_video_info_success_enables_quality_selector(tmp_path):
 
 def test_download_starts_with_indeterminate_progress(monkeypatch, tmp_path):
     QApplication.instance() or QApplication([])
-    dialog = YouTubeDownloadDialog(default_output_dir=str(tmp_path))
+    settings = FakeSettings({youtube_download_dialog.YOUTUBE_PREFERRED_BROWSER_KEY: "safari"})
+    dialog = YouTubeDownloadDialog(default_output_dir=str(tmp_path), settings=settings)
     started = []
 
     class FakeSignal:
@@ -153,7 +194,15 @@ def test_download_starts_with_indeterminate_progress(monkeypatch, tmp_path):
             )()
 
         def start(self):
-            started.append((self.url, self.quality, self.overwrite))
+            started.append(
+                (
+                    self.url,
+                    self.quality,
+                    self.overwrite,
+                    getattr(self, "preferred_browser", None),
+                    getattr(self, "auto_cookie_retry", None),
+                )
+            )
 
     monkeypatch.setattr(youtube_download_dialog, "YouTubeDownloaderThread", FakeDownloadThread)
 
@@ -162,7 +211,9 @@ def test_download_starts_with_indeterminate_progress(monkeypatch, tmp_path):
     dialog.download_btn.setEnabled(True)
     dialog.start_download()
 
-    assert started == [("https://www.youtube.com/watch?v=SFFSZQCnU_M", "1080p", False)]
+    assert started == [
+        ("https://www.youtube.com/watch?v=SFFSZQCnU_M", "1080p", False, "safari", True)
+    ]
     assert dialog.status_label.text() == "Starting download..."
     assert not dialog.progress_bar.isHidden()
     assert dialog.progress_bar.minimum() == 0
@@ -244,6 +295,52 @@ def test_selected_quality_is_passed_to_download_thread(monkeypatch, tmp_path):
     dialog.start_download()
 
     assert started == ["480p"]
+
+
+def test_fetch_video_info_passes_cookie_retry_preferences_to_worker(monkeypatch, tmp_path):
+    QApplication.instance() or QApplication([])
+    settings = FakeSettings(
+        {
+            youtube_download_dialog.YOUTUBE_PREFERRED_BROWSER_KEY: "edge",
+            youtube_download_dialog.YOUTUBE_AUTO_COOKIE_RETRY_KEY: True,
+        }
+    )
+    dialog = YouTubeDownloadDialog(default_output_dir=str(tmp_path), settings=settings)
+    started = []
+
+    class FakeSignal:
+        def connect(self, slot):
+            pass
+
+    class FakeInfoThread:
+        info_fetched = FakeSignal()
+        error = FakeSignal()
+        finished = FakeSignal()
+
+        def __init__(self, url, output_dir):
+            self.url = url
+            self.output_dir = output_dir
+
+        def isRunning(self):
+            return False
+
+        def start(self):
+            started.append(
+                (
+                    self.url,
+                    self.output_dir,
+                    getattr(self, "preferred_browser", None),
+                    getattr(self, "auto_cookie_retry", None),
+                )
+            )
+
+    monkeypatch.setattr(youtube_download_dialog, "YouTubeInfoFetcherThread", FakeInfoThread, raising=False)
+
+    dialog.url_input.setText("https://www.youtube.com/watch?v=SFFSZQCnU_M")
+    dialog.auto_fetch_timer.stop()
+    dialog.fetch_video_info()
+
+    assert started == [("https://www.youtube.com/watch?v=SFFSZQCnU_M", str(tmp_path), "edge", True)]
 
 
 def test_existing_download_can_be_reused_without_starting_download(monkeypatch, tmp_path):

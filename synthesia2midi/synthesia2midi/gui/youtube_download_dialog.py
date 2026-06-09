@@ -5,15 +5,24 @@ import os
 from pathlib import Path
 
 # Third-party imports
-from PySide6.QtCore import Qt, Signal, QTimer, QThread
+from PySide6.QtCore import Qt, Signal, QTimer, QThread, QSettings
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QDialogButtonBox, QGroupBox, QHBoxLayout,
-    QLabel, QLineEdit, QMessageBox, QProgressBar,
+    QCheckBox, QLabel, QLineEdit, QMessageBox, QProgressBar,
     QPushButton, QTextEdit, QVBoxLayout
 )
 
-from ..youtube_downloader import YouTubeDownloader, YouTubeDownloaderThread
+from ..youtube_downloader import (
+    SUPPORTED_COOKIE_BROWSERS,
+    YouTubeDownloader,
+    YouTubeDownloaderThread,
+)
+
+
+YOUTUBE_PREFERRED_BROWSER_KEY = "youtube/preferred_browser"
+YOUTUBE_AUTO_COOKIE_RETRY_KEY = "youtube/auto_cookie_retry"
+DEFAULT_COOKIE_BROWSER = "chrome"
 
 
 class YouTubeInfoFetcherThread(QThread):
@@ -29,7 +38,11 @@ class YouTubeInfoFetcherThread(QThread):
 
     def run(self):
         try:
-            downloader = YouTubeDownloader(self.output_dir)
+            downloader = YouTubeDownloader(
+                self.output_dir,
+                preferred_browser=getattr(self, "preferred_browser", None),
+                auto_cookie_retry=getattr(self, "auto_cookie_retry", True),
+            )
             info = downloader.get_video_info(self.url)
             self.info_fetched.emit(self.url, info)
         except Exception as exc:
@@ -45,8 +58,9 @@ class YouTubeDownloadDialog(QDialog):
     # Signal emitted when download completes with file path
     video_downloaded = Signal(str)
     
-    def __init__(self, parent=None, default_output_dir='videos'):
+    def __init__(self, parent=None, default_output_dir='videos', settings=None):
         super().__init__(parent)
+        self.settings = settings or QSettings("Synthesia2MIDI", "Synthesia2MIDI")
         self.downloader = YouTubeDownloader(default_output_dir)
         self.download_thread = None
         self.info_fetch_thread = None
@@ -63,6 +77,10 @@ class YouTubeDownloadDialog(QDialog):
         self.download_stall_timer = QTimer(self)
         self.download_stall_timer.setSingleShot(True)
         self.download_stall_timer.timeout.connect(self._on_download_stall)
+        self._preferred_browser = self._load_preferred_browser()
+        self._auto_cookie_retry = self._load_auto_cookie_retry()
+        self.downloader.preferred_browser = self._preferred_browser
+        self.downloader.auto_cookie_retry = self._auto_cookie_retry
         self.setup_ui()
         
     def setup_ui(self):
@@ -111,6 +129,26 @@ class YouTubeDownloadDialog(QDialog):
         self.quality_combo.addItem("480p - fastest processing, highest calibration risk", "480p")
         self.quality_combo.setEnabled(False)
         layout.addWidget(self.quality_combo)
+
+        fallback_group = QGroupBox("YouTube Access Fallback")
+        fallback_layout = QVBoxLayout()
+
+        self.browser_combo = QComboBox()
+        self.browser_combo.addItem("Chrome", "chrome")
+        self.browser_combo.addItem("Edge", "edge")
+        self.browser_combo.addItem("Safari", "safari")
+        browser_index = self.browser_combo.findData(self._preferred_browser)
+        self.browser_combo.setCurrentIndex(browser_index if browser_index >= 0 else 0)
+        self.browser_combo.currentIndexChanged.connect(self._on_browser_changed)
+        fallback_layout.addWidget(self.browser_combo)
+
+        self.auto_retry_checkbox = QCheckBox("Auto-retry with saved browser cookies if YouTube blocks access")
+        self.auto_retry_checkbox.setChecked(self._auto_cookie_retry)
+        self.auto_retry_checkbox.toggled.connect(self._on_auto_retry_toggled)
+        fallback_layout.addWidget(self.auto_retry_checkbox)
+
+        fallback_group.setLayout(fallback_layout)
+        layout.addWidget(fallback_group)
 
         # Fetch info button
         self.fetch_info_btn = QPushButton("Refresh Info")
@@ -214,6 +252,8 @@ class YouTubeDownloadDialog(QDialog):
         self._active_info_url = url
         self._show_info_error_dialog = show_error_dialog
         self.info_fetch_thread = YouTubeInfoFetcherThread(url, str(self.downloader.output_dir))
+        self.info_fetch_thread.preferred_browser = self.preferred_browser()
+        self.info_fetch_thread.auto_cookie_retry = self.auto_cookie_retry_enabled()
         self.info_fetch_thread.info_fetched.connect(self._on_video_info_fetched)
         self.info_fetch_thread.error.connect(self._on_video_info_error)
         if hasattr(self.info_fetch_thread, "finished"):
@@ -297,6 +337,8 @@ class YouTubeDownloadDialog(QDialog):
         # Create download thread
         output_dir = str(self.downloader.output_dir)
         self.download_thread = YouTubeDownloaderThread(url, output_dir, quality, overwrite=overwrite)
+        self.download_thread.preferred_browser = self.preferred_browser()
+        self.download_thread.auto_cookie_retry = self.auto_cookie_retry_enabled()
         
         # Connect signals
         self.download_thread.progress_handler.progress.connect(self.update_progress)
@@ -401,6 +443,36 @@ class YouTubeDownloadDialog(QDialog):
         self.quality_combo.setEnabled(is_valid and url == self._current_info_url)
         self.progress_bar.hide()
         self.progress_bar.setRange(0, 100)
+
+    def preferred_browser(self):
+        current = self.browser_combo.currentData() if hasattr(self, "browser_combo") else self._preferred_browser
+        return current if current in SUPPORTED_COOKIE_BROWSERS else DEFAULT_COOKIE_BROWSER
+
+    def auto_cookie_retry_enabled(self):
+        if hasattr(self, "auto_retry_checkbox"):
+            return self.auto_retry_checkbox.isChecked()
+        return self._auto_cookie_retry
+
+    def _load_preferred_browser(self):
+        stored = str(self.settings.value(YOUTUBE_PREFERRED_BROWSER_KEY, DEFAULT_COOKIE_BROWSER) or "")
+        stored = stored.strip().lower()
+        return stored if stored in SUPPORTED_COOKIE_BROWSERS else DEFAULT_COOKIE_BROWSER
+
+    def _load_auto_cookie_retry(self):
+        value = self.settings.value(YOUTUBE_AUTO_COOKIE_RETRY_KEY, True)
+        if isinstance(value, bool):
+            return value
+        return str(value).strip().lower() not in {"0", "false", "no", "off", ""}
+
+    def _on_browser_changed(self):
+        self._preferred_browser = self.preferred_browser()
+        self.downloader.preferred_browser = self._preferred_browser
+        self.settings.setValue(YOUTUBE_PREFERRED_BROWSER_KEY, self._preferred_browser)
+
+    def _on_auto_retry_toggled(self, checked):
+        self._auto_cookie_retry = bool(checked)
+        self.downloader.auto_cookie_retry = self._auto_cookie_retry
+        self.settings.setValue(YOUTUBE_AUTO_COOKIE_RETRY_KEY, self._auto_cookie_retry)
         
     def closeEvent(self, event):
         """Handle dialog close"""

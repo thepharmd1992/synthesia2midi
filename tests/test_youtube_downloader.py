@@ -3,9 +3,12 @@ from pathlib import Path
 from synthesia2midi import youtube_downloader
 from synthesia2midi.youtube_downloader import (
     YouTubeDownloader,
+    _youtube_ydl_opts,
+    browser_cookie_args,
     _format_youtube_error,
     _format_download_status,
     _progress_percentage,
+    should_retry_with_browser_cookies,
 )
 
 
@@ -39,6 +42,67 @@ def test_get_video_info_enables_js_challenge_support(monkeypatch, tmp_path):
     assert captured_opts[0]["remote_components"] == ["ejs:github"]
 
 
+def test_youtube_opts_include_bundled_ffmpeg_and_cookie_browser(monkeypatch, tmp_path):
+    ffmpeg_path = tmp_path / "bin" / "ffmpeg"
+    ffmpeg_path.parent.mkdir()
+    ffmpeg_path.write_text("ffmpeg")
+
+    class FakeRuntimePaths:
+        def ffmpeg_path(self):
+            return ffmpeg_path
+
+        def deno_path(self):
+            return None
+
+    monkeypatch.setattr(youtube_downloader, "detect_runtime_paths", lambda: FakeRuntimePaths())
+    monkeypatch.setattr("shutil.which", lambda name: "/fake/node" if name == "node" else None)
+
+    opts = _youtube_ydl_opts({"quiet": True}, browser_cookie="chrome")
+
+    assert opts["ffmpeg_location"] == str(ffmpeg_path.parent)
+    assert opts["cookiesfrombrowser"] == ("chrome",)
+    assert opts["js_runtimes"] == {"node": {"path": "/fake/node"}}
+
+
+def test_get_video_info_retries_with_preferred_browser_cookies(monkeypatch, tmp_path):
+    captured_opts = []
+    statuses = []
+
+    class FakeYoutubeDL:
+        def __init__(self, opts):
+            self.opts = opts
+            captured_opts.append(opts)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def extract_info(self, url, download=False):
+            if self.opts.get("cookiesfrombrowser") is None:
+                raise Exception("Sign in to confirm your age")
+            return {
+                "title": "Mary had a little lamb",
+                "duration": 123,
+                "uploader": "Piano",
+            }
+
+    monkeypatch.setattr(youtube_downloader.yt_dlp, "YoutubeDL", FakeYoutubeDL)
+
+    info = YouTubeDownloader(
+        str(tmp_path),
+        preferred_browser="safari",
+        auto_cookie_retry=True,
+        status_callback=statuses.append,
+    ).get_video_info("https://www.youtube.com/watch?v=SFFSZQCnU_M")
+
+    assert info["title"] == "Mary had a little lamb"
+    assert captured_opts[0].get("cookiesfrombrowser") is None
+    assert captured_opts[1]["cookiesfrombrowser"] == ("safari",)
+    assert statuses == ["Video info request failed. Retrying with Safari browser cookies..."]
+
+
 def test_download_video_only_enables_js_challenge_support_for_info_and_download(monkeypatch, tmp_path):
     captured_opts = []
 
@@ -70,6 +134,47 @@ def test_download_video_only_enables_js_challenge_support_for_info_and_download(
     assert captured_opts[0]["remote_components"] == ["ejs:github"]
     assert captured_opts[1]["js_runtimes"] == {"node": {"path": "/fake/node"}}
     assert captured_opts[1]["remote_components"] == ["ejs:github"]
+
+
+def test_download_reuses_cookie_browser_after_info_retry(monkeypatch, tmp_path):
+    captured_opts = []
+    phase = {"downloads": 0}
+
+    class FakeYoutubeDL:
+        def __init__(self, opts):
+            self.opts = opts
+            captured_opts.append(opts)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def extract_info(self, url, download=False):
+            if not download:
+                if self.opts.get("cookiesfrombrowser") is None:
+                    raise Exception("Sign in to confirm your age")
+                return {"title": "Mary had a little lamb", "id": "SFFSZQCnU_M", "formats": []}
+            phase["downloads"] += 1
+            return {"title": "Mary had a little lamb", "id": "SFFSZQCnU_M"}
+
+        def prepare_filename(self, info):
+            return str(Path(captured_opts[-1]["outtmpl"]).with_suffix(".mp4"))
+
+    monkeypatch.setattr(youtube_downloader.yt_dlp, "YoutubeDL", FakeYoutubeDL)
+
+    output_path = YouTubeDownloader(
+        str(tmp_path),
+        preferred_browser="edge",
+        auto_cookie_retry=True,
+    ).download_video_only("https://www.youtube.com/watch?v=SFFSZQCnU_M")
+
+    assert output_path.endswith(".mp4")
+    assert captured_opts[0].get("cookiesfrombrowser") is None
+    assert captured_opts[1]["cookiesfrombrowser"] == ("edge",)
+    assert captured_opts[2]["cookiesfrombrowser"] == ("edge",)
+    assert phase["downloads"] == 1
 
 
 def test_get_video_info_explains_missing_js_runtime_for_misleading_unavailable_error(
@@ -219,3 +324,10 @@ def test_youtube_error_messages_distinguish_common_failure_modes():
         Exception("This video is not available in your country")
     )
     assert "network or proxy" in _format_youtube_error(Exception("Unable to download webpage"))
+
+
+def test_cookie_browser_helpers_cover_supported_policy():
+    assert browser_cookie_args("Chrome") == ("chrome",)
+    assert should_retry_with_browser_cookies("Sign in to confirm your age")
+    assert should_retry_with_browser_cookies("nsig extraction failed")
+    assert not should_retry_with_browser_cookies("temporary socket timeout")

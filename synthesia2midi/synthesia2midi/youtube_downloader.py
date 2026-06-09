@@ -4,15 +4,18 @@ import logging
 import os
 import re
 import shutil
-from typing import Optional, Dict, Any, Tuple
+from typing import Optional, Dict, Any, Tuple, Callable
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 from PySide6.QtCore import QObject, Signal, QThread
 
 import yt_dlp
 
+from synthesia2midi.runtime_paths import detect_runtime_paths
+
 
 _SUPPORTED_JS_RUNTIMES = ("node", "deno", "bun", "quickjs")
+SUPPORTED_COOKIE_BROWSERS = ("chrome", "edge", "safari")
 _COMMON_RUNTIME_DIRS = (
     Path.home() / ".local" / "bin",
     Path("/opt/homebrew/bin"),
@@ -37,6 +40,11 @@ def _ensure_cert_store():
 
 
 def _find_js_runtime_path(runtime: str) -> Optional[str]:
+    if runtime == "deno":
+        deno_path = detect_runtime_paths().deno_path()
+        if deno_path is not None:
+            return str(deno_path)
+
     runtime_path = shutil.which(runtime)
     if runtime_path:
         return runtime_path
@@ -59,14 +67,45 @@ def _discover_js_runtimes() -> Dict[str, Dict[str, str]]:
     return runtimes
 
 
-def _youtube_ydl_opts(base_opts: Dict[str, Any]) -> Dict[str, Any]:
+def browser_cookie_args(browser: str) -> Tuple[str]:
+    normalized = (browser or "").strip().lower()
+    if normalized not in SUPPORTED_COOKIE_BROWSERS:
+        raise ValueError(f"Unsupported browser for cookies-from-browser: {browser}")
+    return (normalized,)
+
+
+def should_retry_with_browser_cookies(error: str | Exception) -> bool:
+    normalized = str(error).lower()
+    return any(
+        token in normalized
+        for token in (
+            "sign in",
+            "cookies",
+            "confirm your age",
+            "age-restricted",
+            "members only",
+            "private video",
+            "bot",
+            "challenge",
+            "javascript runtime",
+            "nsig",
+        )
+    )
+
+
+def _youtube_ydl_opts(base_opts: Dict[str, Any], *, browser_cookie: str | None = None) -> Dict[str, Any]:
     opts = dict(base_opts)
+    ffmpeg_path = detect_runtime_paths().ffmpeg_path()
+    if ffmpeg_path is not None:
+        opts["ffmpeg_location"] = str(ffmpeg_path.parent)
     js_runtimes = _discover_js_runtimes()
     if js_runtimes:
         opts["js_runtimes"] = js_runtimes
         remote_components = set(opts.get("remote_components", []))
         remote_components.add("ejs:github")
         opts["remote_components"] = sorted(remote_components)
+    if browser_cookie:
+        opts["cookiesfrombrowser"] = browser_cookie_args(browser_cookie)
     return opts
 
 
@@ -84,6 +123,10 @@ def _format_youtube_error(error: Exception) -> str:
         return f"{message}. This video is private."
     if "not available in your country" in normalized or "region" in normalized:
         return f"{message}. This video is region restricted."
+    if "cookies from browser" in normalized or "browser cookies" in normalized:
+        return f"{message}. Browser cookie access failed."
+    if "challenge" in normalized or "javascript runtime" in normalized or "nsig" in normalized:
+        return f"{message}. YouTube challenge solving failed."
     if (
         "unable to download webpage" in normalized
         or "http error" in normalized
@@ -173,7 +216,12 @@ class YouTubeDownloaderThread(QThread):
     def run(self):
         """Run the download in a separate thread"""
         try:
-            downloader = YouTubeDownloader(self.output_dir)
+            downloader = YouTubeDownloader(
+                self.output_dir,
+                preferred_browser=getattr(self, "preferred_browser", None),
+                auto_cookie_retry=getattr(self, "auto_cookie_retry", True),
+                status_callback=self.progress_handler.status.emit,
+            )
             self.progress_handler.progress.emit(-1)
             self.progress_handler.status.emit("Resolving video...")
             
@@ -218,11 +266,45 @@ class YouTubeDownloader:
         '1080p': {'height': 1080, 'note': 'Highest detail'},
     }
     
-    def __init__(self, output_dir: str = 'videos'):
+    def __init__(
+        self,
+        output_dir: str = 'videos',
+        *,
+        preferred_browser: str | None = None,
+        auto_cookie_retry: bool = True,
+        status_callback: Callable[[str], None] | None = None,
+    ):
         """Initialize downloader with output directory"""
         _ensure_cert_store()
-        self.output_dir = Path(output_dir)
+        self.output_dir = Path(output_dir).expanduser().resolve()
         self.output_dir.mkdir(exist_ok=True)
+        self.preferred_browser = self._normalize_browser(preferred_browser)
+        self.auto_cookie_retry = bool(auto_cookie_retry)
+        self.status_callback = status_callback
+
+    @staticmethod
+    def _normalize_browser(browser: str | None) -> str | None:
+        if not browser:
+            return None
+        normalized = browser.strip().lower()
+        return normalized if normalized in SUPPORTED_COOKIE_BROWSERS else None
+
+    def _emit_status(self, message: str) -> None:
+        if self.status_callback:
+            self.status_callback(message)
+
+    def _with_cookie_retry(self, callback, *, status_message: str):
+        try:
+            return callback(None), None
+        except Exception as exc:
+            if not self.auto_cookie_retry or not self.preferred_browser:
+                raise
+            if not should_retry_with_browser_cookies(exc):
+                raise
+            self._emit_status(
+                f"{status_message} Retrying with {self.preferred_browser.title()} browser cookies..."
+            )
+            return callback(self.preferred_browser), self.preferred_browser
         
     def validate_url(self, url: str) -> bool:
         """Validate if URL is a valid YouTube URL"""
@@ -264,15 +346,14 @@ class YouTubeDownloader:
     def get_video_info(self, url: str) -> Optional[Dict[str, Any]]:
         """Get video information without downloading"""
         url = self.normalize_url(url)
-            
-        ydl_opts = _youtube_ydl_opts({
-            'quiet': True,
-            'no_warnings': True,
-            'noplaylist': True,  # Avoid pulling entire mixes/radio playlists
-        })
-        
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            try:
+
+        def fetch_info(browser_cookie: str | None) -> Dict[str, Any]:
+            ydl_opts = _youtube_ydl_opts({
+                'quiet': True,
+                'no_warnings': True,
+                'noplaylist': True,  # Avoid pulling entire mixes/radio playlists
+            }, browser_cookie=browser_cookie)
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=False)
                 return {
                     'title': info.get('title', 'Unknown'),
@@ -282,8 +363,15 @@ class YouTubeDownloader:
                     'description': info.get('description', ''),
                     'thumbnail': info.get('thumbnail', ''),
                 }
-            except Exception as e:
-                raise Exception(f"Failed to get video info: {_format_youtube_error(e)}")
+
+        try:
+            info, _cookie_browser = self._with_cookie_retry(
+                fetch_info,
+                status_message="Video info request failed.",
+            )
+            return info
+        except Exception as e:
+            raise Exception(f"Failed to get video info: {_format_youtube_error(e)}")
     
     def sanitize_filename(self, filename: str) -> str:
         """Sanitize filename for safe file system usage"""
@@ -366,18 +454,22 @@ class YouTubeDownloader:
         if quality not in self.QUALITY_PRESETS:
             quality = '1080p'
             
-        # First get video info to determine folder name
-        ydl_opts_info = _youtube_ydl_opts({
-            'quiet': True,
-            'no_warnings': True,
-            'noplaylist': True,  # Avoid accidentally downloading full mixes
-        })
-        
-        try:
+        def fetch_info(browser_cookie: str | None):
+            ydl_opts_info = _youtube_ydl_opts({
+                'quiet': True,
+                'no_warnings': True,
+                'noplaylist': True,  # Avoid accidentally downloading full mixes
+            }, browser_cookie=browser_cookie)
             with yt_dlp.YoutubeDL(ydl_opts_info) as ydl:
-                info = ydl.extract_info(url, download=False)
-                video_title = info.get('title', 'Unknown')
-                quality = self._quality_for_available_formats(quality, info.get("formats", []))
+                return ydl.extract_info(url, download=False)
+
+        try:
+            info, info_browser = self._with_cookie_retry(
+                fetch_info,
+                status_message="Video info request failed.",
+            )
+            video_title = info.get('title', 'Unknown')
+            quality = self._quality_for_available_formats(quality, info.get("formats", []))
         except Exception as e:
             raise Exception(f"Failed to get video info: {_format_youtube_error(e)}")
 
@@ -392,52 +484,54 @@ class YouTubeDownloader:
         if target_path.exists() and not overwrite:
             return str(target_path)
         
-        # Configure download options
-        ydl_opts = _youtube_ydl_opts({
-            'outtmpl': str(video_folder / f'{folder_name}_{quality}.%(ext)s'),
-            # Select best video format up to specified quality, prefer mp4
-            'format': f'bestvideo[height<={height}][ext=mp4]/bestvideo[height<={height}]',
-            'quiet': False,
-            'no_warnings': False,
-            'noplaylist': True,  # Do not expand mixes/playlist links
-            'postprocessors': [{
-                'key': 'FFmpegVideoConvertor',
-                'preferedformat': 'mp4',  # Convert to mp4 if needed
-            }],
-        })
-        
-        if progress_hook:
-            ydl_opts['progress_hooks'] = [progress_hook]
-        
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            try:
+        def perform_download(browser_cookie: str | None) -> str:
+            ydl_opts = _youtube_ydl_opts({
+                'outtmpl': str(video_folder / f'{folder_name}_{quality}.%(ext)s'),
+                # Select best video format up to specified quality, prefer mp4
+                'format': f'bestvideo[height<={height}][ext=mp4]/bestvideo[height<={height}]',
+                'quiet': False,
+                'no_warnings': False,
+                'noplaylist': True,  # Do not expand mixes/playlist links
+                'postprocessors': [{
+                    'key': 'FFmpegVideoConvertor',
+                    'preferedformat': 'mp4',  # Convert to mp4 if needed
+                }],
+            }, browser_cookie=browser_cookie)
+
+            if progress_hook:
+                ydl_opts['progress_hooks'] = [progress_hook]
+
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
-                
-                # Get the actual filename
                 filename = ydl.prepare_filename(info)
-                # Handle potential format conversion
                 if not filename.endswith('.mp4'):
                     base = os.path.splitext(filename)[0]
                     mp4_path = f"{base}.mp4"
                     if os.path.exists(mp4_path):
                         filename = mp4_path
-                        
                 return filename
-                
-            except Exception as e:
-                raise Exception(f"Download failed: {_format_youtube_error(e)}")
+
+        try:
+            if info_browser is not None:
+                return perform_download(info_browser)
+            filename, _cookie_browser = self._with_cookie_retry(
+                perform_download,
+                status_message="Download failed.",
+            )
+            return filename
+        except Exception as e:
+            raise Exception(f"Download failed: {_format_youtube_error(e)}")
     
     def get_available_qualities(self, url: str) -> Dict[str, Dict[str, Any]]:
         """Get available quality options for a video"""
         url = self.normalize_url(url)
-            
-        ydl_opts = _youtube_ydl_opts({
-            'quiet': True,
-            'no_warnings': True,
-        })
-        
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            try:
+
+        def fetch_qualities(browser_cookie: str | None):
+            ydl_opts = _youtube_ydl_opts({
+                'quiet': True,
+                'no_warnings': True,
+            }, browser_cookie=browser_cookie)
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=False)
                 formats = info.get('formats', [])
                 
@@ -472,9 +566,15 @@ class YouTubeDownloader:
                         }
                 
                 return available_qualities
-                
-            except Exception as e:
-                raise Exception(f"Failed to get quality options: {_format_youtube_error(e)}")
+
+        try:
+            qualities, _cookie_browser = self._with_cookie_retry(
+                fetch_qualities,
+                status_message="Quality lookup failed.",
+            )
+            return qualities
+        except Exception as e:
+            raise Exception(f"Failed to get quality options: {_format_youtube_error(e)}")
 
 
 # Example usage

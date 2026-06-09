@@ -78,6 +78,7 @@ logs/
 *.tmp
 *.bak
 scratch/
+.worktrees/
 .lab/*
 !.lab/.gitkeep
 debug_frames/

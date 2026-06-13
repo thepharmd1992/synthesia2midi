@@ -16,6 +16,7 @@ from synthesia2midi.runtime_paths import detect_runtime_paths
 
 _SUPPORTED_JS_RUNTIMES = ("node", "deno", "bun", "quickjs")
 SUPPORTED_COOKIE_BROWSERS = ("chrome", "edge", "safari")
+QUALITY_ORDER = ("1080p", "720p", "480p")
 _COMMON_RUNTIME_DIRS = (
     Path.home() / ".local" / "bin",
     Path("/opt/homebrew/bin"),
@@ -93,6 +94,10 @@ def should_retry_with_browser_cookies(error: str | Exception) -> bool:
     )
 
 
+def should_retry_with_lower_quality(error: str | Exception) -> bool:
+    return "requested format is not available" in str(error).lower()
+
+
 def _youtube_ydl_opts(base_opts: Dict[str, Any], *, browser_cookie: str | None = None) -> Dict[str, Any]:
     opts = dict(base_opts)
     ffmpeg_path = detect_runtime_paths().ffmpeg_path()
@@ -112,6 +117,8 @@ def _youtube_ydl_opts(base_opts: Dict[str, Any], *, browser_cookie: str | None =
 def _format_youtube_error(error: Exception) -> str:
     message = str(error)
     normalized = message.lower()
+    if "requested format is not available" in normalized:
+        return f"{message}. This video does not offer that quality."
     if (
         "sign in" in normalized
         or "cookies" in normalized
@@ -362,6 +369,7 @@ class YouTubeDownloader:
                     'upload_date': info.get('upload_date', 'Unknown'),
                     'description': info.get('description', ''),
                     'thumbnail': info.get('thumbnail', ''),
+                    'available_qualities': self._available_qualities_for_formats(info.get('formats', [])),
                 }
 
         try:
@@ -418,6 +426,49 @@ class YouTubeDownloader:
         folder_name = self._folder_name_for_title(video_title)
         return self.output_dir / folder_name / f"{folder_name}_{quality}.mp4"
 
+    @classmethod
+    def _available_qualities_for_formats(cls, formats: list) -> Dict[str, Dict[str, Any]]:
+        video_formats = [
+            fmt
+            for fmt in formats
+            if fmt.get("vcodec") != "none" and fmt.get("acodec") == "none"
+        ]
+        max_available_height = max(
+            ((fmt.get("height", 0) or 0) for fmt in video_formats),
+            default=0,
+        )
+        available_qualities = {}
+
+        for preset, details in cls.QUALITY_PRESETS.items():
+            height = details["height"]
+            matching_formats = [
+                fmt for fmt in video_formats if (fmt.get("height", 0) or 0) <= height
+            ]
+
+            if matching_formats:
+                best = max(
+                    matching_formats,
+                    key=lambda fmt: ((fmt.get("height", 0) or 0), (fmt.get("filesize", 0) or 0)),
+                )
+                available_qualities[preset] = {
+                    "available": True,
+                    "actual_height": best.get("height"),
+                    "filesize_mb": (
+                        (best.get("filesize", 0) or 0) / 1024 / 1024
+                        if best.get("filesize")
+                        else None
+                    ),
+                    "format": best.get("ext", "unknown"),
+                    "note": details["note"],
+                }
+            else:
+                available_qualities[preset] = {
+                    "available": False,
+                    "note": f"Not available (max available: {max_available_height}p)",
+                }
+
+        return available_qualities
+
     def _quality_for_available_formats(self, requested_quality: str, formats: list) -> str:
         requested_height = self.QUALITY_PRESETS[requested_quality]["height"]
         video_heights = {
@@ -436,6 +487,13 @@ class YouTubeDownloader:
                 return quality
 
         return requested_quality
+
+    @staticmethod
+    def _quality_fallback_chain(requested_quality: str) -> list[str]:
+        if requested_quality not in QUALITY_ORDER:
+            return list(QUALITY_ORDER)
+        start_index = QUALITY_ORDER.index(requested_quality)
+        return list(QUALITY_ORDER[start_index:])
 
     def download_video_only(self, url: str, quality: str = '1080p',
                           progress_hook=None, overwrite: bool = False) -> Optional[str]:
@@ -473,8 +531,6 @@ class YouTubeDownloader:
         except Exception as e:
             raise Exception(f"Failed to get video info: {_format_youtube_error(e)}")
 
-        height = self.QUALITY_PRESETS[quality]['height']
-            
         folder_name = self._folder_name_for_title(video_title)
         
         # Create subfolder in videos directory
@@ -484,11 +540,12 @@ class YouTubeDownloader:
         if target_path.exists() and not overwrite:
             return str(target_path)
         
-        def perform_download(browser_cookie: str | None) -> str:
+        def perform_download(attempt_quality: str, browser_cookie: str | None) -> str:
+            attempt_height = self.QUALITY_PRESETS[attempt_quality]['height']
             ydl_opts = _youtube_ydl_opts({
-                'outtmpl': str(video_folder / f'{folder_name}_{quality}.%(ext)s'),
+                'outtmpl': str(video_folder / f'{folder_name}_{attempt_quality}.%(ext)s'),
                 # Select best video format up to specified quality, prefer mp4
-                'format': f'bestvideo[height<={height}][ext=mp4]/bestvideo[height<={height}]',
+                'format': f'bestvideo[height<={attempt_height}][ext=mp4]/bestvideo[height<={attempt_height}]',
                 'quiet': False,
                 'no_warnings': False,
                 'noplaylist': True,  # Do not expand mixes/playlist links
@@ -511,11 +568,28 @@ class YouTubeDownloader:
                         filename = mp4_path
                 return filename
 
+        def attempt_download_with_quality_fallback(browser_cookie: str | None) -> str:
+            last_error: Exception | None = None
+            for attempt_quality in self._quality_fallback_chain(quality):
+                try:
+                    return perform_download(attempt_quality, browser_cookie)
+                except Exception as exc:
+                    last_error = exc
+                    if not should_retry_with_lower_quality(exc) or attempt_quality == QUALITY_ORDER[-1]:
+                        raise
+                    self._emit_status(
+                        f"{attempt_quality} is unavailable for this video. Trying a lower quality..."
+                    )
+
+            if last_error is not None:
+                raise last_error
+            raise Exception("Download failed")
+
         try:
             if info_browser is not None:
-                return perform_download(info_browser)
+                return attempt_download_with_quality_fallback(info_browser)
             filename, _cookie_browser = self._with_cookie_retry(
-                perform_download,
+                attempt_download_with_quality_fallback,
                 status_message="Download failed.",
             )
             return filename
@@ -533,39 +607,7 @@ class YouTubeDownloader:
             }, browser_cookie=browser_cookie)
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=False)
-                formats = info.get('formats', [])
-                
-                available_qualities = {}
-                
-                for preset, details in self.QUALITY_PRESETS.items():
-                    height = details['height']
-                    # Find best format for this quality
-                    matching_formats = [
-                        f for f in formats 
-                        if f.get('vcodec') != 'none' 
-                        and f.get('acodec') == 'none'  # Video only
-                        and f.get('height', 0) <= height
-                    ]
-                    
-                    if matching_formats:
-                        # Sort by height (descending) then by filesize
-                        best = max(matching_formats, 
-                                 key=lambda x: (x.get('height', 0), x.get('filesize', 0)))
-                        
-                        available_qualities[preset] = {
-                            'available': True,
-                            'actual_height': best.get('height'),
-                            'filesize_mb': best.get('filesize', 0) / 1024 / 1024 if best.get('filesize') else None,
-                            'format': best.get('ext', 'unknown'),
-                            'note': details['note']
-                        }
-                    else:
-                        available_qualities[preset] = {
-                            'available': False,
-                            'note': f"Not available (max available: {max([f.get('height', 0) for f in formats if f.get('vcodec') != 'none'])}p)"
-                        }
-                
-                return available_qualities
+                return self._available_qualities_for_formats(info.get('formats', []))
 
         try:
             qualities, _cookie_browser = self._with_cookie_retry(

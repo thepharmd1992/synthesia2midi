@@ -42,6 +42,37 @@ def test_get_video_info_enables_js_challenge_support(monkeypatch, tmp_path):
     assert captured_opts[0]["remote_components"] == ["ejs:github"]
 
 
+def test_get_video_info_includes_available_qualities(monkeypatch, tmp_path):
+    class FakeYoutubeDL:
+        def __init__(self, opts):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def extract_info(self, url, download=False):
+            return {
+                "title": "Mary had a little lamb",
+                "duration": 123,
+                "uploader": "Piano",
+                "formats": [
+                    {"height": 360, "vcodec": "h264", "acodec": "none", "ext": "mp4"},
+                    {"height": 720, "vcodec": "h264", "acodec": "none", "ext": "mp4"},
+                ],
+            }
+
+    monkeypatch.setattr(youtube_downloader.yt_dlp, "YoutubeDL", FakeYoutubeDL)
+
+    info = YouTubeDownloader(str(tmp_path)).get_video_info("https://www.youtube.com/watch?v=SFFSZQCnU_M")
+
+    assert info["available_qualities"]["720p"]["actual_height"] == 720
+    assert info["available_qualities"]["1080p"]["actual_height"] == 720
+    assert info["available_qualities"]["480p"]["actual_height"] == 360
+
+
 def test_youtube_opts_include_bundled_ffmpeg_and_cookie_browser(monkeypatch, tmp_path):
     ffmpeg_path = tmp_path / "bin" / "ffmpeg"
     ffmpeg_path.parent.mkdir()
@@ -291,6 +322,47 @@ def test_download_falls_back_to_closest_lower_quality(monkeypatch, tmp_path):
 
     assert output_path.endswith("mary_had_a_little_lamb_720p.mp4")
     assert captured_opts[-1]["format"] == "bestvideo[height<=720][ext=mp4]/bestvideo[height<=720]"
+
+
+def test_download_retries_with_lower_quality_when_requested_format_is_unavailable(monkeypatch, tmp_path):
+    captured_opts = []
+    statuses = []
+
+    class FakeYoutubeDL:
+        def __init__(self, opts):
+            self.opts = opts
+            captured_opts.append(opts)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def extract_info(self, url, download=False):
+            if not download:
+                return {"title": "Mary had a little lamb", "id": "SFFSZQCnU_M", "formats": []}
+            if "height<=1080" in self.opts["format"]:
+                raise Exception(
+                    "ERROR: [youtube] SFFSZQCnU_M: Requested format is not available. "
+                    "Use --list-formats for a list of available formats"
+                )
+            return {"title": "Mary had a little lamb", "id": "SFFSZQCnU_M"}
+
+        def prepare_filename(self, info):
+            return str(Path(captured_opts[-1]["outtmpl"]).with_suffix(".mp4"))
+
+    monkeypatch.setattr(youtube_downloader.yt_dlp, "YoutubeDL", FakeYoutubeDL)
+
+    output_path = YouTubeDownloader(
+        str(tmp_path),
+        status_callback=statuses.append,
+    ).download_video_only("https://www.youtube.com/watch?v=SFFSZQCnU_M", quality="1080p")
+
+    assert output_path.endswith("mary_had_a_little_lamb_720p.mp4")
+    assert captured_opts[1]["format"] == "bestvideo[height<=1080][ext=mp4]/bestvideo[height<=1080]"
+    assert captured_opts[2]["format"] == "bestvideo[height<=720][ext=mp4]/bestvideo[height<=720]"
+    assert statuses == ["1080p is unavailable for this video. Trying a lower quality..."]
 
 
 def test_progress_status_includes_download_metrics():

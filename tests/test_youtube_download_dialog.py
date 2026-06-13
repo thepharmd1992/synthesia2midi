@@ -177,6 +177,33 @@ def test_video_info_success_enables_quality_selector(tmp_path):
     assert dialog.quality_combo.isEnabled()
 
 
+def test_video_info_success_uses_real_available_quality_options(tmp_path):
+    QApplication.instance() or QApplication([])
+    dialog = YouTubeDownloadDialog(default_output_dir=str(tmp_path))
+    dialog.url_input.setText("https://www.youtube.com/watch?v=SFFSZQCnU_M")
+
+    dialog._on_video_info_fetched(
+        "https://www.youtube.com/watch?v=SFFSZQCnU_M",
+        {
+            "title": "Mary",
+            "duration": 24,
+            "uploader": "Tuttopiano",
+            "available_qualities": {
+                "1080p": {"available": True, "actual_height": 720, "note": "Highest detail"},
+                "720p": {"available": True, "actual_height": 720, "note": "Faster processing, higher calibration risk"},
+                "480p": {"available": True, "actual_height": 360, "note": "Fastest processing, highest calibration risk"},
+            },
+        },
+    )
+
+    assert [dialog.quality_combo.itemData(i) for i in range(dialog.quality_combo.count())] == [
+        "720p",
+        "480p",
+    ]
+    assert dialog.quality_combo.currentData() == "720p"
+    assert dialog.quality_combo.itemText(1).startswith("Up to 480p (360p source)")
+
+
 def test_download_starts_with_indeterminate_progress(monkeypatch, tmp_path):
     QApplication.instance() or QApplication([])
     settings = FakeSettings({youtube_download_dialog.YOUTUBE_PREFERRED_BROWSER_KEY: "safari"})

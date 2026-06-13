@@ -54,6 +54,7 @@ class YouTubeDownloadDialog(QDialog):
 
     AUTO_FETCH_DELAY_MS = 350
     DOWNLOAD_STALL_DELAY_MS = 20000
+    QUALITY_ORDER = ("1080p", "720p", "480p")
     
     # Signal emitted when download completes with file path
     video_downloaded = Signal(str)
@@ -124,9 +125,7 @@ class YouTubeDownloadDialog(QDialog):
         layout.addWidget(url_group)
         
         self.quality_combo = QComboBox()
-        self.quality_combo.addItem("1080p", "1080p")
-        self.quality_combo.addItem("720p - faster processing, higher calibration risk", "720p")
-        self.quality_combo.addItem("480p - fastest processing, highest calibration risk", "480p")
+        self._reset_quality_options()
         self.quality_combo.setEnabled(False)
         layout.addWidget(self.quality_combo)
 
@@ -201,6 +200,7 @@ class YouTubeDownloadDialog(QDialog):
         has_current_info = is_valid and url == self._current_info_url
         if not has_current_info:
             self.info_widget.hide()
+            self._reset_quality_options()
             self.quality_combo.setEnabled(False)
             self._current_video_title = None
         self.download_btn.setEnabled(has_current_info)
@@ -275,6 +275,7 @@ class YouTubeDownloadDialog(QDialog):
 
         self._current_info_url = url
         self._current_video_title = info['title']
+        self._apply_available_qualities(info.get("available_qualities"))
         self.info_widget.show()
         self.quality_combo.setEnabled(True)
         self.download_btn.setEnabled(True)
@@ -287,6 +288,7 @@ class YouTubeDownloadDialog(QDialog):
         self._current_info_url = None
         self._current_video_title = None
         self.info_widget.hide()
+        self._reset_quality_options()
         self.quality_combo.setEnabled(False)
         self.download_btn.setEnabled(False)
         if self._show_info_error_dialog:
@@ -443,6 +445,64 @@ class YouTubeDownloadDialog(QDialog):
         self.quality_combo.setEnabled(is_valid and url == self._current_info_url)
         self.progress_bar.hide()
         self.progress_bar.setRange(0, 100)
+
+    def _reset_quality_options(self):
+        self.quality_combo.clear()
+        self.quality_combo.addItem("1080p", "1080p")
+        self.quality_combo.addItem("720p - faster processing, higher calibration risk", "720p")
+        self.quality_combo.addItem("480p - fastest processing, highest calibration risk", "480p")
+
+    def _apply_available_qualities(self, available_qualities):
+        if not available_qualities:
+            self._reset_quality_options()
+            return
+
+        visible_options = {}
+        for preset in self.QUALITY_ORDER:
+            quality_info = available_qualities.get(preset) or {}
+            if not quality_info.get("available"):
+                continue
+            actual_height = quality_info.get("actual_height")
+            if not actual_height:
+                continue
+            existing = visible_options.get(actual_height)
+            if existing is None or self._prefer_quality_option(preset, actual_height, existing[0]):
+                visible_options[actual_height] = (preset, quality_info)
+
+        if not visible_options:
+            self._reset_quality_options()
+            return
+
+        current_quality = self.quality_combo.currentData()
+        self.quality_combo.clear()
+        selected_index = 0
+        for index, actual_height in enumerate(sorted(visible_options.keys(), reverse=True)):
+            preset, quality_info = visible_options[actual_height]
+            self.quality_combo.addItem(self._quality_option_label(preset, quality_info), preset)
+            if current_quality == preset:
+                selected_index = index
+        self.quality_combo.setCurrentIndex(selected_index)
+
+    def _prefer_quality_option(self, preset, actual_height, existing_preset):
+        preset_height = YouTubeDownloader.QUALITY_PRESETS[preset]["height"]
+        existing_height = YouTubeDownloader.QUALITY_PRESETS[existing_preset]["height"]
+        preset_exact = preset_height == actual_height
+        existing_exact = existing_height == actual_height
+        if preset_exact != existing_exact:
+            return preset_exact
+        return preset_height < existing_height
+
+    def _quality_option_label(self, preset, quality_info):
+        actual_height = quality_info.get("actual_height")
+        note = quality_info.get("note", "")
+        target_height = YouTubeDownloader.QUALITY_PRESETS[preset]["height"]
+        if actual_height and actual_height != target_height:
+            label = f"Up to {target_height}p ({actual_height}p source)"
+        else:
+            label = preset
+        if note:
+            return f"{label} - {note.lower()}"
+        return label
 
     def preferred_browser(self):
         current = self.browser_combo.currentData() if hasattr(self, "browser_combo") else self._preferred_browser

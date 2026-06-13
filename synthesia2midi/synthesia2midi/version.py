@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 
 RELEASE_APP_NAME = "Synthesia2MIDI"
-DEFAULT_APP_VERSION = "0.1.0-dev"
+DEFAULT_APP_VERSION = "0.1.1-dev"
 _VERSION_PATTERN = re.compile(r"^v?(?P<version>\d+\.\d+\.\d+(?:[-+._0-9A-Za-z]*)?)$")
 
 

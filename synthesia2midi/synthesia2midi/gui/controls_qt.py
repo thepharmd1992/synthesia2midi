@@ -8,14 +8,20 @@ window connects to workflows/state updates.
 import logging
 from typing import Optional
 
-from PySide6.QtCore import QCoreApplication, Qt, Signal
+from PySide6.QtCore import QCoreApplication, QSettings, Qt, Signal
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QGridLayout, QGroupBox,
-    QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton, QScrollArea, QSizePolicy,
+    QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QMessageBox, QPushButton, QScrollArea, QSizePolicy,
     QSlider, QSpinBox, QStackedWidget, QToolButton, QVBoxLayout, QWidget
 )
 
 from synthesia2midi.core.app_state import AppState
+from synthesia2midi.localization import (
+    load_preferred_locale,
+    locale_display_name,
+    save_preferred_locale,
+    supported_user_locales,
+)
 
 # Key type constants
 KEY_TYPES = ["LW", "LB", "RW", "RB"]
@@ -139,10 +145,11 @@ class ControlPanelQt(QWidget):
     DEFAULT_FALL_DELTA_THRESHOLD = 5
     DEFAULT_SIMILARITY_RATIO = 60
     
-    def __init__(self, parent=None, app_state: AppState = None, state_manager=None):
+    def __init__(self, parent=None, app_state: AppState = None, state_manager=None, settings=None):
         super().__init__(parent)
         self.app_state = app_state or AppState()
         self.state_manager = state_manager
+        self.settings = settings or QSettings("Synthesia2MIDI", "Synthesia2MIDI")
         
         # Widget references for state updates
         self.widgets = {}
@@ -1117,9 +1124,26 @@ class ControlPanelQt(QWidget):
         layout = QVBoxLayout(tab)
         layout.setContentsMargins(0, 0, 0, 0)  # Make grey containers flush with tab header
         layout.setSpacing(5)  # Minimal spacing between grey containers
+
+        application_group = QGroupBox(translate("ControlPanelQt", "Application"))
+        application_group.setObjectName("first_in_tab")
+        application_layout = QGridLayout(application_group)
+
+        application_layout.addWidget(QLabel(translate("ControlPanelQt", "Language:")), 0, 0)
+        self.language_combo = QComboBox()
+        self.language_combo.setObjectName("language_combo")
+        current_locale = load_preferred_locale(self.settings)
+        self.language_combo.blockSignals(True)
+        for locale_name in supported_user_locales():
+            self.language_combo.addItem(locale_display_name(locale_name), locale_name)
+        selected_index = self.language_combo.findData(current_locale)
+        if selected_index >= 0:
+            self.language_combo.setCurrentIndex(selected_index)
+        self.language_combo.blockSignals(False)
+        self.language_combo.currentIndexChanged.connect(self._handle_language_changed)
+        application_layout.addWidget(self.language_combo, 0, 1)
         
         optional_group = QGroupBox(translate("ControlPanelQt", "Optional Features"))
-        optional_group.setObjectName("first_in_tab")  # For CSS styling
         optional_layout = QVBoxLayout(optional_group)
         
         # Hand assignment
@@ -1130,10 +1154,23 @@ class ControlPanelQt(QWidget):
         
         # Add more optional settings here as needed
         
+        layout.addWidget(application_group)
         layout.addWidget(optional_group)
         
         layout.addStretch()
         self._add_settings_section(tab, translate("ControlPanelQt", "Optional"))
+
+    def _handle_language_changed(self, index: int):
+        """Persist the selected UI language for the next app launch."""
+        locale_name = self.language_combo.itemData(index)
+        if not locale_name:
+            return
+        save_preferred_locale(str(locale_name), self.settings)
+        QMessageBox.information(
+            self,
+            translate("ControlPanelQt", "Language"),
+            translate("ControlPanelQt", "Restart Synthesia2MIDI to apply the selected language."),
+        )
     
     def _handle_conversion_request(self):
         """Handle conversion button click."""

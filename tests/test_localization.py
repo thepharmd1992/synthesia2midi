@@ -1,8 +1,11 @@
 from pathlib import Path
+import re
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 
 from PySide6.QtCore import QCoreApplication
+from PySide6.QtCore import QSettings
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication
 
@@ -12,6 +15,7 @@ def test_available_locales_includes_english_and_pseudo_locale():
 
     assert "en" in available_locales()
     assert "qps" in available_locales()
+    assert "es" in available_locales()
 
 
 def test_translation_dir_points_to_package_translations():
@@ -48,10 +52,80 @@ def test_install_translator_defaults_to_english_for_missing_locale():
     assert install_translator(app, "missing-locale") == "en"
 
 
+def test_spanish_translator_loads_known_source_texts():
+    from synthesia2midi.localization import install_translator
+
+    app = QApplication.instance() or QApplication([])
+    selected = install_translator(app, "es")
+
+    try:
+        assert selected == "es"
+        assert QCoreApplication.translate("Video2MidiApp", "File") == "Archivo"
+        assert QCoreApplication.translate("ControlPanelQt", "Convert") == "Convertir"
+    finally:
+        install_translator(app, "en")
+
+
+def test_supported_user_locales_hide_pseudo_locale():
+    from synthesia2midi.localization import locale_display_name, supported_user_locales
+
+    assert supported_user_locales() == ["en", "es"]
+    assert "qps" not in supported_user_locales()
+    assert locale_display_name("en") == "English"
+    assert locale_display_name("es") == "Español"
+
+
+def test_locale_preference_helpers_use_qsettings(tmp_path):
+    from synthesia2midi.localization import (
+        APP_LOCALE_SETTINGS_KEY,
+        load_preferred_locale,
+        resolve_startup_locale,
+        save_preferred_locale,
+    )
+
+    QSettings.setPath(QSettings.IniFormat, QSettings.UserScope, str(tmp_path))
+    settings = QSettings(QSettings.IniFormat, QSettings.UserScope, "Synthesia2MIDI", "test-locales")
+
+    assert load_preferred_locale(settings) == "en"
+
+    save_preferred_locale("es", settings)
+
+    assert settings.value(APP_LOCALE_SETTINGS_KEY) == "es"
+    assert load_preferred_locale(settings) == "es"
+    assert resolve_startup_locale(None, settings) == "es"
+    assert resolve_startup_locale("qps", settings) == "qps"
+
+    settings.setValue(APP_LOCALE_SETTINGS_KEY, "missing-locale")
+
+    assert load_preferred_locale(settings) == "en"
+
+
 def test_translation_assets_are_collected_by_packaging_spec():
     spec_text = Path("packaging/Synthesia2MIDI.spec").read_text(encoding="utf-8")
 
     assert "translations" in spec_text
+
+
+def test_spanish_translation_source_is_complete_and_preserves_placeholders():
+    ts_path = Path("synthesia2midi/synthesia2midi/translations/synthesia2midi_es.ts")
+    tree = ET.parse(ts_path)
+    unfinished = []
+    placeholder_mismatches = []
+
+    for message in tree.findall(".//message"):
+        source = message.findtext("source") or ""
+        translation = message.find("translation")
+        if translation is None or translation.get("type") == "unfinished" or not (translation.text or "").strip():
+            unfinished.append(source)
+            continue
+
+        source_placeholders = sorted(re.findall(r"\{[^{}]+\}", source))
+        translated_placeholders = sorted(re.findall(r"\{[^{}]+\}", translation.text or ""))
+        if source_placeholders != translated_placeholders:
+            placeholder_mismatches.append((source, translation.text or ""))
+
+    assert unfinished == []
+    assert placeholder_mismatches == []
 
 
 def test_lupdate_extracts_source_texts(tmp_path):

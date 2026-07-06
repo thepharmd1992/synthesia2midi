@@ -5,11 +5,16 @@ from pathlib import Path
 import re
 from typing import Iterable
 
-from PySide6.QtCore import QCoreApplication, QTranslator
+from PySide6.QtCore import QCoreApplication, QSettings, QTranslator
 from PySide6.QtWidgets import QApplication
 
 
 _INSTALLED_TRANSLATOR: QTranslator | None = None
+APP_LOCALE_SETTINGS_KEY = "app/locale"
+_USER_LOCALE_DISPLAY_NAMES = {
+    "en": "English",
+    "es": "Español",
+}
 
 
 class _PseudoTranslator(QTranslator):
@@ -69,6 +74,46 @@ def available_locales() -> list[str]:
         for file_path in translations.glob("synthesia2midi_*.qm"):
             locales.add(file_path.stem.removeprefix("synthesia2midi_"))
     return sorted(locales)
+
+
+def supported_user_locales() -> list[str]:
+    """Return locales exposed in the user-facing language selector."""
+    return list(_USER_LOCALE_DISPLAY_NAMES)
+
+
+def locale_display_name(locale_name: str) -> str:
+    """Return the user-facing display name for a supported locale."""
+    return _USER_LOCALE_DISPLAY_NAMES.get(locale_name, locale_name)
+
+
+def _app_settings(settings: QSettings | None = None) -> QSettings:
+    return settings or QSettings("Synthesia2MIDI", "Synthesia2MIDI")
+
+
+def load_preferred_locale(settings: QSettings | None = None) -> str:
+    """Load the persisted user locale, falling back to English."""
+    stored = str(_app_settings(settings).value(APP_LOCALE_SETTINGS_KEY, "en") or "en").strip()
+    if stored in supported_user_locales():
+        return stored
+    return "en"
+
+
+def save_preferred_locale(locale_name: str, settings: QSettings | None = None) -> None:
+    """Persist the user's preferred UI locale."""
+    if locale_name not in supported_user_locales():
+        raise ValueError(f"Unsupported user locale: {locale_name}")
+    _app_settings(settings).setValue(APP_LOCALE_SETTINGS_KEY, locale_name)
+
+
+def resolve_startup_locale(
+    env_locale: str | None = None,
+    settings: QSettings | None = None,
+) -> str:
+    """Resolve startup locale from env override first, then user settings."""
+    requested = (env_locale or "").strip()
+    if requested:
+        return requested
+    return load_preferred_locale(settings)
 
 
 def _candidate_translation_files(locale_name: str) -> Iterable[Path]:

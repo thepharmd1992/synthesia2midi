@@ -94,7 +94,7 @@ try:
     logger.info(f"Qt version: {QCoreApplication.applicationVersion()}")
     
     logger.info("Importing Video2MidiApp...")
-    from synthesia2midi.localization import install_translator
+    from synthesia2midi.localization import install_translator, resolve_startup_locale
     from synthesia2midi.main import Video2MidiApp
     logger.info("Video2MidiApp imported successfully")
     
@@ -120,7 +120,8 @@ if __name__ == "__main__":
         logger.info("Creating QApplication...")
         qapp = QApplication(sys.argv)
         logger.info("QApplication created successfully")
-        selected_locale = install_translator(qapp, os.getenv("SYNTHESIA2MIDI_LOCALE"))
+        requested_locale = resolve_startup_locale(os.getenv("SYNTHESIA2MIDI_LOCALE"))
+        selected_locale = install_translator(qapp, requested_locale)
         logger.info("UI locale selected: %s", selected_locale)
         
         

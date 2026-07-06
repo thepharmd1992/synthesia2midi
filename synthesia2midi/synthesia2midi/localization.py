@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 from typing import Iterable
 
 from PySide6.QtCore import QCoreApplication, QTranslator
@@ -42,7 +43,17 @@ class _PseudoTranslator(QTranslator):
         """Return a visibly transformed pseudo translation."""
         if not sourceText:
             return ""
-        return f"[!! {sourceText.translate(self._CHAR_MAP)} !!]"
+        placeholders: list[str] = []
+
+        def preserve_placeholder(match: re.Match[str]) -> str:
+            placeholders.append(match.group(0))
+            return f"__S2M_PLACEHOLDER_{len(placeholders) - 1}__"
+
+        protected = re.sub(r"\{[^{}]*\}", preserve_placeholder, sourceText)
+        translated = protected.translate(self._CHAR_MAP)
+        for index, placeholder in enumerate(placeholders):
+            translated = translated.replace(f"__S2M_PLÀCÈHÒLDÈR_{index}__", placeholder)
+        return f"[!! {translated} !!]"
 
 
 def translation_dir() -> Path:

@@ -35,6 +35,27 @@ def test_static_extractor_finds_qt_visible_strings_and_classifies_literals(tmp_p
     assert "log-only message" not in by_text
 
 
+def test_static_extractor_includes_qcoreapplication_translate_calls(tmp_path):
+    from synthesia2midi.tools.audit_ui_strings import collect_static_candidates
+
+    source = tmp_path / "translated_ui.py"
+    source.write_text(
+        "\n".join(
+            [
+                "from PySide6.QtCore import QCoreApplication",
+                "text = QCoreApplication.translate('Video2MidiApp', 'File')",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    candidates = collect_static_candidates([source], root=tmp_path)
+
+    assert [candidate.text for candidate in candidates] == ["File"]
+    assert candidates[0].context == "QCoreApplication.translate"
+    assert candidates[0].classification == "translate"
+
+
 def test_runtime_widget_crawler_collects_visible_text():
     from PySide6.QtWidgets import QApplication
 

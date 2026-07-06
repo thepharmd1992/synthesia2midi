@@ -133,6 +133,8 @@ def _is_qt_visible_call(name: str) -> str | None:
         return f"QMessageBox.{leaf}"
     if name.startswith("QFileDialog.") and leaf in FILE_DIALOG_METHODS:
         return f"QFileDialog.{leaf}"
+    if name == "QCoreApplication.translate":
+        return name
     return None
 
 
@@ -197,6 +199,8 @@ def collect_static_candidates(paths: Iterable[Path], *, root: Path) -> list[UiSt
             if context is None:
                 continue
             for index, arg in enumerate(node.args):
+                if context == "QCoreApplication.translate" and index != 1:
+                    continue
                 text = _text_of(arg)
                 if text is None:
                     continue

@@ -23,7 +23,7 @@ import os
 import sys
 from typing import Optional
 
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import QCoreApplication, Qt, QTimer
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QApplication, QDialog, QHBoxLayout, QLabel, QMainWindow, QMessageBox, QSizePolicy, QSlider, QToolButton, QVBoxLayout, QWidget
 
@@ -141,36 +141,36 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         menubar = self.menuBar()
 
         # File menu
-        filemenu = menubar.addMenu("File")
-        open_action = QAction("Open Video (MP4)...", self)
+        filemenu = menubar.addMenu(QCoreApplication.translate("Video2MidiApp", "File"))
+        open_action = QAction(QCoreApplication.translate("Video2MidiApp", "Open Video (MP4)..."), self)
         open_action.triggered.connect(self.video_session_ui_controller.open_video_file)
         filemenu.addAction(open_action)
 
-        youtube_action = QAction("Download Youtube Video...", self)
+        youtube_action = QAction(QCoreApplication.translate("Video2MidiApp", "Download Youtube Video..."), self)
         youtube_action.triggered.connect(self.video_session_ui_controller.show_youtube_download_dialog)
         filemenu.addAction(youtube_action)
 
-        save_action = QAction("Save Settings (Ctrl+S)", self)
+        save_action = QAction(QCoreApplication.translate("Video2MidiApp", "Save Settings (Ctrl+S)"), self)
         save_action.setShortcut("Ctrl+S")
         save_action.triggered.connect(self._save_settings)
         filemenu.addAction(save_action)
 
         filemenu.addSeparator()
 
-        exit_action = QAction("Exit", self)
+        exit_action = QAction(QCoreApplication.translate("Video2MidiApp", "Exit"), self)
         exit_action.triggered.connect(self.close)
         filemenu.addAction(exit_action)
 
 
         # View menu
-        view_menu = menubar.addMenu("View")
-        self.show_overlays_action = QAction("Show Overlays", self)
+        view_menu = menubar.addMenu(QCoreApplication.translate("Video2MidiApp", "View"))
+        self.show_overlays_action = QAction(QCoreApplication.translate("Video2MidiApp", "Show Overlays"), self)
         self.show_overlays_action.setCheckable(True)
         self.show_overlays_action.setChecked(self.app_state.ui.show_overlays)
         self.show_overlays_action.triggered.connect(self.main_action_controller.toggle_overlays)
         view_menu.addAction(self.show_overlays_action)
 
-        self.live_detection_action = QAction("Live Detection Feedback", self)
+        self.live_detection_action = QAction(QCoreApplication.translate("Video2MidiApp", "Live Detection Feedback"), self)
         self.live_detection_action.setCheckable(True)
         self.live_detection_action.setChecked(self.app_state.ui.live_detection_feedback)
         self.live_detection_action.triggered.connect(self.display_manager.set_live_detection_feedback_enabled)
@@ -178,7 +178,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
 
         view_menu.addSeparator()
 
-        self.focus_video_action = QAction("Focus Video (Hide Settings)", self)
+        self.focus_video_action = QAction(QCoreApplication.translate("Video2MidiApp", "Focus Video (Hide Settings)"), self)
         self.focus_video_action.setCheckable(True)
         self.focus_video_action.setShortcut("Ctrl+Shift+F")
         self.focus_video_action.setShortcutContext(Qt.ApplicationShortcut)
@@ -190,12 +190,16 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
 
         # Frame Navigation menu
 
-        frame_nav_menu = menubar.addMenu("Frame Navigation")
+        frame_nav_menu = menubar.addMenu(QCoreApplication.translate("Video2MidiApp", "Frame Navigation"))
 
         # Create interval menu items with checkmarks
         self.frame_nav_actions = {}
         for interval in FRAME_NAV_INTERVALS:
-            action = QAction(f"{interval} frame{'s' if interval != 1 else ''}", self)
+            if interval == 1:
+                action_text = QCoreApplication.translate("Video2MidiApp", "{count} frame").format(count=interval)
+            else:
+                action_text = QCoreApplication.translate("Video2MidiApp", "{count} frames").format(count=interval)
+            action = QAction(action_text, self)
             action.setCheckable(True)
             action.setChecked(self.app_state.video.current_nav_interval == interval)
             action.triggered.connect(lambda checked, val=interval: self.video_session_ui_controller.handle_frame_nav_interval(val))
@@ -203,10 +207,10 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
             self.frame_nav_actions[interval] = action
 
         # Visual Threshold Monitor menu
-        debug_menu = menubar.addMenu("Visual Threshold Monitor")
+        debug_menu = menubar.addMenu(QCoreApplication.translate("Video2MidiApp", "Visual Threshold Monitor"))
 
         # Visual Threshold Monitor toggle
-        self.visual_threshold_monitor_action = QAction("Enable", self)
+        self.visual_threshold_monitor_action = QAction(QCoreApplication.translate("Video2MidiApp", "Enable"), self)
         self.visual_threshold_monitor_action.setCheckable(True)
         self.visual_threshold_monitor_action.setChecked(self.app_state.ui.visual_threshold_monitor_enabled)
         self.visual_threshold_monitor_action.triggered.connect(self.display_manager.set_visual_threshold_monitor_enabled)
@@ -215,7 +219,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         debug_menu.addSeparator()
 
         # Screenshot capture action
-        capture_action = QAction("Capture Window Screenshot", self)
+        capture_action = QAction(QCoreApplication.translate("Video2MidiApp", "Capture Window Screenshot"), self)
         capture_action.setShortcut("Ctrl+Shift+C")
         capture_action.triggered.connect(self._capture_window_screenshot)
         debug_menu.addAction(capture_action)
@@ -248,7 +252,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.settings_toggle_button.setText("\u2699")
         self.settings_toggle_button.setCheckable(True)
         self.settings_toggle_button.setFixedSize(32, 32)
-        self.settings_toggle_button.setToolTip("Show settings")
+        self.settings_toggle_button.setToolTip(QCoreApplication.translate("Video2MidiApp", "Show settings"))
         self.settings_toggle_button.setStyleSheet(
             "QToolButton#settings_toggle_button {"
             "background-color: rgba(34, 38, 45, 0.82);"
@@ -304,7 +308,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         slider_layout.addWidget(self.time_label, 0)  # No stretch
 
         # Navigation instructions
-        nav_instructions = QLabel("PgUp/PgDn or ←/→")
+        nav_instructions = QLabel(QCoreApplication.translate("Video2MidiApp", "PgUp/PgDn or ←/→"))
         nav_instructions.setStyleSheet("font-size: 12px; color: #666; margin-left: 8px;")
         slider_layout.addWidget(nav_instructions, 0)  # No stretch
 
@@ -353,7 +357,11 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
     def _sync_settings_toggle_state(self, visible: bool) -> None:
         if hasattr(self, "settings_toggle_button"):
             self.settings_toggle_button.setChecked(visible)
-            self.settings_toggle_button.setToolTip("Hide settings" if visible else "Show settings")
+            self.settings_toggle_button.setToolTip(
+                QCoreApplication.translate("Video2MidiApp", "Hide settings")
+                if visible
+                else QCoreApplication.translate("Video2MidiApp", "Show settings")
+            )
 
     def _toggle_settings_tool_window(self, checked: bool) -> None:
         """Show or hide the floating settings tool window from the gear button."""
@@ -382,11 +390,11 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
             self.settings_tool_window.hide()
             self.settings_toggle_button.hide()
             self._sync_settings_toggle_state(False)
-            self.focus_video_action.setText("Show Settings Panel")
+            self.focus_video_action.setText(QCoreApplication.translate("Video2MidiApp", "Show Settings Panel"))
             return
 
         self.settings_toggle_button.show()
-        self.focus_video_action.setText("Focus Video (Hide Settings)")
+        self.focus_video_action.setText(QCoreApplication.translate("Video2MidiApp", "Focus Video (Hide Settings)"))
         if getattr(self, "_settings_tool_was_visible_before_focus", False):
             self._show_settings_tool_window()
 
@@ -443,19 +451,34 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
 
     def _save_settings(self):
         if not self.app_state.video.filepath:
-            QMessageBox.warning(self, "Save Settings", "No video file is open. Open a video first.")
+            QMessageBox.warning(
+                self,
+                QCoreApplication.translate("Video2MidiApp", "Save Settings"),
+                QCoreApplication.translate("Video2MidiApp", "No video file is open. Open a video first."),
+            )
             return
 
         success = self.video_loading_workflow.save_current_config()
         if success:
-            QMessageBox.information(self, "Save Settings", "Settings saved successfully.")
+            QMessageBox.information(
+                self,
+                QCoreApplication.translate("Video2MidiApp", "Save Settings"),
+                QCoreApplication.translate("Video2MidiApp", "Settings saved successfully."),
+            )
             logging.info(f"Settings saved for {self.app_state.video.filepath}")
         else:
-            QMessageBox.critical(self, "Save Settings", "Failed to save settings.")
+            QMessageBox.critical(
+                self,
+                QCoreApplication.translate("Video2MidiApp", "Save Settings"),
+                QCoreApplication.translate("Video2MidiApp", "Failed to save settings."),
+            )
 
     def closeEvent(self, event):
         if self.app_state.unsaved_changes:
-            reply = QMessageBox.question(self, "Exit", "You have unsaved changes. Save before exiting?",
+            reply = QMessageBox.question(
+                self,
+                QCoreApplication.translate("Video2MidiApp", "Exit"),
+                QCoreApplication.translate("Video2MidiApp", "You have unsaved changes. Save before exiting?"),
                                          QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
             if reply == QMessageBox.Yes:
                 self._save_settings()
@@ -513,23 +536,23 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
             if pixmap.save(filepath):
                 QMessageBox.information(
                     self,
-                    "Screenshot Saved",
-                    f"Window screenshot saved to:\n{filepath}"
+                    QCoreApplication.translate("Video2MidiApp", "Screenshot Saved"),
+                    QCoreApplication.translate("Video2MidiApp", "Window screenshot saved to:\n{filepath}").format(filepath=filepath)
                 )
                 logging.info(f"Window screenshot saved: {filepath}")
             else:
                 QMessageBox.warning(
                     self,
-                    "Screenshot Failed",
-                    f"Failed to save screenshot to:\n{filepath}"
+                    QCoreApplication.translate("Video2MidiApp", "Screenshot Failed"),
+                    QCoreApplication.translate("Video2MidiApp", "Failed to save screenshot to:\n{filepath}").format(filepath=filepath)
                 )
                 logging.error(f"Failed to save window screenshot: {filepath}")
 
         except Exception as e:
             QMessageBox.critical(
                 self,
-                "Screenshot Error",
-                f"Error capturing window screenshot:\n{str(e)}"
+                QCoreApplication.translate("Video2MidiApp", "Screenshot Error"),
+                QCoreApplication.translate("Video2MidiApp", "Error capturing window screenshot:\n{error}").format(error=str(e))
             )
             logging.error(f"Error capturing window screenshot: {e}")
 

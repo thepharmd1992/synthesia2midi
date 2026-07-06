@@ -36,6 +36,7 @@ build_options = _parse_build_options()
 is_macos = sys.platform == "darwin"
 
 datas = collect_data_files("certifi")
+datas.extend(collect_data_files("synthesia2midi", includes=["translations/*"]))
 datas.extend(
     [
         (str(ROOT / "tools" / "midi_touchup_editor_rust" / "assets" / "soundfonts" / "TouchUpPiano.sf2"), "assets/soundfonts"),

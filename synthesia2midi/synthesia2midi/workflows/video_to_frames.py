@@ -10,8 +10,10 @@ import logging
 import os
 import subprocess
 
-from PySide6.QtCore import QThread, Signal
+from PySide6.QtCore import QCoreApplication, QThread, Signal
 from PySide6.QtWidgets import QMessageBox
+
+translate = QCoreApplication.translate
 
 
 class VideoToFramesWorker(QThread):
@@ -91,7 +93,11 @@ class VideoToFramesController:
         """Handle request to convert current video to frame series."""
         app = self.app
         if not app.app_state.video.filepath:
-            QMessageBox.warning(app, "Video to Frames", "No video file is open. Open a video first.")
+            QMessageBox.warning(
+                app,
+                translate("VideoToFramesController", "Video to Frames"),
+                translate("VideoToFramesController", "No video file is open. Open a video first."),
+            )
             return
 
         from synthesia2midi.utils.ffmpeg_helper import check_ffmpeg_available
@@ -100,12 +106,11 @@ class VideoToFramesController:
         if not is_available:
             QMessageBox.critical(
                 app,
-                "FFmpeg Not Found",
-                f"{message}\n\n"
-                "Please install FFmpeg:\n"
-                "• Windows: Download from https://ffmpeg.org/download.html\n"
-                "• macOS: brew install ffmpeg\n"
-                "• Linux: sudo apt install ffmpeg",
+                translate("VideoToFramesController", "FFmpeg Not Found"),
+                translate(
+                    "VideoToFramesController",
+                    "{message}\n\nPlease install FFmpeg:\n• Windows: Download from https://ffmpeg.org/download.html\n• macOS: brew install ffmpeg\n• Linux: sudo apt install ffmpeg",
+                ).format(message=message),
             )
             return
 
@@ -129,38 +134,41 @@ class VideoToFramesController:
                     video_path = original_video
                     QMessageBox.information(
                         app,
-                        "Video to Frames",
-                        "Frame series is currently loaded. Found original video file:\n\n"
-                        f"{os.path.basename(original_video)}\n\n"
-                        "Will convert this video to update the frame series.",
+                        translate("VideoToFramesController", "Video to Frames"),
+                        translate(
+                            "VideoToFramesController",
+                            "Frame series is currently loaded. Found original video file:\n\n{video_name}\n\nWill convert this video to update the frame series.",
+                        ).format(video_name=os.path.basename(original_video)),
                     )
                 else:
                     QMessageBox.warning(
                         app,
-                        "Video to Frames",
-                        "A frame series is currently loaded, but the original video file could not be found.\n\n"
-                        f"Frame series path: {video_path}\n"
-                        f"Expected video in: {parent_dir}/\n"
-                        f"With name: {base_name}.mp4 (or .mov, .avi, etc.)\n\n"
-                        "Please load the original video file manually.",
+                        translate("VideoToFramesController", "Video to Frames"),
+                        translate(
+                            "VideoToFramesController",
+                            "A frame series is currently loaded, but the original video file could not be found.\n\nFrame series path: {video_path}\nExpected video in: {parent_dir}/\nWith name: {base_name}.mp4 (or .mov, .avi, etc.)\n\nPlease load the original video file manually.",
+                        ).format(video_path=video_path, parent_dir=parent_dir, base_name=base_name),
                     )
                     return
             else:
                 QMessageBox.warning(
                     app,
-                    "Video to Frames",
-                    "A directory is currently loaded, but it doesn't appear to be a frame series.\n\n"
-                    f"Current path: {video_path}\n\n"
-                    "Please load a video file (.mp4, .mov, etc.) to convert it to frames.",
+                    translate("VideoToFramesController", "Video to Frames"),
+                    translate(
+                        "VideoToFramesController",
+                        "A directory is currently loaded, but it doesn't appear to be a frame series.\n\nCurrent path: {video_path}\n\nPlease load a video file (.mp4, .mov, etc.) to convert it to frames.",
+                    ).format(video_path=video_path),
                 )
                 return
 
         if not os.path.isfile(video_path):
             QMessageBox.warning(
                 app,
-                "Video to Frames",
-                f"The video file path is not valid:\n{video_path}\n\n"
-                "Please load a valid video file first.",
+                translate("VideoToFramesController", "Video to Frames"),
+                translate(
+                    "VideoToFramesController",
+                    "The video file path is not valid:\n{video_path}\n\nPlease load a valid video file first.",
+                ).format(video_path=video_path),
             )
             return
 
@@ -169,12 +177,11 @@ class VideoToFramesController:
 
         reply = QMessageBox.question(
             app,
-            "Convert Video to Frame Series",
-            "This will convert the current video to a frame series:\n\n"
-            f"Video: {os.path.basename(video_path)}\n"
-            f"Output: {output_dir}\n\n"
-            "This may take several minutes and will overwrite any existing frame series.\n\n"
-            "Continue?",
+            translate("VideoToFramesController", "Convert Video to Frame Series"),
+            translate(
+                "VideoToFramesController",
+                "This will convert the current video to a frame series:\n\nVideo: {video_name}\nOutput: {output_dir}\n\nThis may take several minutes and will overwrite any existing frame series.\n\nContinue?",
+            ).format(video_name=os.path.basename(video_path), output_dir=output_dir),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No,
         )
@@ -183,7 +190,7 @@ class VideoToFramesController:
             return
 
         app.control_panel.video_to_frames_button.setEnabled(False)
-        app.control_panel.video_to_frames_button.setText("Converting...")
+        app.control_panel.video_to_frames_button.setText(translate("VideoToFramesController", "Converting..."))
 
         self.worker = VideoToFramesWorker(video_path, output_dir, quality=90)
         app.video_to_frames_worker = self.worker
@@ -199,7 +206,9 @@ class VideoToFramesController:
         """Handle completion of video conversion."""
         app = self.app
         app.control_panel.video_to_frames_button.setEnabled(True)
-        app.control_panel.video_to_frames_button.setText("Reset Video -> Frame Series")
+        app.control_panel.video_to_frames_button.setText(
+            translate("VideoToFramesController", "Reset Video -> Frame Series")
+        )
 
         if self.worker:
             self.worker.deleteLater()
@@ -209,15 +218,17 @@ class VideoToFramesController:
         if success:
             QMessageBox.information(
                 app,
-                "Conversion Complete",
-                f"Video conversion completed successfully!\n\n{message}\n\n"
-                "You can now load the frame series for faster playback.",
+                translate("VideoToFramesController", "Conversion Complete"),
+                translate(
+                    "VideoToFramesController",
+                    "Video conversion completed successfully!\n\n{message}\n\nYou can now load the frame series for faster playback.",
+                ).format(message=message),
             )
             logging.info("Video to frames conversion completed: %s", message)
         else:
             QMessageBox.critical(
                 app,
-                "Conversion Failed",
-                f"Video conversion failed:\n\n{message}",
+                translate("VideoToFramesController", "Conversion Failed"),
+                translate("VideoToFramesController", "Video conversion failed:\n\n{message}").format(message=message),
             )
             logging.error("Video to frames conversion failed: %s", message)

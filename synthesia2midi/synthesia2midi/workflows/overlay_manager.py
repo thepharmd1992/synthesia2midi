@@ -9,12 +9,15 @@ from typing import Optional, Tuple
 
 import cv2
 import numpy as np
+from PySide6.QtCore import QCoreApplication
 from PySide6.QtWidgets import QMessageBox
 
 from ..core.app_state import AppState
 from ..app_config import OverlayConfig, NOTE_NAMES_SHARP
 from ..gui.controls_qt import KEY_TYPES
 from ..gui.ui_update_interface import UIUpdateInterface
+
+translate = QCoreApplication.translate
 
 
 class OverlayManager:
@@ -122,8 +125,15 @@ class OverlayManager:
             # Show success message
             if self.ui_updater:
                 self.ui_updater.show_message(
-                    "Alignment Complete", 
-                    f"{modified_count} '{target_key_color_type}' keys aligned vertically to overlay {master_overlay.key_id}."
+                    translate("OverlayManager", "Alignment Complete"),
+                    translate(
+                        "OverlayManager",
+                        "{modified_count} '{target_key_color_type}' keys aligned vertically to overlay {master_overlay_key_id}.",
+                    ).format(
+                        modified_count=modified_count,
+                        target_key_color_type=target_key_color_type,
+                        master_overlay_key_id=master_overlay.key_id,
+                    ),
                 )
             
             self.logger.info(f"Aligned {modified_count} '{target_key_color_type}' keys vertically to overlay {master_overlay.key_id}.")
@@ -131,15 +141,21 @@ class OverlayManager:
             if self.parent_widget:
                 QMessageBox.information(
                     self.parent_widget, 
-                    "Alignment Info", 
-                    f"No other '{target_key_color_type}' keys needed vertical alignment."
+                    translate("OverlayManager", "Alignment Info"),
+                    translate(
+                        "OverlayManager", "No other '{target_key_color_type}' keys needed vertical alignment."
+                    ).format(target_key_color_type=target_key_color_type),
                 )
 
     def handle_align_white_keys_to_selected(self):
         """Align all white keys to the selected overlay's Y and Height."""
         if self.app_state.ui.selected_overlay_id is None:
             if self.parent_widget:
-                QMessageBox.warning(self.parent_widget, "Alignment Error", "No overlay selected to act as master.")
+                QMessageBox.warning(
+                    self.parent_widget,
+                    translate("OverlayManager", "Alignment Error"),
+                    translate("OverlayManager", "No overlay selected to act as master."),
+                )
             return
         
         master_overlay = next(
@@ -150,8 +166,10 @@ class OverlayManager:
             if self.parent_widget:
                 QMessageBox.critical(
                     self.parent_widget, 
-                    "Alignment Error", 
-                    f"Selected overlay ID {self.app_state.ui.selected_overlay_id} not found."
+                    translate("OverlayManager", "Alignment Error"),
+                    translate("OverlayManager", "Selected overlay ID {selected_overlay_id} not found.").format(
+                        selected_overlay_id=self.app_state.ui.selected_overlay_id
+                    ),
                 )
             return
         
@@ -161,7 +179,11 @@ class OverlayManager:
         """Align all black keys to the selected overlay's Y and Height."""
         if self.app_state.ui.selected_overlay_id is None:
             if self.parent_widget:
-                QMessageBox.warning(self.parent_widget, "Alignment Error", "No overlay selected to act as master.")
+                QMessageBox.warning(
+                    self.parent_widget,
+                    translate("OverlayManager", "Alignment Error"),
+                    translate("OverlayManager", "No overlay selected to act as master."),
+                )
             return
         
         master_overlay = next(
@@ -172,8 +194,10 @@ class OverlayManager:
             if self.parent_widget:
                 QMessageBox.critical(
                     self.parent_widget, 
-                    "Alignment Error", 
-                    f"Selected overlay ID {self.app_state.ui.selected_overlay_id} not found."
+                    translate("OverlayManager", "Alignment Error"),
+                    translate("OverlayManager", "Selected overlay ID {selected_overlay_id} not found.").format(
+                        selected_overlay_id=self.app_state.ui.selected_overlay_id
+                    ),
                 )
             return
         

@@ -6,9 +6,12 @@ from typing import Optional
 
 import cv2
 import numpy as np
+from PySide6.QtCore import QCoreApplication
 from PySide6.QtWidgets import QMessageBox
 
 from synthesia2midi.app_config import OverlayConfig
+
+translate = QCoreApplication.translate
 
 
 class ShadowCalibrationController:
@@ -27,14 +30,26 @@ class ShadowCalibrationController:
             # Enter ROI selection mode on the canvas
             if hasattr(self.keyboard_canvas, 'interaction') and self.keyboard_canvas.interaction:
                 self.keyboard_canvas.interaction.enter_shadow_roi_selection_mode()
-                QMessageBox.information(self.app, "Shadow ROI Selection",
-                                       "Click and drag on the video to select the shadow detection region.\n"
-                                       "Shadow zones will be created for each key overlay.\n"
-                                       "Right-click to cancel.")
+                QMessageBox.information(
+                    self.app,
+                    translate("ShadowCalibrationController", "Shadow ROI Selection"),
+                    translate(
+                        "ShadowCalibrationController",
+                        "Click and drag on the video to select the shadow detection region.\nShadow zones will be created for each key overlay.\nRight-click to cancel.",
+                    ),
+                )
             else:
-                QMessageBox.warning(self.app, "Canvas Error", "Canvas interaction system not available.")
+                QMessageBox.warning(
+                    self.app,
+                    translate("ShadowCalibrationController", "Canvas Error"),
+                    translate("ShadowCalibrationController", "Canvas interaction system not available."),
+                )
         else:
-            QMessageBox.warning(self.app, "No Canvas", "No video canvas available for ROI selection.")
+            QMessageBox.warning(
+                self.app,
+                translate("ShadowCalibrationController", "No Canvas"),
+                translate("ShadowCalibrationController", "No video canvas available for ROI selection."),
+            )
 
     def select_shadow_white_roi(self):
         """Handle white key shadow ROI selection request from control panel."""
@@ -43,14 +58,26 @@ class ShadowCalibrationController:
             # Enter ROI selection mode on the canvas
             if hasattr(self.keyboard_canvas, 'interaction') and self.keyboard_canvas.interaction:
                 self.keyboard_canvas.interaction.enter_shadow_white_roi_selection_mode()
-                QMessageBox.information(self.app, "White Key Shadow ROI Selection",
-                                       "Click and drag on the video to select the white key shadow detection region.\n"
-                                       "This will define the vertical region where white key shadows are detected.\n"
-                                       "Right-click to cancel.")
+                QMessageBox.information(
+                    self.app,
+                    translate("ShadowCalibrationController", "White Key Shadow ROI Selection"),
+                    translate(
+                        "ShadowCalibrationController",
+                        "Click and drag on the video to select the white key shadow detection region.\nThis will define the vertical region where white key shadows are detected.\nRight-click to cancel.",
+                    ),
+                )
             else:
-                QMessageBox.warning(self.app, "Canvas Error", "Canvas interaction system not available.")
+                QMessageBox.warning(
+                    self.app,
+                    translate("ShadowCalibrationController", "Canvas Error"),
+                    translate("ShadowCalibrationController", "Canvas interaction system not available."),
+                )
         else:
-            QMessageBox.warning(self.app, "No Canvas", "No video canvas available for ROI selection.")
+            QMessageBox.warning(
+                self.app,
+                translate("ShadowCalibrationController", "No Canvas"),
+                translate("ShadowCalibrationController", "No video canvas available for ROI selection."),
+            )
 
     def select_shadow_black_roi(self):
         """Handle black key shadow ROI selection request from control panel."""
@@ -59,14 +86,26 @@ class ShadowCalibrationController:
             # Enter ROI selection mode on the canvas
             if hasattr(self.keyboard_canvas, 'interaction') and self.keyboard_canvas.interaction:
                 self.keyboard_canvas.interaction.enter_shadow_black_roi_selection_mode()
-                QMessageBox.information(self.app, "Black Key Shadow ROI Selection",
-                                       "Click and drag on the video to select the black key shadow detection region.\n"
-                                       "This will define the vertical region where black key shadows are detected.\n"
-                                       "Right-click to cancel.")
+                QMessageBox.information(
+                    self.app,
+                    translate("ShadowCalibrationController", "Black Key Shadow ROI Selection"),
+                    translate(
+                        "ShadowCalibrationController",
+                        "Click and drag on the video to select the black key shadow detection region.\nThis will define the vertical region where black key shadows are detected.\nRight-click to cancel.",
+                    ),
+                )
             else:
-                QMessageBox.warning(self.app, "Canvas Error", "Canvas interaction system not available.")
+                QMessageBox.warning(
+                    self.app,
+                    translate("ShadowCalibrationController", "Canvas Error"),
+                    translate("ShadowCalibrationController", "Canvas interaction system not available."),
+                )
         else:
-            QMessageBox.warning(self.app, "No Canvas", "No video canvas available for ROI selection.")
+            QMessageBox.warning(
+                self.app,
+                translate("ShadowCalibrationController", "No Canvas"),
+                translate("ShadowCalibrationController", "No video canvas available for ROI selection."),
+            )
 
     def set_shadow_detection_enabled(self, enabled: bool):
         """Handle shadow detection enable/disable toggle."""
@@ -85,11 +124,22 @@ class ShadowCalibrationController:
         logging.info(f"Shadow calibration requested: key_type={key_type}, calibration_type={calibration_type}")
 
         if not hasattr(self, 'keyboard_canvas') or not self.keyboard_canvas:
-            QMessageBox.warning(self.app, "No Canvas", "No video canvas available for calibration.")
+            QMessageBox.warning(
+                self.app,
+                translate("ShadowCalibrationController", "No Canvas"),
+                translate("ShadowCalibrationController", "No video canvas available for calibration."),
+            )
             return
 
         if self.keyboard_canvas.current_frame_rgb is None:
-            QMessageBox.warning(self.app, "No Frame", "No video frame loaded. Please open a video and navigate to a frame.")
+            QMessageBox.warning(
+                self.app,
+                translate("ShadowCalibrationController", "No Frame"),
+                translate(
+                    "ShadowCalibrationController",
+                    "No video frame loaded. Please open a video and navigate to a frame.",
+                ),
+            )
             return
 
         # Map calibration type and key type to calibration mode
@@ -111,19 +161,29 @@ class ShadowCalibrationController:
             "pressed": "Pressed (lit and fully pressed)"
         }.get(calibration_type, calibration_type)
 
-        instruction_msg = (f"Now click on a {key_type_display} key that shows {calibration_display} condition.\n\n"
-                          f"For {calibration_display}:\n")
+        instruction_msg = translate(
+            "ShadowCalibrationController",
+            "Now click on a {key_type_display} key that shows {calibration_display} condition.\n\nFor {calibration_display}:\n",
+        ).format(key_type_display=key_type_display, calibration_display=calibration_display)
 
         if calibration_type == "unpressed":
-            instruction_msg += ("- Key should be lit (colored bars visible)\n"
-                              "- Key should NOT be pressed down\n"
-                              "- No shadow should be visible underneath")
+            instruction_msg += translate(
+                "ShadowCalibrationController",
+                "- Key should be lit (colored bars visible)\n- Key should NOT be pressed down\n- No shadow should be visible underneath",
+            )
         else:  # pressed
-            instruction_msg += ("- Key should be lit (colored bars visible)\n"
-                              "- Key should be FULLY pressed down\n"
-                              "- Dark shadow should be visible underneath")
+            instruction_msg += translate(
+                "ShadowCalibrationController",
+                "- Key should be lit (colored bars visible)\n- Key should be FULLY pressed down\n- Dark shadow should be visible underneath",
+            )
 
-        QMessageBox.information(self.app, f"Shadow Calibration - {key_type_display}", instruction_msg)
+        QMessageBox.information(
+            self.app,
+            translate("ShadowCalibrationController", "Shadow Calibration - {key_type_display}").format(
+                key_type_display=key_type_display
+            ),
+            instruction_msg,
+        )
         logging.info(f"Set calibration mode to {calibration_mode}, waiting for user to click on key")
 
     def capture_shadow_overlay_calibration(self, overlay, calibration_mode: str):
@@ -133,7 +193,13 @@ class ShadowCalibrationController:
         # Parse calibration mode: shadow_{key_type}_{unpressed/pressed}
         parts = calibration_mode.split('_')
         if len(parts) != 3 or parts[0] != 'shadow':
-            QMessageBox.warning(self.app, "Invalid Mode", f"Invalid shadow calibration mode: {calibration_mode}")
+            QMessageBox.warning(
+                self.app,
+                translate("ShadowCalibrationController", "Invalid Mode"),
+                translate(
+                    "ShadowCalibrationController", "Invalid shadow calibration mode: {calibration_mode}"
+                ).format(calibration_mode=calibration_mode),
+            )
             self.app_state.calibration.calibration_mode = None
             return
 
@@ -148,7 +214,11 @@ class ShadowCalibrationController:
         # Get the current frame
         current_frame = self.keyboard_canvas.current_frame_rgb
         if current_frame is None:
-            QMessageBox.warning(self.app, "No Frame", "No frame available for calibration.")
+            QMessageBox.warning(
+                self.app,
+                translate("ShadowCalibrationController", "No Frame"),
+                translate("ShadowCalibrationController", "No frame available for calibration."),
+            )
             self.app_state.calibration.calibration_mode = None
             return
 
@@ -176,16 +246,25 @@ class ShadowCalibrationController:
             for i, sov in enumerate(shadow_overlays):
                 logging.info(f"  Shadow overlay {i}: key_id={sov.key_id}")
 
-            QMessageBox.warning(self.app, "No Shadow Overlay",
-                               f"No shadow overlay found for key {overlay.key_id}. "
-                               "Please create shadow overlays before calibration.")
+            QMessageBox.warning(
+                self.app,
+                translate("ShadowCalibrationController", "No Shadow Overlay"),
+                translate(
+                    "ShadowCalibrationController",
+                    "No shadow overlay found for key {key_id}. Please create shadow overlays before calibration.",
+                ).format(key_id=overlay.key_id),
+            )
             self.app_state.calibration.calibration_mode = None
             return
 
         # Extract shadow ROI
         shadow_roi = self.extract_roi(current_frame, shadow_overlay)
         if shadow_roi is None or shadow_roi.size == 0:
-            QMessageBox.warning(self.app, "ROI Error", "Could not extract shadow region.")
+            QMessageBox.warning(
+                self.app,
+                translate("ShadowCalibrationController", "ROI Error"),
+                translate("ShadowCalibrationController", "Could not extract shadow region."),
+            )
             self.app_state.calibration.calibration_mode = None
             return
 
@@ -220,17 +299,33 @@ class ShadowCalibrationController:
         # Auto-save calibration
         if hasattr(self, 'video_loading_workflow') and self.video_loading_workflow:
             success = self.video_loading_workflow.save_current_config()
-            save_msg = "\nCalibration data automatically saved." if success else "\nWarning: Auto-save failed."
+            save_msg = (
+                translate("ShadowCalibrationController", "\nCalibration data automatically saved.")
+                if success
+                else translate("ShadowCalibrationController", "\nWarning: Auto-save failed.")
+            )
         else:
-            save_msg = "\nWarning: Auto-save not available."
+            save_msg = translate("ShadowCalibrationController", "\nWarning: Auto-save not available.")
 
         # Show success message
-        QMessageBox.information(self.app, f"Shadow Calibration - {key_type}",
-                               f"Shadow calibration captured for {key_type} key in {state_desc} state.\n\n"
-                               f"Darkness ratio: {darkness_ratio:.1%}\n"
-                               f"Mean brightness: {calibration_data['mean_brightness']:.1f}\n"
-                               f"Black pixels: {black_pixels}/{total_pixels}"
-                               f"{save_msg}")
+        QMessageBox.information(
+            self.app,
+            translate("ShadowCalibrationController", "Shadow Calibration - {key_type}").format(
+                key_type=key_type
+            ),
+            translate(
+                "ShadowCalibrationController",
+                "Shadow calibration captured for {key_type} key in {state_desc} state.\n\nDarkness ratio: {darkness_ratio}\nMean brightness: {mean_brightness}\nBlack pixels: {black_pixels}/{total_pixels}{save_msg}",
+            ).format(
+                key_type=key_type,
+                state_desc=state_desc,
+                darkness_ratio=f"{darkness_ratio:.1%}",
+                mean_brightness=f"{calibration_data['mean_brightness']:.1f}",
+                black_pixels=black_pixels,
+                total_pixels=total_pixels,
+                save_msg=save_msg,
+            ),
+        )
 
         logging.info(f"Shadow calibration completed for {key_type} {calibration_type}: darkness_ratio={darkness_ratio:.3f}")
 

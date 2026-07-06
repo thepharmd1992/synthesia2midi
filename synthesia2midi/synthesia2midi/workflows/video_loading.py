@@ -16,11 +16,13 @@ from collections import deque
 from typing import Optional, Tuple
 
 from PySide6.QtWidgets import QMessageBox, QProgressDialog, QApplication
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import QCoreApplication, Qt, QTimer
 
 from synthesia2midi.video_loader import VideoSession, create_video_session
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.config_manager import ConfigManager
+
+translate = QCoreApplication.translate
 
 
 class VideoLoadingWorkflow:
@@ -106,10 +108,15 @@ class VideoLoadingWorkflow:
                     frames_dir = os.path.join(os.path.dirname(filepath), f"{base_name}_frames")
                     if os.path.exists(frames_dir):
                         from PySide6.QtWidgets import QMessageBox
-                        reply = QMessageBox.question(self.parent_widget, "Use Existing Frames?",
-                                                   f"Found existing frame sequence for this video.\n"
-                                                   f"Use frames for better performance?",
-                                                   QMessageBox.Yes | QMessageBox.No)
+                        reply = QMessageBox.question(
+                            self.parent_widget,
+                            translate("VideoLoadingWorkflow", "Use Existing Frames?"),
+                            translate(
+                                "VideoLoadingWorkflow",
+                                "Found existing frame sequence for this video.\nUse frames for better performance?",
+                            ),
+                            QMessageBox.Yes | QMessageBox.No,
+                        )
                         if reply == QMessageBox.Yes:
                             filepath = frames_dir
                             if detected_fps is None:
@@ -383,9 +390,14 @@ class VideoLoadingWorkflow:
                 return None
                 
             # Show progress dialog
-            progress = QProgressDialog("Converting video to image sequence...\nThis is a one-time process.", 
-                                     "Cancel", 0, 100, self.parent_widget)
-            progress.setWindowTitle("Optimizing Performance")
+            progress = QProgressDialog(
+                translate("VideoLoadingWorkflow", "Converting video to image sequence...\nThis is a one-time process."),
+                translate("VideoLoadingWorkflow", "Cancel"),
+                0,
+                100,
+                self.parent_widget,
+            )
+            progress.setWindowTitle(translate("VideoLoadingWorkflow", "Optimizing Performance"))
             progress.setWindowModality(Qt.WindowModal)
             progress.setAutoClose(False)  # Disable auto-close to handle manually
             progress.setAutoReset(False)  # Prevent auto-reset at 100%
@@ -561,9 +573,18 @@ class VideoLoadingWorkflow:
                     if total_frames and total_frames > 0:
                         percent = min(99, int(frames_created * 100 / total_frames))
                         progress.setValue(percent)
-                        progress.setLabelText(f"Converting video... {frames_created}/{total_frames} frames ({percent}%)")
+                        progress.setLabelText(
+                            translate(
+                                "VideoLoadingWorkflow",
+                                "Converting video... {frames_created}/{total_frames} frames ({percent}%)",
+                            ).format(frames_created=frames_created, total_frames=total_frames, percent=percent)
+                        )
                     else:
-                        progress.setLabelText(f"Converting video... {frames_created} frames")
+                        progress.setLabelText(
+                            translate(
+                                "VideoLoadingWorkflow", "Converting video... {frames_created} frames"
+                            ).format(frames_created=frames_created)
+                        )
                 
                     # Log progress every 5 seconds
                     current_time = time.time()
@@ -648,12 +669,14 @@ class VideoLoadingWorkflow:
                     shutil.rmtree(frames_dir, ignore_errors=True)
                     
                     if self.parent_widget:
-                        QMessageBox.warning(self.parent_widget,
-                                          "Frame Conversion Failed",
-                                          f"Failed to convert video to frames.\n"
-                                          f"Return code: {return_code}\n"
-                                          f"Frames created: {final_count}\n\n"
-                                          "The video will be loaded directly instead.")
+                        QMessageBox.warning(
+                            self.parent_widget,
+                            translate("VideoLoadingWorkflow", "Frame Conversion Failed"),
+                            translate(
+                                "VideoLoadingWorkflow",
+                                "Failed to convert video to frames.\nReturn code: {return_code}\nFrames created: {final_count}\n\nThe video will be loaded directly instead.",
+                            ).format(return_code=return_code, final_count=final_count),
+                        )
                 
             # End of attempt loop
             if conversion_successful:
@@ -674,10 +697,14 @@ class VideoLoadingWorkflow:
             
             # Show error to user
             if self.parent_widget:
-                QMessageBox.warning(self.parent_widget,
-                                  "Frame Conversion Failed",
-                                  f"Failed to convert video to frames:\n{str(e)}\n\n"
-                                  "The video will be loaded directly instead.")
+                QMessageBox.warning(
+                    self.parent_widget,
+                    translate("VideoLoadingWorkflow", "Frame Conversion Failed"),
+                    translate(
+                        "VideoLoadingWorkflow",
+                        "Failed to convert video to frames:\n{error}\n\nThe video will be loaded directly instead.",
+                    ).format(error=str(e)),
+                )
             
             return None
     

@@ -132,3 +132,17 @@ def test_tracked_ui_string_manifest_is_current():
     tracked_payload = json.loads(manifest_path.read_text(encoding="utf-8"))
 
     assert tracked_payload == current_payload
+
+
+def test_no_raw_translatable_static_ui_strings():
+    from synthesia2midi.tools.audit_ui_strings import collect_project_static_candidates
+
+    root = Path(__file__).resolve().parents[1]
+    raw_candidates = [
+        candidate
+        for candidate in collect_project_static_candidates(root)
+        if candidate.classification == "translate"
+        and candidate.context not in {"QCoreApplication.translate", "translate"}
+    ]
+
+    assert raw_candidates == []

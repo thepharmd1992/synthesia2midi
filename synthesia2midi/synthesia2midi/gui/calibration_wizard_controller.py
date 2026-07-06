@@ -4,11 +4,13 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, Optional
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QCoreApplication, Qt
 from PySide6.QtWidgets import QMessageBox
 
 from synthesia2midi.gui.auto_detect_tuning_controller import AutoDetectTuningController
 from synthesia2midi.gui.dialog_positioning import move_to_upper_left_safe_zone
+
+translate = QCoreApplication.translate
 
 
 class CalibrationWizardController:
@@ -69,7 +71,11 @@ class CalibrationWizardController:
     def run_calibration_wizard(self):
         """Called by the Run/Reset Calibration Wizard button using CalibrationWorkflow."""
         if not self.calibration_workflow:
-            QMessageBox.warning(self.app, "Wizard Error", "Please open a video file first.")
+            QMessageBox.warning(
+                self.app,
+                translate("CalibrationWizardController", "Wizard Error"),
+                translate("CalibrationWizardController", "Please open a video file first."),
+            )
             # Ensure wizard button is disabled if no video session somehow
             if hasattr(self.control_panel, 'wizard_button'):
                  self.control_panel.wizard_button.setEnabled(False)
@@ -188,7 +194,11 @@ class CalibrationWizardController:
             self.keyboard_canvas.setCursor(Qt.CrossCursor)
             logging.info("Selection mode activated with crosshair cursor")
         else:
-            QMessageBox.warning(self.app, "Canvas Error", "Canvas interaction system not available.")
+            QMessageBox.warning(
+                self.app,
+                translate("CalibrationWizardController", "Canvas Error"),
+                translate("CalibrationWizardController", "Canvas interaction system not available."),
+            )
             logging.error("Canvas interaction system not available")
 
     def _handle_edit_current_calibration_request(self):
@@ -205,8 +215,8 @@ class CalibrationWizardController:
             self._edit_current_calibration_requested = False
             QMessageBox.warning(
                 self.app,
-                "Manual Fit",
-                "No reusable manual calibration is available yet.",
+                translate("CalibrationWizardController", "Manual Fit"),
+                translate("CalibrationWizardController", "No reusable manual calibration is available yet."),
             )
             return
 
@@ -215,9 +225,11 @@ class CalibrationWizardController:
             self._edit_current_calibration_requested = False
             QMessageBox.warning(
                 self.app,
-                "Auto-Detect Tuning",
-                "No reusable auto-detect calibration context is available yet. "
-                "Run autodetect once with ROI selection first.",
+                translate("CalibrationWizardController", "Auto-Detect Tuning"),
+                translate(
+                    "CalibrationWizardController",
+                    "No reusable auto-detect calibration context is available yet. Run autodetect once with ROI selection first.",
+                ),
             )
 
     def _cache_auto_detect_tuning_context(self, context: Dict[str, Any]) -> None:
@@ -244,14 +256,23 @@ class CalibrationWizardController:
     def _edit_current_calibration_tooltip(self, enabled: bool) -> str:
         if self._current_overlay_generation_source() == "manual":
             return (
-                "Open Manual Fit for the current manual calibration."
+                translate("CalibrationWizardController", "Open Manual Fit for the current manual calibration.")
                 if enabled
-                else "Edit Current Calibration becomes available after manual overlays exist."
+                else translate(
+                    "CalibrationWizardController",
+                    "Edit Current Calibration becomes available after manual overlays exist.",
+                )
             )
         return (
-            "Open the auto-detect tuning panel for the current calibration."
+            translate(
+                "CalibrationWizardController",
+                "Open the auto-detect tuning panel for the current calibration.",
+            )
             if enabled
-            else "Edit Current Calibration becomes available after an auto-detect run."
+            else translate(
+                "CalibrationWizardController",
+                "Edit Current Calibration becomes available after an auto-detect run.",
+            )
         )
 
     def _handle_keyboard_region_selected(self, x: int, y: int, width: int, height: int):

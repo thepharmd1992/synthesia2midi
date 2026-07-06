@@ -7,7 +7,10 @@ from typing import Optional, Tuple
 
 import cv2
 import numpy as np
+from PySide6.QtCore import QCoreApplication
 from PySide6.QtWidgets import QMessageBox
+
+translate = QCoreApplication.translate
 
 
 class CalibrationInteractionController:
@@ -44,8 +47,11 @@ class CalibrationInteractionController:
                         logging.info(f"Skipping exemplar calibration for disabled key type {key_type_to_cal}")
                         QMessageBox.warning(
                             self.app,
-                            "Calibration Disabled",
-                            f"{key_type_to_cal} is marked as not present in this video. Re-enable 'Present in Video' first."
+                            translate("CalibrationInteractionController", "Calibration Disabled"),
+                            translate(
+                                "CalibrationInteractionController",
+                                "{key_type} is marked as not present in this video. Re-enable 'Present in Video' first.",
+                            ).format(key_type=key_type_to_cal),
                         )
                         self.app_state.calibration.calibration_mode = None
                         self.app_state.calibration.current_calibration_key_type = None
@@ -126,10 +132,22 @@ class CalibrationInteractionController:
                     self.app_state.unsaved_changes = False  # Reset since we auto-saved
 
                     # Simple success message
-                    QMessageBox.information(self.app, "Calibration Successful",
-                                          f"Calibration of {key_type_to_cal} successful")
+                    QMessageBox.information(
+                        self.app,
+                        translate("CalibrationInteractionController", "Calibration Successful"),
+                        translate(
+                            "CalibrationInteractionController", "Calibration of {key_type} successful"
+                        ).format(key_type=key_type_to_cal),
+                    )
                 else:
-                    QMessageBox.warning(self.app, "Calibration Error", "Could not sample color from the selected overlay.")
+                    QMessageBox.warning(
+                        self.app,
+                        translate("CalibrationInteractionController", "Calibration Error"),
+                        translate(
+                            "CalibrationInteractionController",
+                            "Could not sample color from the selected overlay.",
+                        ),
+                    )
             # Always reset calibration mode after an attempt
             self.app_state.calibration.calibration_mode = None
             self.app_state.calibration.current_calibration_key_type = None
@@ -149,7 +167,13 @@ class CalibrationInteractionController:
                     self.app_state.calibration.calibration_mode,
                 )
             else:
-                QMessageBox.warning(self.app, "Calibration Error", f"Could not find overlay for key {selected_key_id}.")
+                QMessageBox.warning(
+                    self.app,
+                    translate("CalibrationInteractionController", "Calibration Error"),
+                    translate(
+                        "CalibrationInteractionController", "Could not find overlay for key {selected_key_id}."
+                    ).format(selected_key_id=selected_key_id),
+                )
                 self.app_state.calibration.calibration_mode = None
 
         # Handle shadow calibration modes
@@ -164,7 +188,13 @@ class CalibrationInteractionController:
                     self.app_state.calibration.calibration_mode,
                 )
             else:
-                QMessageBox.warning(self.app, "Calibration Error", f"Could not find overlay for key {selected_key_id}.")
+                QMessageBox.warning(
+                    self.app,
+                    translate("CalibrationInteractionController", "Calibration Error"),
+                    translate(
+                        "CalibrationInteractionController", "Could not find overlay for key {selected_key_id}."
+                    ).format(selected_key_id=selected_key_id),
+                )
                 self.app_state.calibration.calibration_mode = None
 
         # Handle auto-calibration modes
@@ -184,20 +214,46 @@ class CalibrationInteractionController:
 
                     if success:
                         logging.info(f"[MAIN-AUTO-CAL] Auto-calibration successful - showing success message")
-                        QMessageBox.information(self.app, "Auto-Calibration Complete",
-                                               f"Auto-calibration completed successfully for {overlay_to_sample.key_id}!")
+                        QMessageBox.information(
+                            self.app,
+                            translate("CalibrationInteractionController", "Auto-Calibration Complete"),
+                            translate(
+                                "CalibrationInteractionController",
+                                "Auto-calibration completed successfully for {key_id}!",
+                            ).format(key_id=overlay_to_sample.key_id),
+                        )
                         logging.debug(f"[MAIN-AUTO-CAL] Triggering control panel update after successful calibration")
                         # Also explicitly trigger control panel update
                         self.control_panel.update_controls_from_state()
                         logging.debug(f"[MAIN-AUTO-CAL] Control panel update completed")
                     else:
                         logging.warning(f"[MAIN-AUTO-CAL] Auto-calibration failed - showing error message")
-                        QMessageBox.warning(self.app, "Auto-Calibration Failed",
-                                           "Auto-calibration failed. Please check the logs for details.")
+                        QMessageBox.warning(
+                            self.app,
+                            translate("CalibrationInteractionController", "Auto-Calibration Failed"),
+                            translate(
+                                "CalibrationInteractionController",
+                                "Auto-calibration failed. Please check the logs for details.",
+                            ),
+                        )
                 else:
-                    QMessageBox.warning(self.app, "ROI Error", "Could not extract ROI data from the selected overlay.")
+                    QMessageBox.warning(
+                        self.app,
+                        translate("CalibrationInteractionController", "ROI Error"),
+                        translate(
+                            "CalibrationInteractionController",
+                            "Could not extract ROI data from the selected overlay.",
+                        ),
+                    )
             else:
-                QMessageBox.warning(self.app, "Calibration Error", f"Could not find overlay for key {selected_key_id} or auto-calibration workflow not available.")
+                QMessageBox.warning(
+                    self.app,
+                    translate("CalibrationInteractionController", "Calibration Error"),
+                    translate(
+                        "CalibrationInteractionController",
+                        "Could not find overlay for key {selected_key_id} or auto-calibration workflow not available.",
+                    ).format(selected_key_id=selected_key_id),
+                )
                 self.app_state.calibration.calibration_mode = None
 
         # Potentially update UI elements that depend on selected overlay

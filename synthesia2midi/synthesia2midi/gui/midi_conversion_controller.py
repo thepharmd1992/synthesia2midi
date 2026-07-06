@@ -1,9 +1,12 @@
 """MIDI conversion UI orchestration for the Qt app."""
 from __future__ import annotations
 
+from PySide6.QtCore import QCoreApplication
 from PySide6.QtWidgets import QMessageBox
 
 from synthesia2midi.workflows.midi_export import MidiExportService
+
+translate = QCoreApplication.translate
 
 
 class MidiConversionController:
@@ -25,8 +28,12 @@ class MidiConversionController:
             return
 
         if result.output_path is None and result.exception is None:
-            QMessageBox.information(app, "Error", result.message)
+            QMessageBox.information(app, translate("MidiConversionController", "Error"), result.message)
             return
 
-        title = "Conversion Error" if result.exception else "Conversion Failed"
+        title = (
+            translate("MidiConversionController", "Conversion Error")
+            if result.exception
+            else translate("MidiConversionController", "Conversion Failed")
+        )
         QMessageBox.critical(app, title, result.message)

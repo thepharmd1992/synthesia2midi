@@ -2,6 +2,69 @@
   "candidates": [
     {
       "classification": "do_not_translate",
+      "context": "QLabel",
+      "line": 703,
+      "origin": "static",
+      "role": "arg0",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "0.05"
+    },
+    {
+      "classification": "do_not_translate",
+      "context": "QLabel",
+      "line": 687,
+      "origin": "static",
+      "role": "arg0",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "0.15"
+    },
+    {
+      "classification": "do_not_translate",
+      "context": "QLabel",
+      "line": 729,
+      "origin": "static",
+      "role": "arg0",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "0.60"
+    },
+    {
+      "classification": "do_not_translate",
+      "context": "QLabel",
+      "line": 662,
+      "origin": "static",
+      "role": "arg0",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "0.80"
+    },
+    {
+      "classification": "do_not_translate",
+      "context": "setText",
+      "line": 107,
+      "origin": "static",
+      "role": "arg0",
+      "source": "synthesia2midi/synthesia2midi/gui/video_controls.py",
+      "text": "0:00"
+    },
+    {
+      "classification": "do_not_translate",
+      "context": "QLabel",
+      "line": 305,
+      "origin": "static",
+      "role": "arg0",
+      "source": "synthesia2midi/synthesia2midi/main.py",
+      "text": "0:00"
+    },
+    {
+      "classification": "do_not_translate",
+      "context": "QLabel",
+      "line": 613,
+      "origin": "static",
+      "role": "arg0",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "50%"
+    },
+    {
+      "classification": "do_not_translate",
       "context": "addItem",
       "line": 136,
       "origin": "static",
@@ -20,12 +83,57 @@
     },
     {
       "classification": "do_not_translate",
+      "context": "translate",
+      "line": 1049,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "MIDI"
+    },
+    {
+      "classification": "do_not_translate",
       "context": "addItem",
       "line": 138,
       "origin": "static",
       "role": "arg0",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
       "text": "Safari"
+    },
+    {
+      "classification": "dynamic_user_data",
+      "context": "setText",
+      "line": 1192,
+      "origin": "static",
+      "role": "arg0",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "{...}"
+    },
+    {
+      "classification": "dynamic_user_data",
+      "context": "setText",
+      "line": 1180,
+      "origin": "static",
+      "role": "arg0",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "{...}%"
+    },
+    {
+      "classification": "dynamic_user_data",
+      "context": "setText",
+      "line": 177,
+      "origin": "static",
+      "role": "arg0",
+      "source": "synthesia2midi/synthesia2midi/gui/video_controls.py",
+      "text": "{...}:{...}"
+    },
+    {
+      "classification": "dynamic_user_data",
+      "context": "setText",
+      "line": 523,
+      "origin": "static",
+      "role": "arg0",
+      "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
+      "text": "{...}{...}"
     },
     {
       "classification": "path_or_url",
@@ -38,21 +146,21 @@
     },
     {
       "classification": "path_or_url",
-      "context": "QMessageBox.critical",
-      "line": 101,
+      "context": "translate",
+      "line": 110,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
-      "text": "{...}\n\nPlease install FFmpeg:\n\u2022 Windows: Download from https://ffmpeg.org/download.html\n\u2022 macOS: brew install ffmpeg\n\u2022 Linux: sudo apt install ffmpeg"
+      "text": "{message}\n\nPlease install FFmpeg:\n\u2022 Windows: Download from https://ffmpeg.org/download.html\n\u2022 macOS: brew install ffmpeg\n\u2022 Linux: sudo apt install ffmpeg"
     },
     {
       "classification": "technical_id",
-      "context": "setText",
-      "line": 1300,
+      "context": "translate",
+      "line": 1330,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "<b>\u26a0\ufe0f WARNING: This action is IRREVERSIBLE</b><br><br>\nThis will permanently trim the video session to frames {...} to {...}.<br><br>\n<b>After trimming:</b><br>\n\u2022 Frames outside this range will become inaccessible<br>\n\u2022 Video navigation will be restricted to this range<br>\n\u2022 MIDI processing will be limited to this range<br><br>\n<b>Are you sure you want to proceed?</b>"
+      "text": "<b>\u26a0\ufe0f WARNING: This action is IRREVERSIBLE</b><br><br>\nThis will permanently trim the video session to frames {start_frame} to {end_text}.<br><br>\n<b>After trimming:</b><br>\n\u2022 Frames outside this range will become inaccessible<br>\n\u2022 Video navigation will be restricted to this range<br>\n\u2022 MIDI processing will be limited to this range<br><br>\n<b>Are you sure you want to proceed?</b>"
     },
     {
       "classification": "technical_id",
@@ -110,6 +218,51 @@
     },
     {
       "classification": "translate",
+      "context": "translate",
+      "line": 175,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
+      "text": "- Key should be lit (colored bars visible)\n- Key should be FULLY pressed down\n- Dark shadow should be visible underneath"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 170,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
+      "text": "- Key should be lit (colored bars visible)\n- Key should NOT be pressed down\n- No shadow should be visible underneath"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 177,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
+      "text": "- Key should show colored bars WITH barely visible sparks\n- Navigate to a frame where sparks are just starting to appear\n- Click on the key showing this exact condition"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 182,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
+      "text": "- Key should show colored bars WITH very bright/intense sparks\n- Navigate to a frame where sparks are at their brightest\n- Click on the key showing this exact condition"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 172,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
+      "text": "- Key should show colored bars WITHOUT any sparks\n- Navigate to a frame where this condition is visible\n- Click on the key showing this exact condition"
+    },
+    {
+      "classification": "translate",
       "context": "QCoreApplication.translate",
       "line": 239,
       "origin": "static",
@@ -119,57 +272,48 @@
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 687,
+      "context": "translate",
+      "line": 282,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "0.05"
+      "text": "1) Calibrate Key Overlays: create overlays that line up with the keyboard in your video."
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 671,
+      "context": "translate",
+      "line": 769,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "0.15"
+      "text": "1) Key overlays stay ON across repeated notes (false continuous press)."
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 713,
+      "context": "translate",
+      "line": 770,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "0.60"
+      "text": "2) Key overlays are solid color (no fading or gradients)."
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 646,
+      "context": "translate",
+      "line": 286,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "0.80"
+      "text": "2) Unlit Key Calibration: pause on a frame where no notes are highlighted, then click Calibrate."
     },
     {
       "classification": "translate",
-      "context": "setText",
-      "line": 107,
+      "context": "translate",
+      "line": 290,
       "origin": "static",
-      "role": "arg0",
-      "source": "synthesia2midi/synthesia2midi/gui/video_controls.py",
-      "text": "0:00"
-    },
-    {
-      "classification": "translate",
-      "context": "QLabel",
-      "line": 305,
-      "origin": "static",
-      "role": "arg0",
-      "source": "synthesia2midi/synthesia2midi/main.py",
-      "text": "0:00"
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "3) Lit Key Exemplars: for each button you need (Left/Right x White/Black), pause on a frame where that kind of overlay is highlighted, click the button, then click that highlighted overlay in the video."
     },
     {
       "classification": "translate",
@@ -179,15 +323,6 @@
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
       "text": "480p - fastest processing, highest calibration risk"
-    },
-    {
-      "classification": "translate",
-      "context": "QLabel",
-      "line": 597,
-      "origin": "static",
-      "role": "arg0",
-      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "50%"
     },
     {
       "classification": "translate",
@@ -227,12 +362,12 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 149,
+      "context": "translate",
+      "line": 157,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
-      "text": "A directory is currently loaded, but it doesn't appear to be a frame series.\n\nCurrent path: {...}\n\nPlease load a video file (.mp4, .mov, etc.) to convert it to frames."
+      "text": "A directory is currently loaded, but it doesn't appear to be a frame series.\n\nCurrent path: {video_path}\n\nPlease load a video file (.mp4, .mov, etc.) to convert it to frames."
     },
     {
       "classification": "translate",
@@ -245,12 +380,12 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 138,
+      "context": "translate",
+      "line": 147,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
-      "text": "A frame series is currently loaded, but the original video file could not be found.\n\nFrame series path: {...}\nExpected video in: {...}/\nWith name: {...}.mp4 (or .mov, .avi, etc.)\n\nPlease load the original video file manually."
+      "text": "A frame series is currently loaded, but the original video file could not be found.\n\nFrame series path: {video_path}\nExpected video in: {parent_dir}/\nWith name: {base_name}.mp4 (or .mov, .avi, etc.)\n\nPlease load the original video file manually."
     },
     {
       "classification": "translate",
@@ -272,26 +407,35 @@
     },
     {
       "classification": "translate",
-      "context": "QPushButton",
-      "line": 425,
+      "context": "translate",
+      "line": 437,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Align Black Keys"
     },
     {
       "classification": "translate",
-      "context": "QPushButton",
-      "line": 422,
+      "context": "translate",
+      "line": 434,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Align White Keys"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 142,
+      "context": "translate",
+      "line": 128,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/workflows/overlay_manager.py",
+      "text": "Alignment Complete"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 156,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/overlay_manager.py",
@@ -299,8 +443,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 132,
+      "context": "translate",
+      "line": 144,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/overlay_manager.py",
@@ -344,12 +488,12 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.critical",
-      "line": 328,
+      "context": "translate",
+      "line": 427,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
-      "text": "An error occurred during calibration: {...}"
+      "text": "An error occurred during calibration: {error}"
     },
     {
       "classification": "translate",
@@ -371,44 +515,44 @@
     },
     {
       "classification": "translate",
-      "context": "QPushButton",
-      "line": 955,
+      "context": "translate",
+      "line": 981,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Auto"
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 874,
+      "context": "translate",
+      "line": 894,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Auto Calibration:"
     },
     {
       "classification": "translate",
-      "context": "QPushButton",
-      "line": 889,
+      "context": "translate",
+      "line": 910,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "Auto {...}"
+      "text": "Auto {key_type_label}"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 175,
+      "context": "translate",
+      "line": 219,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
-      "text": "Auto-Calibrate {...}"
+      "text": "Auto-Calibrate {key_type}"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 187,
+      "context": "translate",
+      "line": 219,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -416,17 +560,17 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 187,
+      "context": "translate",
+      "line": 220,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
-      "text": "Auto-calibration completed successfully for {...}!"
+      "text": "Auto-calibration completed successfully for {key_id}!"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 195,
+      "context": "translate",
+      "line": 233,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -434,19 +578,28 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 195,
+      "context": "translate",
+      "line": 234,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
       "text": "Auto-calibration failed. Please check the logs for details."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 154,
+      "context": "translate",
+      "line": 212,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
+      "text": "Auto-Calibration for {key_type} Started\n\nInstructions:\n1. Navigate to a frame where a {key_type} key FIRST turns ON\n2. Click on that key overlay\n3. The system will automatically:\n   - Detect if it's left/right hand based on color\n   - Capture bar-only (frame +0)\n   - Capture dimmest sparks (frame +2)\n   - Find brightest sparks (frames +3 to +22)\n   - Save calibration data\n\nKey Type Legend:\nLW = Left White, LB = Left Black\nRW = Right White, RB = Right Black"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 204,
+      "origin": "static",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
       "text": "Auto-calibration workflow not available."
     },
@@ -461,8 +614,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 216,
+      "context": "translate",
+      "line": 228,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -479,10 +632,10 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 287,
+      "context": "QCoreApplication.translate",
+      "line": 303,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
       "text": "Autodetection produced no overlays. Please try another region."
     },
@@ -506,17 +659,17 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 224,
+      "context": "translate",
+      "line": 282,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
       "text": "Background calibration captured successfully!"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 224,
+      "context": "translate",
+      "line": 281,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
@@ -530,6 +683,15 @@
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
       "text": "Basic"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 579,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Before tuning detection: run Unlit Key Calibration + at least one Lit Key Exemplar."
     },
     {
       "classification": "translate",
@@ -578,17 +740,26 @@
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 487,
+      "context": "translate",
+      "line": 590,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Black Key Filter: reduces false black-key presses caused by nearby overlays."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 499,
+      "origin": "static",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Black Key Height"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 62,
+      "context": "translate",
+      "line": 91,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
@@ -596,10 +767,10 @@
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 496,
+      "context": "translate",
+      "line": 508,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Black Key Width"
     },
@@ -713,62 +884,80 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 121,
+      "context": "translate",
+      "line": 131,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
-      "text": "Bundled Rust touch-up editor files were not found.\n\nMIDI requested: {...}\n\nRe-download the app build or use the repository developer setup if you are running from source."
+      "text": "Bundled Rust touch-up editor files were not found.\n\nMIDI requested: {midi_path}\n\nRe-download the app build or use the repository developer setup if you are running from source."
     },
     {
       "classification": "translate",
-      "context": "QPushButton",
-      "line": 306,
+      "context": "translate",
+      "line": 315,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Calibrate"
     },
     {
       "classification": "translate",
-      "context": "QPushButton",
-      "line": 831,
+      "context": "translate",
+      "line": 851,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Calibrate Background"
     },
     {
       "classification": "translate",
-      "context": "QPushButton",
-      "line": 846,
+      "context": "translate",
+      "line": 866,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Calibrate Bar Only"
     },
     {
       "classification": "translate",
-      "context": "QPushButton",
-      "line": 861,
+      "context": "translate",
+      "line": 881,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Calibrate Dimmest Sparks"
     },
     {
       "classification": "translate",
-      "context": "setText",
-      "line": 1610,
+      "context": "translate",
+      "line": 1655,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Calibrated"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 45,
+      "context": "translate",
+      "line": 419,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Calibration"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 303,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
+      "text": "Calibration data automatically saved."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 50,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -776,8 +965,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 132,
+      "context": "translate",
+      "line": 145,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -785,8 +974,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 177,
+      "context": "translate",
+      "line": 225,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
@@ -794,8 +983,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 208,
+      "context": "translate",
+      "line": 262,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
@@ -803,17 +992,17 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 129,
+      "context": "translate",
+      "line": 138,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
-      "text": "Calibration of {...} successful"
+      "text": "Calibration of {key_type} successful"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 129,
+      "context": "translate",
+      "line": 137,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -866,8 +1055,8 @@
     },
     {
       "classification": "translate",
-      "context": "QProgressDialog",
-      "line": 314,
+      "context": "translate",
+      "line": 318,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/conversion.py",
@@ -875,8 +1064,8 @@
     },
     {
       "classification": "translate",
-      "context": "QProgressDialog",
-      "line": 386,
+      "context": "translate",
+      "line": 395,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
@@ -893,8 +1082,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 191,
+      "context": "translate",
+      "line": 199,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -902,8 +1091,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 35,
+      "context": "translate",
+      "line": 44,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
@@ -911,8 +1100,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 29,
+      "context": "translate",
+      "line": 39,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
@@ -920,28 +1109,28 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 191,
+      "context": "translate",
+      "line": 200,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
       "text": "Canvas interaction system not available."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 35,
+      "context": "translate",
+      "line": 45,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
       "text": "Canvas interaction system not available."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 29,
+      "context": "translate",
+      "line": 40,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
       "text": "Canvas interaction system not available."
     },
@@ -956,19 +1145,19 @@
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 372,
+      "context": "translate",
+      "line": 384,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Captures a pressed-overlay example for this type. Pause on a frame where that type is highlighted, click the button, then click that highlighted overlay."
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 336,
+      "context": "translate",
+      "line": 346,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Captures what unpressed overlays look like from the current frame. Pause on a frame with no highlighted notes first."
     },
@@ -983,37 +1172,37 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 62,
+      "context": "translate",
+      "line": 92,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
       "text": "Click and drag on the video to select the black key shadow detection region.\nThis will define the vertical region where black key shadows are detected.\nRight-click to cancel."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 30,
+      "context": "translate",
+      "line": 36,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
       "text": "Click and drag on the video to select the shadow detection region.\nShadow zones will be created for each key overlay.\nRight-click to cancel."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 25,
+      "context": "translate",
+      "line": 31,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
       "text": "Click and drag on the video to select the spark detection region.\nRight-click to cancel."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 46,
+      "context": "translate",
+      "line": 64,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
       "text": "Click and drag on the video to select the white key shadow detection region.\nThis will define the vertical region where white key shadows are detected.\nRight-click to cancel."
     },
@@ -1028,35 +1217,35 @@
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 782,
+      "context": "translate",
+      "line": 803,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Controls how aggressively Spark Detection splits false continuous notes."
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 710,
+      "context": "translate",
+      "line": 727,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Controls how strict black-key filtering is (only used when Black Key Filter is enabled)."
     },
     {
       "classification": "translate",
-      "context": "setWindowTitle",
-      "line": 36,
+      "context": "translate",
+      "line": 38,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
       "text": "Conversion Complete"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 210,
+      "context": "translate",
+      "line": 221,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -1064,8 +1253,26 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.critical",
-      "line": 218,
+      "context": "translate",
+      "line": 35,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/midi_conversion_controller.py",
+      "text": "Conversion Error"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 37,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/midi_conversion_controller.py",
+      "text": "Conversion Failed"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 231,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -1074,7 +1281,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 228,
+      "line": 230,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1082,17 +1289,8 @@
     },
     {
       "classification": "translate",
-      "context": "setText",
-      "line": 1525,
-      "origin": "static",
-      "role": "arg0",
-      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "Convert"
-    },
-    {
-      "classification": "translate",
-      "context": "QMessageBox.question",
-      "line": 170,
+      "context": "translate",
+      "line": 180,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -1100,183 +1298,192 @@
     },
     {
       "classification": "translate",
-      "context": "QProgressDialog",
-      "line": 386,
+      "context": "translate",
+      "line": 394,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
       "text": "Converting video to image sequence...\nThis is a one-time process."
     },
     {
       "classification": "translate",
-      "context": "setText",
-      "line": 1116,
+      "context": "translate",
+      "line": 1142,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Converting video to MIDI..."
     },
     {
       "classification": "translate",
-      "context": "setLabelText",
-      "line": 566,
+      "context": "translate",
+      "line": 584,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
-      "text": "Converting video... {...} frames"
+      "text": "Converting video... {frames_created} frames"
     },
     {
       "classification": "translate",
-      "context": "setLabelText",
-      "line": 564,
+      "context": "translate",
+      "line": 577,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
-      "text": "Converting video... {...}/{...} frames ({...}%)"
+      "text": "Converting video... {frames_created}/{total_frames} frames ({percent}%)"
     },
     {
       "classification": "translate",
-      "context": "setText",
-      "line": 1114,
+      "context": "translate",
+      "line": 1140,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Converting..."
     },
     {
       "classification": "translate",
-      "context": "setText",
-      "line": 186,
+      "context": "translate",
+      "line": 193,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
       "text": "Converting..."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.critical",
-      "line": 289,
+      "context": "translate",
+      "line": 372,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
-      "text": "Could not extract calibration data from key {...}."
+      "text": "Could not extract calibration data from key {key_id}."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 198,
+      "context": "translate",
+      "line": 243,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
       "text": "Could not extract ROI data from the selected overlay."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 188,
+      "context": "translate",
+      "line": 266,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
       "text": "Could not extract shadow region."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 200,
+      "context": "translate",
+      "line": 252,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
-      "text": "Could not find overlay for key {...} or auto-calibration workflow not available."
+      "text": "Could not find overlay for key {selected_key_id} or auto-calibration workflow not available."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 152,
+      "context": "translate",
+      "line": 173,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
-      "text": "Could not find overlay for key {...}."
+      "text": "Could not find overlay for key {selected_key_id}."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 132,
+      "context": "translate",
+      "line": 146,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
       "text": "Could not sample color from the selected overlay."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 208,
+      "context": "translate",
+      "line": 263,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
       "text": "Could not start background calibration.\n\nRequirements:\n- Spark ROI must be set (top < bottom)\n- Key overlays must be configured"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 277,
+      "context": "translate",
+      "line": 354,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
       "text": "Could not start calibration step. Please check spark ROI configuration."
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 310,
+      "context": "translate",
+      "line": 320,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Creates overlays for the keyboard in your video. Re-run if overlays don't line up."
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 969,
+      "context": "translate",
+      "line": 995,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Current FPS: Auto-detected"
     },
     {
       "classification": "translate",
-      "context": "setText",
-      "line": 1377,
+      "context": "translate",
+      "line": 1415,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "Current FPS: {...} (auto-detected)"
+      "text": "Current FPS: {detected_fps} (auto-detected)"
     },
     {
       "classification": "translate",
-      "context": "setText",
-      "line": 1358,
+      "context": "translate",
+      "line": 1408,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "Current FPS: {...} (override)"
+      "text": "Current FPS: {fps_override} (override, detected: {detected_fps})"
     },
     {
       "classification": "translate",
-      "context": "setText",
-      "line": 1375,
+      "context": "translate",
+      "line": 1389,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "Current FPS: {...} (override, detected: {...})"
+      "text": "Current FPS: {fps} (override)"
     },
     {
       "classification": "translate",
-      "context": "QGroupBox",
-      "line": 975,
+      "context": "translate",
+      "line": 1001,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Custom MIDI Processing Range"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 586,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Delta Detection: uses frame-to-frame change to confirm press/release. Use when the pressed color fades in/out gradually instead of switching cleanly."
     },
     {
       "classification": "translate",
@@ -1307,17 +1514,35 @@
     },
     {
       "classification": "translate",
-      "context": "QProgressDialog",
-      "line": 314,
+      "context": "translate",
+      "line": 387,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/workflows/conversion.py",
+      "text": "Detecting notes"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 317,
+      "origin": "static",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/conversion.py",
       "text": "Detecting notes..."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 233,
+      "context": "translate",
+      "line": 749,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Detection"
+    },
+    {
+      "classification": "translate",
+      "context": "QCoreApplication.translate",
+      "line": 234,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
@@ -1325,37 +1550,46 @@
     },
     {
       "classification": "translate",
-      "context": "QGroupBox",
-      "line": 609,
+      "context": "translate",
+      "line": 625,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Detection Modes"
     },
     {
       "classification": "translate",
-      "context": "QGroupBox",
-      "line": 583,
+      "context": "translate",
+      "line": 599,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Detection Threshold"
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 602,
+      "context": "translate",
+      "line": 618,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Detection Threshold:"
     },
     {
       "classification": "translate",
-      "context": "addButton",
-      "line": 40,
+      "context": "translate",
+      "line": 580,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Detection Threshold: main sensitivity setting for pressed vs unpressed."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 46,
+      "origin": "static",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
       "text": "Done"
     },
@@ -1523,6 +1757,24 @@
     },
     {
       "classification": "translate",
+      "context": "translate",
+      "line": 272,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
+      "text": "Edit Current Calibration becomes available after an auto-detect run."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 261,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
+      "text": "Edit Current Calibration becomes available after manual overlays exist."
+    },
+    {
+      "classification": "translate",
       "context": "QCoreApplication.translate",
       "line": 272,
       "origin": "static",
@@ -1533,7 +1785,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 236,
+      "line": 238,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1604,62 +1856,71 @@
     },
     {
       "classification": "translate",
-      "context": "QCheckBox",
-      "line": 695,
+      "context": "translate",
+      "line": 711,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Enable Black Key Filter"
     },
     {
       "classification": "translate",
-      "context": "QCheckBox",
-      "line": 654,
+      "context": "translate",
+      "line": 670,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Enable Delta Detection"
     },
     {
       "classification": "translate",
-      "context": "QCheckBox",
-      "line": 1100,
+      "context": "translate",
+      "line": 1126,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Enable Hand Assignment (MIDI Channels)"
     },
     {
       "classification": "translate",
-      "context": "QCheckBox",
-      "line": 628,
+      "context": "translate",
+      "line": 644,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Enable Histogram Detection"
     },
     {
       "classification": "translate",
-      "context": "QCheckBox",
-      "line": 766,
+      "context": "translate",
+      "line": 784,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Enable Spark Detection"
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 1001,
+      "context": "translate",
+      "line": 1027,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "End Frame:"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 28,
+      "context": "translate",
+      "line": 1328,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "end of video"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 31,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_conversion_controller.py",
@@ -1694,12 +1955,12 @@
     },
     {
       "classification": "translate",
-      "context": "setText",
-      "line": 1531,
+      "context": "translate",
+      "line": 1575,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "Error: {...}"
+      "text": "Error: {message}"
     },
     {
       "classification": "translate",
@@ -1712,30 +1973,39 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.critical",
-      "line": 228,
+      "context": "translate",
+      "line": 289,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
       "text": "Failed to capture background calibration data.\n\nPlease check that spark ROI is properly set."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 651,
+      "context": "translate",
+      "line": 675,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
-      "text": "Failed to convert video to frames.\nReturn code: {...}\nFrames created: {...}\n\nThe video will be loaded directly instead."
+      "text": "Failed to convert video to frames.\nReturn code: {return_code}\nFrames created: {final_count}\n\nThe video will be loaded directly instead."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 677,
+      "context": "translate",
+      "line": 703,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
-      "text": "Failed to convert video to frames:\n{...}\n\nThe video will be loaded directly instead."
+      "text": "Failed to convert video to frames:\n{error}\n\nThe video will be loaded directly instead."
+    },
+    {
+      "classification": "translate",
+      "context": "QCoreApplication.translate",
+      "line": 276,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
+      "text": "Failed to detect keys in the selected region. Please try again."
     },
     {
       "classification": "translate",
@@ -1784,21 +2054,30 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 177,
+      "context": "translate",
+      "line": 226,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
       "text": "Failed to start auto-calibration. Please check video and overlays are loaded."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.critical",
-      "line": 101,
+      "context": "translate",
+      "line": 112,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
-      "text": "Failed to start Rust touch-up editor.\n\nBinary: {...}\nError: {...}"
+      "text": "Failed to start Rust touch-up editor.\n\nBinary: {binary_path}\nError: {error_msg}"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 708,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Fall:"
     },
     {
       "classification": "translate",
@@ -1820,8 +2099,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.critical",
-      "line": 101,
+      "context": "translate",
+      "line": 109,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -1856,17 +2135,17 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.question",
-      "line": 109,
+      "context": "translate",
+      "line": 114,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
       "text": "Found existing frame sequence for this video.\nUse frames for better performance?"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 677,
+      "context": "translate",
+      "line": 702,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
@@ -1883,21 +2162,30 @@
     },
     {
       "classification": "translate",
-      "context": "QGroupBox",
-      "line": 938,
+      "context": "translate",
+      "line": 964,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Frame Rate Override"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 130,
+      "context": "translate",
+      "line": 138,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
-      "text": "Frame series is currently loaded. Found original video file:\n\n{...}\n\nWill convert this video to update the frame series."
+      "text": "Frame series is currently loaded. Found original video file:\n\n{video_name}\n\nWill convert this video to update the frame series."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 1326,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "frame {end_frame}"
     },
     {
       "classification": "translate",
@@ -1910,10 +2198,10 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 47,
+      "context": "translate",
+      "line": 52,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/manual_keyboard_fit_controller.py",
       "text": "Generate overlays before opening Manual Fit."
     },
@@ -1928,6 +2216,15 @@
     },
     {
       "classification": "translate",
+      "context": "translate",
+      "line": 278,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Help"
+    },
+    {
+      "classification": "translate",
       "context": "QCoreApplication.translate",
       "line": 361,
       "origin": "static",
@@ -1937,37 +2234,46 @@
     },
     {
       "classification": "translate",
-      "context": "QPushButton",
-      "line": 812,
+      "context": "translate",
+      "line": 832,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Hide Spark Overlays"
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 668,
+      "context": "translate",
+      "line": 582,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Histogram Detection: uses a color-pattern match inside each overlay. Use when pressed overlays have strong gradients or uneven lighting."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 685,
+      "origin": "static",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "How big the change must be to count as a press (only used when Delta Detection is enabled)."
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 684,
+      "context": "translate",
+      "line": 701,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "How big the change must be to count as a release (only used when Delta Detection is enabled)."
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 643,
+      "context": "translate",
+      "line": 660,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "How strong the histogram match must be (only used when Histogram Detection is enabled)."
     },
@@ -1982,6 +2288,24 @@
     },
     {
       "classification": "translate",
+      "context": "translate",
+      "line": 294,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "If a key type is not present in this video, uncheck its 'Present in Video' box."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 581,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "If notes are missed: lower the threshold. If you get false notes: raise the threshold."
+    },
+    {
+      "classification": "translate",
       "context": "QCoreApplication.translate",
       "line": 95,
       "origin": "static",
@@ -1991,8 +2315,17 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 136,
+      "context": "translate",
+      "line": 281,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Initial calibration directions (recommended order):"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 198,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
@@ -2000,8 +2333,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 269,
+      "context": "translate",
+      "line": 339,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
@@ -2009,17 +2342,17 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 136,
+      "context": "translate",
+      "line": 199,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
-      "text": "Invalid shadow calibration mode: {...}"
+      "text": "Invalid shadow calibration mode: {calibration_mode}"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 96,
+      "context": "translate",
+      "line": 128,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
@@ -2027,8 +2360,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 1263,
+      "context": "translate",
+      "line": 1288,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2045,26 +2378,26 @@
     },
     {
       "classification": "translate",
-      "context": "QGroupBox",
-      "line": 417,
+      "context": "translate",
+      "line": 429,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Key Alignment"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.critical",
-      "line": 300,
+      "context": "QCoreApplication.translate",
+      "line": 318,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
-      "text": "Key detection failed: {...}"
+      "text": "Key detection failed: {error}"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 439,
+      "context": "translate",
+      "line": 443,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/manual_keyboard_fit_controller.py",
@@ -2108,10 +2441,10 @@
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 505,
+      "context": "translate",
+      "line": 517,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Left Slant"
     },
@@ -2144,10 +2477,10 @@
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 354,
+      "context": "translate",
+      "line": 365,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Lit Key Exemplars"
     },
@@ -2162,44 +2495,53 @@
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 593,
+      "context": "translate",
+      "line": 610,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Main sensitivity. Lower = detects more; higher = fewer false notes."
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 834,
+      "context": "translate",
+      "line": 843,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Manual Calibration"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 855,
+      "origin": "static",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Manual calibration: capture baseline brightness when there are no bars or sparks."
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 849,
+      "context": "translate",
+      "line": 870,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Manual calibration: click an overlay showing colored bars with no sparks."
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 864,
+      "context": "translate",
+      "line": 885,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Manual calibration: click an overlay where sparks are just barely visible."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 206,
+      "context": "translate",
+      "line": 218,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -2207,17 +2549,17 @@
     },
     {
       "classification": "translate",
-      "context": "QPushButton",
-      "line": 428,
+      "context": "translate",
+      "line": 440,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Manual Fit"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 47,
+      "context": "translate",
+      "line": 51,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/manual_keyboard_fit_controller.py",
@@ -2234,19 +2576,28 @@
     },
     {
       "classification": "translate",
-      "context": "setText",
-      "line": 37,
+      "context": "translate",
+      "line": 73,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
-      "text": "MIDI file saved to:\n{...}"
+      "text": "MIDI file not found:\n{midi_path}"
     },
     {
       "classification": "translate",
-      "context": "QFileDialog.getOpenFileName",
-      "line": 54,
+      "context": "translate",
+      "line": 40,
       "origin": "static",
-      "role": "arg3",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
+      "text": "MIDI file saved to:\n{midi_output_path}"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 64,
+      "origin": "static",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
       "text": "MIDI Files (*.mid *.midi)"
     },
@@ -2270,6 +2621,33 @@
     },
     {
       "classification": "translate",
+      "context": "translate",
+      "line": 442,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
+      "text": "Navigate to a frame with colored bars visible but NO sparks.\nBars should be clearly visible in the spark ROI without any bright flashes."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 438,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
+      "text": "Navigate to a frame with no bars visible and no sparks.\nThe spark ROI should show only background content."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 446,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
+      "text": "Navigate to a frame with the DIMMEST visible sparks.\nSparks should be just barely noticeable as bright flashes in the ROI."
+    },
+    {
+      "classification": "translate",
       "context": "QCoreApplication.translate",
       "line": 136,
       "origin": "static",
@@ -2279,8 +2657,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 37,
+      "context": "translate",
+      "line": 50,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
@@ -2288,8 +2666,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 31,
+      "context": "translate",
+      "line": 45,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
@@ -2297,8 +2675,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 92,
+      "context": "translate",
+      "line": 137,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
@@ -2306,8 +2684,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 79,
+      "context": "translate",
+      "line": 104,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
@@ -2315,28 +2693,28 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 151,
+      "context": "translate",
+      "line": 220,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
       "text": "No frame available for calibration."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 132,
+      "context": "translate",
+      "line": 145,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/overlay_manager.py",
-      "text": "No other '{...}' keys needed vertical alignment."
+      "text": "No other '{target_key_color_type}' keys needed vertical alignment."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 142,
+      "context": "translate",
+      "line": 157,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/overlay_manager.py",
       "text": "No overlay selected to act as master."
     },
@@ -2351,26 +2729,26 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 216,
+      "context": "translate",
+      "line": 229,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
       "text": "No reusable auto-detect calibration context is available yet. Run autodetect once with ROI selection first."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 206,
+      "context": "translate",
+      "line": 219,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
       "text": "No reusable manual calibration is available yet."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 179,
+      "context": "translate",
+      "line": 251,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
@@ -2378,55 +2756,55 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 179,
+      "context": "translate",
+      "line": 252,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
-      "text": "No shadow overlay found for key {...}. Please create shadow overlays before calibration."
+      "text": "No shadow overlay found for key {key_id}. Please create shadow overlays before calibration."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 247,
+      "context": "translate",
+      "line": 313,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
-      "text": "No spark zone found for key {...}. Please ensure spark ROI is properly set."
+      "text": "No spark zone found for key {key_id}. Please ensure spark ROI is properly set."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 88,
+      "context": "translate",
+      "line": 130,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
       "text": "No video canvas available for calibration."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 75,
+      "context": "translate",
+      "line": 97,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
       "text": "No video canvas available for calibration."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 37,
+      "context": "translate",
+      "line": 51,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
       "text": "No video canvas available for ROI selection."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 31,
+      "context": "translate",
+      "line": 46,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
       "text": "No video canvas available for ROI selection."
     },
@@ -2441,44 +2819,44 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 94,
+      "context": "translate",
+      "line": 99,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
       "text": "No video file is open. Open a video first."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 233,
+      "context": "QCoreApplication.translate",
+      "line": 235,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
       "text": "No video frame available. Please ensure a video is loaded."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 92,
+      "context": "translate",
+      "line": 138,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
       "text": "No video frame loaded. Please open a video and navigate to a frame."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 79,
+      "context": "translate",
+      "line": 105,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
       "text": "No video frame loaded. Please open a video and navigate to a frame."
     },
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 242,
+      "line": 244,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2486,21 +2864,30 @@
     },
     {
       "classification": "translate",
-      "context": "setText",
-      "line": 1536,
+      "context": "translate",
+      "line": 356,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "None"
+      "text": "Not Set"
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 345,
+      "context": "translate",
+      "line": 166,
       "origin": "static",
-      "role": "arg0",
-      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "Not Set"
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
+      "text": "Now click on a {hand_type}key that shows {condition} condition.\n\nFor {display_name}:"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 164,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
+      "text": "Now click on a {key_type_display} key that shows {calibration_display} condition.\n\nFor {calibration_display}:"
     },
     {
       "classification": "translate",
@@ -2513,10 +2900,10 @@
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 316,
+      "context": "translate",
+      "line": 325,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Octave"
     },
@@ -2531,6 +2918,15 @@
     },
     {
       "classification": "translate",
+      "context": "translate",
+      "line": 295,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Octave Transpose: shifts the generated MIDI up/down by octaves."
+    },
+    {
+      "classification": "translate",
       "context": "QCoreApplication.translate",
       "line": 407,
       "origin": "static",
@@ -2540,12 +2936,30 @@
     },
     {
       "classification": "translate",
-      "context": "QFileDialog.getOpenFileName",
-      "line": 54,
+      "context": "translate",
+      "line": 259,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
+      "text": "Open Manual Fit for the current manual calibration."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 62,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
       "text": "Open MIDI for Touch-Up"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 267,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
+      "text": "Open the auto-detect tuning panel for the current calibration."
     },
     {
       "classification": "translate",
@@ -2558,10 +2972,10 @@
     },
     {
       "classification": "translate",
-      "context": "addButton",
-      "line": 39,
+      "context": "translate",
+      "line": 45,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
       "text": "Open Touch-Up Editor"
     },
@@ -2585,19 +2999,28 @@
     },
     {
       "classification": "translate",
-      "context": "setWindowTitle",
-      "line": 388,
+      "context": "translate",
+      "line": 400,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
       "text": "Optimizing Performance"
     },
     {
       "classification": "translate",
-      "context": "QGroupBox",
-      "line": 1095,
+      "context": "translate",
+      "line": 1136,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Optional"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 1121,
+      "origin": "static",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Optional Features"
     },
@@ -2622,7 +3045,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 241,
+      "line": 243,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2630,28 +3053,28 @@
     },
     {
       "classification": "translate",
-      "context": "QGroupBox",
-      "line": 528,
+      "context": "translate",
+      "line": 540,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Overlay Appearance"
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 533,
+      "context": "translate",
+      "line": 545,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Overlay Color:"
     },
     {
       "classification": "translate",
-      "context": "QGroupBox",
-      "line": 448,
+      "context": "translate",
+      "line": 460,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Overlay Size Adjustment"
     },
@@ -2666,10 +3089,10 @@
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 302,
+      "context": "translate",
+      "line": 311,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Overlays"
     },
@@ -2702,19 +3125,19 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 203,
+      "context": "QCoreApplication.translate",
+      "line": 206,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
       "text": "Please navigate to a frame where the keyboard is fully visible.\n\nAfter clicking OK:\n1. Click and drag to draw a rectangle around the entire keyboard\n2. The system will detect keys within the selected region\n3. Right-click to cancel the selection"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 72,
+      "context": "translate",
+      "line": 77,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
       "text": "Please open a video file first."
     },
@@ -2729,19 +3152,19 @@
     },
     {
       "classification": "translate",
-      "context": "QCheckBox",
-      "line": 384,
+      "context": "translate",
+      "line": 396,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Present"
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 917,
+      "context": "translate",
+      "line": 943,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Preview not available yet."
     },
@@ -2756,26 +3179,35 @@
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 913,
+      "context": "translate",
+      "line": 939,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Preview will show spark calibration status here."
     },
     {
       "classification": "translate",
-      "context": "setWindowTitle",
-      "line": 315,
+      "context": "translate",
+      "line": 389,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/workflows/conversion.py",
+      "text": "Processing"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 323,
+      "origin": "static",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/conversion.py",
       "text": "Processing..."
     },
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 233,
+      "line": 235,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2801,19 +3233,19 @@
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 892,
+      "context": "translate",
+      "line": 917,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Recommended: auto-calibrate spark detection for this key type. Navigate to the frame where a key first turns ON, then click that overlay."
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 698,
+      "context": "translate",
+      "line": 715,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Reduces false black-key presses from nearby overlays."
     },
@@ -2846,10 +3278,10 @@
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 723,
+      "context": "translate",
+      "line": 740,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Reset detection threshold and detection mode parameter sliders to their defaults. Detection mode checkboxes stay unchanged."
     },
@@ -2882,10 +3314,10 @@
     },
     {
       "classification": "translate",
-      "context": "setText",
-      "line": 202,
+      "context": "translate",
+      "line": 210,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
       "text": "Reset Video -> Frame Series"
     },
@@ -2900,10 +3332,10 @@
     },
     {
       "classification": "translate",
-      "context": "QPushButton",
-      "line": 722,
+      "context": "translate",
+      "line": 738,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Restore Defaults"
     },
@@ -2927,10 +3359,10 @@
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 514,
+      "context": "translate",
+      "line": 526,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Right Slant"
     },
@@ -2945,8 +3377,17 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 198,
+      "context": "translate",
+      "line": 692,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Rise:"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 242,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -2954,8 +3395,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 188,
+      "context": "translate",
+      "line": 265,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
@@ -2963,12 +3404,12 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 143,
+      "context": "translate",
+      "line": 151,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
-      "text": "Rust touch-up editor binary was not found.\n\nMIDI requested: {...}\nExpected binary: {...}\n\nRun setup first (it can install/build Rust touch-up):\n{...}\n\nOr build manually with:\n{...}\n\nThen retry Edit MIDI."
+      "text": "Rust touch-up editor binary was not found.\n\nMIDI requested: {midi_path}\nExpected binary: {expected_binary}\n\nRun setup first (it can install/build Rust touch-up):\n{setup_cmd}\n\nOr build manually with:\n{build_cmd}\n\nThen retry Edit MIDI."
     },
     {
       "classification": "translate",
@@ -3035,8 +3476,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 203,
+      "context": "QCoreApplication.translate",
+      "line": 205,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
@@ -3062,82 +3503,82 @@
     },
     {
       "classification": "translate",
-      "context": "QPushButton",
-      "line": 803,
+      "context": "translate",
+      "line": 823,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Select Spark ROI"
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 806,
+      "context": "translate",
+      "line": 827,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Select the region above the keys where spark bars and sparks appear."
     },
     {
       "classification": "translate",
-      "context": "setWindowTitle",
-      "line": 33,
+      "context": "translate",
+      "line": 37,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/video_session_ui_controller.py",
       "text": "Select Video File or Image Sequence Directory"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.critical",
-      "line": 151,
+      "context": "translate",
+      "line": 170,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/overlay_manager.py",
-      "text": "Selected overlay ID {...} not found."
+      "text": "Selected overlay ID {selected_overlay_id} not found."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 247,
+      "context": "QCoreApplication.translate",
+      "line": 251,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
       "text": "Selected region is empty. Please draw a valid keyboard region."
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 776,
+      "context": "translate",
+      "line": 796,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Sensitivity:"
     },
     {
       "classification": "translate",
-      "context": "QPushButton",
-      "line": 995,
+      "context": "translate",
+      "line": 1021,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Set to Current"
     },
     {
       "classification": "translate",
-      "context": "QPushButton",
-      "line": 368,
+      "context": "translate",
+      "line": 379,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "Set {...}"
+      "text": "Set {label}"
     },
     {
       "classification": "translate",
-      "context": "setWindowTitle",
-      "line": 15,
+      "context": "translate",
+      "line": 17,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/settings_tool_window.py",
       "text": "Settings"
     },
@@ -3161,26 +3602,35 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 126,
+      "context": "translate",
+      "line": 182,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
-      "text": "Shadow Calibration - {...}"
+      "text": "Shadow Calibration - {key_type_display}"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 228,
+      "context": "translate",
+      "line": 313,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
-      "text": "Shadow calibration captured for {...} key in {...} state.\n\nDarkness ratio: {...}\nMean brightness: {...}\nBlack pixels: {...}/{...}{...}"
+      "text": "Shadow Calibration - {key_type}"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 30,
+      "context": "translate",
+      "line": 316,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
+      "text": "Shadow calibration captured for {key_type} key in {state_desc} state.\n\nDarkness ratio: {darkness_ratio}\nMean brightness: {mean_brightness}\nBlack pixels: {black_pixels}/{total_pixels}{save_msg}"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 35,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
@@ -3188,19 +3638,19 @@
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 324,
+      "context": "translate",
+      "line": 333,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Shifts the MIDI output up/down by octaves."
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 816,
+      "context": "translate",
+      "line": 837,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Show or hide the spark ROI overlay on the video."
     },
@@ -3233,12 +3683,21 @@
     },
     {
       "classification": "translate",
-      "context": "setText",
-      "line": 1345,
+      "context": "translate",
+      "line": 1375,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Show Spark Overlays"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 734,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Similarity:"
     },
     {
       "classification": "translate",
@@ -3260,44 +3719,53 @@
     },
     {
       "classification": "translate",
-      "context": "QGroupBox",
-      "line": 796,
+      "context": "translate",
+      "line": 954,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Spark"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 816,
+      "origin": "static",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Spark Calibration"
     },
     {
       "classification": "translate",
-      "context": "QGroupBox",
-      "line": 762,
+      "context": "translate",
+      "line": 780,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Spark Detection"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 64,
+      "context": "translate",
+      "line": 83,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
-      "text": "Spark detection region set:\nTop: {...} pixels\nBottom: {...} pixels\nHeight: {...} pixels"
+      "text": "Spark detection region set:\nTop: {top_y} pixels\nBottom: {bottom_y} pixels\nHeight: {height} pixels"
     },
     {
       "classification": "translate",
-      "context": "QGroupBox",
-      "line": 911,
+      "context": "translate",
+      "line": 937,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Spark Preview / Status"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 25,
+      "context": "translate",
+      "line": 30,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
@@ -3305,8 +3773,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 64,
+      "context": "translate",
+      "line": 82,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
@@ -3314,28 +3782,28 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 146,
+      "context": "translate",
+      "line": 189,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
-      "text": "Spark {...} Calibration"
+      "text": "Spark {display_name} Calibration"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 1263,
+      "context": "translate",
+      "line": 1289,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Start frame must be less than end frame."
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 984,
+      "context": "translate",
+      "line": 1010,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Start Frame:"
     },
@@ -3359,10 +3827,10 @@
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 828,
+      "context": "translate",
+      "line": 848,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Step 1)"
     },
@@ -3377,10 +3845,10 @@
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 843,
+      "context": "translate",
+      "line": 863,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Step 2)"
     },
@@ -3395,10 +3863,10 @@
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 858,
+      "context": "translate",
+      "line": 878,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Step 3)"
     },
@@ -3413,12 +3881,21 @@
     },
     {
       "classification": "translate",
-      "context": "setText",
-      "line": 1529,
+      "context": "translate",
+      "line": 667,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "Success: {...}"
+      "text": "Strength:"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 1571,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Success: {message}"
     },
     {
       "classification": "translate",
@@ -3431,12 +3908,21 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 159,
+      "context": "translate",
+      "line": 444,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/manual_keyboard_fit_controller.py",
+      "text": "The keyboard box may extend past the visible keys.\n\n{warnings}"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 168,
+      "origin": "static",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
-      "text": "The video file path is not valid:\n{...}\n\nPlease load a valid video file first."
+      "text": "The video file path is not valid:\n{video_path}\n\nPlease load a valid video file first."
     },
     {
       "classification": "translate",
@@ -3449,12 +3935,12 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.question",
-      "line": 170,
+      "context": "translate",
+      "line": 181,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
-      "text": "This will convert the current video to a frame series:\n\nVideo: {...}\nOutput: {...}\n\nThis may take several minutes and will overwrite any existing frame series.\n\nContinue?"
+      "text": "This will convert the current video to a frame series:\n\nVideo: {video_name}\nOutput: {output_dir}\n\nThis may take several minutes and will overwrite any existing frame series.\n\nContinue?"
     },
     {
       "classification": "translate",
@@ -3476,8 +3962,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 69,
+      "context": "translate",
+      "line": 77,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -3485,8 +3971,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.critical",
-      "line": 218,
+      "context": "translate",
+      "line": 226,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -3494,8 +3980,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.critical",
-      "line": 101,
+      "context": "translate",
+      "line": 111,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -3503,8 +3989,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 121,
+      "context": "translate",
+      "line": 130,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -3512,8 +3998,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 143,
+      "context": "translate",
+      "line": 150,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -3521,17 +4007,17 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 203,
+      "context": "translate",
+      "line": 210,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
-      "text": "Touch-up MIDI saved to:\n{...}"
+      "text": "Touch-up MIDI saved to:\n{shown_path}"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 203,
+      "context": "translate",
+      "line": 209,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -3539,10 +4025,19 @@
     },
     {
       "classification": "translate",
-      "context": "QPushButton",
-      "line": 1078,
+      "context": "translate",
+      "line": 1112,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Trim"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 1104,
+      "origin": "static",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Trim Video"
     },
@@ -3557,46 +4052,55 @@
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 386,
+      "context": "translate",
+      "line": 398,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Uncheck if this key type never appears in this video."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 269,
+      "context": "translate",
+      "line": 340,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
-      "text": "Unknown calibration mode: {...}"
+      "text": "Unknown calibration mode: {calibration_mode}"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 96,
+      "context": "translate",
+      "line": 451,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
-      "text": "Unknown calibration step: {...}"
+      "text": "Unknown calibration step"
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 328,
+      "context": "translate",
+      "line": 129,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
+      "text": "Unknown calibration step: {step_type}"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 337,
+      "origin": "static",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Unlit"
     },
     {
       "classification": "translate",
-      "context": "setText",
-      "line": 1487,
+      "context": "translate",
+      "line": 1528,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Unlit State Calibrated"
     },
@@ -3611,8 +4115,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.question",
-      "line": 109,
+      "context": "translate",
+      "line": 113,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
@@ -3620,12 +4124,21 @@
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 769,
+      "context": "translate",
+      "line": 788,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Use only when key overlays stay ON across repeated notes (false continuous press), and the overlays are solid color (no fading or gradients)."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 768,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Use Spark Detection only when:"
     },
     {
       "classification": "translate",
@@ -3638,19 +4151,19 @@
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 631,
+      "context": "translate",
+      "line": 648,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Uses a color-pattern match inside the overlay. Helpful with gradients/uneven lighting."
     },
     {
       "classification": "translate",
-      "context": "setToolTip",
-      "line": 657,
+      "context": "translate",
+      "line": 674,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Uses frame-to-frame change to confirm press/release (helps when color fades)."
     },
@@ -3665,21 +4178,21 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 210,
+      "context": "translate",
+      "line": 222,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
-      "text": "Video conversion completed successfully!\n\n{...}\n\nYou can now load the frame series for faster playback."
+      "text": "Video conversion completed successfully!\n\n{message}\n\nYou can now load the frame series for faster playback."
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.critical",
-      "line": 218,
+      "context": "translate",
+      "line": 232,
       "origin": "static",
-      "role": "arg2",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
-      "text": "Video conversion failed:\n\n{...}"
+      "text": "Video conversion failed:\n\n{message}"
     },
     {
       "classification": "translate",
@@ -3692,6 +4205,15 @@
     },
     {
       "classification": "translate",
+      "context": "translate",
+      "line": 42,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/video_session_ui_controller.py",
+      "text": "Video Files (*.mp4 *.avi *.mov *.mkv *.webm);;Image Sequence Directories (*)"
+    },
+    {
+      "classification": "translate",
       "context": "QCoreApplication.translate",
       "line": 107,
       "origin": "static",
@@ -3701,17 +4223,26 @@
     },
     {
       "classification": "translate",
-      "context": "QGroupBox",
-      "line": 1032,
+      "context": "translate",
+      "line": 1058,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Video Processing Range"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 94,
+      "context": "QCoreApplication.translate",
+      "line": 271,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
+      "text": "Video quality is too blurry for autodetector. Please assign overlays manually."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 98,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -3734,6 +4265,24 @@
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/main.py",
       "text": "Visual Threshold Monitor"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 305,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
+      "text": "Warning: Auto-save failed."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 308,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
+      "text": "Warning: Auto-save not available."
     },
     {
       "classification": "translate",
@@ -3782,17 +4331,17 @@
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 469,
+      "context": "translate",
+      "line": 481,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "White Key Height"
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 46,
+      "context": "translate",
+      "line": 63,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/shadow_calibration_controller.py",
@@ -3800,10 +4349,10 @@
     },
     {
       "classification": "translate",
-      "context": "QLabel",
-      "line": 478,
+      "context": "translate",
+      "line": 490,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "White Key Width"
     },
@@ -3935,8 +4484,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 72,
+      "context": "translate",
+      "line": 76,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -3944,8 +4493,8 @@
     },
     {
       "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 154,
+      "context": "translate",
+      "line": 203,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
@@ -3962,10 +4511,10 @@
     },
     {
       "classification": "translate",
-      "context": "setInformativeText",
-      "line": 38,
+      "context": "translate",
+      "line": 44,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
       "text": "You can open the Touch-Up Editor now, or finish."
     },
@@ -3998,87 +4547,6 @@
     },
     {
       "classification": "translate",
-      "context": "setText",
-      "line": 1166,
-      "origin": "static",
-      "role": "arg0",
-      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "{...}"
-    },
-    {
-      "classification": "translate",
-      "context": "QMessageBox.critical",
-      "line": 218,
-      "origin": "static",
-      "role": "arg2",
-      "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
-      "text": "{...}\n\nSource MIDI: {...}\nStdout: {...}\nStderr: {...}"
-    },
-    {
-      "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 319,
-      "origin": "static",
-      "role": "arg2",
-      "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
-      "text": "{...} calibration captured successfully from key {...}!\n\nQuality: {...}\nBrightness: {...}"
-    },
-    {
-      "classification": "translate",
-      "context": "QMessageBox.information",
-      "line": 319,
-      "origin": "static",
-      "role": "arg1",
-      "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
-      "text": "{...} Calibration Complete"
-    },
-    {
-      "classification": "translate",
-      "context": "QMessageBox.warning",
-      "line": 45,
-      "origin": "static",
-      "role": "arg2",
-      "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
-      "text": "{...} is marked as not present in this video. Re-enable 'Present in Video' first."
-    },
-    {
-      "classification": "translate",
-      "context": "setText",
-      "line": 1154,
-      "origin": "static",
-      "role": "arg0",
-      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "{...}%"
-    },
-    {
-      "classification": "translate",
-      "context": "setLabelText",
-      "line": 380,
-      "origin": "static",
-      "role": "arg0",
-      "source": "synthesia2midi/synthesia2midi/workflows/conversion.py",
-      "text": "{...}... {...}/{...} ({...}%) (frame {...})"
-    },
-    {
-      "classification": "translate",
-      "context": "setText",
-      "line": 177,
-      "origin": "static",
-      "role": "arg0",
-      "source": "synthesia2midi/synthesia2midi/gui/video_controls.py",
-      "text": "{...}:{...}"
-    },
-    {
-      "classification": "translate",
-      "context": "setText",
-      "line": 523,
-      "origin": "static",
-      "role": "arg0",
-      "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
-      "text": "{...}{...}"
-    },
-    {
-      "classification": "translate",
       "context": "QCoreApplication.translate",
       "line": 199,
       "origin": "static",
@@ -4106,28 +4574,83 @@
     },
     {
       "classification": "translate",
-      "context": "setWindowTitle",
-      "line": 1269,
+      "context": "translate",
+      "line": 227,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
+      "text": "{failure_message}\n\nSource MIDI: {source_midi_path}\nStdout: {stdout_text}\nStderr: {stderr_text}"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 51,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
+      "text": "{key_type} is marked as not present in this video. Re-enable 'Present in Video' first."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 129,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/workflows/overlay_manager.py",
+      "text": "{modified_count} '{target_key_color_type}' keys aligned vertically to overlay {master_overlay_key_id}."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 393,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/workflows/conversion.py",
+      "text": "{phase_label}... {frame_count}/{total_frames} ({percent}%) (frame {actual_frame_idx})"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 409,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
+      "text": "{step_name} calibration captured successfully from key {key_id}!\n\nQuality: {quality}\nBrightness: {brightness}"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 406,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py",
+      "text": "{step_name} Calibration Complete"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 1295,
+      "origin": "static",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "\u26a0\ufe0f Trim Video - Irreversible Action"
     },
     {
       "classification": "translate",
-      "context": "setText",
-      "line": 1315,
+      "context": "translate",
+      "line": 1345,
       "origin": "static",
-      "role": "arg0",
+      "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "\u26a0\ufe0f YES, TRIM VIDEO"
     }
   ],
   "counts": {
-    "do_not_translate": 3,
+    "do_not_translate": 11,
+    "dynamic_user_data": 4,
     "path_or_url": 2,
     "technical_id": 7,
-    "translate": 446
+    "translate": 492
   },
   "schema_version": 1
 }

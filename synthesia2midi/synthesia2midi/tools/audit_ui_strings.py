@@ -5,6 +5,7 @@ import argparse
 import ast
 import json
 import os
+import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Iterable, Sequence
@@ -44,6 +45,7 @@ UI_METHODS = {
     "setDetailedText",
     "setInformativeText",
     "setLabelText",
+    "setNameFilter",
     "setPlaceholderText",
     "setStatusTip",
     "setText",
@@ -133,7 +135,7 @@ def _is_qt_visible_call(name: str) -> str | None:
         return f"QMessageBox.{leaf}"
     if name.startswith("QFileDialog.") and leaf in FILE_DIALOG_METHODS:
         return f"QFileDialog.{leaf}"
-    if name == "QCoreApplication.translate":
+    if name in {"QCoreApplication.translate", "translate"}:
         return name
     return None
 
@@ -144,6 +146,12 @@ def classify_text(text: str, *, context: str = "", role: str = "", origin: str =
     lowered = stripped.lower()
     if stripped in NON_TRANSLATABLE_TEXT:
         return "do_not_translate"
+    if re.fullmatch(r"\d+(?:\.\d+)?%?", stripped) or re.fullmatch(r"\d+:\d{2}", stripped):
+        return "do_not_translate"
+    if "{...}" in stripped:
+        residue = stripped.replace("{...}", "").strip()
+        if residue in {"", "%", ":"}:
+            return "dynamic_user_data"
     if origin == "runtime" and (
         stripped.startswith(("/", "~"))
         or Path(stripped).suffix.lower() in {".mp4", ".mov", ".mkv", ".avi", ".mid", ".midi"}
@@ -199,7 +207,7 @@ def collect_static_candidates(paths: Iterable[Path], *, root: Path) -> list[UiSt
             if context is None:
                 continue
             for index, arg in enumerate(node.args):
-                if context == "QCoreApplication.translate" and index != 1:
+                if context in {"QCoreApplication.translate", "translate"} and index != 1:
                     continue
                 text = _text_of(arg)
                 if text is None:

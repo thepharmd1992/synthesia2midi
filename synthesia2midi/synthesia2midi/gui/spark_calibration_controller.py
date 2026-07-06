@@ -3,7 +3,10 @@ from __future__ import annotations
 
 import logging
 
+from PySide6.QtCore import QCoreApplication
 from PySide6.QtWidgets import QMessageBox
+
+translate = QCoreApplication.translate
 
 
 class SparkCalibrationController:
@@ -22,13 +25,26 @@ class SparkCalibrationController:
             # Enter ROI selection mode on the canvas
             if hasattr(self.keyboard_canvas, 'interaction') and self.keyboard_canvas.interaction:
                 self.keyboard_canvas.interaction.enter_spark_roi_selection_mode()
-                QMessageBox.information(self.app, "Spark ROI Selection",
-                                       "Click and drag on the video to select the spark detection region.\n"
-                                       "Right-click to cancel.")
+                QMessageBox.information(
+                    self.app,
+                    translate("SparkCalibrationController", "Spark ROI Selection"),
+                    translate(
+                        "SparkCalibrationController",
+                        "Click and drag on the video to select the spark detection region.\nRight-click to cancel.",
+                    ),
+                )
             else:
-                QMessageBox.warning(self.app, "Canvas Error", "Canvas interaction system not available.")
+                QMessageBox.warning(
+                    self.app,
+                    translate("SparkCalibrationController", "Canvas Error"),
+                    translate("SparkCalibrationController", "Canvas interaction system not available."),
+                )
         else:
-            QMessageBox.warning(self.app, "No Canvas", "No video canvas available for ROI selection.")
+            QMessageBox.warning(
+                self.app,
+                translate("SparkCalibrationController", "No Canvas"),
+                translate("SparkCalibrationController", "No video canvas available for ROI selection."),
+            )
 
     def set_spark_roi_visible(self, visible: bool):
         """Handle spark ROI visibility toggle from control panel."""
@@ -61,22 +77,36 @@ class SparkCalibrationController:
             self.control_panel.update_controls_from_state()
 
         # Show confirmation message
-        QMessageBox.information(self.app, "Spark ROI Set",
-                               f"Spark detection region set:\n"
-                               f"Top: {top_y} pixels\n"
-                               f"Bottom: {bottom_y} pixels\n"
-                               f"Height: {bottom_y - top_y} pixels")
+        QMessageBox.information(
+            self.app,
+            translate("SparkCalibrationController", "Spark ROI Set"),
+            translate(
+                "SparkCalibrationController",
+                "Spark detection region set:\nTop: {top_y} pixels\nBottom: {bottom_y} pixels\nHeight: {height} pixels",
+            ).format(top_y=top_y, bottom_y=bottom_y, height=bottom_y - top_y),
+        )
 
     def request_spark_calibration(self, step_type: str):
         """Handle spark calibration request from control panel."""
         logging.info(f"Spark calibration requested: {step_type}")
 
         if not hasattr(self, 'keyboard_canvas') or not self.keyboard_canvas:
-            QMessageBox.warning(self.app, "No Canvas", "No video canvas available for calibration.")
+            QMessageBox.warning(
+                self.app,
+                translate("SparkCalibrationController", "No Canvas"),
+                translate("SparkCalibrationController", "No video canvas available for calibration."),
+            )
             return
 
         if self.keyboard_canvas.current_frame_rgb is None:
-            QMessageBox.warning(self.app, "No Frame", "No video frame loaded. Please open a video and navigate to a frame.")
+            QMessageBox.warning(
+                self.app,
+                translate("SparkCalibrationController", "No Frame"),
+                translate(
+                    "SparkCalibrationController",
+                    "No video frame loaded. Please open a video and navigate to a frame.",
+                ),
+            )
             return
 
         # Map step type to calibration modes
@@ -93,7 +123,13 @@ class SparkCalibrationController:
         }
 
         if step_type not in calibration_mode_map:
-            QMessageBox.warning(self.app, "Invalid Step", f"Unknown calibration step: {step_type}")
+            QMessageBox.warning(
+                self.app,
+                translate("SparkCalibrationController", "Invalid Step"),
+                translate("SparkCalibrationController", "Unknown calibration step: {step_type}").format(
+                    step_type=step_type
+                ),
+            )
             return
 
         calibration_mode = calibration_mode_map[step_type]
@@ -127,23 +163,34 @@ class SparkCalibrationController:
         elif "rh_" in step_type:
             hand_type = "RIGHT HAND "
 
-        instruction_msg = (f"Now click on a {hand_type}key that shows {display_name.lower()} condition.\n\n"
-                          f"For {display_name}:\n")
+        instruction_msg = translate(
+            "SparkCalibrationController",
+            "Now click on a {hand_type}key that shows {condition} condition.\n\nFor {display_name}:\n",
+        ).format(hand_type=hand_type, condition=display_name.lower(), display_name=display_name)
 
         if "bar_only" in step_type:
-            instruction_msg += ("- Key should show colored bars WITHOUT any sparks\n"
-                              "- Navigate to a frame where this condition is visible\n"
-                              "- Click on the key showing this exact condition")
+            instruction_msg += translate(
+                "SparkCalibrationController",
+                "- Key should show colored bars WITHOUT any sparks\n- Navigate to a frame where this condition is visible\n- Click on the key showing this exact condition",
+            )
         elif "dimmest_sparks" in step_type:
-            instruction_msg += ("- Key should show colored bars WITH barely visible sparks\n"
-                              "- Navigate to a frame where sparks are just starting to appear\n"
-                              "- Click on the key showing this exact condition")
+            instruction_msg += translate(
+                "SparkCalibrationController",
+                "- Key should show colored bars WITH barely visible sparks\n- Navigate to a frame where sparks are just starting to appear\n- Click on the key showing this exact condition",
+            )
         else:  # brightest_sparks
-            instruction_msg += ("- Key should show colored bars WITH very bright/intense sparks\n"
-                              "- Navigate to a frame where sparks are at their brightest\n"
-                              "- Click on the key showing this exact condition")
+            instruction_msg += translate(
+                "SparkCalibrationController",
+                "- Key should show colored bars WITH very bright/intense sparks\n- Navigate to a frame where sparks are at their brightest\n- Click on the key showing this exact condition",
+            )
 
-        QMessageBox.information(self.app, f"Spark {display_name} Calibration", instruction_msg)
+        QMessageBox.information(
+            self.app,
+            translate("SparkCalibrationController", "Spark {display_name} Calibration").format(
+                display_name=display_name
+            ),
+            instruction_msg,
+        )
         logging.info(f"Set calibration mode to {calibration_mode}, waiting for user to click on key")
 
     def start_auto_spark_calibration(self, key_type: str):
@@ -151,31 +198,36 @@ class SparkCalibrationController:
         logging.info(f"Auto-spark calibration requested for key type: {key_type}")
 
         if not hasattr(self, 'auto_calibration_workflow') or not self.auto_calibration_workflow:
-            QMessageBox.warning(self.app, "Workflow Error", "Auto-calibration workflow not available.")
+            QMessageBox.warning(
+                self.app,
+                translate("SparkCalibrationController", "Workflow Error"),
+                translate("SparkCalibrationController", "Auto-calibration workflow not available."),
+            )
             return
 
         # Start the auto-calibration process
         success = self.auto_calibration_workflow.start_auto_calibration(key_type)
 
         if success:
-            instruction_msg = (f"Auto-Calibration for {key_type} Started\n\n"
-                              f"Instructions:\n"
-                              f"1. Navigate to a frame where a {key_type} key FIRST turns ON\n"
-                              f"2. Click on that key overlay\n"
-                              f"3. The system will automatically:\n"
-                              f"   - Detect if it's left/right hand based on color\n"
-                              f"   - Capture bar-only (frame +0)\n"
-                              f"   - Capture dimmest sparks (frame +2)\n"
-                              f"   - Find brightest sparks (frames +3 to +22)\n"
-                              f"   - Save calibration data\n\n"
-                              f"Key Type Legend:\n"
-                              f"LW = Left White, LB = Left Black\n"
-                              f"RW = Right White, RB = Right Black")
+            instruction_msg = translate(
+                "SparkCalibrationController",
+                "Auto-Calibration for {key_type} Started\n\nInstructions:\n1. Navigate to a frame where a {key_type} key FIRST turns ON\n2. Click on that key overlay\n3. The system will automatically:\n   - Detect if it's left/right hand based on color\n   - Capture bar-only (frame +0)\n   - Capture dimmest sparks (frame +2)\n   - Find brightest sparks (frames +3 to +22)\n   - Save calibration data\n\nKey Type Legend:\nLW = Left White, LB = Left Black\nRW = Right White, RB = Right Black",
+            ).format(key_type=key_type)
 
-            QMessageBox.information(self.app, f"Auto-Calibrate {key_type}", instruction_msg)
+            QMessageBox.information(
+                self.app,
+                translate("SparkCalibrationController", "Auto-Calibrate {key_type}").format(key_type=key_type),
+                instruction_msg,
+            )
         else:
-            QMessageBox.warning(self.app, "Calibration Error",
-                               "Failed to start auto-calibration. Please check video and overlays are loaded.")
+            QMessageBox.warning(
+                self.app,
+                translate("SparkCalibrationController", "Calibration Error"),
+                translate(
+                    "SparkCalibrationController",
+                    "Failed to start auto-calibration. Please check video and overlays are loaded.",
+                ),
+            )
 
     def set_spark_detection_enabled(self, enabled: bool):
         """Handle spark detection enable/disable toggle."""
@@ -205,11 +257,14 @@ class SparkCalibrationController:
 
         # Start background calibration step
         if not calibration_manager.start_calibration_step(CalibrationStep.BACKGROUND):
-            QMessageBox.warning(self.app, "Calibration Failed",
-                              "Could not start background calibration.\n\n"
-                              "Requirements:\n"
-                              "- Spark ROI must be set (top < bottom)\n"
-                              "- Key overlays must be configured")
+            QMessageBox.warning(
+                self.app,
+                translate("SparkCalibrationController", "Calibration Failed"),
+                translate(
+                    "SparkCalibrationController",
+                    "Could not start background calibration.\n\nRequirements:\n- Spark ROI must be set (top < bottom)\n- Key overlays must be configured",
+                ),
+            )
             return
 
         # Capture current frame
@@ -221,13 +276,21 @@ class SparkCalibrationController:
             self.control_panel.update_spark_calibration_display()
 
             # Show success message
-            QMessageBox.information(self.app, "Background Calibration Complete",
-                                   "Background calibration captured successfully!")
+            QMessageBox.information(
+                self.app,
+                translate("SparkCalibrationController", "Background Calibration Complete"),
+                translate("SparkCalibrationController", "Background calibration captured successfully!"),
+            )
             logging.info("Spark background calibration completed successfully")
         else:
-            QMessageBox.critical(self.app, "Calibration Failed",
-                               "Failed to capture background calibration data.\n\n"
-                               "Please check that spark ROI is properly set.")
+            QMessageBox.critical(
+                self.app,
+                translate("SparkCalibrationController", "Calibration Failed"),
+                translate(
+                    "SparkCalibrationController",
+                    "Failed to capture background calibration data.\n\nPlease check that spark ROI is properly set.",
+                ),
+            )
             logging.error("Spark background calibration failed")
 
     def capture_spark_overlay_calibration(self, overlay, calibration_mode: str):
@@ -244,9 +307,14 @@ class SparkCalibrationController:
             target_zone = next((zone for zone in spark_zones if zone.key_id == overlay.key_id), None)
 
             if not target_zone:
-                QMessageBox.warning(self.app, "Calibration Error",
-                                   f"No spark zone found for key {overlay.key_id}. "
-                                   f"Please ensure spark ROI is properly set.")
+                QMessageBox.warning(
+                    self.app,
+                    translate("SparkCalibrationController", "Calibration Error"),
+                    translate(
+                        "SparkCalibrationController",
+                        "No spark zone found for key {key_id}. Please ensure spark ROI is properly set.",
+                    ).format(key_id=overlay.key_id),
+                )
                 self.app_state.calibration.calibration_mode = None
                 return
 
@@ -266,7 +334,13 @@ class SparkCalibrationController:
             }
 
             if calibration_mode not in mode_map:
-                QMessageBox.warning(self.app, "Invalid Mode", f"Unknown calibration mode: {calibration_mode}")
+                QMessageBox.warning(
+                    self.app,
+                    translate("SparkCalibrationController", "Invalid Mode"),
+                    translate("SparkCalibrationController", "Unknown calibration mode: {calibration_mode}").format(
+                        calibration_mode=calibration_mode
+                    ),
+                )
                 self.app_state.calibration.calibration_mode = None
                 return
 
@@ -274,8 +348,14 @@ class SparkCalibrationController:
 
             # Start calibration step
             if not calibration_manager.start_calibration_step(calibration_step):
-                QMessageBox.warning(self.app, "Calibration Failed",
-                                   "Could not start calibration step. Please check spark ROI configuration.")
+                QMessageBox.warning(
+                    self.app,
+                    translate("SparkCalibrationController", "Calibration Failed"),
+                    translate(
+                        "SparkCalibrationController",
+                        "Could not start calibration step. Please check spark ROI configuration.",
+                    ),
+                )
                 self.app_state.calibration.calibration_mode = None
                 return
 
@@ -286,8 +366,13 @@ class SparkCalibrationController:
             # Extract calibration sample from the target zone only
             zone_sample = calibration_manager._extract_zone_sample(current_frame, target_zone)
             if not zone_sample:
-                QMessageBox.critical(self.app, "Calibration Failed",
-                                   f"Could not extract calibration data from key {overlay.key_id}.")
+                QMessageBox.critical(
+                    self.app,
+                    translate("SparkCalibrationController", "Calibration Failed"),
+                    translate(
+                        "SparkCalibrationController", "Could not extract calibration data from key {key_id}."
+                    ).format(key_id=overlay.key_id),
+                )
                 self.app_state.calibration.calibration_mode = None
                 return
 
@@ -316,17 +401,33 @@ class SparkCalibrationController:
             }
             step_name = step_names.get(calibration_mode, calibration_mode)
 
-            QMessageBox.information(self.app, f"{step_name} Calibration Complete",
-                                   f"{step_name} calibration captured successfully from key {overlay.key_id}!\n\n"
-                                   f"Quality: {calib_data.confidence_score:.1%}\n"
-                                   f"Brightness: {calib_data.mean_brightness:.3f}")
+            QMessageBox.information(
+                self.app,
+                translate("SparkCalibrationController", "{step_name} Calibration Complete").format(
+                    step_name=step_name
+                ),
+                translate(
+                    "SparkCalibrationController",
+                    "{step_name} calibration captured successfully from key {key_id}!\n\nQuality: {quality}\nBrightness: {brightness}",
+                ).format(
+                    step_name=step_name,
+                    key_id=overlay.key_id,
+                    quality=f"{calib_data.confidence_score:.1%}",
+                    brightness=f"{calib_data.mean_brightness:.3f}",
+                ),
+            )
 
             logging.info(f"Spark {calibration_mode} calibration completed successfully from key {overlay.key_id}")
 
         except Exception as e:
             logging.error(f"Error during spark calibration: {e}")
-            QMessageBox.critical(self.app, "Calibration Error",
-                               f"An error occurred during calibration: {str(e)}")
+            QMessageBox.critical(
+                self.app,
+                translate("SparkCalibrationController", "Calibration Error"),
+                translate(
+                    "SparkCalibrationController", "An error occurred during calibration: {error}"
+                ).format(error=str(e)),
+            )
         finally:
             # Always reset calibration mode
             self.app_state.calibration.calibration_mode = None
@@ -334,11 +435,20 @@ class SparkCalibrationController:
     def get_calibration_instructions(self, step_type: str) -> str:
         """Get user instructions for each calibration step."""
         instructions = {
-            "background": "Navigate to a frame with no bars visible and no sparks.\nThe spark ROI should show only background content.",
-            "bar_only": "Navigate to a frame with colored bars visible but NO sparks.\nBars should be clearly visible in the spark ROI without any bright flashes.",
-            "dimmest_sparks": "Navigate to a frame with the DIMMEST visible sparks.\nSparks should be just barely noticeable as bright flashes in the ROI."
+            "background": translate(
+                "SparkCalibrationController",
+                "Navigate to a frame with no bars visible and no sparks.\nThe spark ROI should show only background content.",
+            ),
+            "bar_only": translate(
+                "SparkCalibrationController",
+                "Navigate to a frame with colored bars visible but NO sparks.\nBars should be clearly visible in the spark ROI without any bright flashes.",
+            ),
+            "dimmest_sparks": translate(
+                "SparkCalibrationController",
+                "Navigate to a frame with the DIMMEST visible sparks.\nSparks should be just barely noticeable as bright flashes in the ROI.",
+            ),
         }
-        return instructions.get(step_type, "Unknown calibration step")
+        return instructions.get(step_type, translate("SparkCalibrationController", "Unknown calibration step"))
 
     # Backward-compatible private aliases for older callers/tests. New wiring
     # should use the public controller methods above.

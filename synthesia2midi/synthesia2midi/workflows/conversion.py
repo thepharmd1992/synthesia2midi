@@ -12,7 +12,7 @@ from typing import Dict, Tuple, Optional, Callable, List
 import cv2
 import numpy as np
 from PySide6.QtWidgets import QProgressDialog, QApplication, QMessageBox
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QCoreApplication, Qt
 
 from synthesia2midi.midi_generator import MidiWriter
 from synthesia2midi.detection.factory import DetectionFactory
@@ -20,6 +20,8 @@ from synthesia2midi.video_loader import VideoSession
 from synthesia2midi.app_config import DEBUG_FRAMES_DIR
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.detection.roi_utils import extract_roi_bgr, get_average_color_from_roi, euclidean_distance
+
+translate = QCoreApplication.translate
 
 
 class ConversionWorkflow:
@@ -311,8 +313,14 @@ class ConversionWorkflow:
         # Create progress dialog if no callback provided
         progress_dialog = None
         if progress_callback is None and self.parent_widget:
-            progress_dialog = QProgressDialog("Detecting notes...", "Cancel", 0, total_frames, self.parent_widget)
-            progress_dialog.setWindowTitle("Processing...")
+            progress_dialog = QProgressDialog(
+                translate("ConversionWorkflow", "Detecting notes..."),
+                translate("ConversionWorkflow", "Cancel"),
+                0,
+                total_frames,
+                self.parent_widget,
+            )
+            progress_dialog.setWindowTitle(translate("ConversionWorkflow", "Processing..."))
             progress_dialog.setWindowModality(Qt.WindowModal)
             progress_dialog.setMinimumDuration(0)
             progress_dialog.show()
@@ -375,9 +383,24 @@ class ConversionWorkflow:
                     if progress_callback:
                         progress_callback(frame_count, total_frames)
                     elif progress_dialog:
-                        phase_label = "Detecting notes" if detector else "Processing"
+                        phase_label = (
+                            translate("ConversionWorkflow", "Detecting notes")
+                            if detector
+                            else translate("ConversionWorkflow", "Processing")
+                        )
                         percent = frame_count/total_frames*100
-                        progress_dialog.setLabelText(f"{phase_label}... {frame_count}/{total_frames} ({percent:.1f}%) (frame {actual_frame_idx})")
+                        progress_dialog.setLabelText(
+                            translate(
+                                "ConversionWorkflow",
+                                "{phase_label}... {frame_count}/{total_frames} ({percent}%) (frame {actual_frame_idx})",
+                            ).format(
+                                phase_label=phase_label,
+                                frame_count=frame_count,
+                                total_frames=total_frames,
+                                percent=f"{percent:.1f}",
+                                actual_frame_idx=actual_frame_idx,
+                            )
+                        )
                         progress_dialog.setValue(frame_count)
                         # Process events with a timeout to prevent UI freezing
                         QApplication.processEvents()

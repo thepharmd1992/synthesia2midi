@@ -202,12 +202,11 @@ class CalibrationWizard(QDialog):
         # Show instructions to the user
         QMessageBox.information(
             self, 
-            "Select Keyboard Region", 
-            "Please navigate to a frame where the keyboard is fully visible.\n\n"
-            "After clicking OK:\n"
-            "1. Click and drag to draw a rectangle around the entire keyboard\n"
-            "2. The system will detect keys within the selected region\n"
-            "3. Right-click to cancel the selection"
+            QCoreApplication.translate("CalibrationWizard", "Select Keyboard Region"),
+            QCoreApplication.translate(
+                "CalibrationWizard",
+                "Please navigate to a frame where the keyboard is fully visible.\n\nAfter clicking OK:\n1. Click and drag to draw a rectangle around the entire keyboard\n2. The system will detect keys within the selected region\n3. Right-click to cancel the selection",
+            ),
         )
         
         logging.info("Emitting keyboard_region_selection_requested signal")
@@ -232,8 +231,10 @@ class CalibrationWizard(QDialog):
                 logging.error("No video frame available")
                 QMessageBox.warning(
                     self,
-                    "Detection Error",
-                    "No video frame available. Please ensure a video is loaded.",
+                    QCoreApplication.translate("CalibrationWizard", "Detection Error"),
+                    QCoreApplication.translate(
+                        "CalibrationWizard", "No video frame available. Please ensure a video is loaded."
+                    ),
                 )
                 return False
             logging.info(f"Got video frame with shape: {current_frame.shape}")
@@ -246,8 +247,10 @@ class CalibrationWizard(QDialog):
             if cropped_frame.size == 0:
                 QMessageBox.warning(
                     self,
-                    "Detection Error",
-                    "Selected region is empty. Please draw a valid keyboard region.",
+                    QCoreApplication.translate("CalibrationWizard", "Detection Error"),
+                    QCoreApplication.translate(
+                        "CalibrationWizard", "Selected region is empty. Please draw a valid keyboard region."
+                    ),
                 )
                 return False
 
@@ -265,10 +268,20 @@ class CalibrationWizard(QDialog):
                 logging.error("Detection returned None")
                 reason = getattr(adapter, "last_failure_reason", None)
                 if reason == "low_quality":
-                    message = "Video quality is too blurry for autodetector. Please assign overlays manually."
+                    message = QCoreApplication.translate(
+                        "CalibrationWizard",
+                        "Video quality is too blurry for autodetector. Please assign overlays manually.",
+                    )
                 else:
-                    message = "Failed to detect keys in the selected region. Please try again."
-                QMessageBox.warning(self, "Detection Error", message)
+                    message = QCoreApplication.translate(
+                        "CalibrationWizard",
+                        "Failed to detect keys in the selected region. Please try again.",
+                    )
+                QMessageBox.warning(
+                    self,
+                    QCoreApplication.translate("CalibrationWizard", "Detection Error"),
+                    message,
+                )
                 self.auto_detect_saved_params_fallback_used = False
                 return False
 
@@ -286,8 +299,10 @@ class CalibrationWizard(QDialog):
             if not applied:
                 QMessageBox.warning(
                     self,
-                    "Detection Error",
-                    "Autodetection produced no overlays. Please try another region.",
+                    QCoreApplication.translate("CalibrationWizard", "Detection Error"),
+                    QCoreApplication.translate(
+                        "CalibrationWizard", "Autodetection produced no overlays. Please try another region."
+                    ),
                 )
                 return False
 
@@ -297,7 +312,13 @@ class CalibrationWizard(QDialog):
         except Exception as e:
             logging.error("=== KEYBOARD DETECTION FAILED ===")
             logging.error(f"Error: {e}", exc_info=True)
-            QMessageBox.critical(self, "Detection Error", f"Key detection failed: {str(e)}")
+            QMessageBox.critical(
+                self,
+                QCoreApplication.translate("CalibrationWizard", "Detection Error"),
+                QCoreApplication.translate("CalibrationWizard", "Key detection failed: {error}").format(
+                    error=str(e)
+                ),
+            )
             return False
 
     def _get_current_frame(self) -> Optional[np.ndarray]:

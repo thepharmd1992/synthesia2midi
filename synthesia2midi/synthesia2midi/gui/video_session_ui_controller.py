@@ -4,10 +4,13 @@ from __future__ import annotations
 import logging
 import os
 
+from PySide6.QtCore import QCoreApplication
 from PySide6.QtWidgets import QAbstractItemView, QDialog, QFileDialog, QListView, QTreeView
 
 from synthesia2midi.gui.youtube_download_dialog import YouTubeDownloadDialog
 from synthesia2midi.runtime_paths import detect_runtime_paths
+
+translate = QCoreApplication.translate
 
 
 class VideoSessionUiController:
@@ -30,10 +33,17 @@ class VideoSessionUiController:
         app = self.app
         logging.info("_open_video_file: Method started.")
         dialog = QFileDialog(app)
-        dialog.setWindowTitle("Select Video File or Image Sequence Directory")
+        dialog.setWindowTitle(
+            translate("VideoSessionUiController", "Select Video File or Image Sequence Directory")
+        )
         dialog.setFileMode(QFileDialog.AnyFile)
         dialog.setOption(QFileDialog.DontUseNativeDialog, True)
-        dialog.setNameFilter("Video Files (*.mp4 *.avi *.mov *.mkv *.webm);;Image Sequence Directories (*)")
+        dialog.setNameFilter(
+            translate(
+                "VideoSessionUiController",
+                "Video Files (*.mp4 *.avi *.mov *.mkv *.webm);;Image Sequence Directories (*)",
+            )
+        )
         dialog.setDirectory(str(detect_runtime_paths().default_video_dir()))
 
         for view_type in (QListView, QTreeView):

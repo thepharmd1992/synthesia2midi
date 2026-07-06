@@ -1,8 +1,10 @@
 """Floating settings window for the main control panel."""
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QCoreApplication, Qt, Signal
 from PySide6.QtWidgets import QApplication, QDialog, QScrollArea, QVBoxLayout, QWidget
+
+translate = QCoreApplication.translate
 
 
 class SettingsToolWindow(QDialog):
@@ -12,7 +14,7 @@ class SettingsToolWindow(QDialog):
 
     def __init__(self, parent: QWidget):
         super().__init__(parent, Qt.Tool | Qt.WindowCloseButtonHint)
-        self.setWindowTitle("Settings")
+        self.setWindowTitle(translate("SettingsToolWindow", "Settings"))
         self.setModal(False)
         self.setMinimumSize(360, 420)
 

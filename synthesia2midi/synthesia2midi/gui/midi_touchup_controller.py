@@ -6,10 +6,12 @@ import logging
 import os
 from typing import Any, Dict, Optional
 
-from PySide6.QtCore import QObject, QProcess, Signal
+from PySide6.QtCore import QCoreApplication, QObject, QProcess, Signal
 from PySide6.QtWidgets import QFileDialog, QMessageBox
 
 from synthesia2midi.runtime_paths import detect_runtime_paths
+
+translate = QCoreApplication.translate
 
 
 class MidiTouchupController(QObject):
@@ -33,11 +35,15 @@ class MidiTouchupController(QObject):
         app = self.app
         msg_box = QMessageBox(app)
         msg_box.setIcon(QMessageBox.Information)
-        msg_box.setWindowTitle("Conversion Complete")
-        msg_box.setText(f"MIDI file saved to:\n{midi_output_path}")
-        msg_box.setInformativeText("You can open the Touch-Up Editor now, or finish.")
-        open_btn = msg_box.addButton("Open Touch-Up Editor", QMessageBox.ActionRole)
-        done_btn = msg_box.addButton("Done", QMessageBox.AcceptRole)
+        msg_box.setWindowTitle(translate("MidiTouchupController", "Conversion Complete"))
+        msg_box.setText(
+            translate("MidiTouchupController", "MIDI file saved to:\n{midi_output_path}").format(
+                midi_output_path=midi_output_path
+            )
+        )
+        msg_box.setInformativeText(translate("MidiTouchupController", "You can open the Touch-Up Editor now, or finish."))
+        open_btn = msg_box.addButton(translate("MidiTouchupController", "Open Touch-Up Editor"), QMessageBox.ActionRole)
+        done_btn = msg_box.addButton(translate("MidiTouchupController", "Done"), QMessageBox.AcceptRole)
         msg_box.setDefaultButton(open_btn)
         msg_box.exec()
 
@@ -53,9 +59,9 @@ class MidiTouchupController(QObject):
 
         midi_path, _ = QFileDialog.getOpenFileName(
             self.app,
-            "Open MIDI for Touch-Up",
+            translate("MidiTouchupController", "Open MIDI for Touch-Up"),
             start_dir,
-            "MIDI Files (*.mid *.midi)",
+            translate("MidiTouchupController", "MIDI Files (*.mid *.midi)"),
         )
         if not midi_path:
             return
@@ -64,9 +70,11 @@ class MidiTouchupController(QObject):
     def open_editor(self, midi_path: str) -> None:
         app = self.app
         if not os.path.exists(midi_path):
-            message = f"MIDI file not found:\n{midi_path}"
+            message = translate("MidiTouchupController", "MIDI file not found:\n{midi_path}").format(
+                midi_path=midi_path
+            )
             self.editor_failed.emit(midi_path, message)
-            QMessageBox.warning(app, "Touch-Up Editor", message)
+            QMessageBox.warning(app, translate("MidiTouchupController", "Touch-Up Editor"), message)
             return
 
         binary_path = self.resolve_binary_path()
@@ -100,12 +108,11 @@ class MidiTouchupController(QObject):
                 self.editor_failed.emit(midi_path, error_msg)
                 QMessageBox.critical(
                     app,
-                    "Touch-Up Editor Launch Failed",
-                    (
-                        "Failed to start Rust touch-up editor.\n\n"
-                        f"Binary: {binary_path}\n"
-                        f"Error: {error_msg}"
-                    ),
+                    translate("MidiTouchupController", "Touch-Up Editor Launch Failed"),
+                    translate(
+                        "MidiTouchupController",
+                        "Failed to start Rust touch-up editor.\n\nBinary: {binary_path}\nError: {error_msg}",
+                    ).format(binary_path=binary_path, error_msg=error_msg),
                 )
             return
 
@@ -120,13 +127,11 @@ class MidiTouchupController(QObject):
         if runtime_paths.frozen:
             QMessageBox.warning(
                 self.app,
-                "Touch-Up Editor Missing",
-                (
-                    "Bundled Rust touch-up editor files were not found.\n\n"
-                    f"MIDI requested: {midi_path}\n\n"
-                    "Re-download the app build or use the repository developer setup if you "
-                    "are running from source."
-                ),
+                translate("MidiTouchupController", "Touch-Up Editor Missing"),
+                translate(
+                    "MidiTouchupController",
+                    "Bundled Rust touch-up editor files were not found.\n\nMIDI requested: {midi_path}\n\nRe-download the app build or use the repository developer setup if you are running from source.",
+                ).format(midi_path=midi_path),
             )
             return
 
@@ -142,16 +147,15 @@ class MidiTouchupController(QObject):
         build_cmd = "cd tools/midi_touchup_editor_rust && cargo build --release"
         QMessageBox.warning(
             self.app,
-            "Touch-Up Editor Not Built",
-            (
-                "Rust touch-up editor binary was not found.\n\n"
-                f"MIDI requested: {midi_path}\n"
-                f"Expected binary: {os.path.join(repo_root, expected_rel)}\n\n"
-                "Run setup first (it can install/build Rust touch-up):\n"
-                f"{setup_cmd}\n\n"
-                "Or build manually with:\n"
-                f"{build_cmd}\n\n"
-                "Then retry Edit MIDI."
+            translate("MidiTouchupController", "Touch-Up Editor Not Built"),
+            translate(
+                "MidiTouchupController",
+                "Rust touch-up editor binary was not found.\n\nMIDI requested: {midi_path}\nExpected binary: {expected_binary}\n\nRun setup first (it can install/build Rust touch-up):\n{setup_cmd}\n\nOr build manually with:\n{build_cmd}\n\nThen retry Edit MIDI.",
+            ).format(
+                midi_path=midi_path,
+                expected_binary=os.path.join(repo_root, expected_rel),
+                setup_cmd=setup_cmd,
+                build_cmd=build_cmd,
             ),
         )
 
@@ -202,8 +206,10 @@ class MidiTouchupController(QObject):
                 self.editor_saved.emit(source_midi_path, shown_path)
                 QMessageBox.information(
                     app,
-                    "Touch-Up Saved",
-                    f"Touch-up MIDI saved to:\n{shown_path}",
+                    translate("MidiTouchupController", "Touch-Up Saved"),
+                    translate("MidiTouchupController", "Touch-up MIDI saved to:\n{shown_path}").format(
+                        shown_path=shown_path
+                    ),
                 )
             return
 
@@ -217,12 +223,15 @@ class MidiTouchupController(QObject):
             self.editor_failed.emit(source_midi_path, failure_message)
             QMessageBox.critical(
                 app,
-                "Touch-Up Editor Error",
-                (
-                    f"{failure_message}\n\n"
-                    f"Source MIDI: {source_midi_path}\n"
-                    f"Stdout: {stdout_text.strip() or '(empty)'}\n"
-                    f"Stderr: {stderr_text.strip() or '(empty)'}"
+                translate("MidiTouchupController", "Touch-Up Editor Error"),
+                translate(
+                    "MidiTouchupController",
+                    "{failure_message}\n\nSource MIDI: {source_midi_path}\nStdout: {stdout_text}\nStderr: {stderr_text}",
+                ).format(
+                    failure_message=failure_message,
+                    source_midi_path=source_midi_path,
+                    stdout_text=stdout_text.strip() or "(empty)",
+                    stderr_text=stderr_text.strip() or "(empty)",
                 ),
             )
 

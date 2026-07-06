@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Callable, Optional
 
-from PySide6.QtCore import QSignalBlocker, Qt
+from PySide6.QtCore import QCoreApplication, QSignalBlocker, Qt
 from PySide6.QtWidgets import QMessageBox
 
 from synthesia2midi.gui.dialog_positioning import move_to_top_center_safe_zone
@@ -14,6 +14,8 @@ from synthesia2midi.workflows.manual_keyboard_fit import (
     ManualKeyboardFitSession,
     keyboard_box_background_warnings,
 )
+
+translate = QCoreApplication.translate
 
 
 class ManualKeyboardFitController:
@@ -46,8 +48,8 @@ class ManualKeyboardFitController:
         if not self.app.app_state.overlays:
             QMessageBox.warning(
                 self.app,
-                "Manual Fit",
-                "Generate overlays before opening Manual Fit.",
+                translate("ManualKeyboardFitController", "Manual Fit"),
+                translate("ManualKeyboardFitController", "Generate overlays before opening Manual Fit."),
             )
             return False
 
@@ -438,8 +440,11 @@ class ManualKeyboardFitController:
             return
         QMessageBox.warning(
             self.app,
-            "Keyboard Box Warning",
-            "The keyboard box may extend past the visible keys.\n\n" + "\n".join(warnings),
+            translate("ManualKeyboardFitController", "Keyboard Box Warning"),
+            translate(
+                "ManualKeyboardFitController",
+                "The keyboard box may extend past the visible keys.\n\n{warnings}",
+            ).format(warnings="\n".join(warnings)),
         )
 
     def _hide_settings_tool_window(self) -> bool:

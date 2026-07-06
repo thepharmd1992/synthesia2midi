@@ -48,6 +48,22 @@ git diff --check
 .venv/bin/python -m pytest
 ```
 
+## Localization Gate
+
+The GUI localization audit is deterministic and does not require real videos, network access, or visible GUI windows. The tracked manifest is `docs/localization/ui-string-manifest.json`.
+
+```bash
+.venv/bin/python -m synthesia2midi.tools.audit_ui_strings --output docs/localization/ui-string-manifest.json
+.venv/bin/pyside6-lupdate -extensions py synthesia2midi/synthesia2midi -ts /tmp/synthesia2midi_lupdate_probe.ts
+.venv/bin/python -m pytest tests/test_localization.py tests/test_ui_string_audit.py
+```
+
+`tests/test_ui_string_audit.py` fails when the tracked static manifest is stale. The optional runtime crawl is exercised by pytest and can also be run manually:
+
+```bash
+.venv/bin/python -m synthesia2midi.tools.audit_ui_strings --include-runtime --output /tmp/synthesia2midi_runtime_ui_strings.json
+```
+
 ## Setup / Launcher Gate
 
 ```bash

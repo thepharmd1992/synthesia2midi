@@ -2,7 +2,7 @@
 import os
 
 # Third-party imports
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QCoreApplication, Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QDialog,
@@ -26,7 +26,7 @@ class StartupDialog(QDialog):
         super().__init__(parent)
         self.recent_video_paths = list(recent_video_paths or [])
         self.recent_video_buttons = []
-        self.setWindowTitle("Synthesia to MIDI - Select Video Source")
+        self.setWindowTitle(QCoreApplication.translate("StartupDialog", "Synthesia to MIDI - Select Video Source"))
         self.setModal(True)
         self.setMinimumWidth(500)
         self.setup_ui()
@@ -38,7 +38,7 @@ class StartupDialog(QDialog):
         layout.setContentsMargins(30, 30, 30, 30)
         
         # Title
-        title_label = QLabel("Welcome to Synthesia to MIDI")
+        title_label = QLabel(QCoreApplication.translate("StartupDialog", "Welcome to Synthesia to MIDI"))
         title_font = QFont()
         title_font.setPointSize(16)
         title_font.setBold(True)
@@ -47,7 +47,7 @@ class StartupDialog(QDialog):
         layout.addWidget(title_label)
         
         # Subtitle
-        subtitle_label = QLabel("How would you like to load a video?")
+        subtitle_label = QLabel(QCoreApplication.translate("StartupDialog", "How would you like to load a video?"))
         subtitle_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(subtitle_label)
         
@@ -59,16 +59,16 @@ class StartupDialog(QDialog):
         button_layout.setSpacing(15)
         
         # Local file button
-        self.local_file_btn = QPushButton("Open Video File")
+        self.local_file_btn = QPushButton(QCoreApplication.translate("StartupDialog", "Open Video File"))
         self.local_file_btn.setMinimumHeight(50)
-        self.local_file_btn.setToolTip("Browse for a video file on your computer")
+        self.local_file_btn.setToolTip(QCoreApplication.translate("StartupDialog", "Browse for a video file on your computer"))
         self.local_file_btn.clicked.connect(self._on_local_file_clicked)
         button_layout.addWidget(self.local_file_btn)
         
         # YouTube download button
-        self.youtube_btn = QPushButton("Download from YouTube")
+        self.youtube_btn = QPushButton(QCoreApplication.translate("StartupDialog", "Download from YouTube"))
         self.youtube_btn.setMinimumHeight(50)
-        self.youtube_btn.setToolTip("Download a video from YouTube")
+        self.youtube_btn.setToolTip(QCoreApplication.translate("StartupDialog", "Download a video from YouTube"))
         self.youtube_btn.clicked.connect(self._on_youtube_clicked)
         button_layout.addWidget(self.youtube_btn)
         
@@ -80,7 +80,7 @@ class StartupDialog(QDialog):
             recent_separator.setFrameShadow(QFrame.Sunken)
             layout.addWidget(recent_separator)
 
-            recent_label = QLabel("Recent Videos")
+            recent_label = QLabel(QCoreApplication.translate("StartupDialog", "Recent Videos"))
             recent_font = QFont()
             recent_font.setBold(True)
             recent_label.setFont(recent_font)
@@ -102,7 +102,7 @@ class StartupDialog(QDialog):
         layout.addWidget(separator)
         
         # Cancel button
-        cancel_btn = QPushButton("Cancel")
+        cancel_btn = QPushButton(QCoreApplication.translate("StartupDialog", "Cancel"))
         cancel_btn.clicked.connect(self.reject)
         cancel_layout = QHBoxLayout()
         # Keep the cancel button left-aligned.

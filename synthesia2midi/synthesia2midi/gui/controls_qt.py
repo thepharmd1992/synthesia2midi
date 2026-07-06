@@ -8,7 +8,7 @@ window connects to workflows/state updates.
 import logging
 from typing import Optional
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QCoreApplication, Qt, Signal
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QGridLayout, QGroupBox,
     QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton, QScrollArea, QSizePolicy,
@@ -225,21 +225,21 @@ class ControlPanelQt(QWidget):
     
     def _create_global_action_widgets(self):
         """Create section-independent actions shown in the lower rail."""
-        self.convert_button = QPushButton("Convert")
+        self.convert_button = QPushButton(QCoreApplication.translate("ControlPanelQt", "Convert"))
         self.convert_button.setObjectName("convert_button")
         self.convert_button.clicked.connect(self._handle_conversion_request)
         self.convert_button.setMinimumHeight(34)
 
-        self.conversion_status = QLabel("Ready to convert")
+        self.conversion_status = QLabel(QCoreApplication.translate("ControlPanelQt", "Ready to convert"))
         self.conversion_status.setWordWrap(True)
 
-        self.midi_touchup_button = QPushButton("Edit MIDI")
+        self.midi_touchup_button = QPushButton(QCoreApplication.translate("ControlPanelQt", "Edit MIDI"))
         self.midi_touchup_button.setObjectName("midi_touchup_button")
         self.midi_touchup_button.setMinimumHeight(34)
         self.midi_touchup_button.clicked.connect(self.midi_touchup_requested.emit)
 
-        self.selected_overlay_caption = QLabel("Overlay")
-        self.selected_overlay_label = QLabel("None")
+        self.selected_overlay_caption = QLabel(QCoreApplication.translate("ControlPanelQt", "Overlay"))
+        self.selected_overlay_label = QLabel(QCoreApplication.translate("ControlPanelQt", "None"))
         self.selected_overlay_label.setWordWrap(True)
 
     def _create_settings_rail_actions(self, parent_layout):

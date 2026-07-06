@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Dict, Optional
 
-from PySide6.QtCore import QSignalBlocker, Qt, Signal
+from PySide6.QtCore import QCoreApplication, QSignalBlocker, Qt, Signal
 from PySide6.QtWidgets import (
     QButtonGroup,
     QComboBox,
@@ -43,6 +43,25 @@ LOCAL_PARAM_SPECS = [
 ]
 
 
+def _translate_param_label(label: str) -> str:
+    translated = {
+        "Keyboard Width": QCoreApplication.translate("ManualKeyboardFitDialog", "Keyboard Width"),
+        "Keyboard Top": QCoreApplication.translate("ManualKeyboardFitDialog", "Keyboard Top"),
+        "Left Edge Drift": QCoreApplication.translate("ManualKeyboardFitDialog", "Left Edge Drift"),
+        "Right Edge Drift": QCoreApplication.translate("ManualKeyboardFitDialog", "Right Edge Drift"),
+        "White Width": QCoreApplication.translate("ManualKeyboardFitDialog", "White Width"),
+        "Black Width": QCoreApplication.translate("ManualKeyboardFitDialog", "Black Width"),
+        "Left Slant": QCoreApplication.translate("ManualKeyboardFitDialog", "Left Slant"),
+        "Right Slant": QCoreApplication.translate("ManualKeyboardFitDialog", "Right Slant"),
+        "Spacing": QCoreApplication.translate("ManualKeyboardFitDialog", "Spacing"),
+        "Move Left / Right": QCoreApplication.translate("ManualKeyboardFitDialog", "Move Left / Right"),
+        "Move Up / Down": QCoreApplication.translate("ManualKeyboardFitDialog", "Move Up / Down"),
+        "Overlay Width": QCoreApplication.translate("ManualKeyboardFitDialog", "Overlay Width"),
+        "Tilt": QCoreApplication.translate("ManualKeyboardFitDialog", "Tilt"),
+    }
+    return translated.get(label, label)
+
+
 class ManualKeyboardFitDialog(QDialog):
     """Modeless controls for manual overlay keyboard fitting."""
 
@@ -61,7 +80,7 @@ class ManualKeyboardFitDialog(QDialog):
     def __init__(self, parent=None, *, initial_octave: int = 0):
         super().__init__(parent, Qt.Tool | Qt.WindowCloseButtonHint)
         self._initial_octave = int(initial_octave)
-        self.setWindowTitle("Manual Fit")
+        self.setWindowTitle(QCoreApplication.translate("ManualKeyboardFitDialog", "Manual Fit"))
         self.setModal(False)
         self.setWindowModality(Qt.NonModal)
         self.resize(760, 560)
@@ -81,15 +100,15 @@ class ManualKeyboardFitDialog(QDialog):
         layout.setContentsMargins(12, 12, 12, 12)
         layout.setSpacing(10)
 
-        self.setup_group = QGroupBox("Setup")
+        self.setup_group = QGroupBox(QCoreApplication.translate("ManualKeyboardFitDialog", "Setup"))
         setup_layout = QVBoxLayout(self.setup_group)
-        self.setup_step_label = QLabel("Fine Tune Overlays")
+        self.setup_step_label = QLabel(QCoreApplication.translate("ManualKeyboardFitDialog", "Fine Tune Overlays"))
         self.setup_step_label.setStyleSheet("font-weight: bold;")
         self.setup_instruction_label = QLabel("")
         self.setup_instruction_label.setWordWrap(True)
-        self.setup_back_button = QPushButton("Back")
-        self.setup_use_suggested_button = QPushButton("Use Suggested")
-        self.setup_cancel_button = QPushButton("Cancel")
+        self.setup_back_button = QPushButton(QCoreApplication.translate("ManualKeyboardFitDialog", "Back"))
+        self.setup_use_suggested_button = QPushButton(QCoreApplication.translate("ManualKeyboardFitDialog", "Use Suggested"))
+        self.setup_cancel_button = QPushButton(QCoreApplication.translate("ManualKeyboardFitDialog", "Cancel"))
         self.setup_back_button.clicked.connect(self.setup_back_requested.emit)
         self.setup_use_suggested_button.clicked.connect(self.setup_use_suggested_requested.emit)
         self.setup_cancel_button.clicked.connect(self.reject)
@@ -108,15 +127,15 @@ class ManualKeyboardFitDialog(QDialog):
         fine_tune_layout.setContentsMargins(0, 0, 0, 0)
         fine_tune_layout.setSpacing(10)
 
-        self.mode_group = QGroupBox("Edit Mode")
+        self.mode_group = QGroupBox(QCoreApplication.translate("ManualKeyboardFitDialog", "Edit Mode"))
         mode_layout = QHBoxLayout(self.mode_group)
-        self.mode_status_label = QLabel("Editing: Whole Keyboard")
+        self.mode_status_label = QLabel(QCoreApplication.translate("ManualKeyboardFitDialog", "Editing: Whole Keyboard"))
         self.mode_status_label.hide()
-        self.group_fit_radio = QRadioButton("All Overlays")
-        self.all_white_radio = QRadioButton("All Whites")
-        self.all_black_radio = QRadioButton("All Blacks")
-        self.local_fit_radio = QRadioButton("Select Overlays")
-        self.single_overlay_radio = QRadioButton("Single Overlay")
+        self.group_fit_radio = QRadioButton(QCoreApplication.translate("ManualKeyboardFitDialog", "All Overlays"))
+        self.all_white_radio = QRadioButton(QCoreApplication.translate("ManualKeyboardFitDialog", "All Whites"))
+        self.all_black_radio = QRadioButton(QCoreApplication.translate("ManualKeyboardFitDialog", "All Blacks"))
+        self.local_fit_radio = QRadioButton(QCoreApplication.translate("ManualKeyboardFitDialog", "Select Overlays"))
+        self.single_overlay_radio = QRadioButton(QCoreApplication.translate("ManualKeyboardFitDialog", "Single Overlay"))
         self.group_fit_radio.setChecked(True)
         self._mode_button_group = QButtonGroup(self)
         self._mode_button_group.addButton(self.group_fit_radio)
@@ -138,7 +157,7 @@ class ManualKeyboardFitDialog(QDialog):
         fine_tune_layout.addWidget(self.mode_group)
 
         octave_row = QHBoxLayout()
-        octave_label = QLabel("Octave")
+        octave_label = QLabel(QCoreApplication.translate("ManualKeyboardFitDialog", "Octave"))
         octave_label.setStyleSheet("font-weight: bold;")
         self.octave_spinbox = QSpinBox()
         self.octave_spinbox.setRange(-5, 5)
@@ -156,7 +175,7 @@ class ManualKeyboardFitDialog(QDialog):
         controls_layout.setVerticalSpacing(6)
 
         for row, (name, label, minimum, maximum) in enumerate(PARAM_SPECS):
-            label_widget = QLabel(label)
+            label_widget = QLabel(_translate_param_label(label))
             slider = QSlider(Qt.Horizontal)
             slider.setRange(minimum, maximum)
             slider.setValue(0)
@@ -166,7 +185,11 @@ class ManualKeyboardFitDialog(QDialog):
             spinbox.setFixedWidth(78)
             reset_button = QPushButton("0")
             reset_button.setFixedWidth(32)
-            reset_button.setToolTip(f"Reset {label}")
+            reset_button.setToolTip(
+                QCoreApplication.translate("ManualKeyboardFitDialog", "Reset {label}").format(
+                    label=_translate_param_label(label)
+                )
+            )
 
             slider.valueChanged.connect(
                 lambda value, param_name=name: self._handle_slider_changed(param_name, value)
@@ -194,18 +217,18 @@ class ManualKeyboardFitDialog(QDialog):
         local_layout.setHorizontalSpacing(10)
         local_layout.setVerticalSpacing(6)
 
-        local_filter_label = QLabel("Select")
+        local_filter_label = QLabel(QCoreApplication.translate("ManualKeyboardFitDialog", "Select"))
         self.local_filter_combo = QComboBox()
-        self.local_filter_combo.addItem("Black Keys", "black")
-        self.local_filter_combo.addItem("White Keys", "white")
-        self.local_filter_combo.addItem("All Keys", "all")
-        self.local_selection_label = QLabel("Draw a box around problem keys")
+        self.local_filter_combo.addItem(QCoreApplication.translate("ManualKeyboardFitDialog", "Black Keys"), "black")
+        self.local_filter_combo.addItem(QCoreApplication.translate("ManualKeyboardFitDialog", "White Keys"), "white")
+        self.local_filter_combo.addItem(QCoreApplication.translate("ManualKeyboardFitDialog", "All Keys"), "all")
+        self.local_selection_label = QLabel(QCoreApplication.translate("ManualKeyboardFitDialog", "Draw a box around problem keys"))
         local_layout.addWidget(local_filter_label, 0, 0)
         local_layout.addWidget(self.local_filter_combo, 0, 1)
         local_layout.addWidget(self.local_selection_label, 0, 2, 1, 2)
 
         for row, (name, label, minimum, maximum) in enumerate(LOCAL_PARAM_SPECS, start=1):
-            label_widget = QLabel(label)
+            label_widget = QLabel(_translate_param_label(label))
             slider = QSlider(Qt.Horizontal)
             slider.setRange(minimum, maximum)
             slider.setValue(0)
@@ -215,7 +238,11 @@ class ManualKeyboardFitDialog(QDialog):
             spinbox.setFixedWidth(78)
             reset_button = QPushButton("0")
             reset_button.setFixedWidth(32)
-            reset_button.setToolTip(f"Reset {label}")
+            reset_button.setToolTip(
+                QCoreApplication.translate("ManualKeyboardFitDialog", "Reset {label}").format(
+                    label=_translate_param_label(label)
+                )
+            )
 
             slider.valueChanged.connect(
                 lambda value, param_name=name: self._handle_local_slider_changed(param_name, value)
@@ -239,13 +266,13 @@ class ManualKeyboardFitDialog(QDialog):
         self.set_local_selection_count(0)
 
         action_row = QHBoxLayout()
-        self.reset_all_button = QPushButton("Reset All")
-        self.reset_position_button = QPushButton("Reset Position")
-        self.reset_local_button = QPushButton("Reset Local")
-        self.edit_keyboard_box_button = QPushButton("Edit Keyboard Box")
-        self.clear_selected_override_button = QPushButton("Clear Selected Override")
-        self.cancel_button = QPushButton("Cancel")
-        self.apply_button = QPushButton("Apply")
+        self.reset_all_button = QPushButton(QCoreApplication.translate("ManualKeyboardFitDialog", "Reset All"))
+        self.reset_position_button = QPushButton(QCoreApplication.translate("ManualKeyboardFitDialog", "Reset Position"))
+        self.reset_local_button = QPushButton(QCoreApplication.translate("ManualKeyboardFitDialog", "Reset Local"))
+        self.edit_keyboard_box_button = QPushButton(QCoreApplication.translate("ManualKeyboardFitDialog", "Edit Keyboard Box"))
+        self.clear_selected_override_button = QPushButton(QCoreApplication.translate("ManualKeyboardFitDialog", "Clear Selected Override"))
+        self.cancel_button = QPushButton(QCoreApplication.translate("ManualKeyboardFitDialog", "Cancel"))
+        self.apply_button = QPushButton(QCoreApplication.translate("ManualKeyboardFitDialog", "Apply"))
 
         self.reset_all_button.clicked.connect(self.reset_all_requested.emit)
         self.reset_position_button.clicked.connect(self.reset_position_requested.emit)
@@ -309,27 +336,43 @@ class ManualKeyboardFitDialog(QDialog):
     def set_local_selection_count(self, count: int) -> None:
         self._set_local_controls_enabled(count > 0)
         if count <= 0:
-            self.local_selection_label.setText("Draw a box around problem keys")
+            self.local_selection_label.setText(
+                QCoreApplication.translate("ManualKeyboardFitDialog", "Draw a box around problem keys")
+            )
             return
-        self.local_selection_label.setText(f"{count} selected")
+        self.local_selection_label.setText(
+            QCoreApplication.translate("ManualKeyboardFitDialog", "{count} selected").format(count=count)
+        )
 
     def enter_setup_step(self, step_name: str) -> None:
         labels = {
             "keyboard_box": (
-                "Step 1 of 3: Draw Keyboard Area",
-                "Draw one rectangle around the visible keyboard area.",
+                QCoreApplication.translate("ManualKeyboardFitDialog", "Step 1 of 3: Draw Keyboard Area"),
+                QCoreApplication.translate(
+                    "ManualKeyboardFitDialog",
+                    "Draw one rectangle around the visible keyboard area.",
+                ),
             ),
             "keyboard_box_edit": (
-                "Edit Keyboard Box",
-                "Adjust the green boundary bars, or draw a replacement box around the visible keyboard area.",
+                QCoreApplication.translate("ManualKeyboardFitDialog", "Edit Keyboard Box"),
+                QCoreApplication.translate(
+                    "ManualKeyboardFitDialog",
+                    "Adjust the green boundary bars, or draw a replacement box around the visible keyboard area.",
+                ),
             ),
             "black_bottom": (
-                "Step 2 of 3: Set Black Key Bottom",
-                "Drag the orange line to slightly above the bottom of black keys.",
+                QCoreApplication.translate("ManualKeyboardFitDialog", "Step 2 of 3: Set Black Key Bottom"),
+                QCoreApplication.translate(
+                    "ManualKeyboardFitDialog",
+                    "Drag the orange line to slightly above the bottom of black keys.",
+                ),
             ),
             "white_start": (
-                "Step 3 of 3: Set White Key Start",
-                "Drag the blue line to a bit under the black keys.",
+                QCoreApplication.translate("ManualKeyboardFitDialog", "Step 3 of 3: Set White Key Start"),
+                QCoreApplication.translate(
+                    "ManualKeyboardFitDialog",
+                    "Drag the blue line to a bit under the black keys.",
+                ),
             ),
         }
         title, instruction = labels[step_name]
@@ -340,9 +383,11 @@ class ManualKeyboardFitDialog(QDialog):
         show_step_controls = step_name in {"black_bottom", "white_start"}
         if step_name == "keyboard_box_edit":
             show_step_controls = True
-            self.setup_use_suggested_button.setText("OK")
+            self.setup_use_suggested_button.setText(QCoreApplication.translate("ManualKeyboardFitDialog", "OK"))
         else:
-            self.setup_use_suggested_button.setText("Use Suggested")
+            self.setup_use_suggested_button.setText(
+                QCoreApplication.translate("ManualKeyboardFitDialog", "Use Suggested")
+            )
         self.setup_back_button.setVisible(show_step_controls)
         self.setup_use_suggested_button.setVisible(show_step_controls and step_name != "keyboard_box_edit")
         self.adjustSize()
@@ -350,14 +395,16 @@ class ManualKeyboardFitDialog(QDialog):
     def finish_setup(self) -> None:
         self.setup_group.hide()
         self.fine_tune_widget.show()
-        self.setup_step_label.setText("Fine Tune Overlays")
+        self.setup_step_label.setText(QCoreApplication.translate("ManualKeyboardFitDialog", "Fine Tune Overlays"))
         self.setup_instruction_label.setText("")
-        self.setup_use_suggested_button.setText("Use Suggested")
+        self.setup_use_suggested_button.setText(
+            QCoreApplication.translate("ManualKeyboardFitDialog", "Use Suggested")
+        )
         self._sync_mode_control_visibility()
         self.resize(760, 560)
 
     def set_keyboard_box_edit_confirm_visible(self, visible: bool) -> None:
-        self.setup_use_suggested_button.setText("OK")
+        self.setup_use_suggested_button.setText(QCoreApplication.translate("ManualKeyboardFitDialog", "OK"))
         self.setup_use_suggested_button.setVisible(visible)
         self.adjustSize()
 
@@ -414,19 +461,25 @@ class ManualKeyboardFitDialog(QDialog):
 
     def _handle_mode_toggled(self) -> None:
         if self.group_fit_radio.isChecked():
-            self.mode_status_label.setText("Editing: Whole Keyboard")
+            self.mode_status_label.setText(
+                QCoreApplication.translate("ManualKeyboardFitDialog", "Editing: Whole Keyboard")
+            )
             self.mode_changed.emit("manual_fit_group")
         elif self.all_white_radio.isChecked():
-            self.mode_status_label.setText("Editing: All Whites")
+            self.mode_status_label.setText(QCoreApplication.translate("ManualKeyboardFitDialog", "Editing: All Whites"))
             self.mode_changed.emit("manual_fit_all_white")
         elif self.all_black_radio.isChecked():
-            self.mode_status_label.setText("Editing: All Blacks")
+            self.mode_status_label.setText(QCoreApplication.translate("ManualKeyboardFitDialog", "Editing: All Blacks"))
             self.mode_changed.emit("manual_fit_all_black")
         elif self.local_fit_radio.isChecked():
-            self.mode_status_label.setText("Editing: Local Cluster")
+            self.mode_status_label.setText(
+                QCoreApplication.translate("ManualKeyboardFitDialog", "Editing: Local Cluster")
+            )
             self.mode_changed.emit("manual_fit_local_select")
         elif self.single_overlay_radio.isChecked():
-            self.mode_status_label.setText("Editing: Single Overlay")
+            self.mode_status_label.setText(
+                QCoreApplication.translate("ManualKeyboardFitDialog", "Editing: Single Overlay")
+            )
             self.mode_changed.emit("manual_fit_single")
         self._sync_mode_control_visibility()
 

@@ -89,3 +89,60 @@ def test_main_window_menu_text_uses_installed_translator(monkeypatch):
         window.close()
         window.deleteLater()
         app.processEvents()
+
+
+def test_core_user_facing_widgets_use_installed_translator(monkeypatch):
+    import numpy as np
+
+    from synthesia2midi.core.app_state import AppState
+    from synthesia2midi.gui.auto_detect_tuning_dialog import AutoDetectTuningDialog
+    from synthesia2midi.gui.manual_keyboard_fit_dialog import ManualKeyboardFitDialog
+    from synthesia2midi.gui.startup_dialog import StartupDialog
+    from synthesia2midi.gui.wizard import CalibrationWizard
+    from synthesia2midi.gui.youtube_download_dialog import YouTubeDownloadDialog
+    from synthesia2midi.localization import install_translator
+    from synthesia2midi.main import Video2MidiApp
+
+    monkeypatch.setattr(QTimer, "singleShot", lambda *args, **kwargs: None)
+    app = QApplication.instance() or QApplication([])
+    install_translator(app, "qps")
+
+    widgets = [
+        Video2MidiApp(),
+        StartupDialog(recent_video_paths=[]),
+        YouTubeDownloadDialog(default_output_dir="/tmp"),
+        ManualKeyboardFitDialog(),
+        CalibrationWizard(None, AppState()),
+        AutoDetectTuningDialog(
+            None,
+            AppState(),
+            np.zeros((8, 8, 3), dtype=np.uint8),
+            (0, 0, 8, 8),
+            initial_detection_results={"total_keys": 88},
+            fallback_used=True,
+            apply_detection_callback=lambda _results: True,
+        ),
+    ]
+
+    try:
+        main_window = widgets[0]
+        startup = widgets[1]
+        youtube = widgets[2]
+        manual_fit = widgets[3]
+        wizard = widgets[4]
+        auto_tune = widgets[5]
+
+        assert main_window.control_panel.convert_button.text().startswith("[!! Cònvèrt")
+        assert startup.windowTitle().startswith("[!! Synthèsìà tò MÌDÌ")
+        assert youtube.windowTitle().startswith("[!! Dòwnlòàd YòùTùbè Vìdèò")
+        assert manual_fit.windowTitle().startswith("[!! Mànùàl Fìt")
+        assert wizard.windowTitle().startswith("[!! Càlìbràtìòn Wìzàrd")
+        assert auto_tune.windowTitle().startswith("[!! Àùtò-Dètèct Tùnìng")
+    finally:
+        install_translator(app, "en")
+        for widget in widgets:
+            if hasattr(widget, "app_state"):
+                widget.app_state.unsaved_changes = False
+            widget.close()
+            widget.deleteLater()
+        app.processEvents()

@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 
 
 def test_static_extractor_finds_qt_visible_strings_and_classifies_literals(tmp_path):
@@ -79,6 +80,23 @@ def test_runtime_widget_crawler_collects_visible_text():
         app.processEvents()
 
 
+def test_runtime_project_crawler_collects_core_windows(monkeypatch):
+    from PySide6.QtCore import QTimer
+
+    from synthesia2midi.tools.audit_ui_strings import collect_runtime_candidates
+
+    monkeypatch.setattr(QTimer, "singleShot", lambda *args, **kwargs: None)
+
+    candidates = collect_runtime_candidates()
+    by_text = {candidate.text: candidate for candidate in candidates}
+
+    assert "Synthesia to MIDI - Select Video Source" in by_text
+    assert "Download YouTube Video" in by_text
+    assert "Manual Fit" in by_text
+    assert "Calibration Wizard" in by_text
+    assert "Auto-Detect Tuning" in by_text
+
+
 def test_audit_manifest_has_stable_json_shape(tmp_path):
     from synthesia2midi.tools.audit_ui_strings import UiStringCandidate, write_manifest
 
@@ -103,3 +121,14 @@ def test_audit_manifest_has_stable_json_shape(tmp_path):
     assert '"schema_version": 1' in manifest
     assert '"text": "Open Video File"' in manifest
     assert '"classification": "translate"' in manifest
+
+
+def test_tracked_ui_string_manifest_is_current():
+    from synthesia2midi.tools.audit_ui_strings import build_manifest_payload, collect_project_static_candidates
+
+    root = Path(__file__).resolve().parents[1]
+    manifest_path = root / "docs" / "localization" / "ui-string-manifest.json"
+    current_payload = build_manifest_payload(collect_project_static_candidates(root))
+    tracked_payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+    assert tracked_payload == current_payload

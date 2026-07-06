@@ -7,7 +7,7 @@ import logging
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import numpy as np
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QCoreApplication, Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -59,7 +59,7 @@ class AutoDetectTuningDialog(QDialog):
         apply_detection_callback: Callable[[Dict[str, Any]], bool],
     ) -> None:
         super().__init__(parent)
-        self.setWindowTitle("Auto-Detect Tuning")
+        self.setWindowTitle(QCoreApplication.translate("AutoDetectTuningDialog", "Auto-Detect Tuning"))
         self.setModal(True)
         self.resize(760, 420)
 
@@ -92,14 +92,16 @@ class AutoDetectTuningDialog(QDialog):
             banner = QLabel()
             banner.setWordWrap(True)
             banner.setText(
-                "Initial auto-detect needed a fallback profile (not the default profile). "
-                "Tune parameters if you want to refine this result."
+                QCoreApplication.translate(
+                    "AutoDetectTuningDialog",
+                    "Initial auto-detect needed a fallback profile (not the default profile). Tune parameters if you want to refine this result.",
+                )
             )
             banner.setStyleSheet("color: #8a6d00; background: #fff8db; border: 1px solid #e6d390; padding: 6px;")
             layout.addWidget(banner)
 
         controls_row = QHBoxLayout()
-        reset_all_btn = QPushButton("Reset All to Active Defaults")
+        reset_all_btn = QPushButton(QCoreApplication.translate("AutoDetectTuningDialog", "Reset All to Active Defaults"))
         reset_all_btn.clicked.connect(self._reset_all_to_defaults)
         controls_row.addWidget(reset_all_btn)
         controls_row.addStretch()
@@ -110,15 +112,15 @@ class AutoDetectTuningDialog(QDialog):
         tabs.setStyleSheet("QTabWidget::tab-bar { alignment: right; }")
         tabs.addTab(
             self._build_param_tab(get_basic_auto_detect_param_keys()),
-            "Basic",
+            QCoreApplication.translate("AutoDetectTuningDialog", "Basic"),
         )
         tabs.addTab(
             self._build_param_tab(get_advanced_auto_detect_param_keys()),
-            "Advanced",
+            QCoreApplication.translate("AutoDetectTuningDialog", "Advanced"),
         )
         layout.addWidget(tabs, 1)
 
-        status_group = QGroupBox("Preview Status")
+        status_group = QGroupBox(QCoreApplication.translate("AutoDetectTuningDialog", "Preview Status"))
         status_layout = QGridLayout(status_group)
         status_layout.setHorizontalSpacing(14)
         status_layout.setVerticalSpacing(4)
@@ -128,19 +130,23 @@ class AutoDetectTuningDialog(QDialog):
         self._status_labels["total"] = QLabel("-")
         self._status_labels["overlays"] = QLabel("-")
         self._status_labels["leftmost"] = QLabel("-")
-        self._status_labels["fallback"] = QLabel("Yes" if self._fallback_used else "No")
+        self._status_labels["fallback"] = QLabel(
+            QCoreApplication.translate("AutoDetectTuningDialog", "Yes")
+            if self._fallback_used
+            else QCoreApplication.translate("AutoDetectTuningDialog", "No")
+        )
 
-        status_layout.addWidget(QLabel("Detected White Keys:"), 0, 0)
+        status_layout.addWidget(QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "Detected White Keys:")), 0, 0)
         status_layout.addWidget(self._status_labels["white"], 0, 1)
-        status_layout.addWidget(QLabel("Detected Black Keys:"), 0, 2)
+        status_layout.addWidget(QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "Detected Black Keys:")), 0, 2)
         status_layout.addWidget(self._status_labels["black"], 0, 3)
-        status_layout.addWidget(QLabel("Detected Total Keys:"), 1, 0)
+        status_layout.addWidget(QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "Detected Total Keys:")), 1, 0)
         status_layout.addWidget(self._status_labels["total"], 1, 1)
-        status_layout.addWidget(QLabel("Overlays Created:"), 1, 2)
+        status_layout.addWidget(QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "Overlays Created:")), 1, 2)
         status_layout.addWidget(self._status_labels["overlays"], 1, 3)
-        status_layout.addWidget(QLabel("Leftmost Note/Octave:"), 2, 0)
+        status_layout.addWidget(QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "Leftmost Note/Octave:")), 2, 0)
         status_layout.addWidget(self._status_labels["leftmost"], 2, 1)
-        status_layout.addWidget(QLabel("Fallback Profile Used:"), 2, 2)
+        status_layout.addWidget(QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "Fallback Profile Used:")), 2, 2)
         status_layout.addWidget(self._status_labels["fallback"], 2, 3)
         layout.addWidget(status_group)
 
@@ -150,7 +156,10 @@ class AutoDetectTuningDialog(QDialog):
         layout.addWidget(self._warning_label)
 
         buttons = QDialogButtonBox()
-        save_btn = buttons.addButton("Save", QDialogButtonBox.AcceptRole)
+        save_btn = buttons.addButton(
+            QCoreApplication.translate("AutoDetectTuningDialog", "Save"),
+            QDialogButtonBox.AcceptRole,
+        )
         save_btn.setIcon(self.style().standardIcon(QStyle.SP_DialogApplyButton))
         save_btn.setAutoDefault(True)
         save_btn.setDefault(True)
@@ -197,7 +206,7 @@ class AutoDetectTuningDialog(QDialog):
             if not category_keys:
                 continue
 
-            section = CollapsibleSection(category, expanded=first_section)
+            section = CollapsibleSection(self._translate_category(category), expanded=first_section)
             first_section = False
             content_layout = section.content_layout()
 
@@ -212,8 +221,8 @@ class AutoDetectTuningDialog(QDialog):
                 self._add_directional_edge_control(
                     left_column_layout,
                     key="white_edge_left_shift_ticks",
-                    title="Left Edge Outward",
-                    hint="outward <-",
+                    title=QCoreApplication.translate("AutoDetectTuningDialog", "Left Edge Outward"),
+                    hint=QCoreApplication.translate("AutoDetectTuningDialog", "outward <-"),
                     title_alignment=Qt.AlignRight,
                     hint_alignment=Qt.AlignRight,
                     slider_inverted=True,
@@ -226,8 +235,8 @@ class AutoDetectTuningDialog(QDialog):
                 self._add_directional_edge_control(
                     right_column_layout,
                     key="white_edge_right_shift_ticks",
-                    title="Right Edge Outward",
-                    hint="-> outward",
+                    title=QCoreApplication.translate("AutoDetectTuningDialog", "Right Edge Outward"),
+                    hint=QCoreApplication.translate("AutoDetectTuningDialog", "-> outward"),
                     title_alignment=Qt.AlignLeft,
                     hint_alignment=Qt.AlignLeft,
                     slider_inverted=False,
@@ -247,7 +256,7 @@ class AutoDetectTuningDialog(QDialog):
 
                 content_layout.addLayout(grid)
 
-            reset_section_btn = QPushButton("Reset Section")
+            reset_section_btn = QPushButton(QCoreApplication.translate("AutoDetectTuningDialog", "Reset Section"))
             reset_section_btn.clicked.connect(
                 lambda _checked=False, keys=tuple(category_keys): self._reset_keys_to_defaults(keys)
             )
@@ -255,7 +264,7 @@ class AutoDetectTuningDialog(QDialog):
             sections_layout.addWidget(section)
 
         if first_section:
-            empty_label = QLabel("No parameters available.")
+            empty_label = QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "No parameters available."))
             empty_label.setStyleSheet("color: #666;")
             sections_layout.addWidget(empty_label)
 
@@ -319,7 +328,7 @@ class AutoDetectTuningDialog(QDialog):
         key_type = spec["type"]
         current_value = self._current_params[key]
 
-        label = QLabel(label_override or humanize_auto_detect_param_name(key))
+        label = QLabel(label_override or self._translate_param_label(key))
         grid.addWidget(label, row, 0)
 
         if key_type == "bool":
@@ -512,3 +521,65 @@ class AutoDetectTuningDialog(QDialog):
         self._status_labels["total"].setText(str(total_count))
         self._status_labels["overlays"].setText(str(overlays_created))
         self._status_labels["leftmost"].setText(f"{leftmost_note}{leftmost_octave}")
+
+    def _translate_category(self, category: str) -> str:
+        translated = {
+            "Edge Drift Correction": QCoreApplication.translate("AutoDetectTuningDialog", "Edge Drift Correction"),
+            "Black Key Detection": QCoreApplication.translate("AutoDetectTuningDialog", "Black Key Detection"),
+            "White Strip Selection": QCoreApplication.translate("AutoDetectTuningDialog", "White Strip Selection"),
+            "White Separator Extraction": QCoreApplication.translate(
+                "AutoDetectTuningDialog", "White Separator Extraction"
+            ),
+            "Assignment and Recovery": QCoreApplication.translate("AutoDetectTuningDialog", "Assignment and Recovery"),
+            "Geometry and Padding": QCoreApplication.translate("AutoDetectTuningDialog", "Geometry and Padding"),
+        }
+        return translated.get(category, category)
+
+    def _translate_param_label(self, key: str) -> str:
+        translated = {
+            "black_upper_ratio": QCoreApplication.translate("AutoDetectTuningDialog", "Black Upper Ratio"),
+            "black_bottom_ratio": QCoreApplication.translate("AutoDetectTuningDialog", "Black Bottom Ratio"),
+            "black_threshold_method": QCoreApplication.translate("AutoDetectTuningDialog", "Black Threshold Method"),
+            "black_threshold": QCoreApplication.translate("AutoDetectTuningDialog", "Black Threshold"),
+            "black_adaptive_block_size": QCoreApplication.translate(
+                "AutoDetectTuningDialog", "Black Adaptive Block Size"
+            ),
+            "black_adaptive_c": QCoreApplication.translate("AutoDetectTuningDialog", "Black Adaptive C"),
+            "black_column_ratio": QCoreApplication.translate("AutoDetectTuningDialog", "Black Column Ratio"),
+            "black_min_width": QCoreApplication.translate("AutoDetectTuningDialog", "Black Min Width"),
+            "black_max_width": QCoreApplication.translate("AutoDetectTuningDialog", "Black Max Width"),
+            "white_bottom_ratio": QCoreApplication.translate("AutoDetectTuningDialog", "White Bottom Ratio"),
+            "white_initial_top_ratio": QCoreApplication.translate("AutoDetectTuningDialog", "White Initial Top Ratio"),
+            "white_strip_dark_threshold": QCoreApplication.translate(
+                "AutoDetectTuningDialog", "White Strip Dark Threshold"
+            ),
+            "white_strip_dark_fraction": QCoreApplication.translate(
+                "AutoDetectTuningDialog", "White Strip Dark Fraction"
+            ),
+            "white_strip_min_run": QCoreApplication.translate("AutoDetectTuningDialog", "White Strip Min Run"),
+            "white_strip_allow_failures": QCoreApplication.translate(
+                "AutoDetectTuningDialog", "White Strip Allow Failures"
+            ),
+            "white_sep_ratio": QCoreApplication.translate("AutoDetectTuningDialog", "White Sep Ratio"),
+            "white_sep_dyn_min": QCoreApplication.translate("AutoDetectTuningDialog", "White Sep Dyn Min"),
+            "white_sep_close_kernel": QCoreApplication.translate(
+                "AutoDetectTuningDialog", "White Sep Close Kernel"
+            ),
+            "white_sep_open_kernel": QCoreApplication.translate("AutoDetectTuningDialog", "White Sep Open Kernel"),
+            "white_sep_min_width": QCoreApplication.translate("AutoDetectTuningDialog", "White Sep Min Width"),
+            "type_aware_assignment": QCoreApplication.translate("AutoDetectTuningDialog", "Type Aware Assignment"),
+            "black_recovery_enabled": QCoreApplication.translate("AutoDetectTuningDialog", "Black Recovery Enabled"),
+            "black_recovery_ratio": QCoreApplication.translate("AutoDetectTuningDialog", "Black Recovery Ratio"),
+            "black_recovery_column_ratio_scale": QCoreApplication.translate(
+                "AutoDetectTuningDialog", "Black Recovery Column Ratio Scale"
+            ),
+            "black_split_max_factor": QCoreApplication.translate("AutoDetectTuningDialog", "Black Split Max Factor"),
+            "padding_percent": QCoreApplication.translate("AutoDetectTuningDialog", "Padding Percent"),
+            "white_edge_left_shift_ticks": QCoreApplication.translate(
+                "AutoDetectTuningDialog", "White Edge Left Shift Ticks"
+            ),
+            "white_edge_right_shift_ticks": QCoreApplication.translate(
+                "AutoDetectTuningDialog", "White Edge Right Shift Ticks"
+            ),
+        }
+        return translated.get(key, humanize_auto_detect_param_name(key))

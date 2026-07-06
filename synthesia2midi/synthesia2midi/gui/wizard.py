@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 # Third-party imports
 import numpy as np
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QCoreApplication, Qt, Signal
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QGridLayout, QHBoxLayout, QLabel, QMessageBox,
     QPushButton, QSpinBox, QVBoxLayout
@@ -34,7 +34,7 @@ class CalibrationWizard(QDialog):
 
     def __init__(self, parent, app_state: AppState):
         super().__init__(parent)
-        self.setWindowTitle("Calibration Wizard")
+        self.setWindowTitle(QCoreApplication.translate("CalibrationWizard", "Calibration Wizard"))
         self.setModal(True)
         self.app_state = app_state
         self.parent_app = parent  # Store reference to access video frame
@@ -53,7 +53,7 @@ class CalibrationWizard(QDialog):
         layout = QGridLayout()
 
         # Auto-detection button
-        auto_selection_button = QPushButton("Select Keyboard Region With Autodetector")
+        auto_selection_button = QPushButton(QCoreApplication.translate("CalibrationWizard", "Select Keyboard Region With Autodetector"))
         auto_selection_button.setMinimumWidth(550)  # Wide button
         auto_selection_button.setStyleSheet(
             "QPushButton {"
@@ -72,27 +72,27 @@ class CalibrationWizard(QDialog):
             "border: 2px solid #a5d6a7;"
             "}"
         )
-        auto_selection_button.setToolTip("Automatically detect piano keys in a selected region")
+        auto_selection_button.setToolTip(QCoreApplication.translate("CalibrationWizard", "Automatically detect piano keys in a selected region"))
         auto_selection_button.clicked.connect(self._handle_manual_keyboard_selection)
         layout.addWidget(auto_selection_button, 0, 0, 1, 3)
 
-        self.edit_current_calibration_button = QPushButton("Edit Current Calibration")
+        self.edit_current_calibration_button = QPushButton(QCoreApplication.translate("CalibrationWizard", "Edit Current Calibration"))
         self.edit_current_calibration_button.setMinimumWidth(270)
         self.edit_current_calibration_button.setMaximumWidth(270)
         self.edit_current_calibration_button.setToolTip(
-            "Open the auto-detect tuning panel using your current calibration."
+            QCoreApplication.translate("CalibrationWizard", "Open the auto-detect tuning panel using your current calibration.")
         )
         self.edit_current_calibration_button.setEnabled(False)
         self.edit_current_calibration_button.clicked.connect(self._handle_edit_current_calibration)
         layout.addWidget(self.edit_current_calibration_button, 1, 0)
 
         # Manual calibration section
-        manual_label = QLabel("Or use manual calibration:")
+        manual_label = QLabel(QCoreApplication.translate("CalibrationWizard", "Or use manual calibration:"))
         manual_label.setStyleSheet("font-weight: bold; margin-top: 10px;")
         layout.addWidget(manual_label, 2, 0, 1, 3)
 
         # Leftmost key selection
-        leftmost_label = QLabel("Leftmost Key:")
+        leftmost_label = QLabel(QCoreApplication.translate("CalibrationWizard", "Leftmost Key:"))
         layout.addWidget(leftmost_label, 3, 0)
         
         self.leftmost_note_combo = QComboBox()
@@ -107,25 +107,25 @@ class CalibrationWizard(QDialog):
         layout.addWidget(self.leftmost_octave_spin, 3, 2)
 
         # Total keys selection
-        total_keys_label = QLabel("Total Keys:")
+        total_keys_label = QLabel(QCoreApplication.translate("CalibrationWizard", "Total Keys:"))
         layout.addWidget(total_keys_label, 4, 0)
         
         self.total_keys_spin = QSpinBox()
         self.total_keys_spin.setRange(1, 128)
         self.total_keys_spin.setValue(self.app_state.midi.total_keys)
-        self.total_keys_spin.setToolTip("Number of keys on the keyboard")
+        self.total_keys_spin.setToolTip(QCoreApplication.translate("CalibrationWizard", "Number of keys on the keyboard"))
         install_spinbox_wheel_filter(self.total_keys_spin)
         layout.addWidget(self.total_keys_spin, 4, 1, 1, 2)
 
         # Manual submit button
-        manual_submit_button = QPushButton("Generate Manual Overlays")
+        manual_submit_button = QPushButton(QCoreApplication.translate("CalibrationWizard", "Generate Manual Overlays"))
         manual_submit_button.clicked.connect(self._submit_manual)
         layout.addWidget(manual_submit_button, 5, 0, 1, 3)
 
         # Buttons
         button_layout = QHBoxLayout()
         
-        cancel_button = QPushButton("Cancel")
+        cancel_button = QPushButton(QCoreApplication.translate("CalibrationWizard", "Cancel"))
         cancel_button.clicked.connect(self._cancel)
         button_layout.addWidget(cancel_button)
         
@@ -144,7 +144,11 @@ class CalibrationWizard(QDialog):
         # Check if we have autodetected values
         if not self.detected_overlays:
             logging.error("No keyboard detection performed yet")
-            QMessageBox.critical(self, "Error", "Please select keyboard region first.")
+            QMessageBox.critical(
+                self,
+                QCoreApplication.translate("CalibrationWizard", "Error"),
+                QCoreApplication.translate("CalibrationWizard", "Please select keyboard region first."),
+            )
             return
         
         logging.info("Using autodetected values")

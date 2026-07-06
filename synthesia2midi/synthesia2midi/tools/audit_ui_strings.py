@@ -7,7 +7,7 @@ import json
 import os
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Iterable, Sequence
+from typing import Any, Iterable, Sequence
 
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
@@ -355,14 +355,19 @@ def _dedupe_candidates(candidates: Sequence[UiStringCandidate]) -> list[UiString
     )
 
 
-def write_manifest(candidates: Sequence[UiStringCandidate], output_path: Path) -> None:
-    """Write a stable JSON manifest for review and CI checks."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    payload = {
+def build_manifest_payload(candidates: Sequence[UiStringCandidate]) -> dict[str, Any]:
+    """Build a stable JSON-compatible manifest payload."""
+    return {
         "schema_version": SCHEMA_VERSION,
         "counts": _counts(candidates),
         "candidates": [asdict(candidate) for candidate in _dedupe_candidates(candidates)],
     }
+
+
+def write_manifest(candidates: Sequence[UiStringCandidate], output_path: Path) -> None:
+    """Write a stable JSON manifest for review and CI checks."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    payload = build_manifest_payload(candidates)
     output_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
@@ -382,10 +387,68 @@ def _source_paths(root: Path) -> list[Path]:
     ]
 
 
+def collect_project_static_candidates(root: Path) -> list[UiStringCandidate]:
+    """Collect static UI string candidates from the project source tree."""
+    root = root.resolve()
+    return collect_static_candidates(_source_paths(root), root=root)
+
+
+def collect_runtime_candidates() -> list[UiStringCandidate]:
+    """Instantiate stable top-level widgets offscreen and collect visible text."""
+    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+
+    import numpy as np
+    from PySide6.QtWidgets import QApplication
+
+    from synthesia2midi.core.app_state import AppState
+    from synthesia2midi.gui.auto_detect_tuning_dialog import AutoDetectTuningDialog
+    from synthesia2midi.gui.manual_keyboard_fit_dialog import ManualKeyboardFitDialog
+    from synthesia2midi.gui.startup_dialog import StartupDialog
+    from synthesia2midi.gui.wizard import CalibrationWizard
+    from synthesia2midi.gui.youtube_download_dialog import YouTubeDownloadDialog
+    from synthesia2midi.main import Video2MidiApp
+
+    app = QApplication.instance() or QApplication([])
+    widgets: list[QWidget] = [
+        Video2MidiApp(),
+        StartupDialog(recent_video_paths=[]),
+        YouTubeDownloadDialog(default_output_dir="/tmp"),
+        ManualKeyboardFitDialog(),
+        CalibrationWizard(None, AppState()),
+        AutoDetectTuningDialog(
+            None,
+            AppState(),
+            np.zeros((8, 8, 3), dtype=np.uint8),
+            (0, 0, 8, 8),
+            initial_detection_results={"total_keys": 88},
+            fallback_used=True,
+            apply_detection_callback=lambda _results: True,
+        ),
+    ]
+
+    candidates: list[UiStringCandidate] = []
+    try:
+        for widget in widgets:
+            candidates.extend(collect_widget_text(widget))
+    finally:
+        for widget in widgets:
+            if hasattr(widget, "app_state"):
+                widget.app_state.unsaved_changes = False
+            widget.close()
+            widget.deleteLater()
+        app.processEvents()
+    return _dedupe_candidates(candidates)
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Audit Synthesia2MIDI app-visible UI strings.")
     parser.add_argument("--root", type=Path, default=Path.cwd())
     parser.add_argument("--output", type=Path, default=DEFAULT_MANIFEST_PATH)
+    parser.add_argument(
+        "--include-runtime",
+        action="store_true",
+        help="Also instantiate stable top-level widgets offscreen and include observed text.",
+    )
     args = parser.parse_args(argv)
 
     root = args.root.resolve()
@@ -393,7 +456,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     if not output.is_absolute():
         output = root / output
 
-    candidates = collect_static_candidates(_source_paths(root), root=root)
+    candidates = collect_project_static_candidates(root)
+    if args.include_runtime:
+        candidates = _dedupe_candidates([*candidates, *collect_runtime_candidates()])
     write_manifest(candidates, output)
     print(f"Wrote {len(candidates)} UI string candidates to {output}")
     return 0

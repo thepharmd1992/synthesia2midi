@@ -296,6 +296,21 @@ class CalibrationWizardController:
             for assignment in proposal.assignment_result.assignments.values()
         )
 
+    def _snapshot_overlay_unlit_state(self):
+        return [
+            (
+                overlay,
+                overlay.unlit_reference_color,
+                overlay.unlit_hist.copy() if overlay.unlit_hist is not None else None,
+            )
+            for overlay in self.app_state.overlays
+        ]
+
+    def _restore_overlay_unlit_state(self, overlay_unlit_state) -> None:
+        for overlay, unlit_reference_color, unlit_hist in overlay_unlit_state:
+            overlay.unlit_reference_color = unlit_reference_color
+            overlay.unlit_hist = unlit_hist.copy() if unlit_hist is not None else None
+
     def _run_assisted_auto_calibration(
         self,
         baseline_frame_rgb: np.ndarray,
@@ -309,6 +324,7 @@ class CalibrationWizardController:
         ):
             return False
 
+        overlay_unlit_state = self._snapshot_overlay_unlit_state()
         capture_unlit_references_from_frame(baseline_frame_rgb, self.app_state.overlays)
 
         total_frames = getattr(self.video_session, "total_frames", baseline_frame_index + 1)
@@ -341,8 +357,10 @@ class CalibrationWizardController:
         )
         progress.close()
         if proposal.canceled:
+            self._restore_overlay_unlit_state(overlay_unlit_state)
             return False
         if not self._proposal_has_usable_assignments(proposal):
+            self._restore_overlay_unlit_state(overlay_unlit_state)
             QMessageBox.information(
                 self.app if isinstance(self.app, QWidget) else None,
                 translate("CalibrationWizardController", "Assisted Calibration"),
@@ -363,6 +381,7 @@ class CalibrationWizardController:
             QMessageBox.StandardButton.Yes,
         )
         if response != QMessageBox.StandardButton.Yes:
+            self._restore_overlay_unlit_state(overlay_unlit_state)
             return False
 
         apply_assisted_calibration_proposal(self.app_state, proposal)

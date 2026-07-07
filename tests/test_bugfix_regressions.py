@@ -681,6 +681,9 @@ def test_assisted_calibration_scan_cancel_processes_events_and_stops(monkeypatch
     save_log = []
     controller = _make_assisted_calibration_controller(save_log=save_log)
     processed_events = []
+    overlay = controller.app_state.overlays[0]
+    overlay.unlit_reference_color = (1, 2, 3)
+    overlay.unlit_hist = np.array([0.25, 0.75], dtype=np.float32)
 
     class FakeProgressDialog:
         latest = None
@@ -747,6 +750,8 @@ def test_assisted_calibration_scan_cancel_processes_events_and_stops(monkeypatch
     assert FakeProgressDialog.latest.values == [4]
     assert FakeProgressDialog.latest.closed is True
     assert save_log == []
+    assert overlay.unlit_reference_color == (1, 2, 3)
+    assert np.array_equal(overlay.unlit_hist, np.array([0.25, 0.75], dtype=np.float32))
 
 
 def test_assisted_calibration_no_result_does_not_apply_or_save(monkeypatch):
@@ -756,6 +761,9 @@ def test_assisted_calibration_no_result_does_not_apply_or_save(monkeypatch):
     info_calls = []
     applied = []
     detection = controller.app_state.detection
+    overlay = controller.app_state.overlays[0]
+    overlay.unlit_reference_color = (11, 22, 33)
+    overlay.unlit_hist = np.array([0.1, 0.9], dtype=np.float32)
     original_enabled = dict(detection.exemplar_key_type_enabled)
     original_colors = dict(detection.exemplar_lit_colors)
     original_hists = dict(detection.exemplar_lit_histograms)
@@ -797,6 +805,8 @@ def test_assisted_calibration_no_result_does_not_apply_or_save(monkeypatch):
     assert dict(detection.exemplar_key_type_enabled) == original_enabled
     assert dict(detection.exemplar_lit_colors) == original_colors
     assert dict(detection.exemplar_lit_histograms) == original_hists
+    assert overlay.unlit_reference_color == (11, 22, 33)
+    assert np.array_equal(overlay.unlit_hist, np.array([0.1, 0.9], dtype=np.float32))
 
 
 def test_assisted_calibration_decline_does_not_apply_or_save(monkeypatch):
@@ -804,6 +814,9 @@ def test_assisted_calibration_decline_does_not_apply_or_save(monkeypatch):
     save_log = []
     controller = _make_assisted_calibration_controller(save_log=save_log)
     applied = []
+    overlay = controller.app_state.overlays[0]
+    overlay.unlit_reference_color = (9, 8, 7)
+    overlay.unlit_hist = np.array([0.6, 0.4], dtype=np.float32)
 
     monkeypatch.setattr(
         "synthesia2midi.gui.calibration_wizard_controller.build_assisted_calibration_proposal",
@@ -827,6 +840,8 @@ def test_assisted_calibration_decline_does_not_apply_or_save(monkeypatch):
     assert result is False
     assert applied == []
     assert save_log == []
+    assert overlay.unlit_reference_color == (9, 8, 7)
+    assert np.array_equal(overlay.unlit_hist, np.array([0.6, 0.4], dtype=np.float32))
 
 
 def test_main_action_controller_delegates_histogram_and_similarity_thresholds():

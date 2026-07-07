@@ -96,3 +96,45 @@
 - Used controller-focused proposal stubs for the save/decline/no-result regressions so the tests verify controller decisions rather than analyzer heuristics.
 - The no-result guard is intentionally strict: assisted calibration now only persists when at least one enabled assignment carries a real RGB exemplar.
 - The cancel fix is limited to event pumping in the existing synchronous path, matching the review request without introducing thread or workflow churn.
+
+---
+
+## Review follow-up: restore unlit calibration on non-acceptance
+
+### What you fixed
+
+- Snapshotted each overlay's `unlit_reference_color` and `unlit_hist` before assisted baseline capture in `_run_assisted_auto_calibration(...)`.
+- Restored that per-overlay unlit state on every post-capture early return:
+  - canceled scan,
+  - no-result proposal,
+  - declined proposal.
+- Left the accepted path unchanged so accepted assisted calibration still keeps the baseline-captured unlit references and then applies/saves the proposal.
+- Extended the assisted calibration regressions to prove overlay unlit samples are unchanged across cancel, no-result, and decline exits.
+
+### Test evidence
+
+- RED:
+  - `.venv/bin/python -m pytest tests/test_bugfix_regressions.py::test_assisted_calibration_no_result_does_not_apply_or_save tests/test_bugfix_regressions.py::test_assisted_calibration_decline_does_not_apply_or_save tests/test_bugfix_regressions.py::test_assisted_calibration_scan_cancel_processes_events_and_stops -q`
+  - `3 failed`
+  - Failure cause: overlay `unlit_reference_color` had been overwritten by baseline capture on each non-acceptance path.
+- GREEN:
+  - `.venv/bin/python -m pytest tests/test_bugfix_regressions.py::test_assisted_calibration_no_result_does_not_apply_or_save tests/test_bugfix_regressions.py::test_assisted_calibration_decline_does_not_apply_or_save tests/test_bugfix_regressions.py::test_keyboard_region_selection_runs_assisted_calibration_and_saves -q`
+  - `3 passed`
+- Additional regression:
+  - `.venv/bin/python -m pytest tests/test_bugfix_regressions.py::test_assisted_calibration_scan_cancel_processes_events_and_stops -q`
+  - `1 passed`
+- Hygiene:
+  - `git diff --check`
+  - clean
+
+### Files changed
+
+- `synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py`
+- `tests/test_bugfix_regressions.py`
+- `.superpowers/sdd/task-7-report.md`
+
+### Self-review
+
+- Kept the fix narrow and controller-local; assisted calibration helpers and analyzer internals were unchanged.
+- Used explicit restore points instead of altering acceptance behavior, so the accepted assisted flow still preserves baseline capture as requested.
+- Added cancel-path assertions in addition to the requested no-result/decline coverage because the same mutation bug affected all non-acceptance exits.

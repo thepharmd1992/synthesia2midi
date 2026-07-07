@@ -15,6 +15,7 @@ _USER_LOCALE_DISPLAY_NAMES = {
     "en": "English",
     "es": "Español",
     "ja": "日本語",
+    "ru": "Русский",
 }
 
 

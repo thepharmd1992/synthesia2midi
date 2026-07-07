@@ -34,6 +34,18 @@ def _has_ancestor(widget, ancestor):
     return False
 
 
+def _settings_section_labels(control_panel):
+    return [
+        control_panel.settings_section_rail.item(index).text()
+        for index in range(control_panel.settings_section_rail.count())
+    ]
+
+
+def _show_settings_section(control_panel, label: str) -> None:
+    labels = _settings_section_labels(control_panel)
+    control_panel.tab_widget.setCurrentIndex(labels.index(label))
+
+
 def test_main_window_prioritizes_video_with_settings_gear_and_tool_window(monkeypatch):
     app = _make_app(monkeypatch)
     try:
@@ -65,10 +77,16 @@ def test_main_window_prioritizes_video_with_settings_gear_and_tool_window(monkey
         assert app.control_panel.tab_widget.maximumHeight() == UNBOUNDED_WIDGET_SIZE
         assert not isinstance(app.control_panel.tab_widget, QTabWidget)
         assert app.control_panel.settings_section_rail.width() <= 125
-        assert [
-            app.control_panel.settings_section_rail.item(index).text()
-            for index in range(app.control_panel.settings_section_rail.count())
-        ] == ["Calibration", "Overlays", "Detection", "Spark", "MIDI", "Trim", "Optional"]
+        assert _settings_section_labels(app.control_panel) == [
+            "Language",
+            "Calibration",
+            "Overlays",
+            "Detection",
+            "Spark",
+            "MIDI",
+            "Trim",
+            "Optional",
+        ]
     finally:
         app.close()
 
@@ -251,6 +269,8 @@ def test_minimum_width_calibration_controls_do_not_overlap(monkeypatch):
         QApplication.processEvents()
 
         control_panel = app.control_panel
+        _show_settings_section(control_panel, "Calibration")
+        QApplication.processEvents()
 
         _assert_no_overlap(
             control_panel,
@@ -280,7 +300,7 @@ def test_restore_detection_defaults_resets_parameter_sliders_not_toggles(monkeyp
     try:
         app.show()
         control_panel = app.control_panel
-        control_panel.tab_widget.setCurrentIndex(2)
+        _show_settings_section(control_panel, "Detection")
         QApplication.processEvents()
 
         assert control_panel.histogram_detection_cb.isChecked() is False
@@ -329,7 +349,7 @@ def test_detection_mode_sliders_share_left_edge(monkeypatch):
     try:
         app.show()
         app.settings_toggle_button.click()
-        app.control_panel.tab_widget.setCurrentIndex(2)
+        _show_settings_section(app.control_panel, "Detection")
         QApplication.processEvents()
 
         control_panel = app.control_panel
@@ -363,7 +383,7 @@ def test_overlay_size_controls_stack_for_narrow_settings_window(monkeypatch):
     try:
         app.show()
         app.settings_toggle_button.click()
-        app.control_panel.tab_widget.setCurrentIndex(1)
+        _show_settings_section(app.control_panel, "Overlays")
         QApplication.processEvents()
 
         control_panel = app.control_panel
@@ -383,7 +403,7 @@ def test_spark_roi_controls_stack_and_stay_inside_panel(monkeypatch):
     try:
         app.show()
         app.settings_toggle_button.click()
-        app.control_panel.tab_widget.setCurrentIndex(3)
+        _show_settings_section(app.control_panel, "Spark")
         QApplication.processEvents()
 
         control_panel = app.control_panel
@@ -401,7 +421,7 @@ def test_spark_auto_calibration_controls_stack_vertically(monkeypatch):
     try:
         app.show()
         app.settings_toggle_button.click()
-        app.control_panel.tab_widget.setCurrentIndex(3)
+        _show_settings_section(app.control_panel, "Spark")
         QApplication.processEvents()
 
         control_panel = app.control_panel

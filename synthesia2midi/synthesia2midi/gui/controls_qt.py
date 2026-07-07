@@ -191,6 +191,7 @@ class ControlPanelQt(QWidget):
         self.tab_widget.currentChanged.connect(self.settings_section_rail.setCurrentRow)
         
         # Create all tabs
+        self._create_language_settings_tab()
         self._create_mandatory_calibration_tab()
         self._create_overlay_settings_tab()
         self._create_basic_detection_tab()
@@ -274,6 +275,35 @@ class ControlPanelQt(QWidget):
         actions_layout.addLayout(overlay_row)
 
         parent_layout.addWidget(self.settings_rail_actions, alignment=Qt.AlignBottom)
+
+    def _create_language_settings_tab(self):
+        """Language settings shown as a first-class settings section."""
+        tab = QWidget()
+        layout = QVBoxLayout(tab)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(5)
+
+        language_group = QGroupBox(translate("ControlPanelQt", "Language"))
+        language_group.setObjectName("first_in_tab")
+        language_layout = QGridLayout(language_group)
+        language_layout.addWidget(QLabel(translate("ControlPanelQt", "Language:")), 0, 0)
+
+        self.language_combo = QComboBox()
+        self.language_combo.setObjectName("language_combo")
+        current_locale = load_preferred_locale(self.settings)
+        self.language_combo.blockSignals(True)
+        for locale_name in supported_user_locales():
+            self.language_combo.addItem(locale_display_name(locale_name), locale_name)
+        selected_index = self.language_combo.findData(current_locale)
+        if selected_index >= 0:
+            self.language_combo.setCurrentIndex(selected_index)
+        self.language_combo.blockSignals(False)
+        self.language_combo.currentIndexChanged.connect(self._handle_language_changed)
+        language_layout.addWidget(self.language_combo, 0, 1)
+
+        layout.addWidget(language_group)
+        layout.addStretch()
+        self._add_settings_section(tab, translate("ControlPanelQt", "Language"))
     
     def _create_mandatory_calibration_tab(self):
         """Tab 1: Mandatory Calibration"""
@@ -1124,24 +1154,6 @@ class ControlPanelQt(QWidget):
         layout = QVBoxLayout(tab)
         layout.setContentsMargins(0, 0, 0, 0)  # Make grey containers flush with tab header
         layout.setSpacing(5)  # Minimal spacing between grey containers
-
-        application_group = QGroupBox(translate("ControlPanelQt", "Application"))
-        application_group.setObjectName("first_in_tab")
-        application_layout = QGridLayout(application_group)
-
-        application_layout.addWidget(QLabel(translate("ControlPanelQt", "Language:")), 0, 0)
-        self.language_combo = QComboBox()
-        self.language_combo.setObjectName("language_combo")
-        current_locale = load_preferred_locale(self.settings)
-        self.language_combo.blockSignals(True)
-        for locale_name in supported_user_locales():
-            self.language_combo.addItem(locale_display_name(locale_name), locale_name)
-        selected_index = self.language_combo.findData(current_locale)
-        if selected_index >= 0:
-            self.language_combo.setCurrentIndex(selected_index)
-        self.language_combo.blockSignals(False)
-        self.language_combo.currentIndexChanged.connect(self._handle_language_changed)
-        application_layout.addWidget(self.language_combo, 0, 1)
         
         optional_group = QGroupBox(translate("ControlPanelQt", "Optional Features"))
         optional_layout = QVBoxLayout(optional_group)
@@ -1154,7 +1166,6 @@ class ControlPanelQt(QWidget):
         
         # Add more optional settings here as needed
         
-        layout.addWidget(application_group)
         layout.addWidget(optional_group)
         
         layout.addStretch()

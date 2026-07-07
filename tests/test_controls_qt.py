@@ -15,7 +15,7 @@ def test_edit_midi_button_emits_touchup_request_directly():
     assert emitted == [True]
 
 
-def test_language_selector_lists_user_locales_and_saves_restart_notice(monkeypatch, tmp_path):
+def test_language_selector_is_first_class_section_and_saves_restart_notice(monkeypatch, tmp_path):
     from synthesia2midi.localization import APP_LOCALE_SETTINGS_KEY
 
     QApplication.instance() or QApplication([])
@@ -30,6 +30,18 @@ def test_language_selector_lists_user_locales_and_saves_restart_notice(monkeypat
     panel = ControlPanelQt(settings=settings)
 
     try:
+        rail_labels = [
+            panel.settings_section_rail.item(index).text()
+            for index in range(panel.settings_section_rail.count())
+        ]
+        language_section_index = rail_labels.index("Language")
+        optional_section_index = rail_labels.index("Optional")
+
+        assert rail_labels[0] == "Language"
+        assert language_section_index != optional_section_index
+        assert panel.tab_widget.widget(language_section_index).findChild(type(panel.language_combo), "language_combo") is panel.language_combo
+        assert panel.tab_widget.widget(optional_section_index).findChild(type(panel.language_combo), "language_combo") is None
+
         locale_values = [
             panel.language_combo.itemData(index)
             for index in range(panel.language_combo.count())

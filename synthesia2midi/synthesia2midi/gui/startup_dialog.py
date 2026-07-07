@@ -2,15 +2,25 @@
 import os
 
 # Third-party imports
-from PySide6.QtCore import QCoreApplication, Qt, Signal
+from PySide6.QtCore import QCoreApplication, QSettings, Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
+    QComboBox,
     QDialog,
     QFrame,
     QHBoxLayout,
     QLabel,
+    QMessageBox,
     QPushButton,
+    QWidget,
     QVBoxLayout,
+)
+
+from synthesia2midi.localization import (
+    load_preferred_locale,
+    locale_display_name,
+    save_preferred_locale,
+    supported_user_locales,
 )
 
 
@@ -22,10 +32,11 @@ class StartupDialog(QDialog):
     download_from_youtube = Signal()
     open_recent_file = Signal(str)
     
-    def __init__(self, parent=None, *, recent_video_paths=None):
+    def __init__(self, parent=None, *, recent_video_paths=None, settings=None):
         super().__init__(parent)
         self.recent_video_paths = list(recent_video_paths or [])
         self.recent_video_buttons = []
+        self.settings = settings or QSettings("Synthesia2MIDI", "Synthesia2MIDI")
         self.setWindowTitle(QCoreApplication.translate("StartupDialog", "Synthesia to MIDI - Select Video Source"))
         self.setModal(True)
         self.setMinimumWidth(500)
@@ -38,18 +49,39 @@ class StartupDialog(QDialog):
         layout.setContentsMargins(30, 30, 30, 30)
         
         # Title
-        title_label = QLabel(QCoreApplication.translate("StartupDialog", "Welcome to Synthesia to MIDI"))
+        self.title_label = QLabel(QCoreApplication.translate("StartupDialog", "Welcome to Synthesia to MIDI"))
         title_font = QFont()
         title_font.setPointSize(16)
         title_font.setBold(True)
-        title_label.setFont(title_font)
-        title_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(title_label)
+        self.title_label.setFont(title_font)
+        self.title_label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.title_label)
+
+        self.language_widget = QWidget()
+        self.language_widget.setObjectName("startup_language_widget")
+        language_layout = QHBoxLayout(self.language_widget)
+        language_layout.setContentsMargins(0, 0, 0, 0)
+        language_layout.addStretch()
+        language_layout.addWidget(QLabel(QCoreApplication.translate("StartupDialog", "Language:")))
+        self.language_combo = QComboBox()
+        self.language_combo.setObjectName("language_combo")
+        current_locale = load_preferred_locale(self.settings)
+        self.language_combo.blockSignals(True)
+        for locale_name in supported_user_locales():
+            self.language_combo.addItem(locale_display_name(locale_name), locale_name)
+        selected_index = self.language_combo.findData(current_locale)
+        if selected_index >= 0:
+            self.language_combo.setCurrentIndex(selected_index)
+        self.language_combo.blockSignals(False)
+        self.language_combo.currentIndexChanged.connect(self._handle_language_changed)
+        language_layout.addWidget(self.language_combo)
+        language_layout.addStretch()
+        layout.addWidget(self.language_widget)
         
         # Subtitle
-        subtitle_label = QLabel(QCoreApplication.translate("StartupDialog", "How would you like to load a video?"))
-        subtitle_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(subtitle_label)
+        self.subtitle_label = QLabel(QCoreApplication.translate("StartupDialog", "How would you like to load a video?"))
+        self.subtitle_label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.subtitle_label)
         
         # Add some spacing
         layout.addSpacing(20)
@@ -122,6 +154,18 @@ class StartupDialog(QDialog):
         """Handle YouTube button click"""
         self.accept()
         self.download_from_youtube.emit()
+
+    def _handle_language_changed(self, index: int):
+        """Persist the selected UI language for the next app launch."""
+        locale_name = self.language_combo.itemData(index)
+        if not locale_name:
+            return
+        save_preferred_locale(str(locale_name), self.settings)
+        QMessageBox.information(
+            self,
+            QCoreApplication.translate("StartupDialog", "Language"),
+            QCoreApplication.translate("StartupDialog", "Restart Synthesia2MIDI to apply the selected language."),
+        )
 
     def _create_recent_video_button(self, path: str) -> QPushButton:
         filename = os.path.basename(path) or path

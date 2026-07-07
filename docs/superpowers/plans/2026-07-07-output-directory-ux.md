@@ -280,7 +280,7 @@ git commit -m "Add app output path helpers"
 
 Make final MIDI files easy to find and stop putting conversion settings next to them.
 
-- [ ] Update `synthesia2midi/synthesia2midi/workflows/midi_export.py` so `MidiExportService` accepts an optional `RuntimePaths`.
+- [x] Update `synthesia2midi/synthesia2midi/workflows/midi_export.py` so `MidiExportService` accepts an optional `RuntimePaths`.
 
 Implementation shape:
 
@@ -305,14 +305,14 @@ class MidiExportService:
 
 Preserve the existing timestamp format exactly: `YYYYMMDD_HHMMSS`.
 
-- [ ] Update `synthesia2midi/synthesia2midi/gui/midi_conversion_controller.py` to pass a runtime path dependency when the app exposes one:
+- [x] Update `synthesia2midi/synthesia2midi/gui/midi_conversion_controller.py` to pass a runtime path dependency when the app exposes one:
 
 ```python
 runtime_paths = getattr(app, "runtime_paths", None)
 result = MidiExportService(app.app_state, app.conversion_workflow, runtime_paths=runtime_paths).export_to_default_path()
 ```
 
-- [ ] Update `synthesia2midi/synthesia2midi/workflows/conversion.py` so `ConversionWorkflow` can receive `runtime_paths` and `_save_midi_settings_log()` writes to the project folder:
+- [x] Update `synthesia2midi/synthesia2midi/workflows/conversion.py` so `ConversionWorkflow` can receive `runtime_paths` and `_save_midi_settings_log()` writes to the project folder:
 
 ```python
 from synthesia2midi.runtime_paths import RuntimePaths, detect_runtime_paths
@@ -344,7 +344,7 @@ settings_path.parent.mkdir(parents=True, exist_ok=True)
 
 The fallback for missing `video_path` keeps the workflow from failing in synthetic tests.
 
-- [ ] Update `tests/test_midi_conversion_controller.py` expected path:
+- [x] Update `tests/test_midi_conversion_controller.py` expected path:
 
 ```python
 expected_output = (
@@ -374,8 +374,8 @@ In the service test, pass the same object directly:
 result = MidiExportService(app_state, workflow, runtime_paths=runtime_paths).export_to_default_path()
 ```
 
-- [ ] Add or update a conversion workflow test proving the settings JSON writes under `project_dir_for_video()` instead of the MIDI output folder.
-- [ ] Run:
+- [x] Add or update a conversion workflow test proving the settings JSON writes under `project_dir_for_video()` instead of the MIDI output folder.
+- [x] Run:
 
 ```bash
 .venv/bin/python -m pytest tests/test_midi_conversion_controller.py

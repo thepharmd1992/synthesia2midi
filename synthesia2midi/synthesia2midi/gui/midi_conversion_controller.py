@@ -18,7 +18,11 @@ class MidiConversionController:
     def start_conversion_process(self) -> None:
         """Start MIDI conversion using the active conversion workflow."""
         app = self.app
-        result = MidiExportService(app.app_state, app.conversion_workflow).export_to_default_path()
+        result = MidiExportService(
+            app.app_state,
+            app.conversion_workflow,
+            runtime_paths=getattr(app, "runtime_paths", None),
+        ).export_to_default_path()
 
         app.control_panel.set_conversion_result(result.success, result.message)
 

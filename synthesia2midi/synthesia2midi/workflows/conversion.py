@@ -7,6 +7,7 @@ and MIDI file generation.
 import logging
 import os
 import shutil
+from pathlib import Path
 from typing import Dict, Tuple, Optional, Callable, List
 
 import cv2
@@ -20,6 +21,7 @@ from synthesia2midi.video_loader import VideoSession
 from synthesia2midi.app_config import DEBUG_FRAMES_DIR
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.detection.roi_utils import extract_roi_bgr, get_average_color_from_roi, euclidean_distance
+from synthesia2midi.runtime_paths import RuntimePaths, detect_runtime_paths
 
 translate = QCoreApplication.translate
 
@@ -29,12 +31,19 @@ class ConversionWorkflow:
     Handles the complete MIDI conversion process.
     """
     
-    def __init__(self, app_state: AppState, video_session: VideoSession, 
-                 parent_widget=None, detection_manager=None):
+    def __init__(
+        self,
+        app_state: AppState,
+        video_session: VideoSession,
+        parent_widget=None,
+        detection_manager=None,
+        runtime_paths: RuntimePaths | None = None,
+    ):
         self.app_state = app_state
         self.video_session = video_session
         self.parent_widget = parent_widget
         self.detection_manager = detection_manager
+        self.runtime_paths = runtime_paths or detect_runtime_paths()
         self.logger = logging.getLogger(f"{__name__}.ConversionWorkflow")
     
     def convert_to_midi(self, output_path: str, progress_callback: Optional[Callable] = None) -> bool:
@@ -703,7 +712,14 @@ class ConversionWorkflow:
         from datetime import datetime
         
         self.logger.info(f"[SETTINGS-LOG-START] Starting to save settings log for {midi_path}")
-        log_path = midi_path.replace('.mid', '_settings.json')
+        video_state = self.app_state.video
+        video_path = getattr(video_state, "original_video_path", None) or getattr(video_state, "filepath", "")
+        midi_path_obj = Path(midi_path)
+        if video_path:
+            log_path = self.runtime_paths.conversion_settings_path(video_path, midi_path_obj)
+        else:
+            log_path = midi_path_obj.with_name(f"{midi_path_obj.stem}_settings.json")
+        log_path.parent.mkdir(parents=True, exist_ok=True)
         try:
             # Helper function to convert numpy arrays to lists for JSON serialization
             def serialize_for_json(obj):
@@ -850,7 +866,7 @@ class ConversionWorkflow:
             self.logger.warning(f"Could not save settings log: {e}")
             # Fallback to simple text log if JSON fails
             try:
-                log_path_fallback = midi_path.replace('.mid', '_settings.log')
+                log_path_fallback = log_path.with_suffix(".log")
                 with open(log_path_fallback, 'w') as f:
                     f.write(f"MIDI Conversion Settings Log (Fallback)\\n")
                     f.write(f"Generated: {datetime.now()}\\n\\n")

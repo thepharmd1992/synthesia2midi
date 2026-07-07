@@ -4,8 +4,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 import datetime
 import logging
-import os
+from pathlib import Path
 from typing import Protocol
+
+from synthesia2midi.runtime_paths import RuntimePaths, detect_runtime_paths
 
 
 class MidiConversionWorkflow(Protocol):
@@ -29,13 +31,19 @@ class MidiExportResult:
 class MidiExportService:
     """Owns output-path selection and conversion workflow invocation for MIDI export."""
 
-    def __init__(self, app_state, conversion_workflow: MidiConversionWorkflow | None):
+    def __init__(
+        self,
+        app_state,
+        conversion_workflow: MidiConversionWorkflow | None,
+        runtime_paths: RuntimePaths | None = None,
+    ):
         self.app_state = app_state
         self.conversion_workflow = conversion_workflow
+        self.runtime_paths = runtime_paths or detect_runtime_paths()
         self.logger = logging.getLogger(f"{__name__}.MidiExportService")
 
     def export_to_default_path(self) -> MidiExportResult:
-        """Export the current video to the conventional Completed MIDI Files path."""
+        """Export the current video to the default user-facing MIDI output folder."""
         self.logger.warning("[MIDI-BUTTON-CLICKED] === MIDI CONVERSION BUTTON CLICKED ===")
         self.logger.warning("[MIDI-BUTTON-CLICKED] User initiated MIDI conversion at %s", datetime.datetime.now())
 
@@ -71,10 +79,10 @@ class MidiExportService:
 
     def _build_default_output_path(self) -> str:
         video_path_for_output = self._video_path_for_output()
-        completed_midi_dir = os.path.join(os.path.dirname(video_path_for_output), "Completed MIDI Files")
-        os.makedirs(completed_midi_dir, exist_ok=True)
+        completed_midi_dir = self.runtime_paths.midi_exports_dir()
+        completed_midi_dir.mkdir(parents=True, exist_ok=True)
 
-        video_basename = os.path.splitext(os.path.basename(video_path_for_output))[0]
+        video_basename = Path(video_path_for_output).stem or "synthesia2midi"
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         midi_filename = f"{video_basename}_{timestamp}.mid"
-        return os.path.join(completed_midi_dir, midi_filename)
+        return str(completed_midi_dir / midi_filename)

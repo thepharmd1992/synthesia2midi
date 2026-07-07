@@ -42,6 +42,7 @@ agents.md
 .hermes/
 .hermes-*/
 .honcho/
+.superpowers/
 .claude/
 .claude.json
 CLAUDE.local.md

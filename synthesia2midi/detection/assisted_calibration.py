@@ -282,6 +282,14 @@ def _frame_candidate_for_overlay(
     return _candidate_from_sample(frame_index, overlay, rgb, get_hist_feature(bgr))
 
 
+def _candidate_is_better(candidate: ExemplarCandidate, current: ExemplarCandidate) -> bool:
+    if candidate.delta_from_unlit != current.delta_from_unlit:
+        return candidate.delta_from_unlit > current.delta_from_unlit
+    if candidate.confidence != current.confidence:
+        return candidate.confidence > current.confidence
+    return candidate.frame_index < current.frame_index
+
+
 def scan_lit_exemplar_candidates(
     frame_provider: FrameProvider,
     overlays: Sequence[OverlayConfig],
@@ -292,6 +300,7 @@ def scan_lit_exemplar_candidates(
     progress_callback: Optional[ProgressCallback] = None,
 ) -> Tuple[list[ExemplarCandidate], int, bool]:
     candidates_by_key: dict[int, list[ExemplarCandidate]] = {}
+    active_candidates_by_key: dict[int, ExemplarCandidate] = {}
     scanned = 0
     end_frame = max(start_frame, end_frame)
     stride = max(1, settings.coarse_stride)
@@ -312,11 +321,11 @@ def scan_lit_exemplar_candidates(
                 continue
             coarse_candidates[overlay.key_id] = coarse_candidate
 
-        if not coarse_candidates:
-            continue
-
         for overlay in overlays:
-            best = coarse_candidates.get(overlay.key_id)
+            key_id = overlay.key_id
+            best = coarse_candidates.get(key_id)
+            active = active_candidates_by_key.get(key_id)
+
             refine_start = max(start_frame, frame_index - settings.refine_radius)
             refine_end = min(end_frame, frame_index + settings.refine_radius)
             for refined_index in range(refine_start, refine_end + 1):
@@ -328,20 +337,36 @@ def scan_lit_exemplar_candidates(
                     refined_index,
                     overlay,
                     settings,
-                )
+                    )
                 if refined_candidate is not None and (
-                    best is None or refined_candidate.confidence > best.confidence
+                    best is None or _candidate_is_better(refined_candidate, best)
                 ):
                     best = refined_candidate
 
             if best is None:
+                if active is not None:
+                    candidates_by_key.setdefault(key_id, []).append(active)
+                    del active_candidates_by_key[key_id]
                 continue
 
-            bucket = candidates_by_key.setdefault(overlay.key_id, [])
-            bucket.append(best)
-            bucket.sort(key=lambda item: (-item.confidence, item.frame_index))
-            del bucket[settings.max_candidates_per_key :]
+            if active is None:
+                active_candidates_by_key[key_id] = best
+            elif _candidate_is_better(best, active):
+                active_candidates_by_key[key_id] = best
+
+    for key_id, active in active_candidates_by_key.items():
+        candidates_by_key.setdefault(key_id, []).append(active)
 
     flattened = [candidate for bucket in candidates_by_key.values() for candidate in bucket]
     flattened.sort(key=lambda item: (-item.confidence, item.frame_index, item.key_id))
+    if settings.max_candidates_per_key > 0:
+        pruned: list[ExemplarCandidate] = []
+        per_key_counts: dict[int, int] = {}
+        for candidate in flattened:
+            count = per_key_counts.get(candidate.key_id, 0)
+            if count >= settings.max_candidates_per_key:
+                continue
+            per_key_counts[candidate.key_id] = count + 1
+            pruned.append(candidate)
+        flattened = pruned
     return flattened, scanned, False

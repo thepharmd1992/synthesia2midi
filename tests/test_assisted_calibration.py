@@ -167,6 +167,41 @@ def test_scanner_finds_lit_candidates_from_overlay_deltas():
     assert any(candidate.slot_color == "B" and candidate.rgb == (70, 110, 170) for candidate in candidates)
 
 
+def test_scanner_collapses_overlapping_hits_into_one_event_per_lit_burst():
+    overlay = _overlay(key_id=1, note="C", octave=4, x=0, y=0, width=4, height=4, key_type="LW")
+    overlay.unlit_reference_color = (245, 245, 235)
+
+    frames = {}
+    for index in range(0, 31):
+        frame = np.zeros((8, 8, 3), dtype=np.uint8)
+        frame[:, :] = (25, 25, 25)
+        frame[0:4, 0:4] = (245, 245, 235)
+        frames[index] = frame
+
+    frames[10][0:4, 0:4] = (170, 190, 210)
+    frames[12][0:4, 0:4] = (50, 70, 90)
+    frames[15][0:4, 0:4] = (180, 200, 220)
+    frames[25][0:4, 0:4] = (175, 195, 215)
+    frames[26][0:4, 0:4] = (45, 65, 85)
+    frames[27][0:4, 0:4] = (185, 205, 225)
+
+    candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        lambda index: frames.get(index),
+        [overlay],
+        0,
+        30,
+        settings=ExemplarScanSettings(coarse_stride=5, refine_radius=2, min_rgb_delta=30.0),
+    )
+
+    assert canceled is False
+    assert scanned > 0
+    assert len(candidates) == 2
+    by_frame = {candidate.frame_index: candidate for candidate in candidates}
+    assert set(by_frame) == {12, 26}
+    assert by_frame[12].rgb == (50, 70, 90)
+    assert by_frame[26].rgb == (45, 65, 85)
+
+
 def test_scanner_honors_cancel_callback():
     overlay = _overlay()
     overlay.unlit_reference_color = (245, 245, 235)

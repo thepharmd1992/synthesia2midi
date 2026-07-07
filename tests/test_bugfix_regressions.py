@@ -10,6 +10,12 @@ from synthesia2midi.app_config import OverlayConfig
 from synthesia2midi.gui.startup_dialog import StartupDialog
 from synthesia2midi.gui.youtube_download_dialog import YouTubeDownloadDialog
 from synthesia2midi.core.app_state import AppState
+from synthesia2midi.detection.assisted_calibration import (
+    AssignedExemplar,
+    AssistedCalibrationProposal,
+    ExemplarAssignmentResult,
+    UnlitFrameAssessment,
+)
 from synthesia2midi.detection.factory import DetectionFactory
 from synthesia2midi.detection.spark_integrated import SparkIntegratedDetection
 from synthesia2midi.detection.standard import StandardDetection
@@ -302,6 +308,56 @@ class DummyShowOverlaysAction:
 
     def setChecked(self, value):
         self.checked_values.append(value)
+
+
+def _make_assigned_exemplar(slot, *, rgb=None, enabled=True):
+    return AssignedExemplar(
+        slot=slot,
+        rgb=rgb,
+        hist=np.array([1.0], dtype=np.float32) if rgb is not None and enabled else None,
+        source=None,
+        enabled=enabled,
+    )
+
+
+def _make_assisted_proposal(*, candidate_count, assignments, canceled=False, family_count=0):
+    return AssistedCalibrationProposal(
+        baseline_frame_index=3,
+        unlit_assessment=UnlitFrameAssessment(status="clean"),
+        assignment_result=ExemplarAssignmentResult(
+            assignments=assignments,
+            missing_slots=tuple(),
+            disabled_slots=tuple(slot for slot, assignment in assignments.items() if not assignment.enabled),
+            family_count=family_count,
+            confidence=1.0 if candidate_count else 0.0,
+        ),
+        scanned_frame_count=4,
+        candidate_count=candidate_count,
+        canceled=canceled,
+    )
+
+
+def _make_assisted_calibration_controller(*, save_log):
+    app_state = AppState()
+    app_state.video.current_frame_index = 3
+    app_state.overlays = [
+        OverlayConfig(
+            key_id=1,
+            note_octave=4,
+            note_name_in_octave="C",
+            x=0,
+            y=0,
+            width=4,
+            height=4,
+            key_type="LW",
+        )
+    ]
+    app = SimpleNamespace(
+        app_state=app_state,
+        video_loading_workflow=SimpleNamespace(save_current_config=lambda: save_log.append("save") or True),
+        video_session=SimpleNamespace(total_frames=12, get_frame=lambda _index: (True, np.full((8, 8, 3), 240, dtype=np.uint8))),
+    )
+    return CalibrationWizardController(app, DummyAutoDetectTuningControllerForRestore())
 
 
 def test_calibration_wizard_controller_keeps_wizard_for_keyboard_region_selection():
@@ -604,12 +660,173 @@ def test_keyboard_region_selection_runs_assisted_calibration_and_saves(monkeypat
         "synthesia2midi.gui.calibration_wizard_controller.apply_assisted_calibration_proposal",
         lambda app_state, proposal: applied.append(proposal),
     )
+    monkeypatch.setattr(
+        "synthesia2midi.gui.calibration_wizard_controller.build_assisted_calibration_proposal",
+        lambda *_args, **_kwargs: _make_assisted_proposal(
+            candidate_count=1,
+            assignments={"LW": _make_assigned_exemplar("LW", rgb=(10, 20, 30))},
+            family_count=1,
+        ),
+    )
     monkeypatch.setattr(QMessageBox, "question", lambda *args, **kwargs: QMessageBox.StandardButton.Yes)
 
     controller._handle_keyboard_region_selected(1, 2, 3, 4)
 
     assert applied
     assert saved == ["save"]
+
+
+def test_assisted_calibration_scan_cancel_processes_events_and_stops(monkeypatch):
+    QApplication.instance() or QApplication([])
+    save_log = []
+    controller = _make_assisted_calibration_controller(save_log=save_log)
+    processed_events = []
+
+    class FakeProgressDialog:
+        latest = None
+
+        def __init__(self, *_args, **_kwargs):
+            self.maximum = None
+            self.values = []
+            self.closed = False
+            self.canceled = False
+            FakeProgressDialog.latest = self
+
+        def setWindowTitle(self, _title):
+            pass
+
+        def setMinimumDuration(self, _duration):
+            pass
+
+        def setMaximum(self, value):
+            self.maximum = value
+
+        def setValue(self, value):
+            self.values.append(value)
+
+        def wasCanceled(self):
+            return self.canceled
+
+        def close(self):
+            self.closed = True
+
+    def fake_process_events():
+        processed_events.append("processed")
+        FakeProgressDialog.latest.canceled = True
+
+    def fake_build_proposal(*_args, progress_callback=None, **_kwargs):
+        keep_scanning = progress_callback(4, 11)
+        return _make_assisted_proposal(
+            candidate_count=1,
+            assignments={"LW": _make_assigned_exemplar("LW", rgb=(10, 20, 30))},
+            canceled=not keep_scanning,
+            family_count=1,
+        )
+
+    def unexpected_question(*_args, **_kwargs):
+        raise AssertionError("canceled scan should not reach confirmation")
+
+    monkeypatch.setattr(
+        "synthesia2midi.gui.calibration_wizard_controller.QProgressDialog",
+        FakeProgressDialog,
+    )
+    monkeypatch.setattr(QApplication, "processEvents", staticmethod(fake_process_events))
+    monkeypatch.setattr(
+        "synthesia2midi.gui.calibration_wizard_controller.build_assisted_calibration_proposal",
+        fake_build_proposal,
+    )
+    monkeypatch.setattr(QMessageBox, "question", unexpected_question)
+
+    result = controller._run_assisted_auto_calibration(
+        np.full((8, 8, 3), 245, dtype=np.uint8),
+        3,
+    )
+
+    assert result is False
+    assert processed_events == ["processed"]
+    assert FakeProgressDialog.latest.values == [4]
+    assert FakeProgressDialog.latest.closed is True
+    assert save_log == []
+
+
+def test_assisted_calibration_no_result_does_not_apply_or_save(monkeypatch):
+    QApplication.instance() or QApplication([])
+    save_log = []
+    controller = _make_assisted_calibration_controller(save_log=save_log)
+    info_calls = []
+    applied = []
+    detection = controller.app_state.detection
+    original_enabled = dict(detection.exemplar_key_type_enabled)
+    original_colors = dict(detection.exemplar_lit_colors)
+    original_hists = dict(detection.exemplar_lit_histograms)
+
+    proposal = _make_assisted_proposal(
+        candidate_count=2,
+        assignments={
+            "LW": _make_assigned_exemplar("LW", rgb=None, enabled=False),
+            "LB": _make_assigned_exemplar("LB", rgb=None, enabled=False),
+            "RW": _make_assigned_exemplar("RW", rgb=None, enabled=False),
+            "RB": _make_assigned_exemplar("RB", rgb=None, enabled=False),
+        },
+    )
+
+    def unexpected_question(*_args, **_kwargs):
+        raise AssertionError("empty proposals should not reach confirmation")
+
+    monkeypatch.setattr(
+        "synthesia2midi.gui.calibration_wizard_controller.build_assisted_calibration_proposal",
+        lambda *_args, **_kwargs: proposal,
+    )
+    monkeypatch.setattr(
+        "synthesia2midi.gui.calibration_wizard_controller.apply_assisted_calibration_proposal",
+        lambda *_args, **_kwargs: applied.append("applied"),
+    )
+    monkeypatch.setattr(QMessageBox, "question", unexpected_question)
+    monkeypatch.setattr(QMessageBox, "information", lambda *args, **kwargs: info_calls.append((args, kwargs)))
+
+    result = controller._run_assisted_auto_calibration(
+        np.full((8, 8, 3), 245, dtype=np.uint8),
+        3,
+    )
+
+    assert result is False
+    assert applied == []
+    assert save_log == []
+    assert len(info_calls) == 1
+    assert "No lit examples were found" in info_calls[0][0][2]
+    assert dict(detection.exemplar_key_type_enabled) == original_enabled
+    assert dict(detection.exemplar_lit_colors) == original_colors
+    assert dict(detection.exemplar_lit_histograms) == original_hists
+
+
+def test_assisted_calibration_decline_does_not_apply_or_save(monkeypatch):
+    QApplication.instance() or QApplication([])
+    save_log = []
+    controller = _make_assisted_calibration_controller(save_log=save_log)
+    applied = []
+
+    monkeypatch.setattr(
+        "synthesia2midi.gui.calibration_wizard_controller.build_assisted_calibration_proposal",
+        lambda *_args, **_kwargs: _make_assisted_proposal(
+            candidate_count=1,
+            assignments={"LW": _make_assigned_exemplar("LW", rgb=(10, 20, 30))},
+            family_count=1,
+        ),
+    )
+    monkeypatch.setattr(
+        "synthesia2midi.gui.calibration_wizard_controller.apply_assisted_calibration_proposal",
+        lambda *_args, **_kwargs: applied.append("applied"),
+    )
+    monkeypatch.setattr(QMessageBox, "question", lambda *args, **kwargs: QMessageBox.StandardButton.No)
+
+    result = controller._run_assisted_auto_calibration(
+        np.full((8, 8, 3), 245, dtype=np.uint8),
+        3,
+    )
+
+    assert result is False
+    assert applied == []
+    assert save_log == []
 
 
 def test_main_action_controller_delegates_histogram_and_similarity_thresholds():

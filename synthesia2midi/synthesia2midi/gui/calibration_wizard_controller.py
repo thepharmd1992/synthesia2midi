@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional
 
 import numpy as np
 from PySide6.QtCore import QCoreApplication, Qt
-from PySide6.QtWidgets import QMessageBox, QProgressDialog, QWidget
+from PySide6.QtWidgets import QApplication, QMessageBox, QProgressDialog, QWidget
 
 from synthesia2midi.detection.assisted_calibration import (
     ExemplarScanSettings,
@@ -288,6 +288,14 @@ class CalibrationWizardController:
                 )
         return "\n".join(lines)
 
+    def _proposal_has_usable_assignments(self, proposal) -> bool:
+        if proposal.candidate_count == 0:
+            return False
+        return any(
+            assignment.enabled and assignment.rgb is not None
+            for assignment in proposal.assignment_result.assignments.values()
+        )
+
     def _run_assisted_auto_calibration(
         self,
         baseline_frame_rgb: np.ndarray,
@@ -320,6 +328,7 @@ class CalibrationWizardController:
         def progress_callback(current_frame: int, final_frame: int) -> bool:
             progress.setMaximum(final_frame)
             progress.setValue(current_frame)
+            QApplication.processEvents()
             return not progress.wasCanceled()
 
         proposal = build_assisted_calibration_proposal(
@@ -332,6 +341,16 @@ class CalibrationWizardController:
         )
         progress.close()
         if proposal.canceled:
+            return False
+        if not self._proposal_has_usable_assignments(proposal):
+            QMessageBox.information(
+                self.app if isinstance(self.app, QWidget) else None,
+                translate("CalibrationWizardController", "Assisted Calibration"),
+                translate(
+                    "CalibrationWizardController",
+                    "No lit examples were found for assisted calibration. Existing calibration samples were left unchanged.",
+                ),
+            )
             return False
 
         response = QMessageBox.question(

@@ -399,7 +399,6 @@ def apply_assisted_calibration_proposal(
 def build_assisted_calibration_proposal(
     frame_provider: FrameProvider,
     overlays: Sequence[OverlayConfig],
-    *,
     baseline_frame_index: int,
     end_frame: int,
     settings: ExemplarScanSettings = ExemplarScanSettings(),
@@ -416,7 +415,7 @@ def build_assisted_calibration_proposal(
     candidates, scanned, canceled = scan_lit_exemplar_candidates(
         frame_provider,
         overlays,
-        baseline_frame_index,
+        baseline_frame_index + 1,
         end_frame,
         settings=settings,
         progress_callback=progress_callback,

@@ -1,3 +1,5 @@
+import pytest
+
 import cv2
 import numpy as np
 
@@ -19,6 +21,7 @@ from synthesia2midi.detection.assisted_calibration import (
     sample_overlay_rgb,
     scan_lit_exemplar_candidates,
 )
+from synthesia2midi.tools.probe_assisted_calibration import _load_exemplar_lit_color_targets
 
 
 def _candidate(slot_color, rgb, frame_index=10, note="C4", key_id=1, confidence=0.9):
@@ -333,10 +336,69 @@ def test_build_assisted_calibration_proposal_combines_guard_scan_and_assignment(
         [overlay],
         baseline_frame_index=0,
         end_frame=10,
-        settings=ExemplarScanSettings(coarse_stride=10, refine_radius=0, min_rgb_delta=30.0),
+        settings=ExemplarScanSettings(coarse_stride=1, refine_radius=0, min_rgb_delta=30.0),
     )
 
     assert proposal.baseline_frame_index == 0
     assert proposal.unlit_assessment.status == "clean"
     assert proposal.candidate_count == 1
     assert proposal.assignment_result.assignments["LW"].rgb == (130, 165, 205)
+
+
+def test_build_assisted_calibration_proposal_skips_baseline_frame_as_lit_candidate():
+    overlay = _overlay(key_id=1, x=0, y=0, width=4, height=4)
+    overlay.unlit_reference_color = (245, 245, 235)
+
+    baseline = np.full((8, 8, 3), (170, 175, 185), dtype=np.uint8)
+    lit = np.full((8, 8, 3), (150, 155, 165), dtype=np.uint8)
+    lit[0:4, 0:4] = (130, 165, 205)
+
+    calls: list[int] = []
+
+    def frame_provider(index: int):
+        calls.append(index)
+        return {0: baseline, 1: lit}.get(index)
+
+    proposal = build_assisted_calibration_proposal(
+        frame_provider,
+        [overlay],
+        baseline_frame_index=0,
+        end_frame=1,
+        settings=ExemplarScanSettings(coarse_stride=1, refine_radius=0, min_rgb_delta=30.0),
+    )
+
+    assert calls.count(0) == 1
+    assert proposal.scanned_frame_count == 1
+    assert proposal.candidate_count == 1
+    assert proposal.assignment_result.assignments["LW"].rgb == (130, 165, 205)
+
+
+def test_load_exemplar_lit_color_targets_reads_configured_slots(tmp_path):
+    ini_path = tmp_path / "sample.ini"
+    ini_path.write_text(
+        "\n".join(
+            [
+                "[ExemplarLitColors]",
+                "lw = 130, 165, 205",
+                "lb = ",
+                "rw = 243, 176, 68",
+                "rb = 243,131,46",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    assert _load_exemplar_lit_color_targets(ini_path) == {
+        "LW": (130, 165, 205),
+        "RW": (243, 176, 68),
+        "RB": (243, 131, 46),
+    }
+
+
+def test_load_exemplar_lit_color_targets_requires_section(tmp_path):
+    ini_path = tmp_path / "missing_section.ini"
+    ini_path.write_text("[Other]\nvalue = 1\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match=r"ExemplarLitColors"):
+        _load_exemplar_lit_color_targets(ini_path)

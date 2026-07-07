@@ -54,12 +54,16 @@ The GUI localization audit is deterministic and does not require real videos, ne
 
 ```bash
 .venv/bin/python -m synthesia2midi.tools.audit_ui_strings --output docs/localization/ui-string-manifest.json
+.venv/bin/python -m synthesia2midi.tools.export_translation_packet --source-ts synthesia2midi/synthesia2midi/translations/synthesia2midi_es.ts --output docs/localization/translation-agent-packet.json
 .venv/bin/pyside6-lupdate -extensions py synthesia2midi/synthesia2midi -ts /tmp/synthesia2midi_lupdate_probe.ts
-.venv/bin/pyside6-lrelease synthesia2midi/synthesia2midi/translations/synthesia2midi_es.ts -qm /tmp/synthesia2midi_es_probe.qm
+for ts_file in synthesia2midi/synthesia2midi/translations/synthesia2midi_*.ts; do
+  locale_name=$(basename "$ts_file" .ts | sed 's/^synthesia2midi_//')
+  .venv/bin/pyside6-lrelease "$ts_file" -qm "/tmp/synthesia2midi_${locale_name}_probe.qm"
+done
 .venv/bin/python -m pytest tests/test_localization.py tests/test_ui_string_audit.py
 ```
 
-`tests/test_ui_string_audit.py` fails when the tracked static manifest is stale. `tests/test_localization.py` fails if the tracked Spanish `.ts` file has unfinished entries or mismatched named placeholders. The optional runtime crawl is exercised by pytest and can also be run manually:
+`tests/test_ui_string_audit.py` fails when the tracked static manifest is stale. `tests/test_localization.py` fails if any tracked production `.ts` file has unfinished entries or mismatched named placeholders. The optional runtime crawl is exercised by pytest and can also be run manually:
 
 ```bash
 .venv/bin/python -m synthesia2midi.tools.audit_ui_strings --include-runtime --output /tmp/synthesia2midi_runtime_ui_strings.json

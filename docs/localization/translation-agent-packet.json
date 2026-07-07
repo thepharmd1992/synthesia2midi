@@ -1,0 +1,6569 @@
+{
+  "schema_version": 1,
+  "app_context": "Synthesia2MIDI is a PySide6 desktop app that analyzes Synthesia piano videos, calibrates piano-key overlays, detects notes, downloads optional YouTube videos, and exports MIDI files.",
+  "ui_context": [
+    "startup video-source selection",
+    "language selection",
+    "keyboard calibration",
+    "overlay alignment and Manual Fit",
+    "detection and Spark Detection tuning",
+    "MIDI conversion and touch-up editor launch",
+    "YouTube download and fallback dialogs"
+  ],
+  "glossary_preserve": [
+    "Synthesia2MIDI",
+    "Synthesia",
+    "MIDI",
+    "FFmpeg",
+    "FFprobe",
+    "YouTube",
+    "Rust",
+    "yt-dlp",
+    "Deno",
+    ".mp4",
+    ".avi",
+    ".mov",
+    ".mkv",
+    ".webm",
+    ".mid",
+    ".midi",
+    "LW",
+    "LB",
+    "RW",
+    "RB"
+  ],
+  "instructions": [
+    "Translate user-visible UI text naturally for native speakers.",
+    "Keep translations concise enough for buttons, labels, menus, and dialogs.",
+    "Preserve placeholders exactly, including braces and names.",
+    "Preserve URLs, file paths, file extensions, product names, and technical IDs.",
+    "Keep HTML tags and line-break structure valid.",
+    "Use notes only when a source string is ambiguous or needs product context."
+  ],
+  "required_output_schema": {
+    "context": "Qt context name copied from the packet entry",
+    "source": "English source text copied exactly from the packet entry",
+    "translation": "Translated UI text",
+    "notes": "Optional translator note, otherwise empty string"
+  },
+  "entries": [
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Auto-Detect Tuning",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 62
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Initial auto-detect needed a fallback profile (not the default profile). Tune parameters if you want to refine this result.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 95
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Reset All to Active Defaults",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 104
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Basic",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 115
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Advanced",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 119
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Preview Status",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 123
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Yes",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 134
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "No",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 136
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Detected White Keys:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 139
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Detected Black Keys:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 141
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Detected Total Keys:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 143
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Overlays Created:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 145
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Leftmost Note/Octave:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 147
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Fallback Profile Used:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 149
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Save",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 160
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Left Edge Outward",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 224
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "outward <-",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 225
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Right Edge Outward",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 238
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "-> outward",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 239
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Reset Section",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 259
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "No parameters available.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 267
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Edge Drift Correction",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 527
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Black Key Detection",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 528
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "White Strip Selection",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 529
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "White Separator Extraction",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 530
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Assignment and Recovery",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 533
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Geometry and Padding",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 534
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Black Upper Ratio",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 540
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Black Bottom Ratio",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 541
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Black Threshold Method",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 542
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Black Threshold",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 543
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Black Adaptive Block Size",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 544
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Black Adaptive C",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 547
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Black Column Ratio",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 548
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Black Min Width",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 549
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Black Max Width",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 550
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "White Bottom Ratio",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 551
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "White Initial Top Ratio",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 552
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "White Strip Dark Threshold",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 553
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "White Strip Dark Fraction",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 556
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "White Strip Min Run",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 559
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "White Strip Allow Failures",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 560
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "White Sep Ratio",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 563
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "White Sep Dyn Min",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 564
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "White Sep Close Kernel",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 565
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "White Sep Open Kernel",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 568
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "White Sep Min Width",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 569
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Type Aware Assignment",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 570
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Black Recovery Enabled",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 571
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Black Recovery Ratio",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 572
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Black Recovery Column Ratio Scale",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 573
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Black Split Max Factor",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 576
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Padding Percent",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 577
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "White Edge Left Shift Ticks",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 578
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "White Edge Right Shift Ticks",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 581
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationInteractionController",
+      "source": "Calibration Disabled",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 50
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationInteractionController",
+      "source": "{key_type} is marked as not present in this video. Re-enable 'Present in Video' first.",
+      "placeholders": [
+        "{key_type}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 51
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationInteractionController",
+      "source": "Calibration Successful",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 137
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationInteractionController",
+      "source": "Calibration of {key_type} successful",
+      "placeholders": [
+        "{key_type}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 138
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationInteractionController",
+      "source": "Calibration Error",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 145
+        },
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 172
+        },
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 193
+        },
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 251
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationInteractionController",
+      "source": "Could not sample color from the selected overlay.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 146
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationInteractionController",
+      "source": "Could not find overlay for key {selected_key_id}.",
+      "placeholders": [
+        "{selected_key_id}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 173
+        },
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 194
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationInteractionController",
+      "source": "Auto-Calibration Complete",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 219
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationInteractionController",
+      "source": "Auto-calibration completed successfully for {key_id}!",
+      "placeholders": [
+        "{key_id}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 220
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationInteractionController",
+      "source": "Auto-Calibration Failed",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 233
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationInteractionController",
+      "source": "Auto-calibration failed. Please check the logs for details.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 234
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationInteractionController",
+      "source": "ROI Error",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 242
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationInteractionController",
+      "source": "Could not extract ROI data from the selected overlay.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 243
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationInteractionController",
+      "source": "Could not find overlay for key {selected_key_id} or auto-calibration workflow not available.",
+      "placeholders": [
+        "{selected_key_id}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 252
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Calibration Wizard",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 37
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Select Keyboard Region With Autodetector",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 56
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Automatically detect piano keys in a selected region",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 75
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Edit Current Calibration",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 79
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Open the auto-detect tuning panel using your current calibration.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 83
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Or use manual calibration:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 90
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Leftmost Key:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 95
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Total Keys:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 110
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Number of keys on the keyboard",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 116
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Generate Manual Overlays",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 121
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Cancel",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 128
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Error",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 149
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Please select keyboard region first.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 150
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Select Keyboard Region",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 205
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Please navigate to a frame where the keyboard is fully visible.\n\nAfter clicking OK:\n1. Click and drag to draw a rectangle around the entire keyboard\n2. The system will detect keys within the selected region\n3. Right-click to cancel the selection",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 206
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Detection Error",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 234
+        },
+        {
+          "filename": "../gui/wizard.py",
+          "line": 250
+        },
+        {
+          "filename": "../gui/wizard.py",
+          "line": 282
+        },
+        {
+          "filename": "../gui/wizard.py",
+          "line": 302
+        },
+        {
+          "filename": "../gui/wizard.py",
+          "line": 317
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "No video frame available. Please ensure a video is loaded.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 235
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Selected region is empty. Please draw a valid keyboard region.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 251
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Video quality is too blurry for autodetector. Please assign overlays manually.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 271
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Failed to detect keys in the selected region. Please try again.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 276
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Autodetection produced no overlays. Please try another region.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 303
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Key detection failed: {error}",
+      "placeholders": [
+        "{error}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 318
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Wizard Error",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 76
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Please open a video file first.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 77
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Canvas Error",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 199
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Canvas interaction system not available.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 200
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Manual Fit",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 218
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "No reusable manual calibration is available yet.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 219
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Auto-Detect Tuning",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 228
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "No reusable auto-detect calibration context is available yet. Run autodetect once with ROI selection first.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 229
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Open Manual Fit for the current manual calibration.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 259
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Edit Current Calibration becomes available after manual overlays exist.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 261
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Open the auto-detect tuning panel for the current calibration.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 267
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Edit Current Calibration becomes available after an auto-detect run.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 272
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Convert",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 238
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1614
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Ready to convert",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 243
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Edit MIDI",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 246
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Overlay",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 251
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "None",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 252
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1629
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Help",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 315
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 612
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 802
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Initial calibration directions (recommended order):",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 318
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "1) Calibrate Key Overlays: create overlays that line up with the keyboard in your video.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 319
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "2) Unlit Key Calibration: pause on a frame where no notes are highlighted, then click Calibrate.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 323
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "3) Lit Key Exemplars: for each button you need (Left/Right x White/Black), pause on a frame where that kind of overlay is highlighted, click the button, then click that highlighted overlay in the video.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 327
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "If a key type is not present in this video, uncheck its 'Present in Video' box.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 331
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Octave Transpose: shifts the generated MIDI up/down by octaves.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 332
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Overlays",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 348
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 603
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Calibrate",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 352
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 378
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Creates overlays for the keyboard in your video. Re-run if overlays don't line up.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 357
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Octave",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 362
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Shifts the MIDI output up/down by octaves.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 370
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Unlit",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 374
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Captures what unpressed overlays look like from the current frame. Pause on a frame with no highlighted notes first.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 383
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Not Set",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 393
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 962
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1579
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1706
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Lit Key Exemplars",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 402
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Set {label}",
+      "placeholders": [
+        "{label}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 416
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Captures a pressed-overlay example for this type. Pause on a frame where that type is highlighted, click the button, then click that highlighted overlay.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 421
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Present",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 433
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Uncheck if this key type never appears in this video.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 435
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Calibration",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 456
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Key Alignment",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 466
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Align White Keys",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 471
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Align Black Keys",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 474
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Manual Fit",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 477
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Overlay Size Adjustment",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 497
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "White Key Height",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 518
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "White Key Width",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 527
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Black Key Height",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 536
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Black Key Width",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 545
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Left Slant",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 554
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Right Slant",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 563
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Overlay Appearance",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 577
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Overlay Color:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 582
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Before tuning detection: run Unlit Key Calibration + at least one Lit Key Exemplar.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 616
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Detection Threshold: main sensitivity setting for pressed vs unpressed.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 617
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "If notes are missed: lower the threshold. If you get false notes: raise the threshold.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 618
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Histogram Detection: uses a color-pattern match inside each overlay. Use when pressed overlays have strong gradients or uneven lighting.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 619
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Delta Detection: uses frame-to-frame change to confirm press/release. Use when the pressed color fades in/out gradually instead of switching cleanly.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 623
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Black Key Filter: reduces false black-key presses caused by nearby overlays.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 627
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Detection Threshold",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 636
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Main sensitivity. Lower = detects more; higher = fewer false notes.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 647
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 652
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Detection Threshold:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 655
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Detection Modes",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 662
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Enable Histogram Detection",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 681
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Uses a color-pattern match inside the overlay. Helpful with gradients/uneven lighting.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 685
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "How strong the histogram match must be (only used when Histogram Detection is enabled).",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 697
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 702
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Strength:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 704
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Enable Delta Detection",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 707
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Uses frame-to-frame change to confirm press/release (helps when color fades).",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 711
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "How big the change must be to count as a press (only used when Delta Detection is enabled).",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 722
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 727
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Rise:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 729
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "How big the change must be to count as a release (only used when Delta Detection is enabled).",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 738
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 743
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Fall:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 745
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Enable Black Key Filter",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 748
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Reduces false black-key presses from nearby overlays.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 752
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Controls how strict black-key filtering is (only used when Black Key Filter is enabled).",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 764
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 769
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Similarity:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 771
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Restore Defaults",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 775
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Reset detection threshold and detection mode parameter sliders to their defaults. Detection mode checkboxes stay unchanged.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 777
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Detection",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 786
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Use Spark Detection only when:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 805
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "1) Key overlays stay ON across repeated notes (false continuous press).",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 806
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "2) Key overlays are solid color (no fading or gradients).",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 807
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Spark Detection",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 817
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Enable Spark Detection",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 821
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Use only when key overlays stay ON across repeated notes (false continuous press), and the overlays are solid color (no fading or gradients).",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 825
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Sensitivity:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 833
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Controls how aggressively Spark Detection splits false continuous notes.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 840
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 846
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Spark Calibration",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 853
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Select Spark ROI",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 860
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Select the region above the keys where spark bars and sparks appear.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 864
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Hide Spark Overlays",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 869
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1421
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1598
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Show or hide the spark ROI overlay on the video.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 874
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Manual Calibration",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 880
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Step 1)",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 885
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Calibrate Background",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 888
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Manual calibration: capture baseline brightness when there are no bars or sparks.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 892
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Step 2)",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 900
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Calibrate Bar Only",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 903
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Manual calibration: click an overlay showing colored bars with no sparks.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 907
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Step 3)",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 915
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Calibrate Dimmest Sparks",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 918
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Manual calibration: click an overlay where sparks are just barely visible.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 922
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Auto Calibration:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 931
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Auto {key_type_label}",
+      "placeholders": [
+        "{key_type_label}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 947
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Recommended: auto-calibrate spark detection for this key type. Navigate to the frame where a key first turns ON, then click that overlay.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 954
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Spark Preview / Status",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 974
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Preview will show spark calibration status here.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 976
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Preview not available yet.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 980
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Spark",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 991
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Frame Rate Override",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1001
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Auto",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1018
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Current FPS: Auto-detected",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1032
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1434
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Custom MIDI Processing Range",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1038
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Start Frame:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1047
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1105
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Set to Current",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1058
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1075
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1116
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1133
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "End Frame:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1064
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1122
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "MIDI",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1086
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Video Processing Range",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1095
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Trim Video",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1141
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Trim",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1149
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Language:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 289
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Optional Features",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1158
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Enable Hand Assignment (MIDI Channels)",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1162
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Optional",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1172
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Language",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 286
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 306
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1182
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Restart Synthesia2MIDI to apply the selected language.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1183
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Converting...",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1188
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Converting video to MIDI...",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1190
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Invalid Trim Range",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1336
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Start frame must be less than end frame.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1337
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "⚠️ Trim Video - Irreversible Action",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1343
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "frame {end_frame}",
+      "placeholders": [
+        "{end_frame}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1374
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "end of video",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1376
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "\n<b>⚠️ WARNING: This action is IRREVERSIBLE</b><br><br>\nThis will permanently trim the video session to frames {start_frame} to {end_text}.<br><br>\n<b>After trimming:</b><br>\n• Frames outside this range will become inaccessible<br>\n• Video navigation will be restricted to this range<br>\n• MIDI processing will be limited to this range<br><br>\n<b>Are you sure you want to proceed?</b>\n        ",
+      "placeholders": [
+        "{end_text}",
+        "{start_frame}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1378
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "⚠️ YES, TRIM VIDEO",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1393
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Show Spark Overlays",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1423
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1600
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Current FPS: {fps} (override)",
+      "placeholders": [
+        "{fps}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1437
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Current FPS: {fps_override} (override, detected: {detected_fps})",
+      "placeholders": [
+        "{detected_fps}",
+        "{fps_override}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1456
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Current FPS: {detected_fps} (auto-detected)",
+      "placeholders": [
+        "{detected_fps}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1463
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Unlit State Calibrated",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1576
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Success: {message}",
+      "placeholders": [
+        "{message}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1619
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Error: {message}",
+      "placeholders": [
+        "{message}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1623
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Calibrated",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1703
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ConversionWorkflow",
+      "source": "Detecting notes...",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/conversion.py",
+          "line": 317
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ConversionWorkflow",
+      "source": "Cancel",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/conversion.py",
+          "line": 318
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ConversionWorkflow",
+      "source": "Processing...",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/conversion.py",
+          "line": 323
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ConversionWorkflow",
+      "source": "Detecting notes",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/conversion.py",
+          "line": 387
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ConversionWorkflow",
+      "source": "Processing",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/conversion.py",
+          "line": 389
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ConversionWorkflow",
+      "source": "{phase_label}... {frame_count}/{total_frames} ({percent}%) (frame {actual_frame_idx})",
+      "placeholders": [
+        "{actual_frame_idx}",
+        "{frame_count}",
+        "{percent}",
+        "{phase_label}",
+        "{total_frames}"
+      ],
+      "locations": [
+        {
+          "filename": "../workflows/conversion.py",
+          "line": 393
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitController",
+      "source": "Manual Fit",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_controller.py",
+          "line": 51
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitController",
+      "source": "Generate overlays before opening Manual Fit.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_controller.py",
+          "line": 52
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitController",
+      "source": "Keyboard Box Warning",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_controller.py",
+          "line": 443
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitController",
+      "source": "The keyboard box may extend past the visible keys.\n\n{warnings}",
+      "placeholders": [
+        "{warnings}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_controller.py",
+          "line": 444
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Keyboard Width",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 48
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Keyboard Top",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 49
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Left Edge Drift",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 50
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Right Edge Drift",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 51
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "White Width",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 52
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Black Width",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 53
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Left Slant",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 54
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Right Slant",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 55
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Spacing",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 56
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Move Left / Right",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 57
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Move Up / Down",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 58
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Overlay Width",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 59
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Tilt",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 60
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Manual Fit",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 83
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Setup",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 103
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Fine Tune Overlays",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 105
+        },
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 398
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Back",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 109
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Use Suggested",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 110
+        },
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 389
+        },
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 401
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Cancel",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 111
+        },
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 274
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Edit Mode",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 130
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Editing: Whole Keyboard",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 132
+        },
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 465
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "All Overlays",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 134
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "All Whites",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 135
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "All Blacks",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 136
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Select Overlays",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 137
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Single Overlay",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 138
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Octave",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 160
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Reset {label}",
+      "placeholders": [
+        "{label}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 189
+        },
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 242
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Select",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 220
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Black Keys",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 222
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "White Keys",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 223
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "All Keys",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 224
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Draw a box around problem keys",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 225
+        },
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 340
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Reset All",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 269
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Reset Position",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 270
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Reset Local",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 271
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Edit Keyboard Box",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 272
+        },
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 357
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Clear Selected Override",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 273
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Apply",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 275
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "{count} selected",
+      "placeholders": [
+        "{count}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 344
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Step 1 of 3: Draw Keyboard Area",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 350
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Draw one rectangle around the visible keyboard area.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 351
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Adjust the green boundary bars, or draw a replacement box around the visible keyboard area.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 358
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Step 2 of 3: Set Black Key Bottom",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 364
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Drag the orange line to slightly above the bottom of black keys.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 365
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Step 3 of 3: Set White Key Start",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 371
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Drag the blue line to a bit under the black keys.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 372
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "OK",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 386
+        },
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 407
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Editing: All Whites",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 469
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Editing: All Blacks",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 472
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Editing: Local Cluster",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 476
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ManualKeyboardFitDialog",
+      "source": "Editing: Single Overlay",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/manual_keyboard_fit_dialog.py",
+          "line": 481
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiConversionController",
+      "source": "Error",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/midi_conversion_controller.py",
+          "line": 31
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiConversionController",
+      "source": "Conversion Error",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/midi_conversion_controller.py",
+          "line": 35
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiConversionController",
+      "source": "Conversion Failed",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/midi_conversion_controller.py",
+          "line": 37
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "Conversion Complete",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 38
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "MIDI file saved to:\n{midi_output_path}",
+      "placeholders": [
+        "{midi_output_path}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 40
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "You can open the Touch-Up Editor now, or finish.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 44
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "Open Touch-Up Editor",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 45
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "Done",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 46
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "Open MIDI for Touch-Up",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 62
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "MIDI Files (*.mid *.midi)",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 64
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "MIDI file not found:\n{midi_path}",
+      "placeholders": [
+        "{midi_path}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 73
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "Touch-Up Editor",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 77
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "Touch-Up Editor Launch Failed",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 111
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "Failed to start Rust touch-up editor.\n\nBinary: {binary_path}\nError: {error_msg}",
+      "placeholders": [
+        "{binary_path}",
+        "{error_msg}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 112
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "Touch-Up Editor Missing",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 130
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "Bundled Rust touch-up editor files were not found.\n\nMIDI requested: {midi_path}\n\nRe-download the app build or use the repository developer setup if you are running from source.",
+      "placeholders": [
+        "{midi_path}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 131
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "Touch-Up Editor Not Built",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 150
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "Rust touch-up editor binary was not found.\n\nMIDI requested: {midi_path}\nExpected binary: {expected_binary}\n\nRun setup first (it can install/build Rust touch-up):\n{setup_cmd}\n\nOr build manually with:\n{build_cmd}\n\nThen retry Edit MIDI.",
+      "placeholders": [
+        "{build_cmd}",
+        "{expected_binary}",
+        "{midi_path}",
+        "{setup_cmd}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 151
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "Touch-Up Saved",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 209
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "Touch-up MIDI saved to:\n{shown_path}",
+      "placeholders": [
+        "{shown_path}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 210
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "Touch-Up Editor Error",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 226
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "{failure_message}\n\nSource MIDI: {source_midi_path}\nStdout: {stdout_text}\nStderr: {stderr_text}",
+      "placeholders": [
+        "{failure_message}",
+        "{source_midi_path}",
+        "{stderr_text}",
+        "{stdout_text}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 227
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "OverlayManager",
+      "source": "Alignment Complete",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/overlay_manager.py",
+          "line": 128
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "OverlayManager",
+      "source": "{modified_count} '{target_key_color_type}' keys aligned vertically to overlay {master_overlay_key_id}.",
+      "placeholders": [
+        "{master_overlay_key_id}",
+        "{modified_count}",
+        "{target_key_color_type}"
+      ],
+      "locations": [
+        {
+          "filename": "../workflows/overlay_manager.py",
+          "line": 129
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "OverlayManager",
+      "source": "Alignment Info",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/overlay_manager.py",
+          "line": 144
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "OverlayManager",
+      "source": "No other '{target_key_color_type}' keys needed vertical alignment.",
+      "placeholders": [
+        "{target_key_color_type}"
+      ],
+      "locations": [
+        {
+          "filename": "../workflows/overlay_manager.py",
+          "line": 145
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "OverlayManager",
+      "source": "Alignment Error",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/overlay_manager.py",
+          "line": 156
+        },
+        {
+          "filename": "../workflows/overlay_manager.py",
+          "line": 169
+        },
+        {
+          "filename": "../workflows/overlay_manager.py",
+          "line": 184
+        },
+        {
+          "filename": "../workflows/overlay_manager.py",
+          "line": 197
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "OverlayManager",
+      "source": "No overlay selected to act as master.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/overlay_manager.py",
+          "line": 157
+        },
+        {
+          "filename": "../workflows/overlay_manager.py",
+          "line": 185
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "OverlayManager",
+      "source": "Selected overlay ID {selected_overlay_id} not found.",
+      "placeholders": [
+        "{selected_overlay_id}"
+      ],
+      "locations": [
+        {
+          "filename": "../workflows/overlay_manager.py",
+          "line": 170
+        },
+        {
+          "filename": "../workflows/overlay_manager.py",
+          "line": 198
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SettingsToolWindow",
+      "source": "Settings",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/settings_tool_window.py",
+          "line": 17
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "Shadow ROI Selection",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 35
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "Click and drag on the video to select the shadow detection region.\nShadow zones will be created for each key overlay.\nRight-click to cancel.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 36
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "Canvas Error",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 44
+        },
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 72
+        },
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 100
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "Canvas interaction system not available.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 45
+        },
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 73
+        },
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 101
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "No Canvas",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 50
+        },
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 78
+        },
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 106
+        },
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 129
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "No video canvas available for ROI selection.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 51
+        },
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 79
+        },
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 107
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "White Key Shadow ROI Selection",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 63
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "Click and drag on the video to select the white key shadow detection region.\nThis will define the vertical region where white key shadows are detected.\nRight-click to cancel.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 64
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "Black Key Shadow ROI Selection",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 91
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "Click and drag on the video to select the black key shadow detection region.\nThis will define the vertical region where black key shadows are detected.\nRight-click to cancel.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 92
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "No video canvas available for calibration.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 130
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "No Frame",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 137
+        },
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 219
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "No video frame loaded. Please open a video and navigate to a frame.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 138
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "Now click on a {key_type_display} key that shows {calibration_display} condition.\n\nFor {calibration_display}:\n",
+      "placeholders": [
+        "{calibration_display}",
+        "{calibration_display}",
+        "{key_type_display}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 164
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "- Key should be lit (colored bars visible)\n- Key should NOT be pressed down\n- No shadow should be visible underneath",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 170
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "- Key should be lit (colored bars visible)\n- Key should be FULLY pressed down\n- Dark shadow should be visible underneath",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 175
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "Shadow Calibration - {key_type_display}",
+      "placeholders": [
+        "{key_type_display}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 182
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "Invalid Mode",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 198
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "Invalid shadow calibration mode: {calibration_mode}",
+      "placeholders": [
+        "{calibration_mode}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 199
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "No frame available for calibration.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 220
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "No Shadow Overlay",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 251
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "No shadow overlay found for key {key_id}. Please create shadow overlays before calibration.",
+      "placeholders": [
+        "{key_id}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 252
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "ROI Error",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 265
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "Could not extract shadow region.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 266
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "\nCalibration data automatically saved.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 303
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "\nWarning: Auto-save failed.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 305
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "\nWarning: Auto-save not available.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 308
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "Shadow Calibration - {key_type}",
+      "placeholders": [
+        "{key_type}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 313
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ShadowCalibrationController",
+      "source": "Shadow calibration captured for {key_type} key in {state_desc} state.\n\nDarkness ratio: {darkness_ratio}\nMean brightness: {mean_brightness}\nBlack pixels: {black_pixels}/{total_pixels}{save_msg}",
+      "placeholders": [
+        "{black_pixels}",
+        "{darkness_ratio}",
+        "{key_type}",
+        "{mean_brightness}",
+        "{save_msg}",
+        "{state_desc}",
+        "{total_pixels}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/shadow_calibration_controller.py",
+          "line": 316
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Spark ROI Selection",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 30
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Click and drag on the video to select the spark detection region.\nRight-click to cancel.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 31
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Canvas Error",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 39
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Canvas interaction system not available.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 40
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "No Canvas",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 45
+        },
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 96
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "No video canvas available for ROI selection.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 46
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Spark ROI Set",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 82
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Spark detection region set:\nTop: {top_y} pixels\nBottom: {bottom_y} pixels\nHeight: {height} pixels",
+      "placeholders": [
+        "{bottom_y}",
+        "{height}",
+        "{top_y}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 83
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "No video canvas available for calibration.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 97
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "No Frame",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 104
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "No video frame loaded. Please open a video and navigate to a frame.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 105
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Invalid Step",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 128
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Unknown calibration step: {step_type}",
+      "placeholders": [
+        "{step_type}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 129
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Now click on a {hand_type}key that shows {condition} condition.\n\nFor {display_name}:\n",
+      "placeholders": [
+        "{condition}",
+        "{display_name}",
+        "{hand_type}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 166
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "- Key should show colored bars WITHOUT any sparks\n- Navigate to a frame where this condition is visible\n- Click on the key showing this exact condition",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 172
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "- Key should show colored bars WITH barely visible sparks\n- Navigate to a frame where sparks are just starting to appear\n- Click on the key showing this exact condition",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 177
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "- Key should show colored bars WITH very bright/intense sparks\n- Navigate to a frame where sparks are at their brightest\n- Click on the key showing this exact condition",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 182
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Spark {display_name} Calibration",
+      "placeholders": [
+        "{display_name}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 189
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Workflow Error",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 203
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Auto-calibration workflow not available.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 204
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Auto-Calibration for {key_type} Started\n\nInstructions:\n1. Navigate to a frame where a {key_type} key FIRST turns ON\n2. Click on that key overlay\n3. The system will automatically:\n   - Detect if it's left/right hand based on color\n   - Capture bar-only (frame +0)\n   - Capture dimmest sparks (frame +2)\n   - Find brightest sparks (frames +3 to +22)\n   - Save calibration data\n\nKey Type Legend:\nLW = Left White, LB = Left Black\nRW = Right White, RB = Right Black",
+      "placeholders": [
+        "{key_type}",
+        "{key_type}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 212
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Auto-Calibrate {key_type}",
+      "placeholders": [
+        "{key_type}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 219
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Calibration Error",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 225
+        },
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 312
+        },
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 426
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Failed to start auto-calibration. Please check video and overlays are loaded.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 226
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Calibration Failed",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 262
+        },
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 288
+        },
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 353
+        },
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 371
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Could not start background calibration.\n\nRequirements:\n- Spark ROI must be set (top < bottom)\n- Key overlays must be configured",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 263
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Background Calibration Complete",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 281
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Background calibration captured successfully!",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 282
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Failed to capture background calibration data.\n\nPlease check that spark ROI is properly set.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 289
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "No spark zone found for key {key_id}. Please ensure spark ROI is properly set.",
+      "placeholders": [
+        "{key_id}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 313
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Invalid Mode",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 339
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Unknown calibration mode: {calibration_mode}",
+      "placeholders": [
+        "{calibration_mode}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 340
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Could not start calibration step. Please check spark ROI configuration.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 354
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Could not extract calibration data from key {key_id}.",
+      "placeholders": [
+        "{key_id}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 372
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "{step_name} Calibration Complete",
+      "placeholders": [
+        "{step_name}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 406
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "{step_name} calibration captured successfully from key {key_id}!\n\nQuality: {quality}\nBrightness: {brightness}",
+      "placeholders": [
+        "{brightness}",
+        "{key_id}",
+        "{quality}",
+        "{step_name}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 409
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "An error occurred during calibration: {error}",
+      "placeholders": [
+        "{error}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 427
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Navigate to a frame with no bars visible and no sparks.\nThe spark ROI should show only background content.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 438
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Navigate to a frame with colored bars visible but NO sparks.\nBars should be clearly visible in the spark ROI without any bright flashes.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 442
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Navigate to a frame with the DIMMEST visible sparks.\nSparks should be just barely noticeable as bright flashes in the ROI.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 446
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "SparkCalibrationController",
+      "source": "Unknown calibration step",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/spark_calibration_controller.py",
+          "line": 451
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "StartupDialog",
+      "source": "Synthesia to MIDI - Select Video Source",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/startup_dialog.py",
+          "line": 40
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "StartupDialog",
+      "source": "Welcome to Synthesia to MIDI",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/startup_dialog.py",
+          "line": 52
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "StartupDialog",
+      "source": "Language:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/startup_dialog.py",
+          "line": 65
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "StartupDialog",
+      "source": "How would you like to load a video?",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/startup_dialog.py",
+          "line": 82
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "StartupDialog",
+      "source": "Open Video File",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/startup_dialog.py",
+          "line": 94
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "StartupDialog",
+      "source": "Browse for a video file on your computer",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/startup_dialog.py",
+          "line": 96
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "StartupDialog",
+      "source": "Download from YouTube",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/startup_dialog.py",
+          "line": 101
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "StartupDialog",
+      "source": "Download a video from YouTube",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/startup_dialog.py",
+          "line": 103
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "StartupDialog",
+      "source": "Recent Videos",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/startup_dialog.py",
+          "line": 115
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "StartupDialog",
+      "source": "Cancel",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/startup_dialog.py",
+          "line": 137
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "StartupDialog",
+      "source": "Language",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/startup_dialog.py",
+          "line": 166
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "StartupDialog",
+      "source": "Restart Synthesia2MIDI to apply the selected language.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/startup_dialog.py",
+          "line": 167
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "File",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 144
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Open Video (MP4)...",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 145
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Download Youtube Video...",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 149
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Save Settings (Ctrl+S)",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 153
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Exit",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 160
+        },
+        {
+          "filename": "../main.py",
+          "line": 480
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "View",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 166
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Show Overlays",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 167
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Live Detection Feedback",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 173
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Focus Video (Hide Settings)",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 181
+        },
+        {
+          "filename": "../main.py",
+          "line": 397
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Frame Navigation",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 193
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "{count} frame",
+      "placeholders": [
+        "{count}"
+      ],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 199
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "{count} frames",
+      "placeholders": [
+        "{count}"
+      ],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 201
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Visual Threshold Monitor",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 210
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Enable",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 213
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Capture Window Screenshot",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 222
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Show settings",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 255
+        },
+        {
+          "filename": "../main.py",
+          "line": 363
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "PgUp/PgDn or ←/→",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 311
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Hide settings",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 361
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Show Settings Panel",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 393
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Save Settings",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 456
+        },
+        {
+          "filename": "../main.py",
+          "line": 465
+        },
+        {
+          "filename": "../main.py",
+          "line": 472
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "No video file is open. Open a video first.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 457
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Settings saved successfully.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 466
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Failed to save settings.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 473
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "You have unsaved changes. Save before exiting?",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 481
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Screenshot Saved",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 539
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Window screenshot saved to:\n{filepath}",
+      "placeholders": [
+        "{filepath}"
+      ],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 540
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Screenshot Failed",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 546
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Failed to save screenshot to:\n{filepath}",
+      "placeholders": [
+        "{filepath}"
+      ],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 547
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Screenshot Error",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 554
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Error capturing window screenshot:\n{error}",
+      "placeholders": [
+        "{error}"
+      ],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 555
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoLoadingWorkflow",
+      "source": "Use Existing Frames?",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/video_loading.py",
+          "line": 113
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoLoadingWorkflow",
+      "source": "Found existing frame sequence for this video.\nUse frames for better performance?",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/video_loading.py",
+          "line": 114
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoLoadingWorkflow",
+      "source": "Converting video to image sequence...\nThis is a one-time process.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/video_loading.py",
+          "line": 394
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoLoadingWorkflow",
+      "source": "Cancel",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/video_loading.py",
+          "line": 395
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoLoadingWorkflow",
+      "source": "Optimizing Performance",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/video_loading.py",
+          "line": 400
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoLoadingWorkflow",
+      "source": "Converting video... {frames_created}/{total_frames} frames ({percent}%)",
+      "placeholders": [
+        "{frames_created}",
+        "{percent}",
+        "{total_frames}"
+      ],
+      "locations": [
+        {
+          "filename": "../workflows/video_loading.py",
+          "line": 577
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoLoadingWorkflow",
+      "source": "Converting video... {frames_created} frames",
+      "placeholders": [
+        "{frames_created}"
+      ],
+      "locations": [
+        {
+          "filename": "../workflows/video_loading.py",
+          "line": 584
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoLoadingWorkflow",
+      "source": "Frame Conversion Failed",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/video_loading.py",
+          "line": 674
+        },
+        {
+          "filename": "../workflows/video_loading.py",
+          "line": 702
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoLoadingWorkflow",
+      "source": "Failed to convert video to frames.\nReturn code: {return_code}\nFrames created: {final_count}\n\nThe video will be loaded directly instead.",
+      "placeholders": [
+        "{final_count}",
+        "{return_code}"
+      ],
+      "locations": [
+        {
+          "filename": "../workflows/video_loading.py",
+          "line": 675
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoLoadingWorkflow",
+      "source": "Failed to convert video to frames:\n{error}\n\nThe video will be loaded directly instead.",
+      "placeholders": [
+        "{error}"
+      ],
+      "locations": [
+        {
+          "filename": "../workflows/video_loading.py",
+          "line": 703
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoSessionUiController",
+      "source": "Select Video File or Image Sequence Directory",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/video_session_ui_controller.py",
+          "line": 37
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoSessionUiController",
+      "source": "Video Files (*.mp4 *.avi *.mov *.mkv *.webm);;Image Sequence Directories (*)",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/video_session_ui_controller.py",
+          "line": 42
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoToFramesController",
+      "source": "Video to Frames",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 98
+        },
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 137
+        },
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 146
+        },
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 156
+        },
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 167
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoToFramesController",
+      "source": "No video file is open. Open a video first.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 99
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoToFramesController",
+      "source": "FFmpeg Not Found",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 109
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoToFramesController",
+      "source": "{message}\n\nPlease install FFmpeg:\n• Windows: Download from https://ffmpeg.org/download.html\n• macOS: brew install ffmpeg\n• Linux: sudo apt install ffmpeg",
+      "placeholders": [
+        "{message}"
+      ],
+      "locations": [
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 110
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoToFramesController",
+      "source": "Frame series is currently loaded. Found original video file:\n\n{video_name}\n\nWill convert this video to update the frame series.",
+      "placeholders": [
+        "{video_name}"
+      ],
+      "locations": [
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 138
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoToFramesController",
+      "source": "A frame series is currently loaded, but the original video file could not be found.\n\nFrame series path: {video_path}\nExpected video in: {parent_dir}/\nWith name: {base_name}.mp4 (or .mov, .avi, etc.)\n\nPlease load the original video file manually.",
+      "placeholders": [
+        "{base_name}",
+        "{parent_dir}",
+        "{video_path}"
+      ],
+      "locations": [
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 147
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoToFramesController",
+      "source": "A directory is currently loaded, but it doesn't appear to be a frame series.\n\nCurrent path: {video_path}\n\nPlease load a video file (.mp4, .mov, etc.) to convert it to frames.",
+      "placeholders": [
+        "{video_path}"
+      ],
+      "locations": [
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 157
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoToFramesController",
+      "source": "The video file path is not valid:\n{video_path}\n\nPlease load a valid video file first.",
+      "placeholders": [
+        "{video_path}"
+      ],
+      "locations": [
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 168
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoToFramesController",
+      "source": "Convert Video to Frame Series",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 180
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoToFramesController",
+      "source": "This will convert the current video to a frame series:\n\nVideo: {video_name}\nOutput: {output_dir}\n\nThis may take several minutes and will overwrite any existing frame series.\n\nContinue?",
+      "placeholders": [
+        "{output_dir}",
+        "{video_name}"
+      ],
+      "locations": [
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 181
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoToFramesController",
+      "source": "Converting...",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 193
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoToFramesController",
+      "source": "Reset Video -> Frame Series",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 210
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoToFramesController",
+      "source": "Conversion Complete",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 221
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoToFramesController",
+      "source": "Video conversion completed successfully!\n\n{message}\n\nYou can now load the frame series for faster playback.",
+      "placeholders": [
+        "{message}"
+      ],
+      "locations": [
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 222
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoToFramesController",
+      "source": "Conversion Failed",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 231
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoToFramesController",
+      "source": "Video conversion failed:\n\n{message}",
+      "placeholders": [
+        "{message}"
+      ],
+      "locations": [
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 232
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Download YouTube Video",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 89
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "YouTube URL",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 98
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Video Information",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 107
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "YouTube Access Fallback",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 132
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Auto-retry with saved browser cookies if YouTube blocks access",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 144
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Refresh Info",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 153
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Download Progress",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 159
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Ready to download",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 166
+        },
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 212
+        },
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 217
+        },
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 241
+        },
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 298
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Download Video",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 176
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Cancel",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 181
+        },
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 472
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Close",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 186
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Invalid YouTube URL",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 209
+        },
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 239
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Fetching video information...",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 214
+        },
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 255
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "<b>Title:</b> {title}",
+      "placeholders": [
+        "{title}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 272
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "<b>Duration:</b> {duration}",
+      "placeholders": [
+        "{duration}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 281
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "<b>Uploader:</b> {uploader}",
+      "placeholders": [
+        "{uploader}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 287
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Error",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 313
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Failed to fetch video info: {error}",
+      "placeholders": [
+        "{error}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 314
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Failed to fetch video info",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 318
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Video Already Downloaded",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 347
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "This quality is already downloaded. Use existing file?",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 348
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Download cancelled",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 359
+        },
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 399
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Cancel Download",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 378
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Starting download...",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 384
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Still waiting for YouTube...",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 425
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Download complete!",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 431
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Download Complete",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 439
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Video downloaded successfully. Load it now?",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 440
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Download failed",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 457
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Download Error",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 460
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Failed to download video: {error}",
+      "placeholders": [
+        "{error}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 461
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "720p - faster processing, higher calibration risk",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 483
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "480p - fastest processing, highest calibration risk",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 489
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Up to {target_height}p ({actual_height}p source)",
+      "placeholders": [
+        "{actual_height}",
+        "{target_height}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 540
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Download in Progress",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 591
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "A download is in progress. Cancel and close?",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 592
+        }
+      ],
+      "notes": ""
+    }
+  ]
+}

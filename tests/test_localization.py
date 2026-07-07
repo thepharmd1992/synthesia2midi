@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 import re
 import subprocess
 import sys
@@ -10,12 +11,26 @@ from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication
 
 
+EXPECTED_USER_LOCALE_DISPLAY_NAMES = [
+    ("en", "English"),
+    ("es", "Español"),
+]
+
+
+def _production_translation_locales():
+    from synthesia2midi.localization import supported_user_locales
+
+    return [locale for locale in supported_user_locales() if locale != "en"]
+
+
 def test_available_locales_includes_english_and_pseudo_locale():
     from synthesia2midi.localization import available_locales
 
-    assert "en" in available_locales()
+    locales = available_locales()
+    assert "en" in locales
     assert "qps" in available_locales()
-    assert "es" in available_locales()
+    for locale_name, _display_name in EXPECTED_USER_LOCALE_DISPLAY_NAMES:
+        assert locale_name in locales
 
 
 def test_translation_dir_points_to_package_translations():
@@ -66,13 +81,31 @@ def test_spanish_translator_loads_known_source_texts():
         install_translator(app, "en")
 
 
+def test_production_translators_load_known_source_texts():
+    from synthesia2midi.localization import install_translator
+
+    app = QApplication.instance() or QApplication([])
+
+    try:
+        for locale_name in _production_translation_locales():
+            selected = install_translator(app, locale_name)
+            translated = QCoreApplication.translate("Video2MidiApp", "File")
+
+            assert selected == locale_name
+            assert translated != "File"
+    finally:
+        install_translator(app, "en")
+
+
 def test_supported_user_locales_hide_pseudo_locale():
     from synthesia2midi.localization import locale_display_name, supported_user_locales
 
-    assert supported_user_locales() == ["en", "es"]
+    assert supported_user_locales() == [
+        locale_name for locale_name, _display_name in EXPECTED_USER_LOCALE_DISPLAY_NAMES
+    ]
     assert "qps" not in supported_user_locales()
-    assert locale_display_name("en") == "English"
-    assert locale_display_name("es") == "Español"
+    for locale_name, display_name in EXPECTED_USER_LOCALE_DISPLAY_NAMES:
+        assert locale_display_name(locale_name) == display_name
 
 
 def test_locale_preference_helpers_use_qsettings(tmp_path):
@@ -106,26 +139,120 @@ def test_translation_assets_are_collected_by_packaging_spec():
     assert "translations" in spec_text
 
 
-def test_spanish_translation_source_is_complete_and_preserves_placeholders():
-    ts_path = Path("synthesia2midi/synthesia2midi/translations/synthesia2midi_es.ts")
-    tree = ET.parse(ts_path)
+def test_production_translation_sources_are_complete_and_preserve_placeholders():
     unfinished = []
     placeholder_mismatches = []
 
-    for message in tree.findall(".//message"):
-        source = message.findtext("source") or ""
-        translation = message.find("translation")
-        if translation is None or translation.get("type") == "unfinished" or not (translation.text or "").strip():
-            unfinished.append(source)
-            continue
+    for locale_name in _production_translation_locales():
+        ts_path = Path(f"synthesia2midi/synthesia2midi/translations/synthesia2midi_{locale_name}.ts")
+        qm_path = Path(f"synthesia2midi/synthesia2midi/translations/synthesia2midi_{locale_name}.qm")
 
-        source_placeholders = sorted(re.findall(r"\{[^{}]+\}", source))
-        translated_placeholders = sorted(re.findall(r"\{[^{}]+\}", translation.text or ""))
-        if source_placeholders != translated_placeholders:
-            placeholder_mismatches.append((source, translation.text or ""))
+        assert ts_path.is_file()
+        assert qm_path.is_file()
+
+        tree = ET.parse(ts_path)
+        for message in tree.findall(".//message"):
+            source = message.findtext("source") or ""
+            translation = message.find("translation")
+            if translation is None or translation.get("type") == "unfinished" or not (translation.text or "").strip():
+                unfinished.append((locale_name, source))
+                continue
+
+            source_placeholders = sorted(re.findall(r"\{[^{}]+\}", source))
+            translated_placeholders = sorted(re.findall(r"\{[^{}]+\}", translation.text or ""))
+            if source_placeholders != translated_placeholders:
+                placeholder_mismatches.append((locale_name, source, translation.text or ""))
 
     assert unfinished == []
     assert placeholder_mismatches == []
+
+
+def test_translation_agent_packet_matches_source_catalog():
+    packet_path = Path("docs/localization/translation-agent-packet.json")
+    ts_path = Path("synthesia2midi/synthesia2midi/translations/synthesia2midi_es.ts")
+    packet = json.loads(packet_path.read_text(encoding="utf-8"))
+    tree = ET.parse(ts_path)
+
+    packet_keys = {
+        (entry["context"], entry["source"])
+        for entry in packet["entries"]
+    }
+    source_keys = set()
+    for context in tree.findall("context"):
+        context_name = context.findtext("name") or ""
+        for message in context.findall("message"):
+            translation = message.find("translation")
+            if translation is not None and translation.get("type") == "vanished":
+                continue
+            source = message.findtext("source") or ""
+            if source:
+                source_keys.add((context_name, source))
+
+    assert packet["schema_version"] == 1
+    assert packet_keys == source_keys
+
+
+def test_apply_translation_json_writes_qt_ts_and_validates_placeholders(tmp_path):
+    from synthesia2midi.tools.apply_translation_json import apply_translation_json
+
+    source_ts = tmp_path / "source.ts"
+    source_ts.write_text(
+        """<?xml version="1.0" encoding="utf-8"?>
+<TS version="2.1" language="es_419">
+  <context>
+    <name>SampleDialog</name>
+    <message>
+      <source>File</source>
+      <translation>Archivo</translation>
+    </message>
+    <message>
+      <source>Error: {message}</source>
+      <translation>Error: {message}</translation>
+    </message>
+  </context>
+</TS>
+""",
+        encoding="utf-8",
+    )
+    translation_json = tmp_path / "ja.json"
+    translation_json.write_text(
+        json.dumps(
+            [
+                {
+                    "context": "SampleDialog",
+                    "source": "File",
+                    "translation": "ファイル",
+                    "notes": "",
+                },
+                {
+                    "context": "SampleDialog",
+                    "source": "Error: {message}",
+                    "translation": "エラー: {message}",
+                    "notes": "",
+                },
+            ],
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    output_ts = tmp_path / "output.ts"
+
+    apply_translation_json(
+        source_ts=source_ts,
+        translations_json=translation_json,
+        output_ts=output_ts,
+        language_code="ja",
+    )
+
+    tree = ET.parse(output_ts)
+    root = tree.getroot()
+    translations = [
+        message.findtext("translation")
+        for message in root.findall(".//message")
+    ]
+
+    assert root.get("language") == "ja"
+    assert translations == ["ファイル", "エラー: {message}"]
 
 
 def test_lupdate_extracts_source_texts(tmp_path):

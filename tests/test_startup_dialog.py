@@ -5,7 +5,7 @@ from synthesia2midi.gui.startup_dialog import StartupDialog
 
 
 def test_startup_dialog_language_selector_is_prominent_and_saves_restart_notice(monkeypatch, tmp_path):
-    from synthesia2midi.localization import APP_LOCALE_SETTINGS_KEY
+    from synthesia2midi.localization import APP_LOCALE_SETTINGS_KEY, locale_display_name, supported_user_locales
 
     QApplication.instance() or QApplication([])
     QSettings.setPath(QSettings.IniFormat, QSettings.UserScope, str(tmp_path))
@@ -32,8 +32,8 @@ def test_startup_dialog_language_selector_is_prominent_and_saves_restart_notice(
             for index in range(dialog.language_combo.count())
         ]
 
-        assert locale_values == ["en", "es"]
-        assert locale_labels == ["English", "Español"]
+        assert locale_values == supported_user_locales()
+        assert locale_labels == [locale_display_name(locale_name) for locale_name in supported_user_locales()]
         assert "qps" not in locale_values
         assert dialog.language_combo.currentData() == "en"
 

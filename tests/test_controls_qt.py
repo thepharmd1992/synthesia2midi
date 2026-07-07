@@ -16,7 +16,7 @@ def test_edit_midi_button_emits_touchup_request_directly():
 
 
 def test_language_selector_is_first_class_section_and_saves_restart_notice(monkeypatch, tmp_path):
-    from synthesia2midi.localization import APP_LOCALE_SETTINGS_KEY
+    from synthesia2midi.localization import APP_LOCALE_SETTINGS_KEY, locale_display_name, supported_user_locales
 
     QApplication.instance() or QApplication([])
     QSettings.setPath(QSettings.IniFormat, QSettings.UserScope, str(tmp_path))
@@ -51,8 +51,8 @@ def test_language_selector_is_first_class_section_and_saves_restart_notice(monke
             for index in range(panel.language_combo.count())
         ]
 
-        assert locale_values == ["en", "es"]
-        assert locale_labels == ["English", "Español"]
+        assert locale_values == supported_user_locales()
+        assert locale_labels == [locale_display_name(locale_name) for locale_name in supported_user_locales()]
         assert "qps" not in locale_values
         assert panel.language_combo.currentData() == "en"
 

@@ -58,6 +58,7 @@ synthesia2midi/synthesia2midi/gui/video_session_ui_controller.py
 synthesia2midi/synthesia2midi/gui/midi_conversion_controller.py
 synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py
 synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py
+synthesia2midi/synthesia2midi/youtube_downloader.py
 synthesia2midi/synthesia2midi/translations/synthesia2midi_*.ts
 synthesia2midi/synthesia2midi/translations/synthesia2midi_*.qm
 docs/localization/ui-string-manifest.json
@@ -788,7 +789,7 @@ git commit -m "Store working files in project data"
 
 Stop using Movies/Documents as the YouTube target default.
 
-- [ ] Update `synthesia2midi/synthesia2midi/gui/video_session_ui_controller.py`:
+- [x] Update `synthesia2midi/synthesia2midi/gui/video_session_ui_controller.py`:
 
 ```python
 runtime_paths = detect_runtime_paths()
@@ -800,15 +801,16 @@ dialog = YouTubeDownloadDialog(
 
 Leave open-video file picker behavior alone unless the current code forces downloads and video open picker to share one path.
 
-- [ ] Keep `YouTubeDownloader._build_output_path()` behavior that creates the per-video slug folder under `output_dir`.
-- [ ] Update `tests/test_packaged_entrypoint.py` so the fake runtime paths exposes `default_download_dir()` and the assertion checks that value:
+- [x] Keep `YouTubeDownloader._build_output_path()` behavior that creates the per-video slug folder under `output_dir`.
+- [x] Update `YouTubeDownloader.__init__()` so nested default download directories are created with missing parents.
+- [x] Update `tests/test_packaged_entrypoint.py` so the fake runtime paths exposes `default_download_dir()` and the assertion checks that value:
 
 ```python
 assert calls["default_output_dir"] == str(fake_paths.default_download_dir())
 ```
 
-- [ ] Add or update `tests/test_youtube_download_dialog.py` to prove the dialog receives the dedicated download folder without including `qps` or unrelated localization behavior.
-- [ ] Run:
+- [x] Add or update `tests/test_youtube_download_dialog.py` to prove the dialog receives the dedicated download folder without including `qps` or unrelated localization behavior.
+- [x] Run:
 
 ```bash
 .venv/bin/python -m pytest tests/test_youtube_download_dialog.py tests/test_packaged_entrypoint.py
@@ -819,7 +821,7 @@ Expected result: YouTube dialog tests pass with Downloads-based default.
 Commit after this step:
 
 ```bash
-git add synthesia2midi/synthesia2midi/gui/video_session_ui_controller.py tests/test_youtube_download_dialog.py tests/test_packaged_entrypoint.py
+git add synthesia2midi/synthesia2midi/gui/video_session_ui_controller.py synthesia2midi/synthesia2midi/youtube_downloader.py tests/test_youtube_download_dialog.py tests/test_packaged_entrypoint.py
 git commit -m "Use Downloads folder for video downloads"
 ```
 

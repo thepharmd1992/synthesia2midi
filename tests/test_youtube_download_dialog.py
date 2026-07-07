@@ -28,6 +28,15 @@ def _wait_until(predicate, *, timeout_ms=500):
     return predicate()
 
 
+def test_dialog_preserves_default_download_dir(tmp_path):
+    QApplication.instance() or QApplication([])
+    download_dir = tmp_path / "Downloads" / "Synthesia2MIDI"
+
+    dialog = YouTubeDownloadDialog(default_output_dir=str(download_dir))
+
+    assert dialog.downloader.output_dir == download_dir
+
+
 def test_valid_url_auto_fetches_after_debounce(monkeypatch, tmp_path):
     QApplication.instance() or QApplication([])
     monkeypatch.setattr(YouTubeDownloadDialog, "AUTO_FETCH_DELAY_MS", 1)

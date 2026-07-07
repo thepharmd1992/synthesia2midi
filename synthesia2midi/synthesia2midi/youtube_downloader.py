@@ -284,7 +284,7 @@ class YouTubeDownloader:
         """Initialize downloader with output directory"""
         _ensure_cert_store()
         self.output_dir = Path(output_dir).expanduser().resolve()
-        self.output_dir.mkdir(exist_ok=True)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
         self.preferred_browser = self._normalize_browser(preferred_browser)
         self.auto_cookie_retry = bool(auto_cookie_retry)
         self.status_callback = status_callback

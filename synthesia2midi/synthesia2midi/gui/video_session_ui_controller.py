@@ -22,8 +22,8 @@ class VideoSessionUiController:
     def show_youtube_download_dialog(self) -> None:
         app = self.app
         logging.info("_show_youtube_download_dialog: Showing YouTube download dialog.")
-        videos_dir = str(detect_runtime_paths().default_video_dir())
-        dialog = YouTubeDownloadDialog(app, default_output_dir=videos_dir)
+        download_dir = str(detect_runtime_paths().default_download_dir())
+        dialog = YouTubeDownloadDialog(app, default_output_dir=download_dir)
         dialog.video_downloaded.connect(self.handle_youtube_video_downloaded)
 
         if dialog.exec() != QDialog.Accepted:

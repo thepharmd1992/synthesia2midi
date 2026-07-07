@@ -48,7 +48,7 @@ def test_package_launcher_missing_dependency_message_changes_when_frozen(tmp_pat
     assert "setup_env.py" not in message
 
 
-def test_video_session_uses_runtime_default_video_dir(monkeypatch, tmp_path):
+def test_youtube_dialog_uses_runtime_default_download_dir(monkeypatch, tmp_path):
     from synthesia2midi.gui import video_session_ui_controller as module
 
     calls = {}
@@ -80,4 +80,4 @@ def test_video_session_uses_runtime_default_video_dir(monkeypatch, tmp_path):
     controller = module.VideoSessionUiController(app=object())
     controller.show_youtube_download_dialog()
 
-    assert calls["default_output_dir"] == str(fake_paths.default_video_dir())
+    assert calls["default_output_dir"] == str(fake_paths.default_download_dir())

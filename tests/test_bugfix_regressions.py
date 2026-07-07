@@ -548,6 +548,70 @@ def test_auto_detect_keyboard_region_marks_overlay_generation_source_auto():
     assert app.app_state.calibration.overlay_generation_source == "auto"
 
 
+def test_keyboard_region_selection_runs_assisted_calibration_and_saves(monkeypatch):
+    QApplication.instance() or QApplication([])
+    applied = []
+    saved = []
+
+    class _Wizard:
+        auto_detect_source_frame_rgb = np.full((8, 8, 3), (245, 245, 235), dtype=np.uint8)
+
+        def handle_keyboard_region_selected(self, *_args):
+            app.app_state.overlays = [
+                OverlayConfig(
+                    key_id=1,
+                    note_octave=4,
+                    note_name_in_octave="C",
+                    x=0,
+                    y=0,
+                    width=4,
+                    height=4,
+                    key_type="LW",
+                )
+            ]
+            return True
+
+        def get_auto_detect_tuning_context(self):
+            return {"frame_rgb": self.auto_detect_source_frame_rgb, "keyboard_roi": (1, 2, 3, 4)}
+
+    app = SimpleNamespace(
+        app_state=AppState(),
+        calibration_workflow=SimpleNamespace(apply_template_styles_to_overlays=lambda: None),
+        control_panel=SimpleNamespace(
+            convert_button=SimpleNamespace(setEnabled=lambda _enabled: None),
+            _can_convert=lambda: True,
+            update_controls_from_state=lambda: None,
+            update_trim_controls_from_state=lambda: None,
+            update_selected_overlay_display=lambda: None,
+        ),
+        keyboard_canvas=SimpleNamespace(
+            setCursor=lambda _cursor: None,
+            display_frame=lambda _frame_idx: None,
+            update=lambda: None,
+        ),
+        show_overlays_action=DummyShowOverlaysAction(),
+        video_loading_workflow=SimpleNamespace(save_current_config=lambda: saved.append("save") or True),
+        video_session=SimpleNamespace(
+            total_frames=12,
+            get_frame=lambda _index: (True, np.full((8, 8, 3), (235, 245, 255), dtype=np.uint8)),
+        ),
+    )
+    app.app_state.video.current_frame_index = 3
+    controller = CalibrationWizardController(app, DummyAutoDetectTuningControllerForRestore())
+    controller.calibration_wizard = _Wizard()
+
+    monkeypatch.setattr(
+        "synthesia2midi.gui.calibration_wizard_controller.apply_assisted_calibration_proposal",
+        lambda app_state, proposal: applied.append(proposal),
+    )
+    monkeypatch.setattr(QMessageBox, "question", lambda *args, **kwargs: QMessageBox.StandardButton.Yes)
+
+    controller._handle_keyboard_region_selected(1, 2, 3, 4)
+
+    assert applied
+    assert saved == ["save"]
+
+
 def test_main_action_controller_delegates_histogram_and_similarity_thresholds():
     calls = []
     detection_manager = SimpleNamespace(

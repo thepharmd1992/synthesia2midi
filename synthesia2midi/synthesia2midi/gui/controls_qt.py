@@ -191,7 +191,6 @@ class ControlPanelQt(QWidget):
         self.tab_widget.currentChanged.connect(self.settings_section_rail.setCurrentRow)
         
         # Create all tabs
-        self._create_language_settings_tab()
         self._create_mandatory_calibration_tab()
         self._create_overlay_settings_tab()
         self._create_basic_detection_tab()
@@ -199,6 +198,7 @@ class ControlPanelQt(QWidget):
         self._create_midi_settings_tab()
         self._create_video_trim_tab()
         self._create_optional_settings_tab()
+        self._create_language_settings_tab()
 
         self._fit_settings_section_rail_to_items()
         settings_rail_layout.addWidget(self.settings_section_rail)

@@ -78,7 +78,6 @@ def test_main_window_prioritizes_video_with_settings_gear_and_tool_window(monkey
         assert not isinstance(app.control_panel.tab_widget, QTabWidget)
         assert app.control_panel.settings_section_rail.width() <= 125
         assert _settings_section_labels(app.control_panel) == [
-            "Language",
             "Calibration",
             "Overlays",
             "Detection",
@@ -86,6 +85,7 @@ def test_main_window_prioritizes_video_with_settings_gear_and_tool_window(monkey
             "MIDI",
             "Trim",
             "Optional",
+            "Language",
         ]
     finally:
         app.close()

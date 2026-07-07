@@ -18,6 +18,7 @@ EXPECTED_USER_LOCALE_DISPLAY_NAMES = [
     ("ru", "Русский"),
     ("zh_CN", "简体中文"),
     ("ko", "한국어"),
+    ("pt_BR", "Português (Brasil)"),
 ]
 
 

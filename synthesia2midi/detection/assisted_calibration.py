@@ -158,6 +158,7 @@ def assess_unlit_frame(
     min_group_delta: float = 45.0,
     min_reference_delta: float = 35.0,
     min_saturation_delta: float = 25.0,
+    min_reference_saturation: float = 35.0,
     max_reported: int = 6,
 ) -> UnlitFrameAssessment:
     samples: list[tuple[OverlayConfig, KeyColor, Tuple[int, int, int], Tuple[float, float, float]]] = []
@@ -168,7 +169,7 @@ def assess_unlit_frame(
         samples.append((overlay, overlay_key_color(overlay), rgb, _rgb_to_hsv_tuple(rgb)))
 
     if len(samples) < 4:
-        return UnlitFrameAssessment(status="unknown", reason="not enough overlay samples")
+        return UnlitFrameAssessment(status="unknown", reason="insufficient_samples")
 
     likely: list[LikelyLitOverlay] = []
     for key_color in ("W", "B"):
@@ -189,7 +190,10 @@ def assess_unlit_frame(
 
             saturation_delta = hsv[1] - median_sat
             strong_group_outlier = group_delta >= min_group_delta and saturation_delta >= min_saturation_delta
-            strong_reference_outlier = reference_delta >= min_reference_delta and hsv[1] >= 35.0
+            strong_reference_outlier = (
+                reference_delta >= min_reference_delta
+                and hsv[1] >= min_reference_saturation
+            )
             if not strong_group_outlier and not strong_reference_outlier:
                 continue
 
@@ -213,5 +217,5 @@ def assess_unlit_frame(
     return UnlitFrameAssessment(
         status="warning",
         likely_lit=tuple(likely[:max_reported]),
-        reason="one or more overlays are color outliers for the unlit frame",
+        reason="color_outlier",
     )

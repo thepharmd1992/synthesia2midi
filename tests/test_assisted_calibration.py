@@ -76,6 +76,7 @@ def test_unlit_frame_guard_returns_clean_for_uniform_keyboard_groups():
 
     assert assessment.status == "clean"
     assert assessment.likely_lit == ()
+    assert assessment.reason == ""
 
 
 def test_unlit_frame_guard_warns_with_likely_lit_note_name():
@@ -90,5 +91,29 @@ def test_unlit_frame_guard_warns_with_likely_lit_note_name():
     assessment = assess_unlit_frame(frame, overlays)
 
     assert assessment.status == "warning"
+    assert assessment.reason == "color_outlier"
     assert [item.note_label for item in assessment.likely_lit] == ["G4"]
     assert assessment.likely_lit[0].confidence > 0.5
+
+
+def test_unlit_frame_guard_reason_code_for_insufficient_samples():
+    frame = np.zeros((20, 80, 3), dtype=np.uint8)
+    overlays = [_overlay(key_id=1, note="C", octave=4, x=0, y=0, width=8, height=8, key_type="LW")]
+
+    assessment = assess_unlit_frame(frame, overlays)
+
+    assert assessment.status == "unknown"
+    assert assessment.reason == "insufficient_samples"
+
+
+def test_unlit_frame_reference_saturation_threshold_is_configurable():
+    frame = np.zeros((20, 40, 3), dtype=np.uint8)
+    overlays = []
+    for i in range(4):
+        overlay = _overlay(key_id=i, note="C", octave=4, x=i * 10, y=0, width=8, height=8, key_type="LW")
+        overlays.append(overlay)
+        frame[0:8, i * 10:i * 10 + 8] = (100, 255 if i == 3 else 240, 100)
+    overlays[3].unlit_reference_color = (220, 0, 220)
+
+    assert assess_unlit_frame(frame, overlays).status == "warning"
+    assert assess_unlit_frame(frame, overlays, min_reference_saturation=255.0).status == "clean"

@@ -1,7 +1,7 @@
 ---
 id: TASK-15
 title: Add assisted auto-calibration after keyboard box selection
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-07-07 00:00'
 labels:
@@ -23,16 +23,16 @@ Add a V1 assisted calibration flow that starts after the user draws a keyboard b
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The user still draws the keyboard bounding box manually before assisted calibration begins.
-- [ ] #2 Successful auto-detection can immediately capture unlit reference colors and histograms from the selected baseline frame.
-- [ ] #3 A reusable soft warning detects likely lit overlays during unlit calibration and names likely lit notes when confidence is high.
-- [ ] #4 The existing manual "Calibrate Unlit All Keys" path uses the same soft warning before overwriting unlit data.
-- [ ] #5 The assisted scan searches overlay ROIs across video frames for lit exemplar candidates without relying on physical left/right keyboard position.
-- [ ] #6 Candidate lit colors are clustered into color families and mapped into legacy `LW`, `LB`, `RW`, and `RB` slots by family and key color.
-- [ ] #7 One-color or partial-color videos can leave absent exemplar slots disabled or unchanged only after user confirmation.
-- [ ] #8 The user sees a progress/cancel path while scanning and a confirmation summary before exemplar changes are saved.
-- [ ] #9 Tests cover the unlit-frame guard, exemplar candidate detection, color-family assignment, partial results, cancellation, and proposal application.
-- [ ] #10 Local exploratory validation compares the Game of Thrones video proposal against the saved target INI and overlays, excluding octave transpose.
+- [x] #1 The user still draws the keyboard bounding box manually before assisted calibration begins.
+- [x] #2 Successful auto-detection can immediately capture unlit reference colors and histograms from the selected baseline frame.
+- [x] #3 A reusable soft warning detects likely lit overlays during unlit calibration and names likely lit notes when confidence is high.
+- [x] #4 The existing manual "Calibrate Unlit All Keys" path uses the same soft warning before overwriting unlit data.
+- [x] #5 The assisted scan searches overlay ROIs across video frames for lit exemplar candidates without relying on physical left/right keyboard position.
+- [x] #6 Candidate lit colors are clustered into color families and mapped into legacy `LW`, `LB`, `RW`, and `RB` slots by family and key color.
+- [x] #7 One-color or partial-color videos can leave absent exemplar slots disabled or unchanged only after user confirmation.
+- [x] #8 The user sees a progress/cancel path while scanning and a confirmation summary before exemplar changes are saved.
+- [x] #9 Tests cover the unlit-frame guard, exemplar candidate detection, color-family assignment, partial results, cancellation, and proposal application.
+- [x] #10 Local exploratory validation compares the Game of Thrones video proposal against the saved target INI and overlays, excluding octave transpose.
 <!-- AC:END -->
 
 ## Verification

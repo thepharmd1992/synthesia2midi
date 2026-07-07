@@ -8,10 +8,13 @@ from __future__ import annotations
 import glob
 import logging
 import os
+from pathlib import Path
 import subprocess
 
 from PySide6.QtCore import QCoreApplication, QThread, Signal
 from PySide6.QtWidgets import QMessageBox
+
+from synthesia2midi.runtime_paths import RuntimePaths, detect_runtime_paths
 
 translate = QCoreApplication.translate
 
@@ -85,8 +88,9 @@ class VideoToFramesWorker(QThread):
 class VideoToFramesController:
     """Coordinates video-to-frame conversion UI flow for the main window."""
 
-    def __init__(self, app):
+    def __init__(self, app, runtime_paths: RuntimePaths | None = None):
         self.app = app
+        self.runtime_paths = runtime_paths or detect_runtime_paths()
         self.worker: VideoToFramesWorker | None = None
 
     def handle_request(self):
@@ -118,38 +122,50 @@ class VideoToFramesController:
 
         if os.path.isdir(video_path):
             if video_path.endswith("_frames"):
-                base_path = video_path[:-7]
-                parent_dir = os.path.dirname(base_path)
-                base_name = os.path.basename(base_path)
-                video_extensions = [".mp4", ".mov", ".avi", ".mkv", ".m4v"]
-                original_video = None
-
-                for ext in video_extensions:
-                    candidate_path = base_path + ext
-                    if os.path.isfile(candidate_path):
-                        original_video = candidate_path
-                        break
-
-                if original_video:
-                    video_path = original_video
+                original_from_state = getattr(app.app_state.video, "original_video_path", None)
+                if original_from_state and os.path.isfile(original_from_state):
+                    video_path = original_from_state
                     QMessageBox.information(
                         app,
                         translate("VideoToFramesController", "Video to Frames"),
                         translate(
                             "VideoToFramesController",
                             "Frame series is currently loaded. Found original video file:\n\n{video_name}\n\nWill convert this video to update the frame series.",
-                        ).format(video_name=os.path.basename(original_video)),
+                        ).format(video_name=os.path.basename(original_from_state)),
                     )
                 else:
-                    QMessageBox.warning(
-                        app,
-                        translate("VideoToFramesController", "Video to Frames"),
-                        translate(
-                            "VideoToFramesController",
-                            "A frame series is currently loaded, but the original video file could not be found.\n\nFrame series path: {video_path}\nExpected video in: {parent_dir}/\nWith name: {base_name}.mp4 (or .mov, .avi, etc.)\n\nPlease load the original video file manually.",
-                        ).format(video_path=video_path, parent_dir=parent_dir, base_name=base_name),
-                    )
-                    return
+                    base_path = video_path[:-7]
+                    parent_dir = os.path.dirname(base_path)
+                    base_name = os.path.basename(base_path)
+                    video_extensions = [".mp4", ".mov", ".avi", ".mkv", ".m4v"]
+                    original_video = None
+
+                    for ext in video_extensions:
+                        candidate_path = base_path + ext
+                        if os.path.isfile(candidate_path):
+                            original_video = candidate_path
+                            break
+
+                    if original_video:
+                        video_path = original_video
+                        QMessageBox.information(
+                            app,
+                            translate("VideoToFramesController", "Video to Frames"),
+                            translate(
+                                "VideoToFramesController",
+                                "Frame series is currently loaded. Found original video file:\n\n{video_name}\n\nWill convert this video to update the frame series.",
+                            ).format(video_name=os.path.basename(original_video)),
+                        )
+                    else:
+                        QMessageBox.warning(
+                            app,
+                            translate("VideoToFramesController", "Video to Frames"),
+                            translate(
+                                "VideoToFramesController",
+                                "A frame series is currently loaded, but the original video file could not be found.\n\nFrame series path: {video_path}\nExpected video in: {parent_dir}/\nWith name: {base_name}.mp4 (or .mov, .avi, etc.)\n\nPlease load the original video file manually.",
+                            ).format(video_path=video_path, parent_dir=parent_dir, base_name=base_name),
+                        )
+                        return
             else:
                 QMessageBox.warning(
                     app,
@@ -160,7 +176,6 @@ class VideoToFramesController:
                     ).format(video_path=video_path),
                 )
                 return
-
         if not os.path.isfile(video_path):
             QMessageBox.warning(
                 app,
@@ -172,8 +187,7 @@ class VideoToFramesController:
             )
             return
 
-        base_name = os.path.splitext(os.path.basename(video_path))[0]
-        output_dir = os.path.join(os.path.dirname(video_path), f"{base_name}_frames")
+        output_dir = str(self._frames_dir_for_video(video_path))
 
         reply = QMessageBox.question(
             app,
@@ -197,6 +211,20 @@ class VideoToFramesController:
         self.worker.progress_updated.connect(self.on_progress)
         self.worker.conversion_finished.connect(self.on_finished)
         self.worker.start()
+
+    @staticmethod
+    def _legacy_frames_dir(video_path: str) -> Path:
+        path = Path(video_path)
+        return path.with_name(f"{path.stem}_frames")
+
+    def _frames_dir_for_video(self, video_path: str) -> Path:
+        project_frames = self.runtime_paths.project_frames_dir(video_path)
+        legacy_frames = self._legacy_frames_dir(video_path)
+        if project_frames.exists():
+            return project_frames
+        if legacy_frames.exists():
+            return legacy_frames
+        return project_frames
 
     def on_progress(self, message: str):
         """Handle progress updates from video conversion."""

@@ -537,7 +537,7 @@ git commit -m "Show MIDI location after conversion"
 
 Keep technical files out of user media folders while still loading old installed-user files.
 
-- [ ] Update `synthesia2midi/synthesia2midi/config_manager.py`.
+- [x] Update `synthesia2midi/synthesia2midi/config_manager.py`.
 
 Add `runtime_paths` injection without breaking existing callers:
 
@@ -601,7 +601,7 @@ overlay_path = self._get_overlay_json_path(video_filepath)
 Path(overlay_path).parent.mkdir(parents=True, exist_ok=True)
 ```
 
-- [ ] Split overlay loading so project and legacy JSON files can be loaded directly from the INI location:
+- [x] Split overlay loading so project and legacy JSON files can be loaded directly from the INI location:
 
 ```python
 def _load_overlay_data_from_path(self, overlay_json_path: Path) -> bool:
@@ -615,7 +615,7 @@ def _load_overlay_data_from_path(self, overlay_json_path: Path) -> bool:
 
 In `load_config()`, try `Path(config_filepath).with_name(f"{Path(config_filepath).stem}_overlays.json")` before deriving paths from the stored video. This keeps old sidecar and new project `.ini` files paired with the overlay JSON next to them.
 
-- [ ] Update `synthesia2midi/synthesia2midi/workflows/video_loading.py` so config discovery checks new project config first, then legacy config paths:
+- [x] Update `synthesia2midi/synthesia2midi/workflows/video_loading.py` so config discovery checks new project config first, then legacy config paths:
 
 ```python
 from synthesia2midi.runtime_paths import RuntimePaths, detect_runtime_paths
@@ -640,7 +640,7 @@ for config_path in self.config_manager.config_candidates_for_video(video_filepat
         return True
 ```
 
-- [ ] Update `save_current_config()` so `filepath_ini_used` records the new project `.ini`, not the old sidecar path:
+- [x] Update `save_current_config()` so `filepath_ini_used` records the new project `.ini`, not the old sidecar path:
 
 ```python
 video_path_for_config = self.app_state.video.original_video_path or self.app_state.video.filepath
@@ -650,7 +650,7 @@ if success:
     self.app_state.video.filepath_ini_used = output_path
 ```
 
-- [ ] Update frame extraction in `video_loading.py` and `video_to_frames.py`:
+- [x] Update frame extraction in `video_loading.py` and `video_to_frames.py`:
 
 ```python
 from synthesia2midi.runtime_paths import RuntimePaths, detect_runtime_paths
@@ -683,7 +683,7 @@ class VideoToFramesController:
         self.worker: VideoToFramesWorker | None = None
 ```
 
-- [ ] Add config tests:
+- [x] Add config tests:
 
 ```python
 def test_save_config_writes_project_ini_and_overlay(tmp_path):
@@ -727,7 +727,7 @@ def test_load_config_falls_back_to_legacy_sidecar(tmp_path):
     assert legacy_ini in manager.config_candidates_for_video(str(video_path))
 ```
 
-- [ ] Add frame tests:
+- [x] Add frame tests:
 
 ```python
 def test_frame_conversion_uses_project_frames_dir(tmp_path):
@@ -767,7 +767,7 @@ def test_existing_legacy_frames_dir_is_reused(tmp_path):
     assert workflow._frames_dir_for_video(str(video_path)) == legacy_frames
 ```
 
-- [ ] Run:
+- [x] Run:
 
 ```bash
 .venv/bin/python -m pytest tests/test_config_manager.py tests/test_video_loading_paths.py tests/test_video_to_frames_controller.py

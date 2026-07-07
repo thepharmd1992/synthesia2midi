@@ -17,6 +17,7 @@ import configparser
 import json
 import logging
 import os
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -27,6 +28,7 @@ from synthesia2midi.detection.auto_detect_param_specs import (
     ACTIVE_AUTO_DETECT_PARAM_KEYS,
     coerce_auto_detect_params,
 )
+from synthesia2midi.runtime_paths import RuntimePaths, detect_runtime_paths
 
 
 def _serialize_keyboard_box(box) -> str:
@@ -56,8 +58,9 @@ def _parse_keyboard_box(value) -> Optional[Tuple[float, float, float, float]]:
 class ConfigManager:
     """Handles INI file operations for application state."""
 
-    def __init__(self, app_state: AppState):
+    def __init__(self, app_state: AppState, runtime_paths: RuntimePaths | None = None):
         self.app_state = app_state
+        self.runtime_paths = runtime_paths or detect_runtime_paths()
 
     def _get_ini_path(self, video_filepath: str) -> str:
         """Generates the INI filepath based on the video filepath."""
@@ -65,19 +68,38 @@ class ConfigManager:
             # If video_filepath is empty, it might be a direct call with a template path
             # or an error. Handle gracefully or let load_config manage it.
             return "" # Return empty, load_config will handle non-existence or use direct path
-        # Normalize path separators to fix cross-platform compatibility
-        normalized_path = os.path.normpath(video_filepath)
-        base, _ = os.path.splitext(normalized_path)
-        return f"{base}.ini"
+        return str(self.runtime_paths.project_ini_path(video_filepath))
     
     def _get_overlay_json_path(self, video_filepath: str) -> str:
         """Generates the overlay JSON filepath based on the video filepath."""
         if not video_filepath:
             return ""
-        # Normalize path separators to fix cross-platform compatibility
-        normalized_path = os.path.normpath(video_filepath)
-        base, _ = os.path.splitext(normalized_path)
-        return f"{base}_overlays.json"
+        return str(self.runtime_paths.project_overlay_json_path(video_filepath))
+
+    def legacy_ini_paths_for_video(self, video_filepath: str) -> List[Path]:
+        """Return legacy sidecar config locations used by existing installs."""
+        video_path = Path(os.path.normpath(video_filepath))
+        base = video_path.with_suffix("")
+        return [
+            video_path.with_suffix(".ini"),
+            Path(f"{base}_config.ini"),
+            Path(f"{base}.config"),
+            video_path.parent / "config.ini",
+        ]
+
+    def legacy_overlay_json_path_for_video(self, video_filepath: str) -> Path:
+        """Return the legacy sidecar overlay JSON location for a video."""
+        video_path = Path(os.path.normpath(video_filepath))
+        return video_path.with_name(f"{video_path.stem}_overlays.json")
+
+    def config_candidates_for_video(self, video_filepath: str) -> List[Path]:
+        """Return config candidates in preferred load order."""
+        if not video_filepath:
+            return []
+        return [
+            self.runtime_paths.project_ini_path(video_filepath),
+            *self.legacy_ini_paths_for_video(video_filepath),
+        ]
     
     def _save_overlay_data(self, video_filepath: str) -> bool:
         """Save overlay data and exemplar histograms to JSON file."""
@@ -85,6 +107,7 @@ class ConfigManager:
         if not overlay_json_path:
             logging.error("Failed to determine overlay JSON path for saving.")
             return False
+        Path(overlay_json_path).parent.mkdir(parents=True, exist_ok=True)
         
         overlay_data = {
             "overlays": [],
@@ -137,13 +160,24 @@ class ConfigManager:
     
     def _load_overlay_data(self, video_filepath: str) -> bool:
         """Load overlay data and exemplar histograms from JSON file."""
-        overlay_json_path = self._get_overlay_json_path(video_filepath)
-        if not overlay_json_path or not os.path.exists(overlay_json_path):
+        overlay_json_paths = [
+            Path(self._get_overlay_json_path(video_filepath)) if video_filepath else None,
+            self.legacy_overlay_json_path_for_video(video_filepath) if video_filepath else None,
+        ]
+        for overlay_json_path in overlay_json_paths:
+            if overlay_json_path is not None and self._load_overlay_data_from_path(overlay_json_path):
+                return True
+        logging.info("Overlay JSON file not found for video: %s", video_filepath)
+        return False
+
+    def _load_overlay_data_from_path(self, overlay_json_path: Path) -> bool:
+        """Load overlay data and exemplar histograms from an explicit JSON path."""
+        if not overlay_json_path.exists():
             logging.info(f"Overlay JSON file not found: {overlay_json_path}")
             return False
         
         try:
-            with open(overlay_json_path, 'r', encoding='utf-8') as f:
+            with overlay_json_path.open('r', encoding='utf-8') as f:
                 overlay_data = json.load(f)
 
             source = overlay_data.get("overlay_generation_source")
@@ -309,12 +343,14 @@ class ConfigManager:
                 logging.debug(f"[CONFIG-LOAD]   hand_detection_calibrated: {self.app_state.detection.hand_detection_calibrated}")
                 # Add other AppState fields here if they need to be loaded
 
-            # Try to load overlay data from JSON file first (new format)
+            # Try to load overlay data from the JSON file next to this INI first.
             # Extract the base path from the INI file path (remove .ini extension)
             base_path = config_filepath[:-4] if config_filepath.endswith('.ini') else config_filepath
             
             # Try multiple strategies to find overlay data
-            overlay_data_loaded = False
+            config_path = Path(config_filepath)
+            direct_overlay_path = config_path.with_name(f"{config_path.stem}_overlays.json")
+            overlay_data_loaded = self._load_overlay_data_from_path(direct_overlay_path)
             
             # Strategy 1: Check if we have a video filepath stored in the config
             if config.has_section('Video') and config.has_option('Video', 'filepath'):
@@ -341,9 +377,7 @@ class ConfigManager:
                 overlay_json_path = base_path + "_overlays.json"
                 if os.path.exists(overlay_json_path):
                     logging.info(f"[CONFIG-LOAD] Loading overlay JSON directly: {overlay_json_path}")
-                    # Create a dummy video path to generate the correct JSON filename
-                    dummy_video_path = base_path + ".mp4"
-                    overlay_data_loaded = self._load_overlay_data(dummy_video_path)
+                    overlay_data_loaded = self._load_overlay_data_from_path(Path(overlay_json_path))
                 else:
                     logging.info(f"[CONFIG-LOAD] No overlay JSON file found at: {overlay_json_path}")
             
@@ -534,6 +568,7 @@ class ConfigManager:
             logging.error("Failed to determine INI path for saving.")
             return False
         logging.info(f"Saving config to INI path: {ini_path}")
+        Path(ini_path).parent.mkdir(parents=True, exist_ok=True)
 
         config = configparser.ConfigParser()
         

@@ -13,6 +13,7 @@ import re
 import threading
 import time
 from collections import deque
+from pathlib import Path
 from typing import Optional, Tuple
 
 from PySide6.QtWidgets import QMessageBox, QProgressDialog, QApplication
@@ -21,6 +22,7 @@ from PySide6.QtCore import QCoreApplication, Qt, QTimer
 from synthesia2midi.video_loader import VideoSession, create_video_session
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.config_manager import ConfigManager
+from synthesia2midi.runtime_paths import RuntimePaths, detect_runtime_paths
 
 translate = QCoreApplication.translate
 
@@ -30,10 +32,17 @@ class VideoLoadingWorkflow:
     Handles video loading and related configuration management.
     """
     
-    def __init__(self, app_state: AppState, config_manager: ConfigManager, parent_widget=None):
+    def __init__(
+        self,
+        app_state: AppState,
+        config_manager: ConfigManager,
+        parent_widget=None,
+        runtime_paths: RuntimePaths | None = None,
+    ):
         self.app_state = app_state
         self.config_manager = config_manager
         self.parent_widget = parent_widget
+        self.runtime_paths = runtime_paths or getattr(config_manager, "runtime_paths", detect_runtime_paths())
         self.logger = logging.getLogger(__name__)
         # Force INFO level for this logger to ensure our logs show
         self.logger.setLevel(logging.INFO)
@@ -104,9 +113,8 @@ class VideoLoadingWorkflow:
                 else:
                     self.logger.info("[VIDEO-LOAD] Auto-convert disabled; will continue with video file unless user chooses existing frames.")
                     # Check if frames already exist and offer to use them
-                    base_name = os.path.splitext(os.path.basename(filepath))[0]
-                    frames_dir = os.path.join(os.path.dirname(filepath), f"{base_name}_frames")
-                    if os.path.exists(frames_dir):
+                    frames_dir = self._frames_dir_for_video(filepath)
+                    if frames_dir.exists():
                         from PySide6.QtWidgets import QMessageBox
                         reply = QMessageBox.question(
                             self.parent_widget,
@@ -118,7 +126,7 @@ class VideoLoadingWorkflow:
                             QMessageBox.Yes | QMessageBox.No,
                         )
                         if reply == QMessageBox.Yes:
-                            filepath = frames_dir
+                            filepath = str(frames_dir)
                             if detected_fps is None:
                                 detected_fps = self._detect_video_fps(original_video_path)
                     
@@ -212,38 +220,19 @@ class VideoLoadingWorkflow:
             True if config was loaded, False otherwise
         """
         try:
-            # Look for .ini file with same name as video
-            base_name = os.path.splitext(video_filepath)[0]
-            ini_path = base_name + ".ini"
-            
             self.logger.info(f"[CONFIG-LOAD] Looking for configuration file:")
             self.logger.info(f"[CONFIG-LOAD]   Video filepath: {video_filepath}")
-            self.logger.info(f"[CONFIG-LOAD]   Expected INI path: {ini_path}")
-            self.logger.info(f"[CONFIG-LOAD]   INI exists: {os.path.exists(ini_path)}")
-            
-            if os.path.exists(ini_path):
-                success = self.config_manager.load_config(ini_path, is_template=False)
-                if success:
-                    self.app_state.video.filepath_ini_used = ini_path
-                    self.logger.info(f"Loaded configuration from {ini_path}")
-                    return True
-                else:
-                    self.logger.warning(f"Failed to load configuration from {ini_path}")
-            
-            # Try other common configuration file patterns
-            config_patterns = [
-                base_name + "_config.ini",
-                base_name + ".config",
-                os.path.join(os.path.dirname(video_filepath), "config.ini")
-            ]
-            
-            for config_path in config_patterns:
-                if os.path.exists(config_path):
-                    success = self.config_manager.load_config(config_path, is_template=False)
+
+            for config_path in self.config_manager.config_candidates_for_video(video_filepath):
+                self.logger.info(f"[CONFIG-LOAD]   Candidate INI path: {config_path}")
+                self.logger.info(f"[CONFIG-LOAD]   Candidate exists: {config_path.exists()}")
+                if config_path.exists():
+                    success = self.config_manager.load_config(str(config_path), is_template=False)
                     if success:
-                        self.app_state.video.filepath_ini_used = config_path
+                        self.app_state.video.filepath_ini_used = str(config_path)
                         self.logger.info(f"Loaded configuration from {config_path}")
                         return True
+                    self.logger.warning(f"Failed to load configuration from {config_path}")
             
             self.logger.info(f"[CONFIG-LOAD] No configuration file found for {video_filepath}")
             return False
@@ -277,14 +266,10 @@ class VideoLoadingWorkflow:
                     
                 # Use original video path for config if available (when using frames)
                 if hasattr(self.app_state.video, 'original_video_path') and self.app_state.video.original_video_path:
-                    # When using frame sequences, save config next to original video
                     video_path_for_config = self.app_state.video.original_video_path
-                    base_name = os.path.splitext(self.app_state.video.original_video_path)[0]
                 else:
-                    # When using video directly
                     video_path_for_config = self.app_state.video.filepath
-                    base_name = os.path.splitext(self.app_state.video.filepath)[0]
-                output_path = base_name + ".ini"
+                output_path = str(self.config_manager.runtime_paths.project_ini_path(video_path_for_config))
             
             self.logger.info(f"[CONFIG-SAVE] Saving configuration:")
             self.logger.info(f"[CONFIG-SAVE]   Video path for config: {video_path_for_config}")
@@ -361,10 +346,9 @@ class VideoLoadingWorkflow:
                     break
         
         try:
-            # Generate frames directory path
             base_name = os.path.splitext(os.path.basename(video_path))[0]
             video_dir = os.path.dirname(video_path)
-            frames_dir = os.path.join(video_dir, f"{base_name}_frames")
+            frames_dir = self._frames_dir_for_video(video_path)
             
             self.logger.info(f"[FRAME-CONVERT] Video path: {video_path}")
             self.logger.info(f"[FRAME-CONVERT] Base name: {base_name}")
@@ -372,14 +356,14 @@ class VideoLoadingWorkflow:
             self.logger.info(f"[FRAME-CONVERT] Frames directory will be: {frames_dir}")
             
             # Check if frames already exist
-            if os.path.exists(frames_dir):
+            if frames_dir.exists():
                 # Verify it contains frames
                 import glob
-                frame_files = glob.glob(os.path.join(frames_dir, "frame_*.jpg")) + \
-                             glob.glob(os.path.join(frames_dir, "frame_*.png"))
+                frame_files = glob.glob(str(frames_dir / "frame_*.jpg")) + \
+                             glob.glob(str(frames_dir / "frame_*.png"))
                 if frame_files:
                     self.logger.info(f"Using existing frame sequence: {frames_dir}")
-                    return frames_dir
+                    return str(frames_dir)
                     
             # Check if ffmpeg is available
             from synthesia2midi.utils.ffmpeg_helper import check_ffmpeg_available
@@ -405,10 +389,10 @@ class VideoLoadingWorkflow:
             
             # Create frames directory
             self.logger.info(f"[FRAME-CONVERT] Creating frames directory: {frames_dir}")
-            os.makedirs(frames_dir, exist_ok=True)
+            frames_dir.mkdir(parents=True, exist_ok=True)
             
             # Verify directory was created
-            if os.path.exists(frames_dir):
+            if frames_dir.exists():
                 self.logger.info(f"[FRAME-CONVERT] Frames directory created successfully")
             else:
                 self.logger.error(f"[FRAME-CONVERT] Failed to create frames directory!")
@@ -680,7 +664,7 @@ class VideoLoadingWorkflow:
                 
             # End of attempt loop
             if conversion_successful:
-                return frames_dir
+                return str(frames_dir)
             else:
                 return None
             
@@ -707,6 +691,20 @@ class VideoLoadingWorkflow:
                 )
             
             return None
+
+    @staticmethod
+    def _legacy_frames_dir(video_path: str) -> Path:
+        path = Path(video_path)
+        return path.with_name(f"{path.stem}_frames")
+
+    def _frames_dir_for_video(self, video_path: str) -> Path:
+        project_frames = self.runtime_paths.project_frames_dir(video_path)
+        legacy_frames = self._legacy_frames_dir(video_path)
+        if project_frames.exists():
+            return project_frames
+        if legacy_frames.exists():
+            return legacy_frames
+        return project_frames
     
     def _show_error(self, title: str, message: str):
         """Show error message (if parent widget available)."""

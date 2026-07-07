@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Callable, Dict, Literal, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Callable, Dict, Iterable, Literal, Optional, Sequence, Tuple
 
 import cv2
 import numpy as np
 
 from synthesia2midi.app_config import OverlayConfig
+
+if TYPE_CHECKING:
+    from synthesia2midi.core.app_state import AppState
 
 KeyColor = Literal["W", "B"]
 AssessmentStatus = Literal["clean", "warning", "unknown"]
@@ -288,6 +291,109 @@ def _candidate_is_better(candidate: ExemplarCandidate, current: ExemplarCandidat
     if candidate.confidence != current.confidence:
         return candidate.confidence > current.confidence
     return candidate.frame_index < current.frame_index
+
+
+def _circular_hue_distance(a: float, b: float) -> float:
+    delta = abs(a - b)
+    return min(delta, 180.0 - delta)
+
+
+def _family_hue(candidate: ExemplarCandidate) -> float:
+    return candidate.hsv[0] if candidate.hsv[1] > 0 else _rgb_to_hsv_tuple(candidate.rgb)[0]
+
+
+def _family_sort_key(bucket: list[ExemplarCandidate]) -> tuple[int, int, float]:
+    mean_hue = float(np.mean([_family_hue(item) for item in bucket]))
+    cool_family = 60.0 <= mean_hue <= 140.0
+    first_frame = min(item.frame_index for item in bucket)
+    return (0 if cool_family else 1, first_frame, mean_hue)
+
+
+def _best_candidate(candidates: Iterable[ExemplarCandidate]) -> Optional[ExemplarCandidate]:
+    ordered = sorted(candidates, key=lambda item: (-item.confidence, item.frame_index, item.key_id))
+    return ordered[0] if ordered else None
+
+
+def assign_exemplar_slots(
+    candidates: Sequence[ExemplarCandidate],
+    *,
+    family_hue_threshold: float = 22.0,
+) -> ExemplarAssignmentResult:
+    family_buckets: list[list[ExemplarCandidate]] = []
+    ordered_candidates = sorted(
+        candidates,
+        key=lambda item: (-item.confidence, item.frame_index, item.key_id),
+    )
+    for candidate in ordered_candidates:
+        hue = _family_hue(candidate)
+        target_bucket: Optional[list[ExemplarCandidate]] = None
+        for bucket in family_buckets:
+            bucket_hue = float(np.mean([_family_hue(item) for item in bucket]))
+            if _circular_hue_distance(hue, bucket_hue) <= family_hue_threshold:
+                target_bucket = bucket
+                break
+        if target_bucket is None:
+            if len(family_buckets) >= 2:
+                continue
+            target_bucket = []
+            family_buckets.append(target_bucket)
+        target_bucket.append(candidate)
+
+    family_buckets.sort(key=_family_sort_key)
+    slot_pairs = [("LW", "LB"), ("RW", "RB")]
+    assignments: Dict[str, AssignedExemplar] = {}
+    missing: list[str] = []
+    disabled: list[str] = []
+    confidences: list[float] = []
+
+    for family_index, slots in enumerate(slot_pairs):
+        bucket = family_buckets[family_index] if family_index < len(family_buckets) else []
+        family_present = family_index < len(family_buckets)
+        for slot, key_color in zip(slots, ("W", "B")):
+            source = _best_candidate(item for item in bucket if item.slot_color == key_color)
+            if source is None:
+                assignments[slot] = AssignedExemplar(
+                    slot=slot,
+                    rgb=None,
+                    hist=None,
+                    source=None,
+                    enabled=family_present,
+                )
+                if family_present:
+                    missing.append(slot)
+                else:
+                    disabled.append(slot)
+                continue
+            assignments[slot] = AssignedExemplar(
+                slot=slot,
+                rgb=source.rgb,
+                hist=source.hist,
+                source=source,
+                enabled=True,
+            )
+            confidences.append(source.confidence)
+
+    confidence = float(np.mean(confidences)) if confidences else 0.0
+    return ExemplarAssignmentResult(
+        assignments=assignments,
+        missing_slots=tuple(missing),
+        disabled_slots=tuple(disabled),
+        family_count=len(family_buckets),
+        confidence=confidence,
+    )
+
+
+def apply_assisted_calibration_proposal(
+    app_state: AppState,
+    proposal: AssistedCalibrationProposal,
+) -> None:
+    for slot, assignment in proposal.assignment_result.assignments.items():
+        app_state.detection.exemplar_key_type_enabled[slot] = assignment.enabled
+        app_state.detection.exemplar_lit_colors[slot] = assignment.rgb if assignment.enabled else None
+        app_state.detection.exemplar_lit_histograms[slot] = (
+            assignment.hist if assignment.enabled else None
+        )
+    app_state.unsaved_changes = True
 
 
 def scan_lit_exemplar_candidates(

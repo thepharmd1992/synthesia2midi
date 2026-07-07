@@ -1,9 +1,16 @@
+import cv2
 import numpy as np
 
 from synthesia2midi.app_config import OverlayConfig
+from synthesia2midi.core.app_state import AppState
 from synthesia2midi.detection.assisted_calibration import (
+    AssistedCalibrationProposal,
     ExemplarScanSettings,
+    ExemplarCandidate,
+    UnlitFrameAssessment,
+    apply_assisted_calibration_proposal,
     assess_unlit_frame,
+    assign_exemplar_slots,
     capture_unlit_references_from_frame,
     overlay_key_color,
     overlay_note_label,
@@ -11,6 +18,21 @@ from synthesia2midi.detection.assisted_calibration import (
     sample_overlay_rgb,
     scan_lit_exemplar_candidates,
 )
+
+
+def _candidate(slot_color, rgb, frame_index=10, note="C4", key_id=1, confidence=0.9):
+    hsv = cv2.cvtColor(np.array([[rgb]], dtype=np.uint8), cv2.COLOR_RGB2HSV)[0, 0]
+    return ExemplarCandidate(
+        slot_color=slot_color,
+        key_id=key_id,
+        note_label=note,
+        frame_index=frame_index,
+        rgb=rgb,
+        hsv=(float(hsv[0]), float(hsv[1]), float(hsv[2])),
+        delta_from_unlit=100.0,
+        confidence=confidence,
+        hist=np.array([1.0], dtype=np.float32),
+    )
 
 
 def _overlay(
@@ -218,3 +240,60 @@ def test_scanner_honors_cancel_callback():
     assert candidates == []
     assert scanned == 0
     assert canceled is True
+
+
+def test_assign_exemplar_slots_maps_two_color_families_by_hue_not_position():
+    candidates = [
+        _candidate("W", (130, 165, 205), key_id=50, note="D5"),
+        _candidate("B", (70, 110, 170), key_id=30, note="C♯4"),
+        _candidate("W", (243, 176, 68), key_id=10, note="A2"),
+        _candidate("B", (243, 131, 46), key_id=20, note="A♯2"),
+    ]
+
+    result = assign_exemplar_slots(candidates)
+
+    assert result.family_count == 2
+    assert result.assignments["LW"].rgb == (130, 165, 205)
+    assert result.assignments["LB"].rgb == (70, 110, 170)
+    assert result.assignments["RW"].rgb == (243, 176, 68)
+    assert result.assignments["RB"].rgb == (243, 131, 46)
+    assert result.disabled_slots == ()
+
+
+def test_assign_exemplar_slots_disables_absent_second_family():
+    result = assign_exemplar_slots([
+        _candidate("W", (130, 165, 205), key_id=1),
+        _candidate("B", (70, 110, 170), key_id=2),
+    ])
+
+    assert result.family_count == 1
+    assert result.assignments["LW"].enabled is True
+    assert result.assignments["LB"].enabled is True
+    assert result.assignments["RW"].enabled is False
+    assert result.assignments["RB"].enabled is False
+    assert result.disabled_slots == ("RW", "RB")
+
+
+def test_apply_assisted_calibration_proposal_updates_colors_histograms_and_enabled_slots():
+    app_state = AppState()
+    assignment = assign_exemplar_slots([
+        _candidate("W", (130, 165, 205), key_id=1),
+        _candidate("B", (70, 110, 170), key_id=2),
+    ])
+    proposal = AssistedCalibrationProposal(
+        baseline_frame_index=12,
+        unlit_assessment=UnlitFrameAssessment(status="clean"),
+        assignment_result=assignment,
+        scanned_frame_count=3,
+        candidate_count=2,
+    )
+
+    apply_assisted_calibration_proposal(app_state, proposal)
+
+    assert app_state.detection.exemplar_lit_colors["LW"] == (130, 165, 205)
+    assert app_state.detection.exemplar_lit_colors["LB"] == (70, 110, 170)
+    assert app_state.detection.exemplar_lit_colors["RW"] is None
+    assert app_state.detection.exemplar_lit_colors["RB"] is None
+    assert app_state.detection.exemplar_key_type_enabled["RW"] is False
+    assert app_state.detection.exemplar_key_type_enabled["RB"] is False
+    assert app_state.unsaved_changes is True

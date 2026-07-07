@@ -228,6 +228,39 @@ def test_scanner_collapses_overlapping_hits_into_one_event_per_lit_burst():
     assert by_frame[26].rgb == (45, 65, 85)
 
 
+def test_scanner_reuses_frame_provider_reads_across_refinement_window():
+    overlay = _overlay(key_id=1, note="C", octave=4, x=0, y=0, width=4, height=4, key_type="LW")
+    overlay.unlit_reference_color = (245, 245, 235)
+
+    frames = {}
+    for index in range(0, 6):
+        frame = np.zeros((8, 8, 3), dtype=np.uint8)
+        frame[:, :] = (25, 25, 25)
+        frame[0:4, 0:4] = (245, 245, 235)
+        frames[index] = frame
+    frames[1][0:4, 0:4] = (130, 165, 205)
+
+    calls: list[int] = []
+
+    def frame_provider(index: int):
+        calls.append(index)
+        return frames.get(index)
+
+    candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        [overlay],
+        0,
+        5,
+        settings=ExemplarScanSettings(coarse_stride=5, refine_radius=1, min_rgb_delta=30.0),
+    )
+
+    assert canceled is False
+    assert scanned == 2
+    assert len(candidates) == 1
+    assert candidates[0].frame_index == 1
+    assert calls == [0, 1, 5, 4]
+
+
 def test_scanner_honors_cancel_callback():
     overlay = _overlay()
     overlay.unlit_reference_color = (245, 245, 235)

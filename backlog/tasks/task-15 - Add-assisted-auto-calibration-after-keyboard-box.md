@@ -40,4 +40,5 @@ Add a V1 assisted calibration flow that starts after the user draws a keyboard b
 <!-- SECTION:NOTES:BEGIN -->
 - Design spec: `docs/superpowers/specs/2026-07-07-assisted-auto-calibration-design.md`
 - Expected gates will include `git diff --check`, compileall, focused calibration tests, and full pytest after implementation.
+- Local exploratory validation on 2026-07-07 used the Game of Thrones reference assets with `baseline_frame=430` and `end_frame=2500`; observed proposal colors were approximately `LW=(136,171,208)`, `LB=(77,115,174)`, `RW=(252,175,70)`, and `RB=(255,130,52)` against the saved INI targets.
 <!-- SECTION:NOTES:END -->

@@ -442,15 +442,21 @@ def scan_lit_exemplar_candidates(
 ) -> Tuple[list[ExemplarCandidate], int, bool]:
     candidates_by_key: dict[int, list[ExemplarCandidate]] = {}
     active_candidates_by_key: dict[int, ExemplarCandidate] = {}
+    frame_cache: dict[int, Optional[np.ndarray]] = {}
     scanned = 0
     end_frame = max(start_frame, end_frame)
     stride = max(1, settings.coarse_stride)
+
+    def cached_frame(index: int) -> Optional[np.ndarray]:
+        if index not in frame_cache:
+            frame_cache[index] = frame_provider(index)
+        return frame_cache[index]
 
     for frame_index in range(start_frame, end_frame + 1, stride):
         if progress_callback is not None and not progress_callback(frame_index, end_frame):
             return [], scanned, True
 
-        frame = frame_provider(frame_index)
+        frame = cached_frame(frame_index)
         if frame is None:
             continue
         scanned += 1
@@ -470,7 +476,7 @@ def scan_lit_exemplar_candidates(
             refine_start = max(start_frame, frame_index - settings.refine_radius)
             refine_end = min(end_frame, frame_index + settings.refine_radius)
             for refined_index in range(refine_start, refine_end + 1):
-                refined_frame = frame_provider(refined_index)
+                refined_frame = cached_frame(refined_index)
                 if refined_frame is None:
                     continue
                 refined_candidate = _frame_candidate_for_overlay(

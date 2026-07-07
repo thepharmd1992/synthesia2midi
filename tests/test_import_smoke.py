@@ -57,6 +57,7 @@ IMPORT_SMOKE_MODULES = [
     # File/video/MIDI helpers: import only, no local media, ffmpeg, or network calls.
     "synthesia2midi.frame_cache",
     "synthesia2midi.image_sequence_loader",
+    "synthesia2midi.app_icon",
     "synthesia2midi.midi_generator",
     "synthesia2midi.midi_reader",
     "synthesia2midi.utils.ffmpeg_helper",

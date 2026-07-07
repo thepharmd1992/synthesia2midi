@@ -36,7 +36,7 @@ build_options = _parse_build_options()
 is_macos = sys.platform == "darwin"
 
 datas = collect_data_files("certifi")
-datas.extend(collect_data_files("synthesia2midi", includes=["translations/*"]))
+datas.extend(collect_data_files("synthesia2midi", includes=["translations/*", "assets/*"]))
 datas.extend(
     [
         (str(ROOT / "tools" / "midi_touchup_editor_rust" / "assets" / "soundfonts" / "TouchUpPiano.sf2"), "assets/soundfonts"),
@@ -84,6 +84,7 @@ exe = EXE(
     strip=False,
     upx=False,
     console=False,
+    icon=str(ROOT / "packaging" / "assets" / "Synthesia2MIDI.ico"),
 )
 
 coll = COLLECT(
@@ -100,7 +101,7 @@ if is_macos:
     app = BUNDLE(
         coll,
         name=f"{RELEASE_APP_NAME}.app",
-        icon=None,
+        icon=str(ROOT / "packaging" / "assets" / "Synthesia2MIDI.icns"),
         bundle_identifier="com.synthesia2midi.app",
         info_plist={
             "CFBundleShortVersionString": build_options.version,

@@ -94,6 +94,8 @@ screenshots/
 *.jpg
 *.png
 *.jpeg
+!packaging/assets/
+!packaging/assets/Synthesia2MIDI-icon-source.png
 
 # Documentation assets (tracked)
 !docs/

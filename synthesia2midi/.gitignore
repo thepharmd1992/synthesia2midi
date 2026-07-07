@@ -64,6 +64,8 @@ Thumbs.db
 *.gif
 *.bmp
 *.tiff
+!synthesia2midi/assets/
+!synthesia2midi/assets/app_icon.png
 
 # ML model files
 *.h5

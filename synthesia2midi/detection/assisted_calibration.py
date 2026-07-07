@@ -101,10 +101,14 @@ def _overlay_bounds(
     frame_rgb: np.ndarray, overlay: OverlayConfig
 ) -> Optional[Tuple[int, int, int, int]]:
     height, width = frame_rgb.shape[:2]
-    x1 = max(0, int(round(overlay.x)))
-    y1 = max(0, int(round(overlay.y)))
-    x2 = min(width, int(round(overlay.x + overlay.width)))
-    y2 = min(height, int(round(overlay.y + overlay.height)))
+    x1 = int(overlay.x)
+    y1 = int(overlay.y)
+    x2 = x1 + int(overlay.width)
+    y2 = y1 + int(overlay.height)
+    x1 = max(0, x1)
+    y1 = max(0, y1)
+    x2 = min(width, x2)
+    y2 = min(height, y2)
     if x2 <= x1 or y2 <= y1:
         return None
     return x1, y1, x2, y2

@@ -39,6 +39,15 @@ def test_overlay_sampling_uses_clipped_integer_roi():
     assert sample_overlay_bgr(frame, _overlay()).mean(axis=(0, 1)).astype(int).tolist() == [30, 20, 10]
 
 
+def test_overlay_sampling_truncates_fractional_overlay_bounds():
+    frame = np.arange(4 * 4 * 3, dtype=np.uint8).reshape(4, 4, 3)
+    overlay = _overlay(x=1.6, y=1.6, width=1.6, height=1.6)
+
+    assert sample_overlay_rgb(frame, overlay) == tuple(frame[1, 1])
+    assert sample_overlay_bgr(frame, overlay).shape == (1, 1, 3)
+    assert sample_overlay_bgr(frame, overlay)[0, 0].tolist() == frame[1, 1][::-1].tolist()
+
+
 def test_overlay_sampling_returns_none_for_empty_roi():
     frame = np.zeros((5, 6, 3), dtype=np.uint8)
 

@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional
 
 import numpy as np
 from PySide6.QtCore import QCoreApplication, Qt
-from PySide6.QtWidgets import QApplication, QMessageBox, QProgressDialog, QWidget
+from PySide6.QtWidgets import QApplication, QDialog, QMessageBox, QProgressDialog, QWidget
 
 from synthesia2midi.detection.assisted_calibration import (
     assess_unlit_frame,
@@ -36,6 +36,7 @@ class CalibrationWizardController:
         self._keyboard_region_requested = False
         self._edit_current_calibration_requested = False
         self._manual_edit_current_calibration_requested = False
+        self._pending_assisted_calibration_context: Optional[tuple[np.ndarray, int]] = None
 
     @property
     def app_state(self):
@@ -69,6 +70,7 @@ class CalibrationWizardController:
         self._keyboard_region_requested = False
         self._edit_current_calibration_requested = False
         self._manual_edit_current_calibration_requested = False
+        self._pending_assisted_calibration_context = None
 
     def _clear_calibration_wizard(self) -> None:
         self.calibration_wizard = None
@@ -405,6 +407,34 @@ class CalibrationWizardController:
             self.video_loading_workflow.save_current_config()
         return True
 
+    def _queue_assisted_auto_calibration(
+        self,
+        baseline_frame_rgb: Any,
+        baseline_frame_index: int,
+    ) -> None:
+        if (
+            baseline_frame_rgb is None
+            or not isinstance(baseline_frame_rgb, np.ndarray)
+            or baseline_frame_rgb.size == 0
+        ):
+            self._pending_assisted_calibration_context = None
+            return
+        self._pending_assisted_calibration_context = (
+            np.copy(baseline_frame_rgb),
+            int(baseline_frame_index),
+        )
+
+    def _run_pending_assisted_auto_calibration(self) -> bool:
+        pending = self._pending_assisted_calibration_context
+        self._pending_assisted_calibration_context = None
+        if pending is None:
+            return False
+        baseline_frame_rgb, baseline_frame_index = pending
+        return self._run_assisted_auto_calibration(
+            baseline_frame_rgb,
+            baseline_frame_index,
+        )
+
     def _has_editable_auto_detect_tuning_context(self) -> bool:
         return self.auto_detect_tuning_controller.has_editable_context()
 
@@ -484,13 +514,13 @@ class CalibrationWizardController:
 
                 baseline_frame_rgb = wizard_context.get("frame_rgb") if wizard_context else None
                 baseline_frame_index = self.app_state.video.current_frame_index or 0
-                self._run_assisted_auto_calibration(baseline_frame_rgb, baseline_frame_index)
-                self.control_panel.update_controls_from_state()
+                self._queue_assisted_auto_calibration(baseline_frame_rgb, baseline_frame_index)
 
                 tuning_dialog_opened = self._open_auto_detect_tuning_dialog()
                 if tuning_dialog_opened:
                     logging.info("Auto-detect tuning dialog opened (modeless)")
                 else:
+                    self._pending_assisted_calibration_context = None
                     logging.info("Auto-detect tuning dialog not opened; wizard will be cleaned up")
             else:
                 logging.info("Auto-detect did not produce overlays; skipping tuning dialog")
@@ -514,7 +544,13 @@ class CalibrationWizardController:
             restore_settings_on_finish=True,
         )
 
-    def _on_auto_detect_tuning_dialog_finished(self) -> None:
+    def _on_auto_detect_tuning_dialog_finished(self, result: int) -> None:
+        if result == QDialog.DialogCode.Accepted:
+            self._run_pending_assisted_auto_calibration()
+            self.control_panel.update_controls_from_state()
+        else:
+            self._pending_assisted_calibration_context = None
+
         # Cleanup wizard after modeless tuning closes.
         if self.calibration_wizard is not None:
             self._clear_calibration_wizard()

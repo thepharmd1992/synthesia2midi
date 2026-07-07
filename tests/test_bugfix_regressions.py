@@ -604,7 +604,7 @@ def test_auto_detect_keyboard_region_marks_overlay_generation_source_auto():
     assert app.app_state.calibration.overlay_generation_source == "auto"
 
 
-def test_keyboard_region_selection_runs_assisted_calibration_and_saves(monkeypatch):
+def test_keyboard_region_selection_defers_assisted_calibration_until_tuning_save(monkeypatch):
     QApplication.instance() or QApplication([])
     applied = []
     saved = []
@@ -653,7 +653,8 @@ def test_keyboard_region_selection_runs_assisted_calibration_and_saves(monkeypat
         ),
     )
     app.app_state.video.current_frame_index = 3
-    controller = CalibrationWizardController(app, DummyAutoDetectTuningControllerForRestore())
+    tuning_controller = DummyAutoDetectTuningControllerForRestore()
+    controller = CalibrationWizardController(app, tuning_controller)
     controller.calibration_wizard = _Wizard()
 
     monkeypatch.setattr(
@@ -671,6 +672,12 @@ def test_keyboard_region_selection_runs_assisted_calibration_and_saves(monkeypat
     monkeypatch.setattr(QMessageBox, "question", lambda *args, **kwargs: QMessageBox.StandardButton.Yes)
 
     controller._handle_keyboard_region_selected(1, 2, 3, 4)
+
+    assert tuning_controller.open_calls == 1
+    assert applied == []
+    assert saved == []
+
+    tuning_controller.open_kwargs["on_dialog_finished"](QDialog.Accepted)
 
     assert applied
     assert saved == ["save"]

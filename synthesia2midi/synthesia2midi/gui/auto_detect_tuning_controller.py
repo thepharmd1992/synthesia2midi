@@ -25,7 +25,7 @@ class AutoDetectTuningController:
         self._auto_detect_tuning_dialog = None
         self._last_auto_detect_tuning_context: Optional[Dict[str, Any]] = None
         self._active_wizard = None
-        self._on_dialog_finished_callback: Optional[Callable[[], None]] = None
+        self._on_dialog_finished_callback: Optional[Callable[[int], None]] = None
         self._apply_template_styles_callback = apply_template_styles_callback
         self._settings_tool_was_visible_before_tuning = False
         self._restore_settings_after_tuning = False
@@ -193,7 +193,7 @@ class AutoDetectTuningController:
         wizard,
         *,
         use_wizard_context: bool = True,
-        on_dialog_finished: Optional[Callable[[], None]] = None,
+        on_dialog_finished: Optional[Callable[[int], None]] = None,
         dialog_factory: Optional[Callable[..., Any]] = None,
         restore_settings_on_finish: bool = False,
     ) -> bool:
@@ -277,4 +277,4 @@ class AutoDetectTuningController:
         self._active_wizard = None
         self._on_dialog_finished_callback = None
         if callback is not None:
-            callback()
+            callback(_result)

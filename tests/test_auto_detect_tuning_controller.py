@@ -213,7 +213,7 @@ def test_controller_retains_modeless_dialog_until_finished(monkeypatch):
     opened = controller.open(
         wizard,
         use_wizard_context=True,
-        on_dialog_finished=lambda: finished.append("closed"),
+        on_dialog_finished=lambda result: finished.append(result),
     )
 
     assert opened is True
@@ -228,7 +228,7 @@ def test_controller_retains_modeless_dialog_until_finished(monkeypatch):
 
     assert controller.active_dialog is None
     assert app.video_loading_workflow.save_count == 1
-    assert finished == ["closed"]
+    assert finished == [0]
 
 
 def test_controller_hides_visible_settings_tool_window_until_tuning_closes(monkeypatch):

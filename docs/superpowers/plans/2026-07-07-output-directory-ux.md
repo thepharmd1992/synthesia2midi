@@ -396,7 +396,7 @@ git commit -m "Save MIDI exports to Desktop output folder"
 
 Give users an obvious next action after conversion.
 
-- [ ] Update `synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py`.
+- [x] Update `synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py`.
 
 Implementation shape:
 
@@ -442,7 +442,7 @@ elif clicked == show_folder_button:
     self._show_midi_in_folder(midi_path)
 ```
 
-- [ ] Add tests in `tests/test_midi_touchup_controller.py`:
+- [x] Add tests in `tests/test_midi_touchup_controller.py`:
 
 ```python
 def test_conversion_complete_dialog_has_editor_and_show_folder(qtbot, monkeypatch, tmp_path):
@@ -498,7 +498,7 @@ def test_conversion_complete_dialog_has_editor_and_show_folder(qtbot, monkeypatc
     assert "revealed" in shown_actions
 ```
 
-- [ ] Add a platform-targeted test for macOS reveal command:
+- [x] Add a platform-targeted test for macOS reveal command:
 
 ```python
 def test_show_midi_in_folder_uses_macos_reveal(monkeypatch, tmp_path):
@@ -514,13 +514,15 @@ def test_show_midi_in_folder_uses_macos_reveal(monkeypatch, tmp_path):
     assert calls == [(["open", "-R", str(midi_path)], False)]
 ```
 
-- [ ] Run:
+- [x] Run:
 
 ```bash
 .venv/bin/python -m pytest tests/test_midi_touchup_controller.py tests/test_ui_string_audit.py
 ```
 
 Expected result: touch-up controller tests pass. The UI string audit may fail until Step 8 if the manifest has not been updated; that failure should only list the new intentional string.
+
+Observed at this checkpoint: `tests/test_midi_touchup_controller.py` passed, and `tests/test_ui_string_audit.py` failed only because the tracked manifest is stale after adding new visible dialog text.
 
 Commit after this step:
 

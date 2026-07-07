@@ -4,9 +4,13 @@ from __future__ import annotations
 import json
 import logging
 import os
+from pathlib import Path
+import subprocess
+import sys
 from typing import Any, Dict, Optional
 
-from PySide6.QtCore import QCoreApplication, QObject, QProcess, Signal
+from PySide6.QtCore import QCoreApplication, QObject, QProcess, QUrl, Signal
+from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import QFileDialog, QMessageBox
 
 from synthesia2midi.runtime_paths import detect_runtime_paths
@@ -41,16 +45,35 @@ class MidiTouchupController(QObject):
                 midi_output_path=midi_output_path
             )
         )
-        msg_box.setInformativeText(translate("MidiTouchupController", "You can open the Touch-Up Editor now, or finish."))
+        msg_box.setInformativeText(
+            translate(
+                "MidiTouchupController",
+                "You can open the Touch-Up Editor now, or show the saved MIDI in its folder.",
+            )
+        )
         open_btn = msg_box.addButton(translate("MidiTouchupController", "Open Touch-Up Editor"), QMessageBox.ActionRole)
-        done_btn = msg_box.addButton(translate("MidiTouchupController", "Done"), QMessageBox.AcceptRole)
+        show_folder_btn = msg_box.addButton(
+            translate("MidiTouchupController", "Show MIDI in Folder"),
+            QMessageBox.AcceptRole,
+        )
         msg_box.setDefaultButton(open_btn)
         msg_box.exec()
 
-        if msg_box.clickedButton() is open_btn:
+        clicked_button = msg_box.clickedButton()
+        if clicked_button is open_btn:
             self.open_editor(midi_output_path)
-        elif msg_box.clickedButton() is done_btn:
+        elif clicked_button is show_folder_btn:
+            self._show_midi_in_folder(midi_output_path)
+
+    def _show_midi_in_folder(self, midi_path: str) -> None:
+        path = Path(midi_path)
+        if sys.platform == "darwin":
+            subprocess.run(["open", "-R", str(path)], check=False)
             return
+        if sys.platform.startswith("win"):
+            subprocess.run(["explorer", f"/select,{os.path.normpath(path)}"], check=False)
+            return
+        QDesktopServices.openUrl(QUrl.fromLocalFile(str(path.parent)))
 
     def open_from_picker(self) -> None:
         runtime_paths = detect_runtime_paths()

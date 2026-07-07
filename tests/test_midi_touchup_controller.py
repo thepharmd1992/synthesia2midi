@@ -156,6 +156,78 @@ def test_handle_process_finished_emits_failure_for_error_result(monkeypatch, tmp
     assert failures == [(str(tmp_path / "song.mid"), "load failed")]
 
 
+def test_conversion_complete_dialog_has_editor_and_show_folder(monkeypatch, tmp_path):
+    midi_path = tmp_path / "song.mid"
+    midi_path.write_bytes(b"MThd")
+    app = _fake_app()
+    controller = MidiTouchupController(app)
+    shown_actions = []
+
+    class FakeMessageBox:
+        Information = object()
+        ActionRole = object()
+        AcceptRole = object()
+
+        def __init__(self, parent=None):
+            self.parent = parent
+            self.buttons = []
+            self._clicked = None
+
+        def setIcon(self, icon):
+            self.icon = icon
+
+        def setWindowTitle(self, title):
+            self.window_title = title
+
+        def setText(self, text):
+            self.text = text
+
+        def setInformativeText(self, text):
+            self.informative_text = text
+
+        def addButton(self, text, role):
+            self.buttons.append((text, role))
+            button = object()
+            if text == "Show MIDI in Folder":
+                self._clicked = button
+            return button
+
+        def setDefaultButton(self, button):
+            self.default_button = button
+
+        def exec(self):
+            shown_actions.extend(text for text, _role in self.buttons)
+
+        def clickedButton(self):
+            return self._clicked
+
+    monkeypatch.setattr("synthesia2midi.gui.midi_touchup_controller.QMessageBox", FakeMessageBox)
+    monkeypatch.setattr(controller, "_show_midi_in_folder", lambda path: shown_actions.append(("revealed", path)))
+
+    controller.show_conversion_complete_dialog(str(midi_path))
+
+    assert "Open Touch-Up Editor" in shown_actions
+    assert "Show MIDI in Folder" in shown_actions
+    assert "Done" not in shown_actions
+    assert ("revealed", str(midi_path)) in shown_actions
+
+
+def test_show_midi_in_folder_uses_macos_reveal(monkeypatch, tmp_path):
+    midi_path = tmp_path / "song.mid"
+    calls = []
+    controller = MidiTouchupController(_fake_app())
+
+    monkeypatch.setattr("synthesia2midi.gui.midi_touchup_controller.sys.platform", "darwin")
+    monkeypatch.setattr(
+        "synthesia2midi.gui.midi_touchup_controller.subprocess.run",
+        lambda args, check=False: calls.append((args, check)),
+    )
+
+    controller._show_midi_in_folder(str(midi_path))
+
+    assert calls == [(["open", "-R", str(midi_path)], False)]
+
+
 def test_resolve_binary_path_uses_runtime_paths(monkeypatch, tmp_path):
     app = _fake_app()
     controller = MidiTouchupController(app)

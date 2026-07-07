@@ -17,6 +17,7 @@ _USER_LOCALE_DISPLAY_NAMES = {
     "ja": "日本語",
     "ru": "Русский",
     "zh_CN": "简体中文",
+    "ko": "한국어",
 }
 
 

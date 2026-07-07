@@ -10,7 +10,7 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QDialogButtonBox, QGroupBox, QHBoxLayout,
     QCheckBox, QLabel, QLineEdit, QMessageBox, QProgressBar,
-    QPushButton, QTextEdit, QVBoxLayout
+    QPushButton, QSizePolicy, QTextEdit, QVBoxLayout
 )
 
 from ..youtube_downloader import (
@@ -55,6 +55,7 @@ class YouTubeDownloadDialog(QDialog):
     AUTO_FETCH_DELAY_MS = 350
     DOWNLOAD_STALL_DELAY_MS = 20000
     QUALITY_ORDER = ("1080p", "720p", "480p")
+    MIN_VIDEO_INFO_HEIGHT = 100
     
     # Signal emitted when download completes with file path
     video_downloaded = Signal(str)
@@ -107,13 +108,17 @@ class YouTubeDownloadDialog(QDialog):
         self.info_widget = QGroupBox(QCoreApplication.translate("YouTubeDownloadDialog", "Video Information"))
         self.info_widget.hide()
         # Reserve space even when hidden to prevent dialog resizing
-        self.info_widget.setMinimumHeight(100)
+        self.info_widget.setMinimumHeight(self.MIN_VIDEO_INFO_HEIGHT)
+        self.info_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         info_layout = QVBoxLayout()
         
         self.title_label = QLabel()
         self.title_label.setWordWrap(True)
+        self.title_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.duration_label = QLabel()
+        self.duration_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.uploader_label = QLabel()
+        self.uploader_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         
         info_layout.addWidget(self.title_label)
         info_layout.addWidget(self.duration_label)
@@ -293,9 +298,21 @@ class YouTubeDownloadDialog(QDialog):
         self._current_video_title = info['title']
         self._apply_available_qualities(info.get("available_qualities"))
         self.info_widget.show()
+        self._fit_info_widget_to_contents()
         self.quality_combo.setEnabled(True)
         self.download_btn.setEnabled(True)
         self.status_label.setText(QCoreApplication.translate("YouTubeDownloadDialog", "Ready to download"))
+
+    def _fit_info_widget_to_contents(self):
+        self.info_widget.setMinimumHeight(self.MIN_VIDEO_INFO_HEIGHT)
+        layout = self.info_widget.layout()
+        if layout is not None:
+            layout.activate()
+        self.info_widget.setMinimumHeight(
+            max(self.MIN_VIDEO_INFO_HEIGHT, self.info_widget.sizeHint().height())
+        )
+        self.info_widget.updateGeometry()
+        self.adjustSize()
 
     def _on_video_info_error(self, url, error):
         if url != self.url_input.text().strip():

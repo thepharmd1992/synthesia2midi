@@ -177,6 +177,26 @@ def test_video_info_success_enables_quality_selector(tmp_path):
     assert dialog.quality_combo.isEnabled()
 
 
+def test_video_info_group_expands_to_fit_metadata_labels(tmp_path):
+    QApplication.instance() or QApplication([])
+    dialog = YouTubeDownloadDialog(default_output_dir=str(tmp_path))
+    dialog.show()
+    dialog.url_input.setText("https://www.youtube.com/watch?v=SFFSZQCnU_M")
+    dialog.auto_fetch_timer.stop()
+
+    dialog._on_video_info_fetched(
+        "https://www.youtube.com/watch?v=SFFSZQCnU_M",
+        {
+            "title": "Nursery Rhymes - Mary had a little lamb (Piano for children)",
+            "duration": 24,
+            "uploader": "Tuttopiano",
+        },
+    )
+    QApplication.processEvents()
+
+    assert dialog.info_widget.height() >= dialog.info_widget.sizeHint().height()
+
+
 def test_video_info_success_uses_real_available_quality_options(tmp_path):
     QApplication.instance() or QApplication([])
     dialog = YouTubeDownloadDialog(default_output_dir=str(tmp_path))

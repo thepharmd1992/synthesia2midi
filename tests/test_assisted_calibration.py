@@ -9,6 +9,7 @@ from synthesia2midi.detection.assisted_calibration import (
     AssistedCalibrationProposal,
     ExemplarScanSettings,
     ExemplarCandidate,
+    _BoundedFrameCache,
     UnlitFrameAssessment,
     apply_assisted_calibration_proposal,
     assess_unlit_frame,
@@ -259,6 +260,24 @@ def test_scanner_reuses_frame_provider_reads_across_refinement_window():
     assert len(candidates) == 1
     assert candidates[0].frame_index == 1
     assert calls == [0, 1, 5, 4]
+
+
+def test_bounded_frame_cache_evicts_old_frames():
+    cache = _BoundedFrameCache(max_size=2)
+    calls: list[int] = []
+
+    def frame_provider(index: int):
+        calls.append(index)
+        return np.full((2, 2, 3), index, dtype=np.uint8)
+
+    assert cache.get(0, frame_provider) is not None
+    assert cache.get(1, frame_provider) is not None
+    assert cache.get(0, frame_provider) is not None
+    assert cache.get(2, frame_provider) is not None
+    assert cache.get(1, frame_provider) is not None
+
+    assert calls == [0, 1, 2, 1]
+    assert len(cache) <= 2
 
 
 def test_scanner_honors_cancel_callback():

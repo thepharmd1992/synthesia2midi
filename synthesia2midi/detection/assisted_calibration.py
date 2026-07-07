@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Callable, Dict, Iterable, Literal, Optional, Sequence, Tuple
 
@@ -89,6 +90,26 @@ class ExemplarScanSettings:
     min_rgb_delta: float = 35.0
     min_saturation: float = 35.0
     max_candidates_per_key: int = 6
+
+
+class _BoundedFrameCache:
+    def __init__(self, max_size: int) -> None:
+        self._max_size = max(1, max_size)
+        self._frames: OrderedDict[int, Optional[np.ndarray]] = OrderedDict()
+
+    def __len__(self) -> int:
+        return len(self._frames)
+
+    def get(self, index: int, frame_provider: FrameProvider) -> Optional[np.ndarray]:
+        if index in self._frames:
+            self._frames.move_to_end(index)
+            return self._frames[index]
+
+        frame = frame_provider(index)
+        self._frames[index] = frame
+        while len(self._frames) > self._max_size:
+            self._frames.popitem(last=False)
+        return frame
 
 
 def overlay_note_label(overlay: OverlayConfig) -> str:
@@ -442,21 +463,16 @@ def scan_lit_exemplar_candidates(
 ) -> Tuple[list[ExemplarCandidate], int, bool]:
     candidates_by_key: dict[int, list[ExemplarCandidate]] = {}
     active_candidates_by_key: dict[int, ExemplarCandidate] = {}
-    frame_cache: dict[int, Optional[np.ndarray]] = {}
     scanned = 0
     end_frame = max(start_frame, end_frame)
     stride = max(1, settings.coarse_stride)
-
-    def cached_frame(index: int) -> Optional[np.ndarray]:
-        if index not in frame_cache:
-            frame_cache[index] = frame_provider(index)
-        return frame_cache[index]
+    frame_cache = _BoundedFrameCache(stride + (2 * settings.refine_radius) + 1)
 
     for frame_index in range(start_frame, end_frame + 1, stride):
         if progress_callback is not None and not progress_callback(frame_index, end_frame):
             return [], scanned, True
 
-        frame = cached_frame(frame_index)
+        frame = frame_cache.get(frame_index, frame_provider)
         if frame is None:
             continue
         scanned += 1
@@ -476,7 +492,7 @@ def scan_lit_exemplar_candidates(
             refine_start = max(start_frame, frame_index - settings.refine_radius)
             refine_end = min(end_frame, frame_index + settings.refine_radius)
             for refined_index in range(refine_start, refine_end + 1):
-                refined_frame = cached_frame(refined_index)
+                refined_frame = frame_cache.get(refined_index, frame_provider)
                 if refined_frame is None:
                     continue
                 refined_candidate = _frame_candidate_for_overlay(

@@ -40,5 +40,7 @@ Add a V1 assisted calibration flow that starts after the user draws a keyboard b
 <!-- SECTION:NOTES:BEGIN -->
 - Design spec: `docs/superpowers/specs/2026-07-07-assisted-auto-calibration-design.md`
 - Expected gates will include `git diff --check`, compileall, focused calibration tests, and full pytest after implementation.
+- The brief's original probe command was corrected after the package path moved. The reachable validation command in this checkout is:
+  - `PYTHONPATH=synthesia2midi .venv/bin/python -m synthesia2midi.synthesia2midi.tools.probe_assisted_calibration --video /Users/jeff/Movies/game_of_thrones_main_theme_synthesia_piano_tutorial/game_of_thrones_main_theme_synthesia_piano_tutorial_1080p.mp4 --overlays /Users/jeff/Movies/game_of_thrones_main_theme_synthesia_piano_tutorial/game_of_thrones_main_theme_synthesia_piano_tutorial_1080p_overlays.json --ini /Users/jeff/Movies/game_of_thrones_main_theme_synthesia_piano_tutorial/game_of_thrones_main_theme_synthesia_piano_tutorial_1080p.ini --baseline-frame 430 --end-frame 2500 --stride 10`
 - Local exploratory validation on 2026-07-07 used the Game of Thrones reference assets with `baseline_frame=430` and `end_frame=2500`; observed proposal colors were approximately `LW=(136,171,208)`, `LB=(77,115,174)`, `RW=(252,175,70)`, and `RB=(255,130,52)` against the saved INI targets.
 <!-- SECTION:NOTES:END -->

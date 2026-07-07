@@ -9,22 +9,25 @@ from typing import Optional, Dict, Tuple, List
 
 import numpy as np
 from PySide6.QtWidgets import QMessageBox, QProgressDialog, QInputDialog
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QCoreApplication
 
 from synthesia2midi.video_loader import VideoSession
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.gui.wizard import CalibrationWizard
 from synthesia2midi.detection.factory import DetectionFactory
 from synthesia2midi.detection.roi_utils import get_hist_feature
+from synthesia2midi.detection.assisted_calibration import assess_unlit_frame
 from synthesia2midi.gui.controls_qt import KEY_TYPES
 from synthesia2midi.config_manager import ConfigManager
 from synthesia2midi.runtime_paths import detect_runtime_paths
 from synthesia2midi.app_config import (
     OverlayConfig, 
     DEFAULT_WHITE_KEY_STYLE, 
-    DEFAULT_BLACK_KEY_STYLE,
+    DEFAULT_BLACK_KEY_STYLE, 
     NOTE_NAMES_SHARP
 )
+
+translate = QCoreApplication.translate
 
 
 class CalibrationWorkflow:
@@ -188,6 +191,24 @@ class CalibrationWorkflow:
         if not keyboard_canvas:
             self._show_error("Calibration Error", "Canvas not available.")
             return
+
+        frame_rgb = getattr(keyboard_canvas, "current_frame_rgb", None)
+        if frame_rgb is not None:
+            assessment = assess_unlit_frame(frame_rgb, self.app_state.overlays)
+            if assessment.should_warn:
+                note_list = ", ".join(item.note_label for item in assessment.likely_lit)
+                response = QMessageBox.warning(
+                    self.parent_widget,
+                    translate("CalibrationWorkflow", "Unlit Frame May Contain Lit Keys"),
+                    translate(
+                        "CalibrationWorkflow",
+                        "It looks like these keys may be lit: {notes}.\n\nMove to a frame where no keys are lit, or continue if this is expected.",
+                    ).format(notes=note_list),
+                    QMessageBox.StandardButton.Ignore | QMessageBox.StandardButton.Cancel,
+                    QMessageBox.StandardButton.Cancel,
+                )
+                if response == QMessageBox.StandardButton.Cancel:
+                    return
         
         overlays_calibrated = 0
         for overlay in self.app_state.overlays:

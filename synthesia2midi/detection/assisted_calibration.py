@@ -141,6 +141,24 @@ def sample_overlay_bgr(
     return cv2.cvtColor(roi_rgb, cv2.COLOR_RGB2BGR)
 
 
+def capture_unlit_references_from_frame(
+    frame_rgb: np.ndarray,
+    overlays: Sequence[OverlayConfig],
+) -> int:
+    from synthesia2midi.detection.roi_utils import get_hist_feature
+
+    calibrated = 0
+    for overlay in overlays:
+        rgb = sample_overlay_rgb(frame_rgb, overlay)
+        bgr = sample_overlay_bgr(frame_rgb, overlay)
+        if rgb is None or bgr is None:
+            continue
+        overlay.unlit_reference_color = rgb
+        overlay.unlit_hist = get_hist_feature(bgr)
+        calibrated += 1
+    return calibrated
+
+
 def _rgb_distance(a: Tuple[int, int, int], b: Tuple[int, int, int]) -> float:
     return float(np.linalg.norm(np.array(a, dtype=np.float32) - np.array(b, dtype=np.float32)))
 

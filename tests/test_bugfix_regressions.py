@@ -19,6 +19,7 @@ from synthesia2midi.gui.calibration_wizard_controller import CalibrationWizardCo
 from synthesia2midi.gui.canvas.interaction import CanvasInteraction
 from synthesia2midi.gui.main_action_controller import MainActionController
 from synthesia2midi.gui.signal_manager import ControlSignalManager
+from synthesia2midi.workflows.calibration import CalibrationWorkflow
 from synthesia2midi.utils import ffmpeg_helper
 
 
@@ -947,3 +948,37 @@ def test_canvas_interaction_exposes_shadow_roi_selection_modes():
 
     interaction.enter_shadow_black_roi_selection_mode()
     assert interaction._roi_selection_type == "shadow_black"
+
+
+def test_unlit_calibration_warns_when_frame_has_likely_lit_key(monkeypatch):
+    warnings = []
+    infos = []
+    monkeypatch.setattr(QMessageBox, "warning", lambda *args, **kwargs: warnings.append(args) or QMessageBox.StandardButton.Cancel)
+    monkeypatch.setattr(QMessageBox, "information", lambda *args, **kwargs: infos.append(args))
+
+    app_state = AppState()
+    app_state.overlays = [
+        OverlayConfig(key_id=1, note_octave=4, note_name_in_octave="C", x=0, y=0, width=4, height=4, key_type="LW"),
+        OverlayConfig(key_id=2, note_octave=4, note_name_in_octave="D", x=5, y=0, width=4, height=4, key_type="LW"),
+        OverlayConfig(key_id=3, note_octave=4, note_name_in_octave="E", x=10, y=0, width=4, height=4, key_type="LW"),
+        OverlayConfig(key_id=4, note_octave=4, note_name_in_octave="F", x=15, y=0, width=4, height=4, key_type="LW"),
+    ]
+    frame_rgb = np.full((8, 24, 3), (245, 245, 235), dtype=np.uint8)
+    frame_rgb[0:4, 10:14] = (235, 150, 40)
+    frame_bgr = frame_rgb[:, :, ::-1]
+    canvas = SimpleNamespace(
+        current_frame_rgb=frame_rgb,
+        get_roi_bgr=lambda overlay: frame_bgr[
+            int(overlay.y):int(overlay.y + overlay.height),
+            int(overlay.x):int(overlay.x + overlay.width),
+        ],
+    )
+    parent = SimpleNamespace(keyboard_canvas=canvas, control_panel=SimpleNamespace(update_controls_from_state=lambda: None))
+    workflow = CalibrationWorkflow(app_state, SimpleNamespace(), parent)
+
+    workflow.handle_calibrate_unlit_all_keys()
+
+    assert warnings
+    assert "E4" in warnings[0][2]
+    assert infos == []
+    assert all(overlay.unlit_reference_color is None for overlay in app_state.overlays)

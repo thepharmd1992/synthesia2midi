@@ -3,6 +3,7 @@ import numpy as np
 from synthesia2midi.app_config import OverlayConfig
 from synthesia2midi.detection.assisted_calibration import (
     assess_unlit_frame,
+    capture_unlit_references_from_frame,
     overlay_key_color,
     overlay_note_label,
     sample_overlay_bgr,
@@ -117,3 +118,15 @@ def test_unlit_frame_reference_saturation_threshold_is_configurable():
 
     assert assess_unlit_frame(frame, overlays).status == "warning"
     assert assess_unlit_frame(frame, overlays, min_reference_saturation=255.0).status == "clean"
+
+
+def test_capture_unlit_references_sets_rgb_and_histogram():
+    frame = np.zeros((8, 8, 3), dtype=np.uint8)
+    frame[1:5, 1:5] = (100, 120, 140)
+    overlay = _overlay(x=1, y=1, width=4, height=4)
+
+    count = capture_unlit_references_from_frame(frame, [overlay])
+
+    assert count == 1
+    assert overlay.unlit_reference_color == (100, 120, 140)
+    assert overlay.unlit_hist is not None

@@ -10,6 +10,7 @@ from PySide6.QtCore import QCoreApplication, Qt
 from PySide6.QtWidgets import QApplication, QMessageBox, QProgressDialog, QWidget
 
 from synthesia2midi.detection.assisted_calibration import (
+    assess_unlit_frame,
     ExemplarScanSettings,
     apply_assisted_calibration_proposal,
     build_assisted_calibration_proposal,
@@ -325,6 +326,21 @@ class CalibrationWizardController:
             return False
 
         overlay_unlit_state = self._snapshot_overlay_unlit_state()
+        assessment = assess_unlit_frame(baseline_frame_rgb, self.app_state.overlays)
+        if assessment.should_warn:
+            note_list = ", ".join(item.note_label for item in assessment.likely_lit)
+            response = QMessageBox.warning(
+                self.app if isinstance(self.app, QWidget) else None,
+                translate("CalibrationWizardController", "Unlit Frame May Contain Lit Keys"),
+                translate(
+                    "CalibrationWizardController",
+                    "It looks like these keys may be lit: {notes}.\n\nMove to a frame where no keys are lit, or continue if this is expected.",
+                ).format(notes=note_list),
+                QMessageBox.StandardButton.Ignore | QMessageBox.StandardButton.Cancel,
+                QMessageBox.StandardButton.Cancel,
+            )
+            if response == QMessageBox.StandardButton.Cancel:
+                return False
         capture_unlit_references_from_frame(baseline_frame_rgb, self.app_state.overlays)
 
         total_frames = getattr(self.video_session, "total_frames", baseline_frame_index + 1)

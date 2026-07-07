@@ -676,6 +676,37 @@ def test_keyboard_region_selection_runs_assisted_calibration_and_saves(monkeypat
     assert saved == ["save"]
 
 
+def test_assisted_calibration_unlit_warning_cancel_skips_apply(monkeypatch):
+    QApplication.instance() or QApplication([])
+    applied = []
+    app = SimpleNamespace(
+        app_state=AppState(),
+        video_session=SimpleNamespace(total_frames=4, get_frame=lambda _index: (True, np.zeros((8, 8, 3), dtype=np.uint8))),
+        video_loading_workflow=SimpleNamespace(save_current_config=lambda: True),
+        control_panel=SimpleNamespace(update_controls_from_state=lambda: None),
+    )
+    app.app_state.overlays = [
+        OverlayConfig(key_id=i, note_octave=4, note_name_in_octave="E", x=i * 2, y=0, width=2, height=2, key_type="LW")
+        for i in range(4)
+    ]
+    baseline = np.full((8, 12, 3), (245, 245, 235), dtype=np.uint8)
+    baseline[0:2, 4:6] = (240, 140, 40)
+    controller = CalibrationWizardController(app, DummyAutoDetectTuningControllerForRestore())
+
+    monkeypatch.setattr(QMessageBox, "warning", lambda *args, **kwargs: QMessageBox.StandardButton.Cancel)
+    monkeypatch.setattr(
+        "synthesia2midi.gui.calibration_wizard_controller.build_assisted_calibration_proposal",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("scan should not run after warning cancel")),
+    )
+    monkeypatch.setattr(
+        "synthesia2midi.gui.calibration_wizard_controller.apply_assisted_calibration_proposal",
+        lambda app_state, proposal: applied.append(proposal),
+    )
+
+    assert controller._run_assisted_auto_calibration(baseline, 0) is False
+    assert applied == []
+
+
 def test_assisted_calibration_scan_cancel_processes_events_and_stops(monkeypatch):
     QApplication.instance() or QApplication([])
     save_log = []

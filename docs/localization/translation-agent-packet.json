@@ -709,6 +709,30 @@
     },
     {
       "context": "CalibrationInteractionController",
+      "source": "Lit Exemplar Looks Unchanged",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 72
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationInteractionController",
+      "source": "This sample does not look lit enough to be effective.\n\nMove to a frame where the key is lit, then click the lit key overlay again.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_interaction_controller.py",
+          "line": 73
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationInteractionController",
       "source": "Calibration Disabled",
       "placeholders": [],
       "locations": [

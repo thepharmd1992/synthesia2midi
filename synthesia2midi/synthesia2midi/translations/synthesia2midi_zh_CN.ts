@@ -281,6 +281,20 @@
   <context>
     <name>CalibrationInteractionController</name>
     <message>
+      <location filename="../gui/calibration_interaction_controller.py" line="72" />
+      <source>Lit Exemplar Looks Unchanged</source>
+      <translation>亮键样本看起来未变化</translation>
+    </message>
+    <message>
+      <location filename="../gui/calibration_interaction_controller.py" line="73" />
+      <source>This sample does not look lit enough to be effective.
+
+Move to a frame where the key is lit, then click the lit key overlay again.</source>
+      <translation>此样本看起来不够亮，无法有效使用。
+
+请移到按键已亮起的帧，然后再次点击亮键覆盖层。</translation>
+    </message>
+    <message>
       <location filename="../gui/calibration_interaction_controller.py" line="50" />
       <source>Calibration Disabled</source>
       <translation>校准已禁用</translation>

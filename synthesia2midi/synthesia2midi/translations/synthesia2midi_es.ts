@@ -281,6 +281,20 @@
     <context>
         <name>CalibrationInteractionController</name>
         <message>
+            <location filename="../gui/calibration_interaction_controller.py" line="72" />
+            <source>Lit Exemplar Looks Unchanged</source>
+            <translation>El ejemplar iluminado parece no haber cambiado</translation>
+        </message>
+        <message>
+            <location filename="../gui/calibration_interaction_controller.py" line="73" />
+            <source>This sample does not look lit enough to be effective.
+
+Move to a frame where the key is lit, then click the lit key overlay again.</source>
+            <translation>Esta muestra no parece estar suficientemente iluminada para ser efectiva.
+
+Ve a un fotograma donde la tecla esté iluminada y vuelve a hacer clic en la superposición de la tecla iluminada.</translation>
+        </message>
+        <message>
             <location filename="../gui/calibration_interaction_controller.py" line="50" />
             <source>Calibration Disabled</source>
             <translation>Calibración desactivada</translation>

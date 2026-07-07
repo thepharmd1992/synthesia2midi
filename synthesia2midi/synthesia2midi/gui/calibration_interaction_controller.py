@@ -12,6 +12,22 @@ from PySide6.QtWidgets import QMessageBox
 
 translate = QCoreApplication.translate
 
+MIN_LIT_EXEMPLAR_RGB_DELTA = 12.0
+
+
+def _lit_exemplar_matches_unlit_reference(
+    sampled_color: Tuple[int, int, int],
+    unlit_reference_color: Optional[Tuple[int, int, int]],
+) -> bool:
+    """Return True when the sampled lit exemplar is effectively unchanged."""
+    if unlit_reference_color is None:
+        return False
+
+    sampled = np.array(sampled_color, dtype=np.float32)
+    unlit = np.array(unlit_reference_color, dtype=np.float32)
+    mean_delta = float(np.mean(np.abs(sampled - unlit)))
+    return mean_delta < MIN_LIT_EXEMPLAR_RGB_DELTA
+
 
 class CalibrationInteractionController:
     """Owns overlay click dispatch for calibration modes."""
@@ -40,6 +56,27 @@ class CalibrationInteractionController:
                 sampled_color = self.keyboard_canvas.get_average_color_for_overlay(self.keyboard_canvas.current_frame_rgb, overlay_to_sample)
                 if sampled_color:
                     key_type_to_cal = self.app_state.calibration.current_calibration_key_type
+                    if _lit_exemplar_matches_unlit_reference(
+                        sampled_color,
+                        getattr(overlay_to_sample, "unlit_reference_color", None),
+                    ):
+                        logging.warning(
+                            "Rejected lit exemplar for %s from overlay %s because sampled color %s matches unlit reference %s.",
+                            key_type_to_cal,
+                            selected_key_id,
+                            sampled_color,
+                            getattr(overlay_to_sample, "unlit_reference_color", None),
+                        )
+                        QMessageBox.warning(
+                            self.app,
+                            translate("CalibrationInteractionController", "Lit Exemplar Looks Unchanged"),
+                            translate(
+                                "CalibrationInteractionController",
+                                "This sample does not look lit enough to be effective.\n\nMove to a frame where the key is lit, then click the lit key overlay again.",
+                            ),
+                        )
+                        self.control_panel.update_selected_overlay_display()
+                        return
                     if (
                         key_type_to_cal in {"LW", "LB", "RW", "RB"}
                         and not self.app_state.detection.exemplar_key_type_enabled.get(key_type_to_cal, True)

@@ -281,6 +281,20 @@
   <context>
     <name>CalibrationInteractionController</name>
     <message>
+      <location filename="../gui/calibration_interaction_controller.py" line="72" />
+      <source>Lit Exemplar Looks Unchanged</source>
+      <translation>Подсвеченный образец не изменился</translation>
+    </message>
+    <message>
+      <location filename="../gui/calibration_interaction_controller.py" line="73" />
+      <source>This sample does not look lit enough to be effective.
+
+Move to a frame where the key is lit, then click the lit key overlay again.</source>
+      <translation>Этот образец выглядит недостаточно подсвеченным, чтобы быть полезным.
+
+Перейдите к кадру, где клавиша подсвечена, затем снова нажмите наложение подсвеченной клавиши.</translation>
+    </message>
+    <message>
       <location filename="../gui/calibration_interaction_controller.py" line="50" />
       <source>Calibration Disabled</source>
       <translation>Калибровка отключена</translation>

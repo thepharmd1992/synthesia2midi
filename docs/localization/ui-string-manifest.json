@@ -552,7 +552,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 219,
+      "line": 256,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -561,7 +561,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 220,
+      "line": 257,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -570,7 +570,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 233,
+      "line": 270,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -579,7 +579,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 234,
+      "line": 271,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -957,7 +957,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 50,
+      "line": 87,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -966,7 +966,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 145,
+      "line": 182,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -993,7 +993,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 138,
+      "line": 175,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -1002,7 +1002,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 137,
+      "line": 174,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -1362,7 +1362,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 243,
+      "line": 280,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -1380,7 +1380,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 252,
+      "line": 289,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -1389,7 +1389,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 173,
+      "line": 210,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -1398,7 +1398,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 146,
+      "line": 183,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -2514,6 +2514,15 @@
     {
       "classification": "translate",
       "context": "translate",
+      "line": 72,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
+      "text": "Lit Exemplar Looks Unchanged"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
       "line": 402,
       "origin": "static",
       "role": "arg1",
@@ -3441,7 +3450,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 242,
+      "line": 279,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -3986,6 +3995,15 @@
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
       "text": "This quality is already downloaded. Use existing file?"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 73,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
+      "text": "This sample does not look lit enough to be effective.\n\nMove to a frame where the key is lit, then click the lit key overlay again."
     },
     {
       "classification": "translate",
@@ -4638,7 +4656,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 51,
+      "line": 88,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_interaction_controller.py",
@@ -4704,7 +4722,7 @@
     "dynamic_user_data": 4,
     "path_or_url": 2,
     "technical_id": 7,
-    "translate": 498
+    "translate": 500
   },
   "schema_version": 1
 }

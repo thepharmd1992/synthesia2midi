@@ -725,6 +725,141 @@ def test_calibration_interaction_dispatches_shadow_overlay_to_focused_controller
     assert not hasattr(app, "_capture_shadow_overlay_calibration")
 
 
+def test_lit_exemplar_rejects_sample_that_matches_unlit_reference(monkeypatch):
+    warnings = []
+    infos = []
+    monkeypatch.setattr(QMessageBox, "warning", lambda *args, **kwargs: warnings.append(args))
+    monkeypatch.setattr(QMessageBox, "information", lambda *args, **kwargs: infos.append(args))
+    app_state = AppState()
+    app_state.calibration.calibration_mode = "lit_exemplar"
+    app_state.calibration.current_calibration_key_type = "LW"
+    app_state.detection.exemplar_lit_colors["LW"] = (10, 20, 30)
+    app_state.detection.exemplar_lit_histograms["LW"] = np.array([1.0], dtype=np.float32)
+    app_state.overlays = [
+        OverlayConfig(
+            key_id=7,
+            note_octave=4,
+            note_name_in_octave="C",
+            x=0,
+            y=0,
+            width=4,
+            height=4,
+            key_type="LW",
+            unlit_reference_color=(250, 250, 250),
+        )
+    ]
+    control_panel = SimpleNamespace(
+        advanced_updates=0,
+        controls_updates=0,
+        selected_updates=0,
+        update_advanced_calibration_display=lambda: setattr(
+            control_panel, "advanced_updates", control_panel.advanced_updates + 1
+        ),
+        update_controls_from_state=lambda: setattr(
+            control_panel, "controls_updates", control_panel.controls_updates + 1
+        ),
+        update_selected_overlay_display=lambda: setattr(
+            control_panel, "selected_updates", control_panel.selected_updates + 1
+        ),
+    )
+    video_loading_workflow = SimpleNamespace(
+        save_current_config=lambda: (_ for _ in ()).throw(
+            AssertionError("invalid exemplar sample should not autosave")
+        )
+    )
+    keyboard_canvas = SimpleNamespace(
+        current_frame_rgb=np.zeros((4, 4, 3), dtype=np.uint8),
+        get_average_color_for_overlay=lambda _frame, _overlay: (251, 249, 250),
+        get_roi_bgr=lambda _overlay: np.full((4, 4, 3), (250, 250, 250), dtype=np.uint8),
+    )
+    app = SimpleNamespace(
+        app_state=app_state,
+        keyboard_canvas=keyboard_canvas,
+        control_panel=control_panel,
+        video_loading_workflow=video_loading_workflow,
+    )
+
+    CalibrationInteractionController(app)._handle_overlay_selection(7)
+
+    assert app_state.detection.exemplar_lit_colors["LW"] == (10, 20, 30)
+    assert app_state.detection.exemplar_lit_histograms["LW"].tolist() == [1.0]
+    assert app_state.calibration.calibration_mode == "lit_exemplar"
+    assert app_state.calibration.current_calibration_key_type == "LW"
+    assert app_state.unsaved_changes is False
+    assert infos == []
+    assert warnings
+    assert "frame where the key is lit" in warnings[0][2]
+    assert control_panel.advanced_updates == 0
+    assert control_panel.controls_updates == 0
+    assert control_panel.selected_updates == 1
+
+
+def test_lit_exemplar_accepts_sample_that_differs_from_unlit_reference(monkeypatch):
+    warnings = []
+    infos = []
+    save_calls = []
+    monkeypatch.setattr(QMessageBox, "warning", lambda *args, **kwargs: warnings.append(args))
+    monkeypatch.setattr(QMessageBox, "information", lambda *args, **kwargs: infos.append(args))
+    app_state = AppState()
+    app_state.calibration.calibration_mode = "lit_exemplar"
+    app_state.calibration.current_calibration_key_type = "LW"
+    app_state.overlays = [
+        OverlayConfig(
+            key_id=7,
+            note_octave=4,
+            note_name_in_octave="C",
+            x=0,
+            y=0,
+            width=4,
+            height=4,
+            key_type="LW",
+            unlit_reference_color=(250, 250, 250),
+        )
+    ]
+    control_panel = SimpleNamespace(
+        advanced_updates=0,
+        controls_updates=0,
+        selected_updates=0,
+        update_advanced_calibration_display=lambda: setattr(
+            control_panel, "advanced_updates", control_panel.advanced_updates + 1
+        ),
+        update_controls_from_state=lambda: setattr(
+            control_panel, "controls_updates", control_panel.controls_updates + 1
+        ),
+        update_selected_overlay_display=lambda: setattr(
+            control_panel, "selected_updates", control_panel.selected_updates + 1
+        ),
+    )
+    video_loading_workflow = SimpleNamespace(
+        save_current_config=lambda: save_calls.append("save") or True
+    )
+    keyboard_canvas = SimpleNamespace(
+        current_frame_rgb=np.zeros((4, 4, 3), dtype=np.uint8),
+        get_average_color_for_overlay=lambda _frame, _overlay: (220, 80, 40),
+        get_roi_bgr=lambda _overlay: np.full((4, 4, 3), (40, 80, 220), dtype=np.uint8),
+    )
+    app = SimpleNamespace(
+        app_state=app_state,
+        keyboard_canvas=keyboard_canvas,
+        control_panel=control_panel,
+        video_loading_workflow=video_loading_workflow,
+    )
+
+    CalibrationInteractionController(app)._handle_overlay_selection(7)
+
+    assert app_state.detection.exemplar_lit_colors["LW"] == (220, 80, 40)
+    assert app_state.detection.exemplar_lit_histograms["LW"] is not None
+    assert app_state.calibration.calibration_mode is None
+    assert app_state.calibration.current_calibration_key_type is None
+    assert app_state.unsaved_changes is False
+    assert save_calls == ["save"]
+    assert warnings == []
+    assert infos
+    assert control_panel.advanced_updates == 1
+    assert control_panel.controls_updates == 1
+    assert control_panel.selected_updates == 1
+
+
 def _app_state_with_universal_spark_calibration():
     app_state = AppState()
     app_state.overlays = [

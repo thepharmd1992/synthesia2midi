@@ -281,6 +281,20 @@
   <context>
     <name>CalibrationInteractionController</name>
     <message>
+      <location filename="../gui/calibration_interaction_controller.py" line="72" />
+      <source>Lit Exemplar Looks Unchanged</source>
+      <translation>点灯サンプルが変化していません</translation>
+    </message>
+    <message>
+      <location filename="../gui/calibration_interaction_controller.py" line="73" />
+      <source>This sample does not look lit enough to be effective.
+
+Move to a frame where the key is lit, then click the lit key overlay again.</source>
+      <translation>このサンプルは、有効に使えるほど点灯していないようです。
+
+キーが点灯しているフレームに移動してから、点灯したキーのオーバーレイをもう一度クリックしてください。</translation>
+    </message>
+    <message>
       <location filename="../gui/calibration_interaction_controller.py" line="50" />
       <source>Calibration Disabled</source>
       <translation>キャリブレーション無効</translation>

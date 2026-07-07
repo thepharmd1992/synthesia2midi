@@ -2,6 +2,7 @@ import numpy as np
 
 from synthesia2midi.app_config import OverlayConfig
 from synthesia2midi.detection.assisted_calibration import (
+    assess_unlit_frame,
     overlay_key_color,
     overlay_note_label,
     sample_overlay_bgr,
@@ -59,3 +60,35 @@ def test_overlay_note_label_and_key_color_use_existing_overlay_data():
     assert overlay_note_label(_overlay(note="E", octave=4)) == "E4"
     assert overlay_key_color(_overlay(key_type="LB")) == "B"
     assert overlay_key_color(_overlay(key_type="RW")) == "W"
+
+
+def test_unlit_frame_guard_returns_clean_for_uniform_keyboard_groups():
+    frame = np.zeros((20, 80, 3), dtype=np.uint8)
+    overlays = []
+    for i in range(4):
+        overlays.append(_overlay(key_id=i, note="C", octave=4, x=i * 10, y=0, width=8, height=8, key_type="LW"))
+        frame[0:8, i * 10:i * 10 + 8] = (245, 245, 235)
+    for i in range(4):
+        overlays.append(_overlay(key_id=10 + i, note="C♯", octave=4, x=i * 10, y=10, width=8, height=8, key_type="LB"))
+        frame[10:18, i * 10:i * 10 + 8] = (25, 25, 25)
+
+    assessment = assess_unlit_frame(frame, overlays)
+
+    assert assessment.status == "clean"
+    assert assessment.likely_lit == ()
+
+
+def test_unlit_frame_guard_warns_with_likely_lit_note_name():
+    frame = np.zeros((20, 80, 3), dtype=np.uint8)
+    overlays = []
+    for i in range(6):
+        overlays.append(_overlay(key_id=i, note="E", octave=4, x=i * 10, y=0, width=8, height=8, key_type="LW"))
+        frame[0:8, i * 10:i * 10 + 8] = (245, 245, 235)
+    overlays[2].note_name_in_octave = "G"
+    frame[0:8, 20:28] = (235, 150, 40)
+
+    assessment = assess_unlit_frame(frame, overlays)
+
+    assert assessment.status == "warning"
+    assert [item.note_label for item in assessment.likely_lit] == ["G4"]
+    assert assessment.likely_lit[0].confidence > 0.5

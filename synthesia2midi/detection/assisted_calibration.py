@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Callable, Dict, Literal, Optional, Tuple
+from typing import Callable, Dict, Literal, Optional, Sequence, Tuple
 
 import cv2
 import numpy as np
@@ -139,3 +139,79 @@ def sample_overlay_bgr(
     if roi_rgb.size == 0:
         return None
     return cv2.cvtColor(roi_rgb, cv2.COLOR_RGB2BGR)
+
+
+def _rgb_distance(a: Tuple[int, int, int], b: Tuple[int, int, int]) -> float:
+    return float(np.linalg.norm(np.array(a, dtype=np.float32) - np.array(b, dtype=np.float32)))
+
+
+def _rgb_to_hsv_tuple(rgb: Tuple[int, int, int]) -> Tuple[float, float, float]:
+    pixel = np.array([[rgb]], dtype=np.uint8)
+    hsv = cv2.cvtColor(pixel, cv2.COLOR_RGB2HSV)[0, 0]
+    return float(hsv[0]), float(hsv[1]), float(hsv[2])
+
+
+def assess_unlit_frame(
+    frame_rgb: np.ndarray,
+    overlays: Sequence[OverlayConfig],
+    *,
+    min_group_delta: float = 45.0,
+    min_reference_delta: float = 35.0,
+    min_saturation_delta: float = 25.0,
+    max_reported: int = 6,
+) -> UnlitFrameAssessment:
+    samples: list[tuple[OverlayConfig, KeyColor, Tuple[int, int, int], Tuple[float, float, float]]] = []
+    for overlay in overlays:
+        rgb = sample_overlay_rgb(frame_rgb, overlay)
+        if rgb is None:
+            continue
+        samples.append((overlay, overlay_key_color(overlay), rgb, _rgb_to_hsv_tuple(rgb)))
+
+    if len(samples) < 4:
+        return UnlitFrameAssessment(status="unknown", reason="not enough overlay samples")
+
+    likely: list[LikelyLitOverlay] = []
+    for key_color in ("W", "B"):
+        group = [sample for sample in samples if sample[1] == key_color]
+        if len(group) < 3:
+            continue
+
+        group_rgbs = np.array([sample[2] for sample in group], dtype=np.float32)
+        group_sats = np.array([sample[3][1] for sample in group], dtype=np.float32)
+        median_rgb = tuple(np.median(group_rgbs, axis=0).round().astype(int).tolist())
+        median_sat = float(np.median(group_sats))
+
+        for overlay, _, rgb, hsv in group:
+            group_delta = _rgb_distance(rgb, median_rgb)
+            reference_delta = 0.0
+            if overlay.unlit_reference_color is not None:
+                reference_delta = _rgb_distance(rgb, overlay.unlit_reference_color)
+
+            saturation_delta = hsv[1] - median_sat
+            strong_group_outlier = group_delta >= min_group_delta and saturation_delta >= min_saturation_delta
+            strong_reference_outlier = reference_delta >= min_reference_delta and hsv[1] >= 35.0
+            if not strong_group_outlier and not strong_reference_outlier:
+                continue
+
+            confidence = min(1.0, max(group_delta / 120.0, reference_delta / 120.0))
+            likely.append(
+                LikelyLitOverlay(
+                    key_id=overlay.key_id,
+                    note_label=overlay_note_label(overlay),
+                    key_color=overlay_key_color(overlay),
+                    rgb=rgb,
+                    delta=max(group_delta, reference_delta),
+                    saturation=hsv[1],
+                    confidence=confidence,
+                )
+            )
+
+    if not likely:
+        return UnlitFrameAssessment(status="clean")
+
+    likely.sort(key=lambda item: (-item.confidence, item.note_label, item.key_id))
+    return UnlitFrameAssessment(
+        status="warning",
+        likely_lit=tuple(likely[:max_reported]),
+        reason="one or more overlays are color outliers for the unlit frame",
+    )

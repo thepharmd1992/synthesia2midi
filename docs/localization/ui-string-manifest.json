@@ -506,12 +506,39 @@
     },
     {
       "classification": "translate",
+      "context": "translate",
+      "line": 395,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
+      "text": "Apply these calibration updates?"
+    },
+    {
+      "classification": "translate",
       "context": "QCoreApplication.translate",
       "line": 533,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
       "text": "Assignment and Recovery"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 357,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
+      "text": "Assisted Calibration"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 259,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
+      "text": "Assisted calibration found {count} candidate samples."
     },
     {
       "classification": "translate",
@@ -615,7 +642,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 228,
+      "line": 238,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -1019,6 +1046,15 @@
     },
     {
       "classification": "translate",
+      "context": "translate",
+      "line": 352,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
+      "text": "Cancel"
+    },
+    {
+      "classification": "translate",
       "context": "QCoreApplication.translate",
       "line": 111,
       "origin": "static",
@@ -1083,7 +1119,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 199,
+      "line": 209,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -1110,7 +1146,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 200,
+      "line": 210,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -1214,6 +1250,15 @@
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
       "text": "Close"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 263,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
+      "text": "Color families found: {count}"
     },
     {
       "classification": "translate",
@@ -1758,7 +1803,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 272,
+      "line": 441,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -1767,7 +1812,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 261,
+      "line": 430,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -2379,6 +2424,24 @@
     {
       "classification": "translate",
       "context": "translate",
+      "line": 335,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
+      "text": "It looks like these keys may be lit: {notes}.\n\nMove to a frame where no keys are lit, or continue if this is expected."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 203,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/workflows/calibration.py",
+      "text": "It looks like these keys may be lit: {notes}.\n\nMove to a frame where no keys are lit, or continue if this is expected."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
       "line": 466,
       "origin": "static",
       "role": "arg1",
@@ -2586,7 +2649,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 218,
+      "line": 228,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -2748,6 +2811,15 @@
     {
       "classification": "translate",
       "context": "translate",
+      "line": 383,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
+      "text": "No lit examples were found for assisted calibration. Existing calibration samples were left unchanged."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
       "line": 145,
       "origin": "static",
       "role": "arg1",
@@ -2775,7 +2847,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 229,
+      "line": 239,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -2784,7 +2856,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 219,
+      "line": 229,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -2910,6 +2982,24 @@
     {
       "classification": "translate",
       "context": "translate",
+      "line": 285,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
+      "text": "not found"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 275,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
+      "text": "not present in this video"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
       "line": 393,
       "origin": "static",
       "role": "arg1",
@@ -2982,7 +3072,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 259,
+      "line": 428,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -3000,7 +3090,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 267,
+      "line": 436,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -3180,7 +3270,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 77,
+      "line": 87,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -3500,6 +3590,15 @@
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/main.py",
       "text": "Save Settings (Ctrl+S)"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 351,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
+      "text": "Scanning for lit key examples..."
     },
     {
       "classification": "translate",
@@ -4170,6 +4269,24 @@
     {
       "classification": "translate",
       "context": "translate",
+      "line": 334,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
+      "text": "Unlit Frame May Contain Lit Keys"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 202,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/workflows/calibration.py",
+      "text": "Unlit Frame May Contain Lit Keys"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
       "line": 1576,
       "origin": "static",
       "role": "arg1",
@@ -4557,7 +4674,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 76,
+      "line": 86,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -4722,7 +4839,7 @@
     "dynamic_user_data": 4,
     "path_or_url": 2,
     "technical_id": 7,
-    "translate": 500
+    "translate": 513
   },
   "schema_version": 1
 }

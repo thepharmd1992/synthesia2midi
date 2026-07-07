@@ -738,7 +738,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_interaction_controller.py",
-          "line": 50
+          "line": 87
         }
       ],
       "notes": ""
@@ -752,7 +752,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_interaction_controller.py",
-          "line": 51
+          "line": 88
         }
       ],
       "notes": ""
@@ -764,7 +764,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_interaction_controller.py",
-          "line": 137
+          "line": 174
         }
       ],
       "notes": ""
@@ -778,7 +778,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_interaction_controller.py",
-          "line": 138
+          "line": 175
         }
       ],
       "notes": ""
@@ -790,19 +790,19 @@
       "locations": [
         {
           "filename": "../gui/calibration_interaction_controller.py",
-          "line": 145
+          "line": 182
         },
         {
           "filename": "../gui/calibration_interaction_controller.py",
-          "line": 172
+          "line": 209
         },
         {
           "filename": "../gui/calibration_interaction_controller.py",
-          "line": 193
+          "line": 230
         },
         {
           "filename": "../gui/calibration_interaction_controller.py",
-          "line": 251
+          "line": 288
         }
       ],
       "notes": ""
@@ -814,7 +814,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_interaction_controller.py",
-          "line": 146
+          "line": 183
         }
       ],
       "notes": ""
@@ -828,11 +828,11 @@
       "locations": [
         {
           "filename": "../gui/calibration_interaction_controller.py",
-          "line": 173
+          "line": 210
         },
         {
           "filename": "../gui/calibration_interaction_controller.py",
-          "line": 194
+          "line": 231
         }
       ],
       "notes": ""
@@ -844,7 +844,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_interaction_controller.py",
-          "line": 219
+          "line": 256
         }
       ],
       "notes": ""
@@ -858,7 +858,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_interaction_controller.py",
-          "line": 220
+          "line": 257
         }
       ],
       "notes": ""
@@ -870,7 +870,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_interaction_controller.py",
-          "line": 233
+          "line": 270
         }
       ],
       "notes": ""
@@ -882,7 +882,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_interaction_controller.py",
-          "line": 234
+          "line": 271
         }
       ],
       "notes": ""
@@ -894,7 +894,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_interaction_controller.py",
-          "line": 242
+          "line": 279
         }
       ],
       "notes": ""
@@ -906,7 +906,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_interaction_controller.py",
-          "line": 243
+          "line": 280
         }
       ],
       "notes": ""
@@ -920,7 +920,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_interaction_controller.py",
-          "line": 252
+          "line": 289
         }
       ],
       "notes": ""
@@ -1214,7 +1214,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 76
+          "line": 86
         }
       ],
       "notes": ""
@@ -1226,7 +1226,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 77
+          "line": 87
         }
       ],
       "notes": ""
@@ -1238,7 +1238,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 199
+          "line": 209
         }
       ],
       "notes": ""
@@ -1250,7 +1250,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 200
+          "line": 210
         }
       ],
       "notes": ""
@@ -1262,7 +1262,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 218
+          "line": 228
         }
       ],
       "notes": ""
@@ -1274,7 +1274,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 219
+          "line": 229
         }
       ],
       "notes": ""
@@ -1286,7 +1286,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 228
+          "line": 238
         }
       ],
       "notes": ""
@@ -1298,7 +1298,153 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 229
+          "line": 239
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Assisted calibration found {count} candidate samples.",
+      "placeholders": [
+        "{count}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 259
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Color families found: {count}",
+      "placeholders": [
+        "{count}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 263
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "not present in this video",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 275
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "not found",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 285
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Unlit Frame May Contain Lit Keys",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 334
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "It looks like these keys may be lit: {notes}.\n\nMove to a frame where no keys are lit, or continue if this is expected.",
+      "placeholders": [
+        "{notes}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 335
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Scanning for lit key examples...",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 351
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Cancel",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 352
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Assisted Calibration",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 357
+        },
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 382
+        },
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 392
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "No lit examples were found for assisted calibration. Existing calibration samples were left unchanged.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 383
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Apply these calibration updates?",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 395
         }
       ],
       "notes": ""
@@ -1310,7 +1456,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 259
+          "line": 428
         }
       ],
       "notes": ""
@@ -1322,7 +1468,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 261
+          "line": 430
         }
       ],
       "notes": ""
@@ -1334,7 +1480,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 267
+          "line": 436
         }
       ],
       "notes": ""
@@ -1346,7 +1492,33 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 272
+          "line": 441
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWorkflow",
+      "source": "Unlit Frame May Contain Lit Keys",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/calibration.py",
+          "line": 202
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWorkflow",
+      "source": "It looks like these keys may be lit: {notes}.\n\nMove to a frame where no keys are lit, or continue if this is expected.",
+      "placeholders": [
+        "{notes}"
+      ],
+      "locations": [
+        {
+          "filename": "../workflows/calibration.py",
+          "line": 203
         }
       ],
       "notes": ""
@@ -6119,7 +6291,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 89
+          "line": 90
         }
       ],
       "notes": ""
@@ -6131,7 +6303,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 98
+          "line": 99
         }
       ],
       "notes": ""
@@ -6143,7 +6315,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 107
+          "line": 108
         }
       ],
       "notes": ""
@@ -6155,7 +6327,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 132
+          "line": 137
         }
       ],
       "notes": ""
@@ -6167,7 +6339,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 144
+          "line": 149
         }
       ],
       "notes": ""
@@ -6179,7 +6351,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 153
+          "line": 158
         }
       ],
       "notes": ""
@@ -6191,7 +6363,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 159
+          "line": 164
         }
       ],
       "notes": ""
@@ -6203,11 +6375,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 166
-        },
-        {
-          "filename": "../gui/youtube_download_dialog.py",
-          "line": 212
+          "line": 171
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
@@ -6215,11 +6383,15 @@
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 241
+          "line": 222
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 298
+          "line": 246
+        },
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 304
         }
       ],
       "notes": ""
@@ -6231,7 +6403,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 176
+          "line": 181
         }
       ],
       "notes": ""
@@ -6243,11 +6415,11 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 181
+          "line": 186
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 472
+          "line": 489
         }
       ],
       "notes": ""
@@ -6259,7 +6431,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 186
+          "line": 191
         }
       ],
       "notes": ""
@@ -6271,11 +6443,11 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 209
+          "line": 214
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 239
+          "line": 244
         }
       ],
       "notes": ""
@@ -6287,11 +6459,11 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 214
+          "line": 219
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 255
+          "line": 260
         }
       ],
       "notes": ""
@@ -6305,7 +6477,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 272
+          "line": 277
         }
       ],
       "notes": ""
@@ -6319,7 +6491,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 281
+          "line": 286
         }
       ],
       "notes": ""
@@ -6333,7 +6505,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 287
+          "line": 292
         }
       ],
       "notes": ""
@@ -6345,7 +6517,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 313
+          "line": 330
         }
       ],
       "notes": ""
@@ -6359,7 +6531,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 314
+          "line": 331
         }
       ],
       "notes": ""
@@ -6371,7 +6543,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 318
+          "line": 335
         }
       ],
       "notes": ""
@@ -6383,7 +6555,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 347
+          "line": 364
         }
       ],
       "notes": ""
@@ -6395,7 +6567,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 348
+          "line": 365
         }
       ],
       "notes": ""
@@ -6407,11 +6579,11 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 359
+          "line": 376
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 399
+          "line": 416
         }
       ],
       "notes": ""
@@ -6423,7 +6595,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 378
+          "line": 395
         }
       ],
       "notes": ""
@@ -6435,7 +6607,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 384
+          "line": 401
         }
       ],
       "notes": ""
@@ -6447,7 +6619,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 425
+          "line": 442
         }
       ],
       "notes": ""
@@ -6459,7 +6631,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 431
+          "line": 448
         }
       ],
       "notes": ""
@@ -6471,7 +6643,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 439
+          "line": 456
         }
       ],
       "notes": ""
@@ -6483,7 +6655,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 440
+          "line": 457
         }
       ],
       "notes": ""
@@ -6495,7 +6667,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 457
+          "line": 474
         }
       ],
       "notes": ""
@@ -6507,7 +6679,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 460
+          "line": 477
         }
       ],
       "notes": ""
@@ -6521,7 +6693,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 461
+          "line": 478
         }
       ],
       "notes": ""
@@ -6533,7 +6705,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 483
+          "line": 500
         }
       ],
       "notes": ""
@@ -6545,7 +6717,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 489
+          "line": 506
         }
       ],
       "notes": ""
@@ -6560,7 +6732,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 540
+          "line": 557
         }
       ],
       "notes": ""
@@ -6572,7 +6744,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 591
+          "line": 608
         }
       ],
       "notes": ""
@@ -6584,7 +6756,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 592
+          "line": 609
         }
       ],
       "notes": ""

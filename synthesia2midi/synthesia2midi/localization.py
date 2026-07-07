@@ -14,6 +14,7 @@ APP_LOCALE_SETTINGS_KEY = "app/locale"
 _USER_LOCALE_DISPLAY_NAMES = {
     "en": "English",
     "es": "Español",
+    "ja": "日本語",
 }
 
 

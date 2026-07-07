@@ -274,6 +274,22 @@ def test_assign_exemplar_slots_disables_absent_second_family():
     assert result.disabled_slots == ("RW", "RB")
 
 
+def test_assign_exemplar_slots_enables_partial_family_with_missing_partner_as_missing():
+    result = assign_exemplar_slots([
+        _candidate("W", (130, 165, 205), key_id=1),
+    ])
+
+    assert result.family_count == 1
+    assert result.assignments["LW"].enabled is True
+    assert result.assignments["LW"].rgb == (130, 165, 205)
+    assert result.assignments["LW"].hist is not None
+    assert result.assignments["LB"].enabled is True
+    assert result.assignments["LB"].rgb is None
+    assert result.assignments["LB"].hist is None
+    assert result.missing_slots == ("LB",)
+    assert result.disabled_slots == ("RW", "RB")
+
+
 def test_apply_assisted_calibration_proposal_updates_colors_histograms_and_enabled_slots():
     app_state = AppState()
     assignment = assign_exemplar_slots([
@@ -292,8 +308,12 @@ def test_apply_assisted_calibration_proposal_updates_colors_histograms_and_enabl
 
     assert app_state.detection.exemplar_lit_colors["LW"] == (130, 165, 205)
     assert app_state.detection.exemplar_lit_colors["LB"] == (70, 110, 170)
+    assert np.array_equal(app_state.detection.exemplar_lit_histograms["LW"], np.array([1.0], dtype=np.float32))
+    assert np.array_equal(app_state.detection.exemplar_lit_histograms["LB"], np.array([1.0], dtype=np.float32))
     assert app_state.detection.exemplar_lit_colors["RW"] is None
     assert app_state.detection.exemplar_lit_colors["RB"] is None
+    assert app_state.detection.exemplar_lit_histograms["RW"] is None
+    assert app_state.detection.exemplar_lit_histograms["RB"] is None
     assert app_state.detection.exemplar_key_type_enabled["RW"] is False
     assert app_state.detection.exemplar_key_type_enabled["RB"] is False
     assert app_state.unsaved_changes is True

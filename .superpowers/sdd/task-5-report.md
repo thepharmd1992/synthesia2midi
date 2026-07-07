@@ -73,3 +73,35 @@ Result:
 
 - Family ordering is currently deterministic by hue-family sort (`cool` family first, then warmer family). That matches the task brief examples, but it is still a policy choice for mapping the legacy `LW/LB` and `RW/RB` storage slots.
 - This task does not yet cover edge cases where one family contains only white or only black exemplars; those slots stay enabled and are reported as missing, which is consistent with the current assignment result model.
+
+## Follow-up Review Fixes (Findings 1,2)
+
+### What added/fixed
+
+- Added `test_assign_exemplar_slots_enables_partial_family_with_missing_partner_as_missing` in `tests/test_assisted_calibration.py` to cover a present family with only white candidates.
+- Strengthened `test_apply_assisted_calibration_proposal_updates_colors_histograms_and_enabled_slots` to directly assert histogram write/clear behavior for enabled/disabled slots.
+- Left production code unchanged because existing `assign_exemplar_slots` and `apply_assisted_calibration_proposal` already satisfy the targeted behavior.
+
+### Test evidence
+
+Command:
+
+```bash
+.venv/bin/python -m pytest tests/test_assisted_calibration.py -q
+```
+
+Result:
+
+- Exit code `0`
+- `16 passed`
+
+### Files changed
+
+- `tests/test_assisted_calibration.py`
+- `.superpowers/sdd/task-5-report.md`
+
+### Self-review
+
+- Scope stayed narrow to test updates plus report append.
+- Added assertions directly target reviewer findings without broadening behavior expectations.
+- No unrelated test files, docs, or production behavior touched.

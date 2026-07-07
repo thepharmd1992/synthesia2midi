@@ -890,7 +890,7 @@ git commit -m "Update localization for output directory UX"
 
 ## Step 8: Full Verification And Integration Check
 
-- [ ] Run:
+- [x] Run:
 
 ```bash
 git diff --check
@@ -906,7 +906,7 @@ compileall exits 0
 pytest exits 0
 ```
 
-- [ ] Run path-specific smoke checks:
+- [x] Run path-specific smoke checks:
 
 ```bash
 .venv/bin/python -m pytest tests/test_runtime_paths.py tests/test_config_manager.py tests/test_midi_conversion_controller.py tests/test_midi_touchup_controller.py tests/test_packaged_entrypoint.py
@@ -914,7 +914,7 @@ pytest exits 0
 
 Expected result: all focused tests pass.
 
-- [ ] Confirm no generated user data is staged:
+- [x] Confirm no generated user data is staged:
 
 ```bash
 git status --short
@@ -923,7 +923,7 @@ git diff --cached --name-only
 
 Expected staged files should be source, tests, docs, localization assets, and Backlog only. There should be no generated MIDI, downloaded MP4, extracted frame JPG/PNG, or app data files.
 
-- [ ] Confirm old fallback behavior conceptually:
+- [x] Confirm old fallback behavior conceptually:
   - A new save writes project `.ini` and `_overlays.json`.
   - A legacy sidecar `.ini` is still found when project config is absent.
   - A legacy `video_stem_frames/` folder is reused when project frames are absent.
@@ -954,12 +954,12 @@ Do not push.
 
 ## Self-Review Checklist
 
-- [ ] The plan preserves existing user calibration/config files by reading legacy paths.
-- [ ] The final MIDI output folder contains the MIDI file, not frame/config/log clutter.
-- [ ] Downloaded source videos go to Downloads, not Movies.
-- [ ] Working files go to platform-appropriate app data.
-- [ ] The conversion-complete dialog has no silent `Done` path as a primary button.
-- [ ] New user-visible strings are wrapped in translation calls and present in all production locale catalogs.
-- [ ] Tests cover both new-write paths and old-read fallbacks.
-- [ ] No implementation step requires real videos, network access, or visible GUI windows.
-- [ ] No branch, worktree, push, or destructive git operation is part of the plan.
+- [x] The plan preserves existing user calibration/config files by reading legacy paths.
+- [x] The final MIDI output folder contains the MIDI file, not frame/config/log clutter.
+- [x] Downloaded source videos go to Downloads, not Movies.
+- [x] Working files go to platform-appropriate app data.
+- [x] The conversion-complete dialog has no silent `Done` path as a primary button.
+- [x] New user-visible strings are wrapped in translation calls and present in all production locale catalogs.
+- [x] Tests cover both new-write paths and old-read fallbacks.
+- [x] No implementation step requires real videos, network access, or visible GUI windows.
+- [x] No branch, worktree, push, or destructive git operation is part of the plan.

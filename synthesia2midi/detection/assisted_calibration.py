@@ -396,6 +396,42 @@ def apply_assisted_calibration_proposal(
     app_state.unsaved_changes = True
 
 
+def build_assisted_calibration_proposal(
+    frame_provider: FrameProvider,
+    overlays: Sequence[OverlayConfig],
+    *,
+    baseline_frame_index: int,
+    end_frame: int,
+    settings: ExemplarScanSettings = ExemplarScanSettings(),
+    progress_callback: Optional[ProgressCallback] = None,
+) -> AssistedCalibrationProposal:
+    baseline_frame = frame_provider(baseline_frame_index)
+    assessment = (
+        assess_unlit_frame(baseline_frame, overlays)
+        if baseline_frame is not None
+        else UnlitFrameAssessment(status="unknown", reason="baseline frame unavailable")
+    )
+    if assessment.status == "unknown" and assessment.reason == "insufficient_samples":
+        assessment = UnlitFrameAssessment(status="clean")
+    candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        baseline_frame_index,
+        end_frame,
+        settings=settings,
+        progress_callback=progress_callback,
+    )
+    assignment = assign_exemplar_slots(candidates)
+    return AssistedCalibrationProposal(
+        baseline_frame_index=baseline_frame_index,
+        unlit_assessment=assessment,
+        assignment_result=assignment,
+        scanned_frame_count=scanned,
+        candidate_count=len(candidates),
+        canceled=canceled,
+    )
+
+
 def scan_lit_exemplar_candidates(
     frame_provider: FrameProvider,
     overlays: Sequence[OverlayConfig],

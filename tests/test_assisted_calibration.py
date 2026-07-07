@@ -11,6 +11,7 @@ from synthesia2midi.detection.assisted_calibration import (
     apply_assisted_calibration_proposal,
     assess_unlit_frame,
     assign_exemplar_slots,
+    build_assisted_calibration_proposal,
     capture_unlit_references_from_frame,
     overlay_key_color,
     overlay_note_label,
@@ -317,3 +318,25 @@ def test_apply_assisted_calibration_proposal_updates_colors_histograms_and_enabl
     assert app_state.detection.exemplar_key_type_enabled["RW"] is False
     assert app_state.detection.exemplar_key_type_enabled["RB"] is False
     assert app_state.unsaved_changes is True
+
+
+def test_build_assisted_calibration_proposal_combines_guard_scan_and_assignment():
+    overlay = _overlay(key_id=1, x=0, y=0, width=4, height=4)
+    baseline = np.full((8, 8, 3), (245, 245, 235), dtype=np.uint8)
+    lit = baseline.copy()
+    lit[0:4, 0:4] = (130, 165, 205)
+    frames = {0: baseline, 10: lit}
+
+    capture_unlit_references_from_frame(baseline, [overlay])
+    proposal = build_assisted_calibration_proposal(
+        lambda index: frames.get(index, baseline),
+        [overlay],
+        baseline_frame_index=0,
+        end_frame=10,
+        settings=ExemplarScanSettings(coarse_stride=10, refine_radius=0, min_rgb_delta=30.0),
+    )
+
+    assert proposal.baseline_frame_index == 0
+    assert proposal.unlit_assessment.status == "clean"
+    assert proposal.candidate_count == 1
+    assert proposal.assignment_result.assignments["LW"].rgb == (130, 165, 205)

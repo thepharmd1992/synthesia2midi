@@ -2,12 +2,14 @@ import numpy as np
 
 from synthesia2midi.app_config import OverlayConfig
 from synthesia2midi.detection.assisted_calibration import (
+    ExemplarScanSettings,
     assess_unlit_frame,
     capture_unlit_references_from_frame,
     overlay_key_color,
     overlay_note_label,
     sample_overlay_bgr,
     sample_overlay_rgb,
+    scan_lit_exemplar_candidates,
 )
 
 
@@ -130,3 +132,54 @@ def test_capture_unlit_references_sets_rgb_and_histogram():
     assert count == 1
     assert overlay.unlit_reference_color == (100, 120, 140)
     assert overlay.unlit_hist is not None
+
+
+def test_scanner_finds_lit_candidates_from_overlay_deltas():
+    overlays = [
+        _overlay(key_id=1, note="C", octave=4, x=0, y=0, width=4, height=4, key_type="LW"),
+        _overlay(key_id=2, note="C♯", octave=4, x=5, y=0, width=4, height=4, key_type="LB"),
+    ]
+    overlays[0].unlit_reference_color = (245, 245, 235)
+    overlays[1].unlit_reference_color = (25, 25, 25)
+
+    frames = {}
+    for index in range(0, 31):
+        frame = np.zeros((8, 16, 3), dtype=np.uint8)
+        frame[:, :] = (10, 10, 10)
+        frame[0:4, 0:4] = (245, 245, 235)
+        frame[0:4, 5:9] = (25, 25, 25)
+        frames[index] = frame
+    frames[20][0:4, 0:4] = (130, 165, 205)
+    frames[21][0:4, 5:9] = (70, 110, 170)
+
+    candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        lambda index: frames.get(index),
+        overlays,
+        0,
+        30,
+        settings=ExemplarScanSettings(coarse_stride=10, refine_radius=2, min_rgb_delta=30.0),
+    )
+
+    assert canceled is False
+    assert scanned > 0
+    assert {candidate.note_label for candidate in candidates} >= {"C4", "C♯4"}
+    assert any(candidate.slot_color == "W" and candidate.rgb == (130, 165, 205) for candidate in candidates)
+    assert any(candidate.slot_color == "B" and candidate.rgb == (70, 110, 170) for candidate in candidates)
+
+
+def test_scanner_honors_cancel_callback():
+    overlay = _overlay()
+    overlay.unlit_reference_color = (245, 245, 235)
+    frame = np.full((8, 8, 3), (245, 245, 235), dtype=np.uint8)
+
+    candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        lambda _index: frame,
+        [overlay],
+        0,
+        100,
+        progress_callback=lambda _current, _end: False,
+    )
+
+    assert candidates == []
+    assert scanned == 0
+    assert canceled is True

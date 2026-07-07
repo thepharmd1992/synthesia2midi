@@ -92,6 +92,52 @@ def test_default_video_dir_prefers_movies_then_documents(tmp_path):
     assert paths.default_video_dir() == movies_dir
 
 
+def test_user_output_dirs_are_dedicated_folders(tmp_path):
+    paths = RuntimePaths(
+        frozen=False,
+        app_root=tmp_path / "repo",
+        repo_root=tmp_path / "repo",
+        home_dir=tmp_path,
+        platform_name="darwin",
+    )
+
+    assert paths.midi_exports_dir() == tmp_path / "Desktop" / "Synthesia2MIDI MIDI Files"
+    assert paths.default_download_dir() == tmp_path / "Downloads" / "Synthesia2MIDI"
+
+
+def test_project_paths_are_app_managed_and_stable(tmp_path):
+    paths = RuntimePaths(
+        frozen=False,
+        app_root=tmp_path / "repo",
+        repo_root=tmp_path / "repo",
+        home_dir=tmp_path,
+        platform_name="darwin",
+    )
+    video_path = "/Users/jeff/Movies/Game of Thrones Main Theme.mp4"
+
+    project_dir = paths.project_dir_for_video(video_path)
+
+    assert project_dir.parent.name == "projects"
+    assert "game-of-thrones-main-theme" in project_dir.name
+    assert paths.project_ini_path(video_path).parent == project_dir
+    assert paths.project_overlay_json_path(video_path).parent == project_dir
+    assert paths.project_frames_dir(video_path).parent == project_dir
+
+
+def test_project_data_dir_uses_macos_application_support(tmp_path):
+    paths = RuntimePaths(
+        frozen=False,
+        app_root=tmp_path / "repo",
+        repo_root=tmp_path / "repo",
+        home_dir=tmp_path,
+        platform_name="darwin",
+    )
+
+    assert paths.project_data_dir() == (
+        tmp_path / "Library" / "Application Support" / "Synthesia2MIDI" / "projects"
+    )
+
+
 def test_log_dir_uses_platform_specific_user_path(tmp_path):
     home_dir = tmp_path / "home"
     local_app_data = tmp_path / "localappdata"

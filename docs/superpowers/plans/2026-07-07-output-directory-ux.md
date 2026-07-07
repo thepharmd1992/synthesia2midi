@@ -128,7 +128,7 @@ git commit -m "Add output directory UX backlog task"
 
 Implement the path policy in one place.
 
-- [ ] Add methods to `synthesia2midi/synthesia2midi/runtime_paths.py`.
+- [x] Add methods to `synthesia2midi/synthesia2midi/runtime_paths.py`.
 
 Core behavior to implement:
 
@@ -206,8 +206,8 @@ def conversion_settings_path(self, video_path: str, midi_path: str | Path) -> Pa
     return self.project_dir_for_video(video_path) / f"{Path(midi_path).stem}_settings.json"
 ```
 
-- [ ] Keep `default_video_dir()` for open-file picker compatibility, but stop using it for downloads and MIDI export.
-- [ ] Add tests in `tests/test_runtime_paths.py`:
+- [x] Keep `default_video_dir()` for open-file picker compatibility, but stop using it for downloads and MIDI export.
+- [x] Add tests in `tests/test_runtime_paths.py`:
 
 ```python
 def test_user_output_dirs_are_dedicated_folders(tmp_path):
@@ -242,7 +242,7 @@ def test_project_paths_are_app_managed_and_stable(tmp_path):
     assert paths.project_frames_dir(video_path).parent == project_dir
 ```
 
-- [ ] Add a platform-specific test for macOS app data using `platform_name`:
+- [x] Add a platform-specific test for macOS app data using `platform_name`:
 
 ```python
 def test_project_data_dir_uses_macos_application_support(tmp_path):
@@ -259,7 +259,7 @@ def test_project_data_dir_uses_macos_application_support(tmp_path):
     )
 ```
 
-- [ ] Run:
+- [x] Run:
 
 ```bash
 .venv/bin/python -m pytest tests/test_runtime_paths.py

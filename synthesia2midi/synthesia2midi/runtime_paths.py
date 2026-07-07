@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import os
+import hashlib
+import re
 import shutil
 import sys
 from dataclasses import dataclass
@@ -13,6 +15,15 @@ def _platform_binary_name(stem: str, *, platform_name: str | None = None) -> str
     if platform_name.startswith("win"):
         return f"{stem}.exe"
     return stem
+
+
+def _safe_path_slug(value: str) -> str:
+    slug = re.sub(r"[^A-Za-z0-9._-]+", "-", value).strip(".-_").lower()
+    return slug[:80] or "video"
+
+
+def _path_hash(value: str) -> str:
+    return hashlib.sha1(str(Path(value).expanduser()).encode("utf-8")).hexdigest()[:10]
 
 
 @dataclass(frozen=True)
@@ -86,6 +97,49 @@ class RuntimePaths:
         if movies_dir.exists():
             return movies_dir
         return documents_dir
+
+    def desktop_dir(self) -> Path:
+        return self.home_dir / "Desktop"
+
+    def downloads_dir(self) -> Path:
+        return self.home_dir / "Downloads"
+
+    def midi_exports_dir(self) -> Path:
+        return self.desktop_dir() / "Synthesia2MIDI MIDI Files"
+
+    def default_download_dir(self) -> Path:
+        return self.downloads_dir() / "Synthesia2MIDI"
+
+    def app_data_dir(self) -> Path:
+        if self.platform_name.startswith("win"):
+            base = Path(os.environ.get("LOCALAPPDATA", self.home_dir / "AppData" / "Local"))
+            return base / "Synthesia2MIDI"
+        if self.platform_name == "darwin":
+            return self.home_dir / "Library" / "Application Support" / "Synthesia2MIDI"
+        base = Path(os.environ.get("XDG_DATA_HOME", self.home_dir / ".local" / "share"))
+        return base / "synthesia2midi"
+
+    def project_data_dir(self) -> Path:
+        return self.app_data_dir() / "projects"
+
+    def project_slug_for_video(self, video_path: str) -> str:
+        stem = Path(video_path).stem or "video"
+        return f"{_safe_path_slug(stem)}-{_path_hash(video_path)}"
+
+    def project_dir_for_video(self, video_path: str) -> Path:
+        return self.project_data_dir() / self.project_slug_for_video(video_path)
+
+    def project_ini_path(self, video_path: str) -> Path:
+        return self.project_dir_for_video(video_path) / f"{Path(video_path).stem}.ini"
+
+    def project_overlay_json_path(self, video_path: str) -> Path:
+        return self.project_dir_for_video(video_path) / f"{Path(video_path).stem}_overlays.json"
+
+    def project_frames_dir(self, video_path: str) -> Path:
+        return self.project_dir_for_video(video_path) / f"{Path(video_path).stem}_frames"
+
+    def conversion_settings_path(self, video_path: str, midi_path: str | Path) -> Path:
+        return self.project_dir_for_video(video_path) / f"{Path(midi_path).stem}_settings.json"
 
     def log_dir(self) -> Path:
         if self.platform_name.startswith("win"):

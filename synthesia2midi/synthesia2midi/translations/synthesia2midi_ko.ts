@@ -500,72 +500,72 @@ After clicking OK:
 <context>
     <name>CalibrationWizardController</name>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="86"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="88"/>
         <source>Wizard Error</source>
         <translation>마법사 오류</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="87"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="89"/>
         <source>Please open a video file first.</source>
         <translation>먼저 동영상 파일을 여세요.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="209"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="211"/>
         <source>Canvas Error</source>
         <translation>캔버스 오류</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="210"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="212"/>
         <source>Canvas interaction system not available.</source>
         <translation>캔버스 상호작용 시스템을 사용할 수 없습니다.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="228"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="230"/>
         <source>Manual Fit</source>
         <translation>수동 맞춤</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="229"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="231"/>
         <source>No reusable manual calibration is available yet.</source>
         <translation>아직 재사용 가능한 수동 보정이 없습니다.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="238"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="240"/>
         <source>Auto-Detect Tuning</source>
         <translation>자동 감지 튜닝</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="239"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="241"/>
         <source>No reusable auto-detect calibration context is available yet. Run autodetect once with ROI selection first.</source>
         <translation>아직 재사용 가능한 자동 감지 보정 컨텍스트가 없습니다. 먼저 ROI 선택으로 자동 감지를 한 번 실행하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="259"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="261"/>
         <source>Assisted calibration found {count} candidate samples.</source>
         <translation>보조 보정에서 후보 샘플 {count}개를 찾았습니다.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="263"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="265"/>
         <source>Color families found: {count}</source>
         <translation>찾은 색상 계열: {count}</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="275"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="277"/>
         <source>not present in this video</source>
         <translation>이 비디오에 없음</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="285"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="287"/>
         <source>not found</source>
         <translation>찾을 수 없음</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="334"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="336"/>
         <source>Unlit Frame May Contain Lit Keys</source>
         <translation>꺼진 상태 프레임에 켜진 건반이 포함되어 있을 수 있습니다</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="335"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="337"/>
         <source>It looks like these keys may be lit: {notes}.
 
 Move to a frame where no keys are lit, or continue if this is expected.</source>
@@ -574,49 +574,49 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
 켜진 건반이 없는 프레임으로 이동하거나, 예상된 상태라면 계속하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="351"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="353"/>
         <source>Scanning for lit key examples...</source>
         <translation>켜진 건반 예시를 검색하는 중...</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="352"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="354"/>
         <source>Cancel</source>
         <translation>취소</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="357"/>
-        <location filename="../gui/calibration_wizard_controller.py" line="382"/>
-        <location filename="../gui/calibration_wizard_controller.py" line="392"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="359"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="384"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="394"/>
         <source>Assisted Calibration</source>
         <translation>보조 보정</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="383"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="385"/>
         <source>No lit examples were found for assisted calibration. Existing calibration samples were left unchanged.</source>
         <translation>보조 보정에 사용할 켜진 예시를 찾지 못했습니다. 기존 보정 샘플은 변경되지 않았습니다.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="395"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="397"/>
         <source>Apply these calibration updates?</source>
         <translation>이 보정 업데이트를 적용할까요?</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="428"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="458"/>
         <source>Open Manual Fit for the current manual calibration.</source>
         <translation>현재 수동 보정에 대한 수동 맞춤을 엽니다.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="430"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="460"/>
         <source>Edit Current Calibration becomes available after manual overlays exist.</source>
         <translation>수동 오버레이가 있으면 현재 보정 편집을 사용할 수 있습니다.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="436"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="466"/>
         <source>Open the auto-detect tuning panel for the current calibration.</source>
         <translation>현재 보정에 대한 자동 감지 튜닝 패널을 엽니다.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="441"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="471"/>
         <source>Edit Current Calibration becomes available after an auto-detect run.</source>
         <translation>자동 감지를 실행하면 현재 보정 편집을 사용할 수 있습니다.</translation>
     </message>
@@ -1336,32 +1336,32 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
 <context>
     <name>ConversionWorkflow</name>
     <message>
-        <location filename="../workflows/conversion.py" line="317"/>
+        <location filename="../workflows/conversion.py" line="326"/>
         <source>Detecting notes...</source>
         <translation>음 감지 중...</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="318"/>
+        <location filename="../workflows/conversion.py" line="327"/>
         <source>Cancel</source>
         <translation>취소</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="323"/>
+        <location filename="../workflows/conversion.py" line="332"/>
         <source>Processing...</source>
         <translation>처리 중...</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="387"/>
+        <location filename="../workflows/conversion.py" line="396"/>
         <source>Detecting notes</source>
         <translation>음 감지 중</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="389"/>
+        <location filename="../workflows/conversion.py" line="398"/>
         <source>Processing</source>
         <translation>처리 중</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="393"/>
+        <location filename="../workflows/conversion.py" line="402"/>
         <source>{phase_label}... {frame_count}/{total_frames} ({percent}%) (frame {actual_frame_idx})</source>
         <translation>{phase_label}... {frame_count}/{total_frames} ({percent}%) (프레임 {actual_frame_idx})</translation>
     </message>
@@ -1668,17 +1668,17 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
 <context>
     <name>MidiConversionController</name>
     <message>
-        <location filename="../gui/midi_conversion_controller.py" line="31"/>
+        <location filename="../gui/midi_conversion_controller.py" line="35"/>
         <source>Error</source>
         <translation>오류</translation>
     </message>
     <message>
-        <location filename="../gui/midi_conversion_controller.py" line="35"/>
+        <location filename="../gui/midi_conversion_controller.py" line="39"/>
         <source>Conversion Error</source>
         <translation>변환 오류</translation>
     </message>
     <message>
-        <location filename="../gui/midi_conversion_controller.py" line="37"/>
+        <location filename="../gui/midi_conversion_controller.py" line="41"/>
         <source>Conversion Failed</source>
         <translation>변환 실패</translation>
     </message>
@@ -1686,61 +1686,69 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
 <context>
     <name>MidiTouchupController</name>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="38"/>
+        <location filename="../gui/midi_touchup_controller.py" line="42"/>
         <source>Conversion Complete</source>
         <translation>변환 완료</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="40"/>
+        <location filename="../gui/midi_touchup_controller.py" line="44"/>
         <source>MIDI file saved to:
 {midi_output_path}</source>
         <translation>MIDI 파일 저장 위치:
 {midi_output_path}</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="44"/>
         <source>You can open the Touch-Up Editor now, or finish.</source>
-        <translation>지금 수정 편집기를 열거나 완료할 수 있습니다.</translation>
+        <translation type="vanished">지금 수정 편집기를 열거나 완료할 수 있습니다.</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="45"/>
+        <location filename="../gui/midi_touchup_controller.py" line="54"/>
         <source>Open Touch-Up Editor</source>
         <translation>수정 편집기 열기</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="46"/>
         <source>Done</source>
-        <translation>완료</translation>
+        <translation type="vanished">완료</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="62"/>
+        <location filename="../gui/midi_touchup_controller.py" line="49"/>
+        <source>You can open the Touch-Up Editor now, or show the saved MIDI in its folder.</source>
+        <translation>지금 수정 편집기를 열거나 저장된 MIDI를 폴더에서 볼 수 있습니다.</translation>
+    </message>
+    <message>
+        <location filename="../gui/midi_touchup_controller.py" line="56"/>
+        <source>Show MIDI in Folder</source>
+        <translation>폴더에서 MIDI 보기</translation>
+    </message>
+    <message>
+        <location filename="../gui/midi_touchup_controller.py" line="85"/>
         <source>Open MIDI for Touch-Up</source>
         <translation>수정할 MIDI 열기</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="64"/>
+        <location filename="../gui/midi_touchup_controller.py" line="87"/>
         <source>MIDI Files (*.mid *.midi)</source>
         <translation>MIDI 파일 (*.mid *.midi)</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="73"/>
+        <location filename="../gui/midi_touchup_controller.py" line="96"/>
         <source>MIDI file not found:
 {midi_path}</source>
         <translation>MIDI 파일을 찾을 수 없음:
 {midi_path}</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="77"/>
+        <location filename="../gui/midi_touchup_controller.py" line="100"/>
         <source>Touch-Up Editor</source>
         <translation>수정 편집기</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="111"/>
+        <location filename="../gui/midi_touchup_controller.py" line="134"/>
         <source>Touch-Up Editor Launch Failed</source>
         <translation>수정 편집기 실행 실패</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="112"/>
+        <location filename="../gui/midi_touchup_controller.py" line="135"/>
         <source>Failed to start Rust touch-up editor.
 
 Binary: {binary_path}
@@ -1751,12 +1759,12 @@ Error: {error_msg}</source>
 오류: {error_msg}</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="130"/>
+        <location filename="../gui/midi_touchup_controller.py" line="153"/>
         <source>Touch-Up Editor Missing</source>
         <translation>수정 편집기 없음</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="131"/>
+        <location filename="../gui/midi_touchup_controller.py" line="154"/>
         <source>Bundled Rust touch-up editor files were not found.
 
 MIDI requested: {midi_path}
@@ -1769,12 +1777,12 @@ Re-download the app build or use the repository developer setup if you are runni
 앱 빌드를 다시 다운로드하거나 소스에서 실행 중이면 저장소 개발자 설정을 사용하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="150"/>
+        <location filename="../gui/midi_touchup_controller.py" line="173"/>
         <source>Touch-Up Editor Not Built</source>
         <translation>수정 편집기가 빌드되지 않음</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="151"/>
+        <location filename="../gui/midi_touchup_controller.py" line="174"/>
         <source>Rust touch-up editor binary was not found.
 
 MIDI requested: {midi_path}
@@ -1801,24 +1809,24 @@ Then retry Edit MIDI.</source>
 그런 다음 MIDI 편집을 다시 시도하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="209"/>
+        <location filename="../gui/midi_touchup_controller.py" line="232"/>
         <source>Touch-Up Saved</source>
         <translation>수정 내용 저장됨</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="210"/>
+        <location filename="../gui/midi_touchup_controller.py" line="233"/>
         <source>Touch-up MIDI saved to:
 {shown_path}</source>
         <translation>수정한 MIDI 저장 위치:
 {shown_path}</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="226"/>
+        <location filename="../gui/midi_touchup_controller.py" line="249"/>
         <source>Touch-Up Editor Error</source>
         <translation>수정 편집기 오류</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="227"/>
+        <location filename="../gui/midi_touchup_controller.py" line="250"/>
         <source>{failure_message}
 
 Source MIDI: {source_midi_path}
@@ -2602,52 +2610,52 @@ Sparks should be just barely noticeable as bright flashes in the ROI.</source>
 <context>
     <name>VideoLoadingWorkflow</name>
     <message>
-        <location filename="../workflows/video_loading.py" line="113"/>
+        <location filename="../workflows/video_loading.py" line="121"/>
         <source>Use Existing Frames?</source>
         <translation>기존 프레임을 사용하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="114"/>
+        <location filename="../workflows/video_loading.py" line="122"/>
         <source>Found existing frame sequence for this video.
 Use frames for better performance?</source>
         <translation>이 동영상의 기존 프레임 시퀀스를 찾았습니다.
 성능 향상을 위해 프레임을 사용하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="394"/>
+        <location filename="../workflows/video_loading.py" line="378"/>
         <source>Converting video to image sequence...
 This is a one-time process.</source>
         <translation>동영상을 이미지 시퀀스로 변환 중...
 이 작업은 한 번만 수행됩니다.</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="395"/>
+        <location filename="../workflows/video_loading.py" line="379"/>
         <source>Cancel</source>
         <translation>취소</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="400"/>
+        <location filename="../workflows/video_loading.py" line="384"/>
         <source>Optimizing Performance</source>
         <translation>성능 최적화 중</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="577"/>
+        <location filename="../workflows/video_loading.py" line="561"/>
         <source>Converting video... {frames_created}/{total_frames} frames ({percent}%)</source>
         <translation>동영상 변환 중... {frames_created}/{total_frames} 프레임 ({percent}%)</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="584"/>
+        <location filename="../workflows/video_loading.py" line="568"/>
         <source>Converting video... {frames_created} frames</source>
         <translation>동영상 변환 중... {frames_created} 프레임</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="674"/>
-        <location filename="../workflows/video_loading.py" line="702"/>
+        <location filename="../workflows/video_loading.py" line="658"/>
+        <location filename="../workflows/video_loading.py" line="686"/>
         <source>Frame Conversion Failed</source>
         <translation>프레임 변환 실패</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="675"/>
+        <location filename="../workflows/video_loading.py" line="659"/>
         <source>Failed to convert video to frames.
 Return code: {return_code}
 Frames created: {final_count}
@@ -2660,7 +2668,7 @@ The video will be loaded directly instead.</source>
 대신 동영상을 직접 로드합니다.</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="703"/>
+        <location filename="../workflows/video_loading.py" line="687"/>
         <source>Failed to convert video to frames:
 {error}
 
@@ -2687,26 +2695,27 @@ The video will be loaded directly instead.</source>
 <context>
     <name>VideoToFramesController</name>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="98"/>
-        <location filename="../workflows/video_to_frames.py" line="137"/>
-        <location filename="../workflows/video_to_frames.py" line="146"/>
-        <location filename="../workflows/video_to_frames.py" line="156"/>
-        <location filename="../workflows/video_to_frames.py" line="167"/>
+        <location filename="../workflows/video_to_frames.py" line="102"/>
+        <location filename="../workflows/video_to_frames.py" line="130"/>
+        <location filename="../workflows/video_to_frames.py" line="153"/>
+        <location filename="../workflows/video_to_frames.py" line="162"/>
+        <location filename="../workflows/video_to_frames.py" line="172"/>
+        <location filename="../workflows/video_to_frames.py" line="182"/>
         <source>Video to Frames</source>
         <translation>동영상을 프레임으로</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="99"/>
+        <location filename="../workflows/video_to_frames.py" line="103"/>
         <source>No video file is open. Open a video first.</source>
         <translation>열려 있는 동영상 파일이 없습니다. 먼저 동영상을 여세요.</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="109"/>
+        <location filename="../workflows/video_to_frames.py" line="113"/>
         <source>FFmpeg Not Found</source>
         <translation>FFmpeg 찾을 수 없음</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="110"/>
+        <location filename="../workflows/video_to_frames.py" line="114"/>
         <source>{message}
 
 Please install FFmpeg:
@@ -2721,7 +2730,8 @@ FFmpeg를 설치하세요:
 • Linux: sudo apt install ffmpeg</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="138"/>
+        <location filename="../workflows/video_to_frames.py" line="131"/>
+        <location filename="../workflows/video_to_frames.py" line="154"/>
         <source>Frame series is currently loaded. Found original video file:
 
 {video_name}
@@ -2734,7 +2744,7 @@ Will convert this video to update the frame series.</source>
 이 동영상을 변환해 프레임 시리즈를 업데이트합니다.</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="147"/>
+        <location filename="../workflows/video_to_frames.py" line="163"/>
         <source>A frame series is currently loaded, but the original video file could not be found.
 
 Frame series path: {video_path}
@@ -2751,7 +2761,7 @@ Please load the original video file manually.</source>
 원본 동영상 파일을 수동으로 로드하세요.</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="157"/>
+        <location filename="../workflows/video_to_frames.py" line="173"/>
         <source>A directory is currently loaded, but it doesn&apos;t appear to be a frame series.
 
 Current path: {video_path}
@@ -2764,7 +2774,7 @@ Please load a video file (.mp4, .mov, etc.) to convert it to frames.</source>
 프레임으로 변환할 동영상 파일(.mp4, .mov 등)을 로드하세요.</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="168"/>
+        <location filename="../workflows/video_to_frames.py" line="183"/>
         <source>The video file path is not valid:
 {video_path}
 
@@ -2775,12 +2785,12 @@ Please load a valid video file first.</source>
 먼저 올바른 동영상 파일을 로드하세요.</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="180"/>
+        <location filename="../workflows/video_to_frames.py" line="194"/>
         <source>Convert Video to Frame Series</source>
         <translation>동영상을 프레임 시리즈로 변환</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="181"/>
+        <location filename="../workflows/video_to_frames.py" line="195"/>
         <source>This will convert the current video to a frame series:
 
 Video: {video_name}
@@ -2799,22 +2809,22 @@ Continue?</source>
 계속하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="193"/>
+        <location filename="../workflows/video_to_frames.py" line="207"/>
         <source>Converting...</source>
         <translation>변환 중...</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="210"/>
+        <location filename="../workflows/video_to_frames.py" line="238"/>
         <source>Reset Video -&gt; Frame Series</source>
         <translation>동영상 -&gt; 프레임 시리즈 재설정</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="221"/>
+        <location filename="../workflows/video_to_frames.py" line="249"/>
         <source>Conversion Complete</source>
         <translation>변환 완료</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="222"/>
+        <location filename="../workflows/video_to_frames.py" line="250"/>
         <source>Video conversion completed successfully!
 
 {message}
@@ -2827,12 +2837,12 @@ You can now load the frame series for faster playback.</source>
 이제 더 빠른 재생을 위해 프레임 시리즈를 로드할 수 있습니다.</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="231"/>
+        <location filename="../workflows/video_to_frames.py" line="259"/>
         <source>Conversion Failed</source>
         <translation>변환 실패</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="232"/>
+        <location filename="../workflows/video_to_frames.py" line="260"/>
         <source>Video conversion failed:
 
 {message}</source>

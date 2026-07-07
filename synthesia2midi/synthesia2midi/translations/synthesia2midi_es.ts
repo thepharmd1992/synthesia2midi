@@ -500,72 +500,72 @@ Después de hacer clic en OK:
 <context>
     <name>CalibrationWizardController</name>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="86"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="88"/>
         <source>Wizard Error</source>
         <translation>Error del asistente</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="87"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="89"/>
         <source>Please open a video file first.</source>
         <translation>Abre primero un archivo de video.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="209"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="211"/>
         <source>Canvas Error</source>
         <translation>Error del lienzo</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="210"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="212"/>
         <source>Canvas interaction system not available.</source>
         <translation>El sistema de interacción del lienzo no está disponible.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="228"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="230"/>
         <source>Manual Fit</source>
         <translation>Ajuste manual</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="229"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="231"/>
         <source>No reusable manual calibration is available yet.</source>
         <translation>Aún no hay una calibración manual reutilizable disponible.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="238"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="240"/>
         <source>Auto-Detect Tuning</source>
         <translation>Ajuste de detección automática</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="239"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="241"/>
         <source>No reusable auto-detect calibration context is available yet. Run autodetect once with ROI selection first.</source>
         <translation>Aún no hay un contexto reutilizable de calibración automática disponible. Ejecuta primero la detección automática con selección de ROI.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="259"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="261"/>
         <source>Assisted calibration found {count} candidate samples.</source>
         <translation>La calibración asistida encontró {count} muestras candidatas.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="263"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="265"/>
         <source>Color families found: {count}</source>
         <translation>Familias de color encontradas: {count}</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="275"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="277"/>
         <source>not present in this video</source>
         <translation>no presente en este video</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="285"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="287"/>
         <source>not found</source>
         <translation>no encontrado</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="334"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="336"/>
         <source>Unlit Frame May Contain Lit Keys</source>
         <translation>El fotograma sin iluminar puede contener teclas iluminadas</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="335"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="337"/>
         <source>It looks like these keys may be lit: {notes}.
 
 Move to a frame where no keys are lit, or continue if this is expected.</source>
@@ -574,49 +574,49 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
 Ve a un fotograma donde no haya teclas iluminadas, o continúa si esto es esperado.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="351"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="353"/>
         <source>Scanning for lit key examples...</source>
         <translation>Buscando ejemplos de teclas iluminadas...</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="352"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="354"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="357"/>
-        <location filename="../gui/calibration_wizard_controller.py" line="382"/>
-        <location filename="../gui/calibration_wizard_controller.py" line="392"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="359"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="384"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="394"/>
         <source>Assisted Calibration</source>
         <translation>Calibración asistida</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="383"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="385"/>
         <source>No lit examples were found for assisted calibration. Existing calibration samples were left unchanged.</source>
         <translation>No se encontraron ejemplos iluminados para la calibración asistida. Las muestras de calibración existentes se dejaron sin cambios.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="395"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="397"/>
         <source>Apply these calibration updates?</source>
         <translation>¿Aplicar estas actualizaciones de calibración?</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="428"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="458"/>
         <source>Open Manual Fit for the current manual calibration.</source>
         <translation>Abrir Ajuste manual para la calibración manual actual.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="430"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="460"/>
         <source>Edit Current Calibration becomes available after manual overlays exist.</source>
         <translation>Editar calibración actual estará disponible cuando existan superposiciones manuales.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="436"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="466"/>
         <source>Open the auto-detect tuning panel for the current calibration.</source>
         <translation>Abrir el panel de ajuste de detección automática para la calibración actual.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="441"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="471"/>
         <source>Edit Current Calibration becomes available after an auto-detect run.</source>
         <translation>Editar calibración actual estará disponible después de ejecutar la detección automática.</translation>
     </message>
@@ -1334,32 +1334,32 @@ Esto recortará permanentemente la sesión de video a los fotogramas {start_fram
 <context>
     <name>ConversionWorkflow</name>
     <message>
-        <location filename="../workflows/conversion.py" line="317"/>
+        <location filename="../workflows/conversion.py" line="326"/>
         <source>Detecting notes...</source>
         <translation>Detectando notas...</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="318"/>
+        <location filename="../workflows/conversion.py" line="327"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="323"/>
+        <location filename="../workflows/conversion.py" line="332"/>
         <source>Processing...</source>
         <translation>Procesando...</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="387"/>
+        <location filename="../workflows/conversion.py" line="396"/>
         <source>Detecting notes</source>
         <translation>Detectando notas</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="389"/>
+        <location filename="../workflows/conversion.py" line="398"/>
         <source>Processing</source>
         <translation>Procesando</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="393"/>
+        <location filename="../workflows/conversion.py" line="402"/>
         <source>{phase_label}... {frame_count}/{total_frames} ({percent}%) (frame {actual_frame_idx})</source>
         <translation>{phase_label}... {frame_count}/{total_frames} ({percent}%) (fotograma {actual_frame_idx})</translation>
     </message>
@@ -1666,17 +1666,17 @@ Esto recortará permanentemente la sesión de video a los fotogramas {start_fram
 <context>
     <name>MidiConversionController</name>
     <message>
-        <location filename="../gui/midi_conversion_controller.py" line="31"/>
+        <location filename="../gui/midi_conversion_controller.py" line="35"/>
         <source>Error</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="../gui/midi_conversion_controller.py" line="35"/>
+        <location filename="../gui/midi_conversion_controller.py" line="39"/>
         <source>Conversion Error</source>
         <translation>Error de conversión</translation>
     </message>
     <message>
-        <location filename="../gui/midi_conversion_controller.py" line="37"/>
+        <location filename="../gui/midi_conversion_controller.py" line="41"/>
         <source>Conversion Failed</source>
         <translation>Conversión fallida</translation>
     </message>
@@ -1684,61 +1684,69 @@ Esto recortará permanentemente la sesión de video a los fotogramas {start_fram
 <context>
     <name>MidiTouchupController</name>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="38"/>
+        <location filename="../gui/midi_touchup_controller.py" line="42"/>
         <source>Conversion Complete</source>
         <translation>Conversión completa</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="40"/>
+        <location filename="../gui/midi_touchup_controller.py" line="44"/>
         <source>MIDI file saved to:
 {midi_output_path}</source>
         <translation>Archivo MIDI guardado en:
 {midi_output_path}</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="44"/>
         <source>You can open the Touch-Up Editor now, or finish.</source>
-        <translation>Puedes abrir ahora el Editor de retoque o finalizar.</translation>
+        <translation type="vanished">Puedes abrir ahora el Editor de retoque o finalizar.</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="45"/>
+        <location filename="../gui/midi_touchup_controller.py" line="54"/>
         <source>Open Touch-Up Editor</source>
         <translation>Abrir Editor de retoque</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="46"/>
         <source>Done</source>
-        <translation>Listo</translation>
+        <translation type="vanished">Listo</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="62"/>
+        <location filename="../gui/midi_touchup_controller.py" line="49"/>
+        <source>You can open the Touch-Up Editor now, or show the saved MIDI in its folder.</source>
+        <translation>Puedes abrir el Editor de retoque ahora o mostrar el MIDI guardado en su carpeta.</translation>
+    </message>
+    <message>
+        <location filename="../gui/midi_touchup_controller.py" line="56"/>
+        <source>Show MIDI in Folder</source>
+        <translation>Mostrar MIDI en carpeta</translation>
+    </message>
+    <message>
+        <location filename="../gui/midi_touchup_controller.py" line="85"/>
         <source>Open MIDI for Touch-Up</source>
         <translation>Abrir MIDI para retoque</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="64"/>
+        <location filename="../gui/midi_touchup_controller.py" line="87"/>
         <source>MIDI Files (*.mid *.midi)</source>
         <translation>Archivos MIDI (*.mid *.midi)</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="73"/>
+        <location filename="../gui/midi_touchup_controller.py" line="96"/>
         <source>MIDI file not found:
 {midi_path}</source>
         <translation>No se encontró el archivo MIDI:
 {midi_path}</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="77"/>
+        <location filename="../gui/midi_touchup_controller.py" line="100"/>
         <source>Touch-Up Editor</source>
         <translation>Editor de retoque</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="111"/>
+        <location filename="../gui/midi_touchup_controller.py" line="134"/>
         <source>Touch-Up Editor Launch Failed</source>
         <translation>No se pudo iniciar el Editor de retoque</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="112"/>
+        <location filename="../gui/midi_touchup_controller.py" line="135"/>
         <source>Failed to start Rust touch-up editor.
 
 Binary: {binary_path}
@@ -1749,12 +1757,12 @@ Binario: {binary_path}
 Error: {error_msg}</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="130"/>
+        <location filename="../gui/midi_touchup_controller.py" line="153"/>
         <source>Touch-Up Editor Missing</source>
         <translation>Falta el Editor de retoque</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="131"/>
+        <location filename="../gui/midi_touchup_controller.py" line="154"/>
         <source>Bundled Rust touch-up editor files were not found.
 
 MIDI requested: {midi_path}
@@ -1767,12 +1775,12 @@ MIDI solicitado: {midi_path}
 Vuelve a descargar la compilación de la app o usa la configuración de desarrollo del repositorio si ejecutas desde el código fuente.</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="150"/>
+        <location filename="../gui/midi_touchup_controller.py" line="173"/>
         <source>Touch-Up Editor Not Built</source>
         <translation>El Editor de retoque no está compilado</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="151"/>
+        <location filename="../gui/midi_touchup_controller.py" line="174"/>
         <source>Rust touch-up editor binary was not found.
 
 MIDI requested: {midi_path}
@@ -1799,24 +1807,24 @@ O compílalo manualmente con:
 Luego vuelve a intentar Editar MIDI.</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="209"/>
+        <location filename="../gui/midi_touchup_controller.py" line="232"/>
         <source>Touch-Up Saved</source>
         <translation>Retoque guardado</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="210"/>
+        <location filename="../gui/midi_touchup_controller.py" line="233"/>
         <source>Touch-up MIDI saved to:
 {shown_path}</source>
         <translation>MIDI retocado guardado en:
 {shown_path}</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="226"/>
+        <location filename="../gui/midi_touchup_controller.py" line="249"/>
         <source>Touch-Up Editor Error</source>
         <translation>Error del Editor de retoque</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="227"/>
+        <location filename="../gui/midi_touchup_controller.py" line="250"/>
         <source>{failure_message}
 
 Source MIDI: {source_midi_path}
@@ -2600,52 +2608,52 @@ Las chispas deben apenas notarse como destellos brillantes en el ROI.</translati
 <context>
     <name>VideoLoadingWorkflow</name>
     <message>
-        <location filename="../workflows/video_loading.py" line="113"/>
+        <location filename="../workflows/video_loading.py" line="121"/>
         <source>Use Existing Frames?</source>
         <translation>¿Usar fotogramas existentes?</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="114"/>
+        <location filename="../workflows/video_loading.py" line="122"/>
         <source>Found existing frame sequence for this video.
 Use frames for better performance?</source>
         <translation>Se encontró una secuencia de fotogramas existente para este video.
 ¿Usar fotogramas para mejorar el rendimiento?</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="394"/>
+        <location filename="../workflows/video_loading.py" line="378"/>
         <source>Converting video to image sequence...
 This is a one-time process.</source>
         <translation>Convirtiendo video a secuencia de imágenes...
 Este proceso se realiza una sola vez.</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="395"/>
+        <location filename="../workflows/video_loading.py" line="379"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="400"/>
+        <location filename="../workflows/video_loading.py" line="384"/>
         <source>Optimizing Performance</source>
         <translation>Optimizando rendimiento</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="577"/>
+        <location filename="../workflows/video_loading.py" line="561"/>
         <source>Converting video... {frames_created}/{total_frames} frames ({percent}%)</source>
         <translation>Convirtiendo video... {frames_created}/{total_frames} fotogramas ({percent}%)</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="584"/>
+        <location filename="../workflows/video_loading.py" line="568"/>
         <source>Converting video... {frames_created} frames</source>
         <translation>Convirtiendo video... {frames_created} fotogramas</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="674"/>
-        <location filename="../workflows/video_loading.py" line="702"/>
+        <location filename="../workflows/video_loading.py" line="658"/>
+        <location filename="../workflows/video_loading.py" line="686"/>
         <source>Frame Conversion Failed</source>
         <translation>Falló la conversión de fotogramas</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="675"/>
+        <location filename="../workflows/video_loading.py" line="659"/>
         <source>Failed to convert video to frames.
 Return code: {return_code}
 Frames created: {final_count}
@@ -2658,7 +2666,7 @@ Fotogramas creados: {final_count}
 En su lugar, el video se cargará directamente.</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="703"/>
+        <location filename="../workflows/video_loading.py" line="687"/>
         <source>Failed to convert video to frames:
 {error}
 
@@ -2685,26 +2693,27 @@ En su lugar, el video se cargará directamente.</translation>
 <context>
     <name>VideoToFramesController</name>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="98"/>
-        <location filename="../workflows/video_to_frames.py" line="137"/>
-        <location filename="../workflows/video_to_frames.py" line="146"/>
-        <location filename="../workflows/video_to_frames.py" line="156"/>
-        <location filename="../workflows/video_to_frames.py" line="167"/>
+        <location filename="../workflows/video_to_frames.py" line="102"/>
+        <location filename="../workflows/video_to_frames.py" line="130"/>
+        <location filename="../workflows/video_to_frames.py" line="153"/>
+        <location filename="../workflows/video_to_frames.py" line="162"/>
+        <location filename="../workflows/video_to_frames.py" line="172"/>
+        <location filename="../workflows/video_to_frames.py" line="182"/>
         <source>Video to Frames</source>
         <translation>Video a fotogramas</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="99"/>
+        <location filename="../workflows/video_to_frames.py" line="103"/>
         <source>No video file is open. Open a video first.</source>
         <translation>No hay ningún archivo de video abierto. Abre primero un video.</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="109"/>
+        <location filename="../workflows/video_to_frames.py" line="113"/>
         <source>FFmpeg Not Found</source>
         <translation>No se encontró FFmpeg</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="110"/>
+        <location filename="../workflows/video_to_frames.py" line="114"/>
         <source>{message}
 
 Please install FFmpeg:
@@ -2719,7 +2728,8 @@ Instala FFmpeg:
 • Linux: sudo apt install ffmpeg</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="138"/>
+        <location filename="../workflows/video_to_frames.py" line="131"/>
+        <location filename="../workflows/video_to_frames.py" line="154"/>
         <source>Frame series is currently loaded. Found original video file:
 
 {video_name}
@@ -2732,7 +2742,7 @@ Will convert this video to update the frame series.</source>
 Se convertirá este video para actualizar la serie de fotogramas.</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="147"/>
+        <location filename="../workflows/video_to_frames.py" line="163"/>
         <source>A frame series is currently loaded, but the original video file could not be found.
 
 Frame series path: {video_path}
@@ -2749,7 +2759,7 @@ Con nombre: {base_name}.mp4 (o .mov, .avi, etc.)
 Carga manualmente el archivo de video original.</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="157"/>
+        <location filename="../workflows/video_to_frames.py" line="173"/>
         <source>A directory is currently loaded, but it doesn&apos;t appear to be a frame series.
 
 Current path: {video_path}
@@ -2762,7 +2772,7 @@ Ruta actual: {video_path}
 Carga un archivo de video (.mp4, .mov, etc.) para convertirlo a fotogramas.</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="168"/>
+        <location filename="../workflows/video_to_frames.py" line="183"/>
         <source>The video file path is not valid:
 {video_path}
 
@@ -2773,12 +2783,12 @@ Please load a valid video file first.</source>
 Carga primero un archivo de video válido.</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="180"/>
+        <location filename="../workflows/video_to_frames.py" line="194"/>
         <source>Convert Video to Frame Series</source>
         <translation>Convertir video a serie de fotogramas</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="181"/>
+        <location filename="../workflows/video_to_frames.py" line="195"/>
         <source>This will convert the current video to a frame series:
 
 Video: {video_name}
@@ -2797,22 +2807,22 @@ Puede tardar varios minutos y sobrescribirá cualquier serie de fotogramas exist
 ¿Continuar?</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="193"/>
+        <location filename="../workflows/video_to_frames.py" line="207"/>
         <source>Converting...</source>
         <translation>Convirtiendo...</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="210"/>
+        <location filename="../workflows/video_to_frames.py" line="238"/>
         <source>Reset Video -&gt; Frame Series</source>
         <translation>Restablecer video -&gt; serie de fotogramas</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="221"/>
+        <location filename="../workflows/video_to_frames.py" line="249"/>
         <source>Conversion Complete</source>
         <translation>Conversión completa</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="222"/>
+        <location filename="../workflows/video_to_frames.py" line="250"/>
         <source>Video conversion completed successfully!
 
 {message}
@@ -2825,12 +2835,12 @@ You can now load the frame series for faster playback.</source>
 Ahora puedes cargar la serie de fotogramas para una reproducción más rápida.</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="231"/>
+        <location filename="../workflows/video_to_frames.py" line="259"/>
         <source>Conversion Failed</source>
         <translation>Conversión fallida</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="232"/>
+        <location filename="../workflows/video_to_frames.py" line="260"/>
         <source>Video conversion failed:
 
 {message}</source>

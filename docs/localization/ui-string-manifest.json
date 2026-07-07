@@ -147,7 +147,7 @@
     {
       "classification": "path_or_url",
       "context": "translate",
-      "line": 110,
+      "line": 114,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -363,7 +363,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 157,
+      "line": 173,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -381,7 +381,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 147,
+      "line": 163,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -912,7 +912,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 131,
+      "line": 154,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -1092,7 +1092,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 318,
+      "line": 327,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/conversion.py",
@@ -1101,7 +1101,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 395,
+      "line": 379,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
@@ -1281,7 +1281,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 38,
+      "line": 42,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -1290,7 +1290,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 221,
+      "line": 249,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -1299,7 +1299,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 35,
+      "line": 39,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_conversion_controller.py",
@@ -1308,7 +1308,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 37,
+      "line": 41,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_conversion_controller.py",
@@ -1317,7 +1317,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 231,
+      "line": 259,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -1335,7 +1335,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 180,
+      "line": 194,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -1344,7 +1344,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 394,
+      "line": 378,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
@@ -1362,7 +1362,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 584,
+      "line": 568,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
@@ -1371,7 +1371,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 577,
+      "line": 561,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
@@ -1389,7 +1389,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 193,
+      "line": 207,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -1560,7 +1560,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 387,
+      "line": 396,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/conversion.py",
@@ -1569,7 +1569,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 317,
+      "line": 326,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/conversion.py",
@@ -1628,15 +1628,6 @@
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Detection Threshold: main sensitivity setting for pressed vs unpressed."
-    },
-    {
-      "classification": "translate",
-      "context": "translate",
-      "line": 46,
-      "origin": "static",
-      "role": "arg1",
-      "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
-      "text": "Done"
     },
     {
       "classification": "translate",
@@ -1965,7 +1956,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 31,
+      "line": 35,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_conversion_controller.py",
@@ -2028,7 +2019,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 675,
+      "line": 659,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
@@ -2037,7 +2028,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 703,
+      "line": 687,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
@@ -2109,7 +2100,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 112,
+      "line": 135,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -2145,7 +2136,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 109,
+      "line": 113,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -2181,7 +2172,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 114,
+      "line": 122,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
@@ -2190,7 +2181,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 702,
+      "line": 686,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
@@ -2217,7 +2208,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 138,
+      "line": 131,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -2685,7 +2676,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 73,
+      "line": 96,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -2694,7 +2685,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 40,
+      "line": 44,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -2703,7 +2694,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 64,
+      "line": 87,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -2937,7 +2928,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 99,
+      "line": 103,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -3081,7 +3072,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 62,
+      "line": 85,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -3108,7 +3099,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 45,
+      "line": 54,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -3135,7 +3126,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 400,
+      "line": 384,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
@@ -3324,7 +3315,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 389,
+      "line": 398,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/conversion.py",
@@ -3333,7 +3324,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 323,
+      "line": 332,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/conversion.py",
@@ -3450,7 +3441,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 210,
+      "line": 238,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -3558,7 +3549,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 151,
+      "line": 174,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -3806,6 +3797,15 @@
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Shifts the MIDI output up/down by octaves."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 56,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
+      "text": "Show MIDI in Folder"
     },
     {
       "classification": "translate",
@@ -4080,7 +4080,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 168,
+      "line": 183,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -4107,7 +4107,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 181,
+      "line": 195,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -4134,7 +4134,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 77,
+      "line": 100,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -4143,7 +4143,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 226,
+      "line": 249,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -4152,7 +4152,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 111,
+      "line": 134,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -4161,7 +4161,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 130,
+      "line": 153,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -4170,7 +4170,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 150,
+      "line": 173,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -4179,7 +4179,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 210,
+      "line": 233,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -4188,7 +4188,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 209,
+      "line": 232,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -4305,7 +4305,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 113,
+      "line": 121,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_loading.py",
@@ -4368,7 +4368,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 222,
+      "line": 250,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -4377,7 +4377,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 232,
+      "line": 260,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -4431,7 +4431,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 98,
+      "line": 102,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/video_to_frames.py",
@@ -4701,11 +4701,11 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 44,
+      "line": 49,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
-      "text": "You can open the Touch-Up Editor now, or finish."
+      "text": "You can open the Touch-Up Editor now, or show the saved MIDI in its folder."
     },
     {
       "classification": "translate",
@@ -4764,7 +4764,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 227,
+      "line": 250,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/midi_touchup_controller.py",
@@ -4791,7 +4791,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 393,
+      "line": 402,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/conversion.py",

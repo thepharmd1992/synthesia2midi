@@ -62,6 +62,7 @@ synthesia2midi/synthesia2midi/youtube_downloader.py
 synthesia2midi/synthesia2midi/translations/synthesia2midi_*.ts
 synthesia2midi/synthesia2midi/translations/synthesia2midi_*.qm
 docs/localization/ui-string-manifest.json
+docs/localization/translation-agent-packet.json
 tests/test_runtime_paths.py
 tests/test_config_manager.py
 tests/test_midi_conversion_controller.py
@@ -831,13 +832,13 @@ git commit -m "Use Downloads folder for video downloads"
 
 The new visible string is `Show MIDI in Folder`. If any failure dialog is added, include those strings too.
 
-- [ ] Regenerate the audit manifest:
+- [x] Regenerate the audit manifest:
 
 ```bash
 .venv/bin/python -m synthesia2midi.tools.audit_ui_strings --output docs/localization/ui-string-manifest.json
 ```
 
-- [ ] Regenerate Qt source catalogs:
+- [x] Regenerate Qt source catalogs:
 
 ```bash
 .venv/bin/pyside6-lupdate -extensions py synthesia2midi/synthesia2midi -ts synthesia2midi/synthesia2midi/translations/synthesia2midi_es.ts
@@ -848,7 +849,7 @@ The new visible string is `Show MIDI in Folder`. If any failure dialog is added,
 .venv/bin/pyside6-lupdate -extensions py synthesia2midi/synthesia2midi -ts synthesia2midi/synthesia2midi/translations/synthesia2midi_pt_BR.ts
 ```
 
-- [ ] Add translations for `Show MIDI in Folder`:
+- [x] Add translations for `Show MIDI in Folder` and the updated completion-dialog explanatory sentence:
 
 ```text
 es: Mostrar MIDI en carpeta
@@ -859,7 +860,7 @@ ko: 폴더에서 MIDI 보기
 pt_BR: Mostrar MIDI na pasta
 ```
 
-- [ ] Compile catalogs:
+- [x] Compile catalogs:
 
 ```bash
 .venv/bin/pyside6-lrelease synthesia2midi/synthesia2midi/translations/synthesia2midi_es.ts -qm synthesia2midi/synthesia2midi/translations/synthesia2midi_es.qm
@@ -870,7 +871,7 @@ pt_BR: Mostrar MIDI na pasta
 .venv/bin/pyside6-lrelease synthesia2midi/synthesia2midi/translations/synthesia2midi_pt_BR.ts -qm synthesia2midi/synthesia2midi/translations/synthesia2midi_pt_BR.qm
 ```
 
-- [ ] Run:
+- [x] Run:
 
 ```bash
 .venv/bin/python -m pytest tests/test_localization.py tests/test_ui_string_audit.py
@@ -881,7 +882,7 @@ Expected result: localization and audit tests pass; no production locale has unf
 Commit after this step:
 
 ```bash
-git add docs/localization/ui-string-manifest.json synthesia2midi/synthesia2midi/translations
+git add docs/localization/ui-string-manifest.json docs/localization/translation-agent-packet.json synthesia2midi/synthesia2midi/translations
 git commit -m "Update localization for output directory UX"
 ```
 

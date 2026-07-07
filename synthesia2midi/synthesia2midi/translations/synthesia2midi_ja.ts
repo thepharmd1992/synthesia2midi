@@ -500,72 +500,72 @@ OKをクリックした後:
 <context>
     <name>CalibrationWizardController</name>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="86"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="88"/>
         <source>Wizard Error</source>
         <translation>ウィザードエラー</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="87"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="89"/>
         <source>Please open a video file first.</source>
         <translation>先に動画ファイルを開いてください。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="209"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="211"/>
         <source>Canvas Error</source>
         <translation>キャンバスエラー</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="210"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="212"/>
         <source>Canvas interaction system not available.</source>
         <translation>キャンバス操作システムを利用できません。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="228"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="230"/>
         <source>Manual Fit</source>
         <translation>手動フィット</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="229"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="231"/>
         <source>No reusable manual calibration is available yet.</source>
         <translation>再利用可能な手動キャリブレーションはまだありません。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="238"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="240"/>
         <source>Auto-Detect Tuning</source>
         <translation>自動検出チューニング</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="239"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="241"/>
         <source>No reusable auto-detect calibration context is available yet. Run autodetect once with ROI selection first.</source>
         <translation>再利用可能な自動検出キャリブレーションコンテキストはまだありません。先にROI選択で自動検出を一度実行してください。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="259"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="261"/>
         <source>Assisted calibration found {count} candidate samples.</source>
         <translation>アシスト付きキャリブレーションで {count} 件の候補サンプルが見つかりました。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="263"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="265"/>
         <source>Color families found: {count}</source>
         <translation>見つかった色ファミリー: {count}</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="275"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="277"/>
         <source>not present in this video</source>
         <translation>この動画にはありません</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="285"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="287"/>
         <source>not found</source>
         <translation>見つかりません</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="334"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="336"/>
         <source>Unlit Frame May Contain Lit Keys</source>
         <translation>未点灯フレームに点灯したキーが含まれている可能性があります</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="335"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="337"/>
         <source>It looks like these keys may be lit: {notes}.
 
 Move to a frame where no keys are lit, or continue if this is expected.</source>
@@ -574,49 +574,49 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
 点灯しているキーがないフレームに移動するか、これが想定どおりなら続行してください。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="351"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="353"/>
         <source>Scanning for lit key examples...</source>
         <translation>点灯したキーの例を検索しています...</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="352"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="354"/>
         <source>Cancel</source>
         <translation>キャンセル</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="357"/>
-        <location filename="../gui/calibration_wizard_controller.py" line="382"/>
-        <location filename="../gui/calibration_wizard_controller.py" line="392"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="359"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="384"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="394"/>
         <source>Assisted Calibration</source>
         <translation>アシスト付きキャリブレーション</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="383"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="385"/>
         <source>No lit examples were found for assisted calibration. Existing calibration samples were left unchanged.</source>
         <translation>アシスト付きキャリブレーションに使える点灯例は見つかりませんでした。既存のキャリブレーションサンプルはそのまま残しました。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="395"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="397"/>
         <source>Apply these calibration updates?</source>
         <translation>これらのキャリブレーション更新を適用しますか？</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="428"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="458"/>
         <source>Open Manual Fit for the current manual calibration.</source>
         <translation>現在の手動キャリブレーションで手動フィットを開きます。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="430"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="460"/>
         <source>Edit Current Calibration becomes available after manual overlays exist.</source>
         <translation>手動オーバーレイが存在すると、現在のキャリブレーションを編集できます。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="436"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="466"/>
         <source>Open the auto-detect tuning panel for the current calibration.</source>
         <translation>現在のキャリブレーションの自動検出チューニングパネルを開きます。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="441"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="471"/>
         <source>Edit Current Calibration becomes available after an auto-detect run.</source>
         <translation>自動検出の実行後に、現在のキャリブレーションを編集できます。</translation>
     </message>
@@ -1336,32 +1336,32 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
 <context>
     <name>ConversionWorkflow</name>
     <message>
-        <location filename="../workflows/conversion.py" line="317"/>
+        <location filename="../workflows/conversion.py" line="326"/>
         <source>Detecting notes...</source>
         <translation>音符を検出中...</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="318"/>
+        <location filename="../workflows/conversion.py" line="327"/>
         <source>Cancel</source>
         <translation>キャンセル</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="323"/>
+        <location filename="../workflows/conversion.py" line="332"/>
         <source>Processing...</source>
         <translation>処理中...</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="387"/>
+        <location filename="../workflows/conversion.py" line="396"/>
         <source>Detecting notes</source>
         <translation>音符を検出中</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="389"/>
+        <location filename="../workflows/conversion.py" line="398"/>
         <source>Processing</source>
         <translation>処理中</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="393"/>
+        <location filename="../workflows/conversion.py" line="402"/>
         <source>{phase_label}... {frame_count}/{total_frames} ({percent}%) (frame {actual_frame_idx})</source>
         <translation>{phase_label}... {frame_count}/{total_frames}（{percent}%）（フレーム {actual_frame_idx}）</translation>
     </message>
@@ -1668,17 +1668,17 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
 <context>
     <name>MidiConversionController</name>
     <message>
-        <location filename="../gui/midi_conversion_controller.py" line="31"/>
+        <location filename="../gui/midi_conversion_controller.py" line="35"/>
         <source>Error</source>
         <translation>エラー</translation>
     </message>
     <message>
-        <location filename="../gui/midi_conversion_controller.py" line="35"/>
+        <location filename="../gui/midi_conversion_controller.py" line="39"/>
         <source>Conversion Error</source>
         <translation>変換エラー</translation>
     </message>
     <message>
-        <location filename="../gui/midi_conversion_controller.py" line="37"/>
+        <location filename="../gui/midi_conversion_controller.py" line="41"/>
         <source>Conversion Failed</source>
         <translation>変換失敗</translation>
     </message>
@@ -1686,61 +1686,69 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
 <context>
     <name>MidiTouchupController</name>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="38"/>
+        <location filename="../gui/midi_touchup_controller.py" line="42"/>
         <source>Conversion Complete</source>
         <translation>変換完了</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="40"/>
+        <location filename="../gui/midi_touchup_controller.py" line="44"/>
         <source>MIDI file saved to:
 {midi_output_path}</source>
         <translation>MIDIファイルを保存しました:
 {midi_output_path}</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="44"/>
         <source>You can open the Touch-Up Editor now, or finish.</source>
-        <translation>Touch-Up Editorを今すぐ開くか、完了できます。</translation>
+        <translation type="vanished">Touch-Up Editorを今すぐ開くか、完了できます。</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="45"/>
+        <location filename="../gui/midi_touchup_controller.py" line="54"/>
         <source>Open Touch-Up Editor</source>
         <translation>Touch-Up Editorを開く</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="46"/>
         <source>Done</source>
-        <translation>完了</translation>
+        <translation type="vanished">完了</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="62"/>
+        <location filename="../gui/midi_touchup_controller.py" line="49"/>
+        <source>You can open the Touch-Up Editor now, or show the saved MIDI in its folder.</source>
+        <translation>Touch-Up Editorを今すぐ開くか、保存したMIDIをフォルダで表示できます。</translation>
+    </message>
+    <message>
+        <location filename="../gui/midi_touchup_controller.py" line="56"/>
+        <source>Show MIDI in Folder</source>
+        <translation>MIDIをフォルダで表示</translation>
+    </message>
+    <message>
+        <location filename="../gui/midi_touchup_controller.py" line="85"/>
         <source>Open MIDI for Touch-Up</source>
         <translation>タッチアップ用にMIDIを開く</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="64"/>
+        <location filename="../gui/midi_touchup_controller.py" line="87"/>
         <source>MIDI Files (*.mid *.midi)</source>
         <translation>MIDIファイル (*.mid *.midi)</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="73"/>
+        <location filename="../gui/midi_touchup_controller.py" line="96"/>
         <source>MIDI file not found:
 {midi_path}</source>
         <translation>MIDIファイルが見つかりません:
 {midi_path}</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="77"/>
+        <location filename="../gui/midi_touchup_controller.py" line="100"/>
         <source>Touch-Up Editor</source>
         <translation>Touch-Up Editor</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="111"/>
+        <location filename="../gui/midi_touchup_controller.py" line="134"/>
         <source>Touch-Up Editor Launch Failed</source>
         <translation>Touch-Up Editorの起動失敗</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="112"/>
+        <location filename="../gui/midi_touchup_controller.py" line="135"/>
         <source>Failed to start Rust touch-up editor.
 
 Binary: {binary_path}
@@ -1751,12 +1759,12 @@ Error: {error_msg}</source>
 エラー: {error_msg}</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="130"/>
+        <location filename="../gui/midi_touchup_controller.py" line="153"/>
         <source>Touch-Up Editor Missing</source>
         <translation>Touch-Up Editorが見つかりません</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="131"/>
+        <location filename="../gui/midi_touchup_controller.py" line="154"/>
         <source>Bundled Rust touch-up editor files were not found.
 
 MIDI requested: {midi_path}
@@ -1769,12 +1777,12 @@ Re-download the app build or use the repository developer setup if you are runni
 アプリビルドを再ダウンロードするか、ソースから実行している場合はリポジトリの開発環境セットアップを使用してください。</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="150"/>
+        <location filename="../gui/midi_touchup_controller.py" line="173"/>
         <source>Touch-Up Editor Not Built</source>
         <translation>Touch-Up Editorがビルドされていません</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="151"/>
+        <location filename="../gui/midi_touchup_controller.py" line="174"/>
         <source>Rust touch-up editor binary was not found.
 
 MIDI requested: {midi_path}
@@ -1801,24 +1809,24 @@ Then retry Edit MIDI.</source>
 その後、MIDIを編集を再試行してください。</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="209"/>
+        <location filename="../gui/midi_touchup_controller.py" line="232"/>
         <source>Touch-Up Saved</source>
         <translation>タッチアップ保存済み</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="210"/>
+        <location filename="../gui/midi_touchup_controller.py" line="233"/>
         <source>Touch-up MIDI saved to:
 {shown_path}</source>
         <translation>タッチアップ済みMIDIを保存しました:
 {shown_path}</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="226"/>
+        <location filename="../gui/midi_touchup_controller.py" line="249"/>
         <source>Touch-Up Editor Error</source>
         <translation>Touch-Up Editorエラー</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="227"/>
+        <location filename="../gui/midi_touchup_controller.py" line="250"/>
         <source>{failure_message}
 
 Source MIDI: {source_midi_path}
@@ -2602,52 +2610,52 @@ SparkはROI内でかろうじて目立つ明るい閃光として見える状態
 <context>
     <name>VideoLoadingWorkflow</name>
     <message>
-        <location filename="../workflows/video_loading.py" line="113"/>
+        <location filename="../workflows/video_loading.py" line="121"/>
         <source>Use Existing Frames?</source>
         <translation>既存フレームを使用しますか？</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="114"/>
+        <location filename="../workflows/video_loading.py" line="122"/>
         <source>Found existing frame sequence for this video.
 Use frames for better performance?</source>
         <translation>この動画の既存フレームシーケンスが見つかりました。
 パフォーマンス向上のためにフレームを使用しますか？</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="394"/>
+        <location filename="../workflows/video_loading.py" line="378"/>
         <source>Converting video to image sequence...
 This is a one-time process.</source>
         <translation>動画を画像シーケンスに変換中...
 これは1回だけの処理です。</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="395"/>
+        <location filename="../workflows/video_loading.py" line="379"/>
         <source>Cancel</source>
         <translation>キャンセル</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="400"/>
+        <location filename="../workflows/video_loading.py" line="384"/>
         <source>Optimizing Performance</source>
         <translation>パフォーマンスを最適化中</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="577"/>
+        <location filename="../workflows/video_loading.py" line="561"/>
         <source>Converting video... {frames_created}/{total_frames} frames ({percent}%)</source>
         <translation>動画を変換中... {frames_created}/{total_frames} フレーム（{percent}%）</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="584"/>
+        <location filename="../workflows/video_loading.py" line="568"/>
         <source>Converting video... {frames_created} frames</source>
         <translation>動画を変換中... {frames_created} フレーム</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="674"/>
-        <location filename="../workflows/video_loading.py" line="702"/>
+        <location filename="../workflows/video_loading.py" line="658"/>
+        <location filename="../workflows/video_loading.py" line="686"/>
         <source>Frame Conversion Failed</source>
         <translation>フレーム変換失敗</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="675"/>
+        <location filename="../workflows/video_loading.py" line="659"/>
         <source>Failed to convert video to frames.
 Return code: {return_code}
 Frames created: {final_count}
@@ -2660,7 +2668,7 @@ The video will be loaded directly instead.</source>
 動画は直接読み込まれます。</translation>
     </message>
     <message>
-        <location filename="../workflows/video_loading.py" line="703"/>
+        <location filename="../workflows/video_loading.py" line="687"/>
         <source>Failed to convert video to frames:
 {error}
 
@@ -2687,26 +2695,27 @@ The video will be loaded directly instead.</source>
 <context>
     <name>VideoToFramesController</name>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="98"/>
-        <location filename="../workflows/video_to_frames.py" line="137"/>
-        <location filename="../workflows/video_to_frames.py" line="146"/>
-        <location filename="../workflows/video_to_frames.py" line="156"/>
-        <location filename="../workflows/video_to_frames.py" line="167"/>
+        <location filename="../workflows/video_to_frames.py" line="102"/>
+        <location filename="../workflows/video_to_frames.py" line="130"/>
+        <location filename="../workflows/video_to_frames.py" line="153"/>
+        <location filename="../workflows/video_to_frames.py" line="162"/>
+        <location filename="../workflows/video_to_frames.py" line="172"/>
+        <location filename="../workflows/video_to_frames.py" line="182"/>
         <source>Video to Frames</source>
         <translation>動画からフレームへ</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="99"/>
+        <location filename="../workflows/video_to_frames.py" line="103"/>
         <source>No video file is open. Open a video first.</source>
         <translation>動画ファイルが開いていません。先に動画を開いてください。</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="109"/>
+        <location filename="../workflows/video_to_frames.py" line="113"/>
         <source>FFmpeg Not Found</source>
         <translation>FFmpegが見つかりません</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="110"/>
+        <location filename="../workflows/video_to_frames.py" line="114"/>
         <source>{message}
 
 Please install FFmpeg:
@@ -2721,7 +2730,8 @@ FFmpegをインストールしてください:
 • Linux: sudo apt install ffmpeg</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="138"/>
+        <location filename="../workflows/video_to_frames.py" line="131"/>
+        <location filename="../workflows/video_to_frames.py" line="154"/>
         <source>Frame series is currently loaded. Found original video file:
 
 {video_name}
@@ -2734,7 +2744,7 @@ Will convert this video to update the frame series.</source>
 この動画を変換してフレームシリーズを更新します。</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="147"/>
+        <location filename="../workflows/video_to_frames.py" line="163"/>
         <source>A frame series is currently loaded, but the original video file could not be found.
 
 Frame series path: {video_path}
@@ -2751,7 +2761,7 @@ Please load the original video file manually.</source>
 元の動画ファイルを手動で読み込んでください。</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="157"/>
+        <location filename="../workflows/video_to_frames.py" line="173"/>
         <source>A directory is currently loaded, but it doesn&apos;t appear to be a frame series.
 
 Current path: {video_path}
@@ -2764,7 +2774,7 @@ Please load a video file (.mp4, .mov, etc.) to convert it to frames.</source>
 フレームに変換するには動画ファイル（.mp4、.mov など）を読み込んでください。</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="168"/>
+        <location filename="../workflows/video_to_frames.py" line="183"/>
         <source>The video file path is not valid:
 {video_path}
 
@@ -2775,12 +2785,12 @@ Please load a valid video file first.</source>
 先に有効な動画ファイルを読み込んでください。</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="180"/>
+        <location filename="../workflows/video_to_frames.py" line="194"/>
         <source>Convert Video to Frame Series</source>
         <translation>動画をフレームシリーズに変換</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="181"/>
+        <location filename="../workflows/video_to_frames.py" line="195"/>
         <source>This will convert the current video to a frame series:
 
 Video: {video_name}
@@ -2799,22 +2809,22 @@ Continue?</source>
 続行しますか？</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="193"/>
+        <location filename="../workflows/video_to_frames.py" line="207"/>
         <source>Converting...</source>
         <translation>変換中...</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="210"/>
+        <location filename="../workflows/video_to_frames.py" line="238"/>
         <source>Reset Video -&gt; Frame Series</source>
         <translation>動画 -&gt; フレームシリーズをリセット</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="221"/>
+        <location filename="../workflows/video_to_frames.py" line="249"/>
         <source>Conversion Complete</source>
         <translation>変換完了</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="222"/>
+        <location filename="../workflows/video_to_frames.py" line="250"/>
         <source>Video conversion completed successfully!
 
 {message}
@@ -2827,12 +2837,12 @@ You can now load the frame series for faster playback.</source>
 これでフレームシリーズを読み込んで高速再生できます。</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="231"/>
+        <location filename="../workflows/video_to_frames.py" line="259"/>
         <source>Conversion Failed</source>
         <translation>変換失敗</translation>
     </message>
     <message>
-        <location filename="../workflows/video_to_frames.py" line="232"/>
+        <location filename="../workflows/video_to_frames.py" line="260"/>
         <source>Video conversion failed:
 
 {message}</source>

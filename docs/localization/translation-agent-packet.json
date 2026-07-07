@@ -1214,7 +1214,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 86
+          "line": 88
         }
       ],
       "notes": ""
@@ -1226,7 +1226,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 87
+          "line": 89
         }
       ],
       "notes": ""
@@ -1238,7 +1238,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 209
+          "line": 211
         }
       ],
       "notes": ""
@@ -1250,7 +1250,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 210
+          "line": 212
         }
       ],
       "notes": ""
@@ -1262,7 +1262,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 228
+          "line": 230
         }
       ],
       "notes": ""
@@ -1274,7 +1274,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 229
+          "line": 231
         }
       ],
       "notes": ""
@@ -1286,7 +1286,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 238
+          "line": 240
         }
       ],
       "notes": ""
@@ -1298,7 +1298,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 239
+          "line": 241
         }
       ],
       "notes": ""
@@ -1312,7 +1312,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 259
+          "line": 261
         }
       ],
       "notes": ""
@@ -1326,7 +1326,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 263
+          "line": 265
         }
       ],
       "notes": ""
@@ -1338,7 +1338,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 275
+          "line": 277
         }
       ],
       "notes": ""
@@ -1350,7 +1350,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 285
+          "line": 287
         }
       ],
       "notes": ""
@@ -1362,7 +1362,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 334
+          "line": 336
         }
       ],
       "notes": ""
@@ -1376,7 +1376,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 335
+          "line": 337
         }
       ],
       "notes": ""
@@ -1388,7 +1388,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 351
+          "line": 353
         }
       ],
       "notes": ""
@@ -1400,7 +1400,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 352
+          "line": 354
         }
       ],
       "notes": ""
@@ -1412,15 +1412,15 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 357
+          "line": 359
         },
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 382
+          "line": 384
         },
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 392
+          "line": 394
         }
       ],
       "notes": ""
@@ -1432,7 +1432,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 383
+          "line": 385
         }
       ],
       "notes": ""
@@ -1444,7 +1444,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 395
+          "line": 397
         }
       ],
       "notes": ""
@@ -1456,7 +1456,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 428
+          "line": 458
         }
       ],
       "notes": ""
@@ -1468,7 +1468,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 430
+          "line": 460
         }
       ],
       "notes": ""
@@ -1480,7 +1480,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 436
+          "line": 466
         }
       ],
       "notes": ""
@@ -1492,7 +1492,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 441
+          "line": 471
         }
       ],
       "notes": ""
@@ -3214,7 +3214,7 @@
       "locations": [
         {
           "filename": "../workflows/conversion.py",
-          "line": 317
+          "line": 326
         }
       ],
       "notes": ""
@@ -3226,7 +3226,7 @@
       "locations": [
         {
           "filename": "../workflows/conversion.py",
-          "line": 318
+          "line": 327
         }
       ],
       "notes": ""
@@ -3238,7 +3238,7 @@
       "locations": [
         {
           "filename": "../workflows/conversion.py",
-          "line": 323
+          "line": 332
         }
       ],
       "notes": ""
@@ -3250,7 +3250,7 @@
       "locations": [
         {
           "filename": "../workflows/conversion.py",
-          "line": 387
+          "line": 396
         }
       ],
       "notes": ""
@@ -3262,7 +3262,7 @@
       "locations": [
         {
           "filename": "../workflows/conversion.py",
-          "line": 389
+          "line": 398
         }
       ],
       "notes": ""
@@ -3280,7 +3280,7 @@
       "locations": [
         {
           "filename": "../workflows/conversion.py",
-          "line": 393
+          "line": 402
         }
       ],
       "notes": ""
@@ -4006,7 +4006,7 @@
       "locations": [
         {
           "filename": "../gui/midi_conversion_controller.py",
-          "line": 31
+          "line": 35
         }
       ],
       "notes": ""
@@ -4018,7 +4018,7 @@
       "locations": [
         {
           "filename": "../gui/midi_conversion_controller.py",
-          "line": 35
+          "line": 39
         }
       ],
       "notes": ""
@@ -4030,7 +4030,7 @@
       "locations": [
         {
           "filename": "../gui/midi_conversion_controller.py",
-          "line": 37
+          "line": 41
         }
       ],
       "notes": ""
@@ -4042,7 +4042,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 38
+          "line": 42
         }
       ],
       "notes": ""
@@ -4053,18 +4053,6 @@
       "placeholders": [
         "{midi_output_path}"
       ],
-      "locations": [
-        {
-          "filename": "../gui/midi_touchup_controller.py",
-          "line": 40
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "MidiTouchupController",
-      "source": "You can open the Touch-Up Editor now, or finish.",
-      "placeholders": [],
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
@@ -4080,19 +4068,31 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 45
+          "line": 54
         }
       ],
       "notes": ""
     },
     {
       "context": "MidiTouchupController",
-      "source": "Done",
+      "source": "You can open the Touch-Up Editor now, or show the saved MIDI in its folder.",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 46
+          "line": 49
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "Show MIDI in Folder",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 56
         }
       ],
       "notes": ""
@@ -4104,7 +4104,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 62
+          "line": 85
         }
       ],
       "notes": ""
@@ -4116,7 +4116,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 64
+          "line": 87
         }
       ],
       "notes": ""
@@ -4130,7 +4130,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 73
+          "line": 96
         }
       ],
       "notes": ""
@@ -4142,7 +4142,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 77
+          "line": 100
         }
       ],
       "notes": ""
@@ -4154,7 +4154,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 111
+          "line": 134
         }
       ],
       "notes": ""
@@ -4169,7 +4169,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 112
+          "line": 135
         }
       ],
       "notes": ""
@@ -4181,7 +4181,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 130
+          "line": 153
         }
       ],
       "notes": ""
@@ -4195,7 +4195,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 131
+          "line": 154
         }
       ],
       "notes": ""
@@ -4207,7 +4207,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 150
+          "line": 173
         }
       ],
       "notes": ""
@@ -4224,7 +4224,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 151
+          "line": 174
         }
       ],
       "notes": ""
@@ -4236,7 +4236,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 209
+          "line": 232
         }
       ],
       "notes": ""
@@ -4250,7 +4250,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 210
+          "line": 233
         }
       ],
       "notes": ""
@@ -4262,7 +4262,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 226
+          "line": 249
         }
       ],
       "notes": ""
@@ -4279,7 +4279,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 227
+          "line": 250
         }
       ],
       "notes": ""
@@ -5905,7 +5905,7 @@
       "locations": [
         {
           "filename": "../workflows/video_loading.py",
-          "line": 113
+          "line": 121
         }
       ],
       "notes": ""
@@ -5917,7 +5917,7 @@
       "locations": [
         {
           "filename": "../workflows/video_loading.py",
-          "line": 114
+          "line": 122
         }
       ],
       "notes": ""
@@ -5929,7 +5929,7 @@
       "locations": [
         {
           "filename": "../workflows/video_loading.py",
-          "line": 394
+          "line": 378
         }
       ],
       "notes": ""
@@ -5941,7 +5941,7 @@
       "locations": [
         {
           "filename": "../workflows/video_loading.py",
-          "line": 395
+          "line": 379
         }
       ],
       "notes": ""
@@ -5953,7 +5953,7 @@
       "locations": [
         {
           "filename": "../workflows/video_loading.py",
-          "line": 400
+          "line": 384
         }
       ],
       "notes": ""
@@ -5969,7 +5969,7 @@
       "locations": [
         {
           "filename": "../workflows/video_loading.py",
-          "line": 577
+          "line": 561
         }
       ],
       "notes": ""
@@ -5983,7 +5983,7 @@
       "locations": [
         {
           "filename": "../workflows/video_loading.py",
-          "line": 584
+          "line": 568
         }
       ],
       "notes": ""
@@ -5995,11 +5995,11 @@
       "locations": [
         {
           "filename": "../workflows/video_loading.py",
-          "line": 674
+          "line": 658
         },
         {
           "filename": "../workflows/video_loading.py",
-          "line": 702
+          "line": 686
         }
       ],
       "notes": ""
@@ -6014,7 +6014,7 @@
       "locations": [
         {
           "filename": "../workflows/video_loading.py",
-          "line": 675
+          "line": 659
         }
       ],
       "notes": ""
@@ -6028,7 +6028,7 @@
       "locations": [
         {
           "filename": "../workflows/video_loading.py",
-          "line": 703
+          "line": 687
         }
       ],
       "notes": ""
@@ -6064,23 +6064,27 @@
       "locations": [
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 98
+          "line": 102
         },
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 137
+          "line": 130
         },
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 146
+          "line": 153
         },
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 156
+          "line": 162
         },
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 167
+          "line": 172
+        },
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 182
         }
       ],
       "notes": ""
@@ -6092,7 +6096,7 @@
       "locations": [
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 99
+          "line": 103
         }
       ],
       "notes": ""
@@ -6104,7 +6108,7 @@
       "locations": [
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 109
+          "line": 113
         }
       ],
       "notes": ""
@@ -6118,7 +6122,7 @@
       "locations": [
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 110
+          "line": 114
         }
       ],
       "notes": ""
@@ -6132,7 +6136,11 @@
       "locations": [
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 138
+          "line": 131
+        },
+        {
+          "filename": "../workflows/video_to_frames.py",
+          "line": 154
         }
       ],
       "notes": ""
@@ -6148,7 +6156,7 @@
       "locations": [
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 147
+          "line": 163
         }
       ],
       "notes": ""
@@ -6162,7 +6170,7 @@
       "locations": [
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 157
+          "line": 173
         }
       ],
       "notes": ""
@@ -6176,7 +6184,7 @@
       "locations": [
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 168
+          "line": 183
         }
       ],
       "notes": ""
@@ -6188,7 +6196,7 @@
       "locations": [
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 180
+          "line": 194
         }
       ],
       "notes": ""
@@ -6203,7 +6211,7 @@
       "locations": [
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 181
+          "line": 195
         }
       ],
       "notes": ""
@@ -6215,7 +6223,7 @@
       "locations": [
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 193
+          "line": 207
         }
       ],
       "notes": ""
@@ -6227,7 +6235,7 @@
       "locations": [
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 210
+          "line": 238
         }
       ],
       "notes": ""
@@ -6239,7 +6247,7 @@
       "locations": [
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 221
+          "line": 249
         }
       ],
       "notes": ""
@@ -6253,7 +6261,7 @@
       "locations": [
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 222
+          "line": 250
         }
       ],
       "notes": ""
@@ -6265,7 +6273,7 @@
       "locations": [
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 231
+          "line": 259
         }
       ],
       "notes": ""
@@ -6279,7 +6287,7 @@
       "locations": [
         {
           "filename": "../workflows/video_to_frames.py",
-          "line": 232
+          "line": 260
         }
       ],
       "notes": ""

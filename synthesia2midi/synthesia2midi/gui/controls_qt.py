@@ -6,6 +6,7 @@ window connects to workflows/state updates.
 """
 
 import logging
+from dataclasses import dataclass
 from typing import Optional
 
 from PySide6.QtCore import QCoreApplication, QSettings, Qt, Signal
@@ -33,6 +34,12 @@ KEY_TYPE_LABELS = {
 }
 
 translate = QCoreApplication.translate
+
+
+@dataclass(frozen=True)
+class ConversionReadiness:
+    can_convert: bool
+    status_text: str
 
 
 class CollapsibleSection(QWidget):
@@ -240,7 +247,9 @@ class ControlPanelQt(QWidget):
         self.convert_button.clicked.connect(self._handle_conversion_request)
         self.convert_button.setMinimumHeight(34)
 
-        self.conversion_status = QLabel(QCoreApplication.translate("ControlPanelQt", "Ready to convert"))
+        self.conversion_status = QLabel(
+            QCoreApplication.translate("ControlPanelQt", "Load a video to convert.")
+        )
         self.conversion_status.setWordWrap(True)
 
         self.midi_touchup_button = QPushButton(QCoreApplication.translate("ControlPanelQt", "Edit MIDI"))
@@ -1604,7 +1613,7 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
 
             # Update convert button availability based on prerequisites
             if hasattr(self, "convert_button"):
-                self.convert_button.setEnabled(self._can_convert())
+                self._update_conversion_readiness_display()
 
         except Exception as e:
             logging.warning(f"Error updating controls from state: {e}")
@@ -1612,7 +1621,7 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
     def set_conversion_result(self, success: bool, message: str):
         """Update the conversion status."""
         self.convert_button.setText(translate("ControlPanelQt", "Convert"))
-        self.convert_button.setEnabled(True)
+        self.convert_button.setEnabled(self._can_convert())
         
         if success:
             self.conversion_status.setText(
@@ -1729,52 +1738,91 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
         # This control panel does not require additional handling for this update.
         pass
 
-    def _can_convert(self) -> bool:
-        """Return True if MIDI conversion prerequisites are satisfied."""
-        if not self.app_state or not hasattr(self.app_state, 'video'):
-            return False
+    def _conversion_readiness(self) -> ConversionReadiness:
+        """Return conversion availability plus the first user-actionable missing step."""
+        if not self.app_state or not hasattr(self.app_state, "video"):
+            return ConversionReadiness(
+                False,
+                translate("ControlPanelQt", "Load a video to convert."),
+            )
 
-        if not getattr(self.app_state.video, 'filepath', None):
-            return False
+        if not getattr(self.app_state.video, "filepath", None):
+            return ConversionReadiness(
+                False,
+                translate("ControlPanelQt", "Load a video to convert."),
+            )
 
-        overlays = getattr(self.app_state, 'overlays', None) or []
+        overlays = getattr(self.app_state, "overlays", None) or []
         if not overlays:
-            return False
+            return ConversionReadiness(
+                False,
+                translate("ControlPanelQt", "Create key overlays first."),
+            )
 
         missing_unlit = [
             overlay.key_id
             for overlay in overlays
-            if getattr(overlay, 'unlit_reference_color', None) is None
+            if getattr(overlay, "unlit_reference_color", None) is None
         ]
         if missing_unlit:
-            return False
+            return ConversionReadiness(
+                False,
+                translate("ControlPanelQt", "Capture a no-key frame."),
+            )
 
-        if getattr(self.app_state.detection, 'use_histogram_detection', False):
+        if getattr(self.app_state.detection, "use_histogram_detection", False):
             missing_hist = [
                 overlay.key_id
                 for overlay in overlays
-                if getattr(overlay, 'unlit_hist', None) is None
+                if getattr(overlay, "unlit_hist", None) is None
             ]
             if missing_hist:
-                return False
+                return ConversionReadiness(
+                    False,
+                    translate("ControlPanelQt", "Capture a no-key frame."),
+                )
 
         required_exemplars = self.app_state.detection.get_required_base_exemplar_types()
         if not required_exemplars:
-            return False
+            return ConversionReadiness(
+                False,
+                translate("ControlPanelQt", "Capture at least one pressed-key example."),
+            )
 
         exemplar_colors = self.app_state.detection.get_effective_exemplar_lit_colors()
         for exemplar in required_exemplars:
             if exemplar_colors.get(exemplar) is None:
-                return False
+                return ConversionReadiness(
+                    False,
+                    translate("ControlPanelQt", "Capture at least one pressed-key example."),
+                )
 
-        detection_threshold = getattr(self.app_state.detection, 'detection_threshold', 0.0)
+        detection_threshold = getattr(self.app_state.detection, "detection_threshold", 0.0)
         if not 0.1 <= detection_threshold <= 0.99:
-            return False
+            return ConversionReadiness(
+                False,
+                translate("ControlPanelQt", "Check detection sensitivity."),
+            )
 
-        if getattr(self.app_state.midi, 'tempo', 0) <= 0:
-            return False
+        if getattr(self.app_state.midi, "tempo", 0) <= 0:
+            return ConversionReadiness(
+                False,
+                translate("ControlPanelQt", "Check MIDI tempo."),
+            )
 
-        return True
+        return ConversionReadiness(
+            True,
+            translate("ControlPanelQt", "Ready to create MIDI."),
+        )
+
+    def _update_conversion_readiness_display(self) -> None:
+        readiness = self._conversion_readiness()
+        self.convert_button.setEnabled(readiness.can_convert)
+        self.conversion_status.setText(readiness.status_text)
+
+    def _can_convert(self) -> bool:
+        """Return True if MIDI conversion prerequisites are satisfied."""
+        return self._conversion_readiness().can_convert
     
     # Compatibility properties that the main window expects to exist
     @property

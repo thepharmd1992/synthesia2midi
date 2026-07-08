@@ -1,7 +1,9 @@
 from PySide6.QtCore import QSettings
 from PySide6.QtWidgets import QApplication
 
+from synthesia2midi.app_config import OverlayConfig
 from synthesia2midi.gui.controls_qt import ControlPanelQt
+from synthesia2midi.core.app_state import AppState
 
 
 def test_edit_midi_button_emits_touchup_request_directly():
@@ -65,6 +67,66 @@ def test_language_selector_is_bottom_settings_section_and_saves_restart_notice(m
                 "Restart Synthesia2MIDI to apply the selected language.",
             )
         ]
+    finally:
+        panel.close()
+        panel.deleteLater()
+
+
+def _panel_with_state(app_state: AppState) -> ControlPanelQt:
+    QApplication.instance() or QApplication([])
+    return ControlPanelQt(app_state=app_state)
+
+
+def _basic_overlay(*, unlit=True, unlit_hist=None) -> OverlayConfig:
+    return OverlayConfig(
+        key_id=1,
+        note_octave=4,
+        note_name_in_octave="C",
+        x=0,
+        y=0,
+        width=10,
+        height=40,
+        key_type="white",
+        unlit_reference_color=(12, 12, 12) if unlit else None,
+        unlit_hist=unlit_hist,
+    )
+
+
+def _calibrate_all_exemplars(app_state: AppState) -> None:
+    app_state.detection.exemplar_lit_colors = {
+        "LW": (255, 0, 0),
+        "LB": (160, 0, 0),
+        "RW": (0, 120, 255),
+        "RB": (0, 70, 180),
+    }
+
+
+def test_conversion_readiness_explains_first_missing_prerequisite():
+    state = AppState()
+    panel = _panel_with_state(state)
+    try:
+        assert not panel.convert_button.isEnabled()
+        assert panel.conversion_status.text() == "Load a video to convert."
+
+        state.video.filepath = "/tmp/source.mp4"
+        panel.update_controls_from_state()
+        assert not panel.convert_button.isEnabled()
+        assert panel.conversion_status.text() == "Create key overlays first."
+
+        state.overlays = [_basic_overlay(unlit=False)]
+        panel.update_controls_from_state()
+        assert not panel.convert_button.isEnabled()
+        assert panel.conversion_status.text() == "Capture a no-key frame."
+
+        state.overlays = [_basic_overlay(unlit=True)]
+        panel.update_controls_from_state()
+        assert not panel.convert_button.isEnabled()
+        assert panel.conversion_status.text() == "Capture at least one pressed-key example."
+
+        _calibrate_all_exemplars(state)
+        panel.update_controls_from_state()
+        assert panel.convert_button.isEnabled()
+        assert panel.conversion_status.text() == "Ready to create MIDI."
     finally:
         panel.close()
         panel.deleteLater()

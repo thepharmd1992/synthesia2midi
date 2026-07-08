@@ -101,6 +101,22 @@ def _calibrate_all_exemplars(app_state: AppState) -> None:
     }
 
 
+def _prepare_conversion_ready_state(
+    state: AppState,
+    *,
+    use_histogram_detection: bool = False,
+    detection_threshold: float = 0.8,
+    tempo: int = 120,
+    unlit_hist=None,
+) -> None:
+    state.video.filepath = "/tmp/source.mp4"
+    state.overlays = [_basic_overlay(unlit=True, unlit_hist=unlit_hist)]
+    _calibrate_all_exemplars(state)
+    state.detection.use_histogram_detection = use_histogram_detection
+    state.detection.detection_threshold = detection_threshold
+    state.midi.tempo = tempo
+
+
 def test_conversion_readiness_explains_first_missing_prerequisite():
     state = AppState()
     panel = _panel_with_state(state)
@@ -127,6 +143,51 @@ def test_conversion_readiness_explains_first_missing_prerequisite():
         panel.update_controls_from_state()
         assert panel.convert_button.isEnabled()
         assert panel.conversion_status.text() == "Ready to create MIDI."
+    finally:
+        panel.close()
+        panel.deleteLater()
+
+
+def test_conversion_readiness_requires_histogram_data_when_histogram_detection_is_enabled():
+    state = AppState()
+    panel = _panel_with_state(state)
+    try:
+        _prepare_conversion_ready_state(state, use_histogram_detection=True, unlit_hist=None)
+
+        panel.update_controls_from_state()
+
+        assert not panel.convert_button.isEnabled()
+        assert panel.conversion_status.text() == "Capture a no-key frame."
+    finally:
+        panel.close()
+        panel.deleteLater()
+
+
+def test_conversion_readiness_rejects_detection_threshold_out_of_range():
+    state = AppState()
+    panel = _panel_with_state(state)
+    try:
+        _prepare_conversion_ready_state(state, detection_threshold=1.5)
+
+        panel.update_controls_from_state()
+
+        assert not panel.convert_button.isEnabled()
+        assert panel.conversion_status.text() == "Check detection sensitivity."
+    finally:
+        panel.close()
+        panel.deleteLater()
+
+
+def test_conversion_readiness_rejects_non_positive_midi_tempo():
+    state = AppState()
+    panel = _panel_with_state(state)
+    try:
+        _prepare_conversion_ready_state(state, tempo=0)
+
+        panel.update_controls_from_state()
+
+        assert not panel.convert_button.isEnabled()
+        assert panel.conversion_status.text() == "Check MIDI tempo."
     finally:
         panel.close()
         panel.deleteLater()

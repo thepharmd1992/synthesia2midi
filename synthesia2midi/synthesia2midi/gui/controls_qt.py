@@ -327,15 +327,15 @@ class ControlPanelQt(QWidget):
             translate("ControlPanelQt", "Initial calibration directions (recommended order):"),
             translate(
                 "ControlPanelQt",
-                "1) Calibrate Key Overlays: create overlays that line up with the keyboard in your video.",
+                "1) Find Keyboard Box: create overlays that line up with the keyboard in your video.",
             ),
             translate(
                 "ControlPanelQt",
-                "2) Unlit Key Calibration: pause on a frame where no notes are highlighted, then click Calibrate.",
+                "2) Capture No-Key Frame: pause where no keys are glowing, then click Capture No-Key Frame.",
             ),
             translate(
                 "ControlPanelQt",
-                "3) Lit Key Exemplars: for each button you need (Left/Right x White/Black), pause on a frame where that kind of overlay is highlighted, click the button, then click that highlighted overlay in the video.",
+                "3) Capture Pressed-Key Examples: for each button you need (Left/Right x White/Black), pause where that kind of overlay is glowing, click the button, then click that overlay in the video. Left/Right refer to Synthesia note colors, not the physical side of the keyboard.",
             ),
             translate("ControlPanelQt", "If a key type is not present in this video, uncheck its 'Present in Video' box."),
             translate("ControlPanelQt", "Octave Transpose: shifts the generated MIDI up/down by octaves."),
@@ -347,46 +347,69 @@ class ControlPanelQt(QWidget):
             help_layout.addWidget(label)
         layout.addWidget(help_section)
         
-        # Key Overlay Calibration - compact grid. Avoid fixed-width rows that
-        # overlap when the settings pane is at its 300px minimum.
-        calibration_grid = QGridLayout()
-        calibration_grid.setHorizontalSpacing(8)
-        calibration_grid.setVerticalSpacing(8)
-        calibration_grid.setColumnStretch(1, 1)
+        self.calibration_instruction_labels = {}
 
-        overlay_label = QLabel(translate("ControlPanelQt", "Overlays"))
-        overlay_label.setStyleSheet("font-weight: bold; font-size: 11pt;")
-        calibration_grid.addWidget(overlay_label, 0, 0)
-        
-        self.calibration_wizard_button = QPushButton(translate("ControlPanelQt", "Calibrate"))
-        self.calibration_wizard_button.setMinimumWidth(88)
-        # Center-aligned text (default for QPushButton)
+        def add_instruction_row(row_key: str, title: str, instruction: str, action_widget: QWidget) -> None:
+            row_widget = QWidget()
+            row_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            row = QVBoxLayout(row_widget)
+            row.setContentsMargins(0, 0, 0, 0)
+            row.setSpacing(4)
+
+            title_label = QLabel(title)
+            title_label.setStyleSheet("font-weight: bold; font-size: 11pt;")
+            row.addWidget(title_label)
+
+            instruction_label = QLabel(instruction)
+            instruction_label.setWordWrap(True)
+            instruction_label.setStyleSheet("color: #555;")
+            self.calibration_instruction_labels[row_key] = instruction_label
+            row.addWidget(instruction_label)
+            row.addWidget(action_widget)
+
+            layout.addWidget(row_widget)
+
+        self.calibration_wizard_button = QPushButton(
+            translate("ControlPanelQt", "Draw Keyboard Box and Find Keys")
+        )
+        self.calibration_wizard_button.setMinimumWidth(180)
+        self.calibration_wizard_button.setFixedHeight(34)
         self.calibration_wizard_button.clicked.connect(self.calibration_wizard_requested.emit)
         self.calibration_wizard_button.setToolTip(
-            translate("ControlPanelQt", "Creates overlays for the keyboard in your video. Re-run if overlays don't line up.")
+            translate(
+                "ControlPanelQt",
+                "Creates overlays for the keyboard in your video. Re-run if overlays don't line up.",
+            )
         )
-        calibration_grid.addWidget(self.calibration_wizard_button, 0, 1)
-        
-        # Octave transpose control
+        add_instruction_row(
+            "keyboard",
+            translate("ControlPanelQt", "Find the keyboard"),
+            translate("ControlPanelQt", "Pause on a clear frame where the full keyboard is visible."),
+            self.calibration_wizard_button,
+        )
+
+        octave_grid = QGridLayout()
+        octave_grid.setHorizontalSpacing(8)
         octave_label = QLabel(translate("ControlPanelQt", "Octave"))
         octave_label.setStyleSheet("font-weight: bold; font-size: 11pt;")
-        calibration_grid.addWidget(octave_label, 1, 0)
+        octave_grid.addWidget(octave_label, 0, 0)
         self.octave_transpose_spin = QSpinBox()
         self.octave_transpose_spin.setRange(-5, 5)
         self.octave_transpose_spin.setValue(0)
         self.octave_transpose_spin.setFixedWidth(64)
         self.octave_transpose_spin.valueChanged.connect(self.octave_transpose_changed.emit)
-        self.octave_transpose_spin.setToolTip(translate("ControlPanelQt", "Shifts the MIDI output up/down by octaves."))
-        calibration_grid.addWidget(self.octave_transpose_spin, 1, 1)
-        
-        # Unlit key calibration with status
-        unlit_label = QLabel(translate("ControlPanelQt", "Unlit"))
-        unlit_label.setStyleSheet("font-weight: bold; font-size: 11pt;")
-        calibration_grid.addWidget(unlit_label, 2, 0)
-        
-        self.calibrate_unlit_button = QPushButton(translate("ControlPanelQt", "Calibrate"))
-        self.calibrate_unlit_button.setMinimumWidth(88)
-        # Center-aligned text (default for QPushButton)
+        self.octave_transpose_spin.setToolTip(
+            translate("ControlPanelQt", "Shifts the MIDI output up/down by octaves.")
+        )
+        octave_grid.addWidget(self.octave_transpose_spin, 0, 1)
+        octave_grid.setColumnStretch(2, 1)
+        layout.addLayout(octave_grid)
+
+        self.calibrate_unlit_button = QPushButton(
+            translate("ControlPanelQt", "Capture No-Key Frame")
+        )
+        self.calibrate_unlit_button.setMinimumWidth(180)
+        self.calibrate_unlit_button.setFixedHeight(28)
         self.calibrate_unlit_button.clicked.connect(self.calibrate_unlit_requested.emit)
         self.calibrate_unlit_button.setToolTip(
             translate(
@@ -394,17 +417,52 @@ class ControlPanelQt(QWidget):
                 "Captures what unpressed overlays look like from the current frame. Pause on a frame with no highlighted notes first.",
             )
         )
-        unlit_value_layout = QVBoxLayout()
-        unlit_value_layout.setContentsMargins(0, 0, 0, 0)
-        unlit_value_layout.setSpacing(3)
-        unlit_value_layout.addWidget(self.calibrate_unlit_button)
+
+        unlit_title = QLabel(translate("ControlPanelQt", "Capture no-key frame"))
+        unlit_title.setStyleSheet("font-weight: bold; font-size: 11pt;")
+        layout.addWidget(unlit_title)
+
+        unlit_instruction = QLabel(translate("ControlPanelQt", "Pause where no keys are glowing."))
+        unlit_instruction.setWordWrap(True)
+        unlit_instruction.setStyleSheet("color: #555;")
+        self.calibration_instruction_labels["unlit"] = unlit_instruction
+        layout.addWidget(unlit_instruction)
+
+        unlit_stack = QVBoxLayout()
+        unlit_stack.setContentsMargins(0, 0, 0, 0)
+        unlit_stack.setSpacing(0)
+        unlit_stack.addWidget(self.calibrate_unlit_button)
+        unlit_stack.addSpacing(8)
 
         self.unlit_status_label = QLabel(translate("ControlPanelQt", "Not Set"))
+        self.unlit_status_label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        self.unlit_status_label.setFixedHeight(20)
         self.unlit_status_label.setStyleSheet("font-style: italic; color: #888;")
-        unlit_value_layout.addWidget(self.unlit_status_label)
-        calibration_grid.addLayout(unlit_value_layout, 2, 1)
-        
-        layout.addLayout(calibration_grid)
+        unlit_stack.addWidget(self.unlit_status_label)
+        layout.addLayout(unlit_stack)
+
+        pressed_title = QLabel(translate("ControlPanelQt", "Capture pressed-key examples"))
+        pressed_title.setStyleSheet("font-weight: bold; font-size: 11pt;")
+        layout.addWidget(pressed_title)
+
+        pressed_instruction = QLabel(
+            translate("ControlPanelQt", "Pause where a key is glowing, then click that key.")
+        )
+        pressed_instruction.setWordWrap(True)
+        pressed_instruction.setStyleSheet("color: #555;")
+        self.calibration_instruction_labels["pressed"] = pressed_instruction
+        layout.addWidget(pressed_instruction)
+
+        self.left_right_color_family_note = QLabel(
+            translate(
+                "ControlPanelQt",
+                "Left/Right refer to Synthesia note colors, not the physical side of the keyboard.",
+            )
+        )
+        self.left_right_color_family_note.setWordWrap(True)
+        self.left_right_color_family_note.setStyleSheet("color: #555; font-style: italic;")
+        layout.addWidget(self.left_right_color_family_note)
+
         layout.addSpacing(10)  # Extra space before next section
         
         # Lit exemplar calibration - plain text label

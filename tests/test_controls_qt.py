@@ -191,3 +191,24 @@ def test_conversion_readiness_rejects_non_positive_midi_tempo():
     finally:
         panel.close()
         panel.deleteLater()
+
+
+def test_calibration_section_shows_visible_step_instructions():
+    QApplication.instance() or QApplication([])
+    panel = ControlPanelQt()
+    try:
+        assert panel.calibration_wizard_button.text() == "Draw Keyboard Box and Find Keys"
+        assert panel.calibrate_unlit_button.text() == "Capture No-Key Frame"
+        assert panel.calibration_instruction_labels["keyboard"].text() == (
+            "Pause on a clear frame where the full keyboard is visible."
+        )
+        assert panel.calibration_instruction_labels["unlit"].text() == "Pause where no keys are glowing."
+        assert panel.calibration_instruction_labels["pressed"].text() == (
+            "Pause where a key is glowing, then click that key."
+        )
+        assert panel.left_right_color_family_note.text() == (
+            "Left/Right refer to Synthesia note colors, not the physical side of the keyboard."
+        )
+    finally:
+        panel.close()
+        panel.deleteLater()

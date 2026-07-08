@@ -52,8 +52,19 @@ class CalibrationWizard(QDialog):
         # Create layout
         layout = QGridLayout()
 
+        auto_instruction_label = QLabel(
+            QCoreApplication.translate(
+                "CalibrationWizard",
+                "Pause on a clear frame where the full keyboard is visible.",
+            )
+        )
+        auto_instruction_label.setWordWrap(True)
+        layout.addWidget(auto_instruction_label, 0, 0, 1, 3)
+
         # Auto-detection button
-        auto_selection_button = QPushButton(QCoreApplication.translate("CalibrationWizard", "Select Keyboard Region With Autodetector"))
+        auto_selection_button = QPushButton(
+            QCoreApplication.translate("CalibrationWizard", "Draw Keyboard Box and Find Keys")
+        )
         auto_selection_button.setMinimumWidth(550)  # Wide button
         auto_selection_button.setStyleSheet(
             "QPushButton {"
@@ -74,7 +85,7 @@ class CalibrationWizard(QDialog):
         )
         auto_selection_button.setToolTip(QCoreApplication.translate("CalibrationWizard", "Automatically detect piano keys in a selected region"))
         auto_selection_button.clicked.connect(self._handle_manual_keyboard_selection)
-        layout.addWidget(auto_selection_button, 0, 0, 1, 3)
+        layout.addWidget(auto_selection_button, 1, 0, 1, 3)
 
         self.edit_current_calibration_button = QPushButton(QCoreApplication.translate("CalibrationWizard", "Edit Current Calibration"))
         self.edit_current_calibration_button.setMinimumWidth(270)
@@ -84,43 +95,53 @@ class CalibrationWizard(QDialog):
         )
         self.edit_current_calibration_button.setEnabled(False)
         self.edit_current_calibration_button.clicked.connect(self._handle_edit_current_calibration)
-        layout.addWidget(self.edit_current_calibration_button, 1, 0)
+        layout.addWidget(self.edit_current_calibration_button, 2, 0)
+
+        self.edit_current_reason_label = QLabel(
+            QCoreApplication.translate(
+                "CalibrationWizard",
+                "Edit becomes available after you create key overlays.",
+            )
+        )
+        self.edit_current_reason_label.setWordWrap(True)
+        self.edit_current_reason_label.setStyleSheet("color: #666; font-style: italic;")
+        layout.addWidget(self.edit_current_reason_label, 3, 0, 1, 3)
 
         # Manual calibration section
         manual_label = QLabel(QCoreApplication.translate("CalibrationWizard", "Or use manual calibration:"))
         manual_label.setStyleSheet("font-weight: bold; margin-top: 10px;")
-        layout.addWidget(manual_label, 2, 0, 1, 3)
+        layout.addWidget(manual_label, 4, 0, 1, 3)
 
         # Leftmost key selection
         leftmost_label = QLabel(QCoreApplication.translate("CalibrationWizard", "Leftmost Key:"))
-        layout.addWidget(leftmost_label, 3, 0)
+        layout.addWidget(leftmost_label, 5, 0)
         
         self.leftmost_note_combo = QComboBox()
         self.leftmost_note_combo.addItems(NOTE_NAMES_SHARP)
         self.leftmost_note_combo.setCurrentText(self.app_state.midi.leftmost_note_name)
-        layout.addWidget(self.leftmost_note_combo, 3, 1)
+        layout.addWidget(self.leftmost_note_combo, 5, 1)
         
         self.leftmost_octave_spin = QSpinBox()
         self.leftmost_octave_spin.setRange(-2, 8)
         self.leftmost_octave_spin.setValue(self.app_state.midi.leftmost_note_octave)
         install_spinbox_wheel_filter(self.leftmost_octave_spin)
-        layout.addWidget(self.leftmost_octave_spin, 3, 2)
+        layout.addWidget(self.leftmost_octave_spin, 5, 2)
 
         # Total keys selection
         total_keys_label = QLabel(QCoreApplication.translate("CalibrationWizard", "Total Keys:"))
-        layout.addWidget(total_keys_label, 4, 0)
+        layout.addWidget(total_keys_label, 6, 0)
         
         self.total_keys_spin = QSpinBox()
         self.total_keys_spin.setRange(1, 128)
         self.total_keys_spin.setValue(self.app_state.midi.total_keys)
         self.total_keys_spin.setToolTip(QCoreApplication.translate("CalibrationWizard", "Number of keys on the keyboard"))
         install_spinbox_wheel_filter(self.total_keys_spin)
-        layout.addWidget(self.total_keys_spin, 4, 1, 1, 2)
+        layout.addWidget(self.total_keys_spin, 6, 1, 1, 2)
 
         # Manual submit button
         manual_submit_button = QPushButton(QCoreApplication.translate("CalibrationWizard", "Generate Manual Overlays"))
         manual_submit_button.clicked.connect(self._submit_manual)
-        layout.addWidget(manual_submit_button, 5, 0, 1, 3)
+        layout.addWidget(manual_submit_button, 7, 0, 1, 3)
 
         # Buttons
         button_layout = QHBoxLayout()
@@ -129,14 +150,17 @@ class CalibrationWizard(QDialog):
         cancel_button.clicked.connect(self._cancel)
         button_layout.addWidget(cancel_button)
         
-        layout.addLayout(button_layout, 6, 0, 1, 3)
+        layout.addLayout(button_layout, 8, 0, 1, 3)
         
         self.setLayout(layout)
 
     def set_edit_current_calibration_enabled(self, enabled: bool, tooltip: Optional[str] = None) -> None:
         self.edit_current_calibration_button.setEnabled(enabled)
+        self.edit_current_reason_label.setVisible(not enabled)
         if tooltip:
             self.edit_current_calibration_button.setToolTip(tooltip)
+            if not enabled:
+                self.edit_current_reason_label.setText(tooltip)
 
     def _submit(self):
         logging.info("=== WIZARD _SUBMIT CALLED ===")

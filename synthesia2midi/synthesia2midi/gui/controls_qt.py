@@ -756,18 +756,18 @@ class ControlPanelQt(QWidget):
         help_section.setStyleSheet("QLabel { font-size: 9pt; }")  # shrink detection help text
         help_layout = help_section.content_layout()
         help_lines = [
-            translate("ControlPanelQt", "Before tuning detection: run Unlit Key Calibration + at least one Lit Key Exemplar."),
-            translate("ControlPanelQt", "Detection Threshold: main sensitivity setting for pressed vs unpressed."),
-            translate("ControlPanelQt", "If notes are missed: lower the threshold. If you get false notes: raise the threshold."),
+            translate("ControlPanelQt", "Before tuning detection: capture a no-key frame and at least one pressed-key example."),
+            translate("ControlPanelQt", "Detection Sensitivity: main setting for pressed vs unpressed keys."),
+            translate("ControlPanelQt", "Missing notes? Lower it. Extra notes? Raise it."),
             translate(
                 "ControlPanelQt",
-                "Histogram Detection: uses a color-pattern match inside each overlay. Use when pressed overlays have strong gradients or uneven lighting.",
+                "Histogram Detection helps when pressed colors have gradients or uneven lighting.",
             ),
             translate(
                 "ControlPanelQt",
-                "Delta Detection: uses frame-to-frame change to confirm press/release. Use when the pressed color fades in/out gradually instead of switching cleanly.",
+                "Delta Detection helps when pressed colors fade in or out instead of switching cleanly.",
             ),
-            translate("ControlPanelQt", "Black Key Filter: reduces false black-key presses caused by nearby overlays."),
+            translate("ControlPanelQt", "Black Key Filter reduces false black-key notes caused by nearby overlays."),
         ]
         for line in help_lines:
             label = QLabel(line)
@@ -776,7 +776,7 @@ class ControlPanelQt(QWidget):
         layout.addWidget(help_section)
         
         # Detection threshold
-        threshold_group = QGroupBox(translate("ControlPanelQt", "Detection Threshold"))
+        threshold_group = QGroupBox(translate("ControlPanelQt", "Detection Sensitivity"))
         threshold_group.setObjectName("first_in_tab")  # For CSS styling
         threshold_layout = QVBoxLayout(threshold_group)
         threshold_layout.setContentsMargins(15, 10, 15, 10)
@@ -795,9 +795,10 @@ class ControlPanelQt(QWidget):
             translate("ControlPanelQt", "Main sensitivity. Lower = detects more; higher = fewer false notes.")
         )
         
-        threshold_layout.addWidget(QLabel(translate("ControlPanelQt", "Detection Threshold:")))
+        threshold_layout.addWidget(QLabel(translate("ControlPanelQt", "Detection Sensitivity:")))
         threshold_layout.addWidget(self.detection_threshold_slider)
         threshold_layout.addWidget(self.detection_threshold_label)
+        threshold_layout.addWidget(QLabel(translate("ControlPanelQt", "Missing notes? Lower it. Extra notes? Raise it.")))
         
         layout.addWidget(threshold_group)
         
@@ -961,6 +962,13 @@ class ControlPanelQt(QWidget):
         main_group.setObjectName("first_in_tab")  # For CSS styling
         main_layout = QVBoxLayout(main_group)
 
+        spark_guidance_label = QLabel(
+            translate("ControlPanelQt", "Use this only if repeated notes merge into one long note.")
+        )
+        spark_guidance_label.setWordWrap(True)
+        spark_guidance_label.setStyleSheet("color: #555;")
+        main_layout.addWidget(spark_guidance_label)
+
         self.spark_detection_cb = QCheckBox(translate("ControlPanelQt", "Enable Spark Detection"))
         self.spark_detection_cb.toggled.connect(self.spark_detection_toggled.emit)
         self.spark_detection_cb.toggled.connect(self._update_spark_controls_state)
@@ -1000,11 +1008,11 @@ class ControlPanelQt(QWidget):
         roi_layout = QVBoxLayout()
         roi_layout.setContentsMargins(0, 0, 0, 0)
         roi_layout.setSpacing(6)
-        self.spark_roi_select_button = QPushButton(translate("ControlPanelQt", "Select Spark ROI"))
+        self.spark_roi_select_button = QPushButton(translate("ControlPanelQt", "Select Spark Area Above Keys"))
         self.spark_roi_select_button.setMaximumWidth(264)
         self.spark_roi_select_button.clicked.connect(self.spark_roi_selection_requested.emit)
         self.spark_roi_select_button.setToolTip(
-            translate("ControlPanelQt", "Select the region above the keys where spark bars and sparks appear.")
+            translate("ControlPanelQt", "Select the area above the keys where spark bars and flashes appear.")
         )
         roi_layout.addWidget(self.spark_roi_select_button)
 
@@ -1014,7 +1022,7 @@ class ControlPanelQt(QWidget):
         self.spark_roi_toggle_button.setCheckable(True)
         self.spark_roi_toggle_button.clicked.connect(self._toggle_spark_roi_visibility)
         self.spark_roi_toggle_button.setToolTip(
-            translate("ControlPanelQt", "Show or hide the spark ROI overlay on the video.")
+            translate("ControlPanelQt", "Show or hide the spark area overlay on the video.")
         )
         roi_layout.addWidget(self.spark_roi_toggle_button)
 
@@ -1178,8 +1186,18 @@ class ControlPanelQt(QWidget):
         layout.addWidget(fps_group)
         
         # Custom MIDI Processing Range
-        processing_range_group = QGroupBox(translate("ControlPanelQt", "Custom MIDI Processing Range"))
+        processing_range_group = QGroupBox(translate("ControlPanelQt", "Convert Only Part of the Video"))
         processing_range_layout = QVBoxLayout(processing_range_group)
+
+        processing_hint = QLabel(
+            translate(
+                "ControlPanelQt",
+                "This affects MIDI creation only. It does not trim or change the video session.",
+            )
+        )
+        processing_hint.setWordWrap(True)
+        processing_hint.setStyleSheet("color: #555;")
+        processing_range_layout.addWidget(processing_hint)
         
         # Frame controls in grid for alignment
         processing_grid = QGridLayout()
@@ -1235,9 +1253,19 @@ class ControlPanelQt(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)  # Make grey containers flush with tab header
         layout.setSpacing(5)  # Minimal spacing between grey containers
         
-        trim_group = QGroupBox(translate("ControlPanelQt", "Video Processing Range"))
+        trim_group = QGroupBox(translate("ControlPanelQt", "Permanently Trim Project"))
         trim_group.setObjectName("first_in_tab")  # For CSS styling
         trim_layout = QVBoxLayout(trim_group)
+
+        trim_warning = QLabel(
+            translate(
+                "ControlPanelQt",
+                "Most users should use MIDI range instead. Trim changes the working video session, not the original video file.",
+            )
+        )
+        trim_warning.setWordWrap(True)
+        trim_warning.setStyleSheet("color: #8a4b00; font-weight: 600;")
+        trim_layout.addWidget(trim_warning)
         
         # Frame controls in grid for alignment
         frame_grid = QGridLayout()
@@ -1281,7 +1309,7 @@ class ControlPanelQt(QWidget):
         trim_layout.addLayout(frame_grid)
         
         # Trim Video button
-        self.trim_video_button = QPushButton(translate("ControlPanelQt", "Trim Video"))
+        self.trim_video_button = QPushButton(translate("ControlPanelQt", "Permanently Trim Project"))
         self.trim_video_button.setMaximumWidth(200)
         self.trim_video_button.clicked.connect(self._handle_trim_video_request)
         trim_layout.addWidget(self.trim_video_button)
@@ -1302,10 +1330,22 @@ class ControlPanelQt(QWidget):
         optional_layout = QVBoxLayout(optional_group)
         
         # Hand assignment
-        self.hand_assignment_cb = QCheckBox(translate("ControlPanelQt", "Enable Hand Assignment (MIDI Channels)"))
+        self.hand_assignment_cb = QCheckBox(
+            translate("ControlPanelQt", "Put each hand/color on a separate MIDI channel")
+        )
         self.hand_assignment_cb.toggled.connect(self.hand_assignment_toggled.emit)
         optional_layout.addWidget(self.hand_assignment_cb)
-        
+
+        hand_assignment_hint = QLabel(
+            translate(
+                "ControlPanelQt",
+                "Use this only if the video uses different colors for left and right hand notes.",
+            )
+        )
+        hand_assignment_hint.setWordWrap(True)
+        hand_assignment_hint.setStyleSheet("color: #555;")
+        optional_layout.addWidget(hand_assignment_hint)
+
         
         # Add more optional settings here as needed
         
@@ -1483,7 +1523,7 @@ class ControlPanelQt(QWidget):
         
         # Create red warning dialog
         msg_box = QMessageBox(self)
-        msg_box.setWindowTitle(translate("ControlPanelQt", "⚠️ Trim Video - Irreversible Action"))
+        msg_box.setWindowTitle(translate("ControlPanelQt", "Permanently Trim Project"))
         msg_box.setIcon(QMessageBox.Warning)
         
         # Red styling for the dialog
@@ -1518,22 +1558,21 @@ class ControlPanelQt(QWidget):
             if end_frame != -1
             else translate("ControlPanelQt", "end of video")
         )
-        msg_box.setText(translate("ControlPanelQt", """
-<b>⚠️ WARNING: This action is IRREVERSIBLE</b><br><br>
-This will permanently trim the video session to frames {start_frame} to {end_text}.<br><br>
-<b>After trimming:</b><br>
-• Frames outside this range will become inaccessible<br>
-• Video navigation will be restricted to this range<br>
-• MIDI processing will be limited to this range<br><br>
-<b>Are you sure you want to proceed?</b>
-        """).format(start_frame=start_frame, end_text=end_text))
+        msg_box.setText(
+            translate(
+                "ControlPanelQt",
+                "<b>This will permanently trim the working video session.</b><br><br>"
+                "Frames outside {start_frame} to {end_text} will be unavailable in this project session.<br><br>"
+                "Most users should cancel and use the MIDI range controls instead.",
+            ).format(start_frame=start_frame, end_text=end_text)
+        )
         
         msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
         msg_box.setDefaultButton(QMessageBox.Cancel)
         
         # Make the Yes button red too
         yes_button = msg_box.button(QMessageBox.Yes)
-        yes_button.setText(translate("ControlPanelQt", "⚠️ YES, TRIM VIDEO"))
+        yes_button.setText(translate("ControlPanelQt", "Trim Project"))
         
         result = msg_box.exec()
         

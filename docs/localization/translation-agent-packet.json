@@ -1648,7 +1648,7 @@
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1832
+          "line": 1871
         }
       ],
       "notes": ""
@@ -1664,11 +1664,11 @@
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1955
+          "line": 1994
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1961
+          "line": 2000
         }
       ],
       "notes": ""
@@ -1708,7 +1708,7 @@
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1847
+          "line": 1886
         }
       ],
       "notes": ""
@@ -1728,7 +1728,7 @@
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 945
+          "line": 946
         }
       ],
       "notes": ""
@@ -1840,15 +1840,15 @@
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1105
+          "line": 1113
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1797
+          "line": 1836
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1924
+          "line": 1963
         }
       ],
       "notes": ""
@@ -1893,12 +1893,255 @@
     },
     {
       "context": "ControlPanelQt",
+      "source": "Before tuning detection: capture a no-key frame and at least one pressed-key example.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 759
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Detection Sensitivity: main setting for pressed vs unpressed keys.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 760
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Missing notes? Lower it. Extra notes? Raise it.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 761
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 801
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Histogram Detection helps when pressed colors have gradients or uneven lighting.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 762
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Delta Detection helps when pressed colors fade in or out instead of switching cleanly.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 766
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Black Key Filter reduces false black-key notes caused by nearby overlays.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 770
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Detection Sensitivity",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 779
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Detection Sensitivity:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 798
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Select Spark Area Above Keys",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1011
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Select the area above the keys where spark bars and flashes appear.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1015
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Show or hide the spark area overlay on the video.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1025
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Convert Only Part of the Video",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1189
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "This affects MIDI creation only. It does not trim or change the video session.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1193
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Permanently Trim Project",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1256
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1312
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1526
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Most users should use MIDI range instead. Trim changes the working video session, not the original video file.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1261
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Put each hand/color on a separate MIDI channel",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1334
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Use this only if the video uses different colors for left and right hand notes.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1340
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "<b>This will permanently trim the working video session.</b><br><br>Frames outside {start_frame} to {end_text} will be unavailable in this project session.<br><br>Most users should cancel and use the MIDI range controls instead.",
+      "placeholders": [
+        "{end_text}",
+        "{start_frame}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1562
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Trim Project",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1575
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
       "source": "Create key overlays first.",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1968
+          "line": 2007
         }
       ],
       "notes": ""
@@ -1910,11 +2153,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1979
+          "line": 2018
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1991
+          "line": 2030
         }
       ],
       "notes": ""
@@ -1926,11 +2169,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1998
+          "line": 2037
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 2006
+          "line": 2045
         }
       ],
       "notes": ""
@@ -1942,7 +2185,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 2013
+          "line": 2052
         }
       ],
       "notes": ""
@@ -1954,7 +2197,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 2019
+          "line": 2058
         }
       ],
       "notes": ""
@@ -1966,7 +2209,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 2024
+          "line": 2063
         }
       ],
       "notes": ""
@@ -2333,90 +2576,6 @@
     },
     {
       "context": "ControlPanelQt",
-      "source": "Before tuning detection: run Unlit Key Calibration + at least one Lit Key Exemplar.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 759
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Detection Threshold: main sensitivity setting for pressed vs unpressed.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 760
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "If notes are missed: lower the threshold. If you get false notes: raise the threshold.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 761
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Histogram Detection: uses a color-pattern match inside each overlay. Use when pressed overlays have strong gradients or uneven lighting.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 762
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Delta Detection: uses frame-to-frame change to confirm press/release. Use when the pressed color fades in/out gradually instead of switching cleanly.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 766
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Black Key Filter: reduces false black-key presses caused by nearby overlays.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 770
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Detection Threshold",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 779
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
       "source": "Main sensitivity. Lower = detects more; higher = fewer false notes.",
       "placeholders": [],
       "locations": [
@@ -2433,24 +2592,12 @@
     },
     {
       "context": "ControlPanelQt",
-      "source": "Detection Threshold:",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 798
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
       "source": "Detection Modes",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 805
+          "line": 806
         }
       ],
       "notes": ""
@@ -2462,7 +2609,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 824
+          "line": 825
         }
       ],
       "notes": ""
@@ -2474,7 +2621,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 828
+          "line": 829
         }
       ],
       "notes": ""
@@ -2486,11 +2633,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 840
+          "line": 841
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 845
+          "line": 846
         }
       ],
       "notes": ""
@@ -2502,7 +2649,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 847
+          "line": 848
         }
       ],
       "notes": ""
@@ -2514,7 +2661,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 850
+          "line": 851
         }
       ],
       "notes": ""
@@ -2526,7 +2673,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 854
+          "line": 855
         }
       ],
       "notes": ""
@@ -2538,11 +2685,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 865
+          "line": 866
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 870
+          "line": 871
         }
       ],
       "notes": ""
@@ -2554,7 +2701,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 872
+          "line": 873
         }
       ],
       "notes": ""
@@ -2566,11 +2713,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 881
+          "line": 882
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 886
+          "line": 887
         }
       ],
       "notes": ""
@@ -2582,7 +2729,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 888
+          "line": 889
         }
       ],
       "notes": ""
@@ -2594,7 +2741,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 891
+          "line": 892
         }
       ],
       "notes": ""
@@ -2606,7 +2753,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 895
+          "line": 896
         }
       ],
       "notes": ""
@@ -2618,11 +2765,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 907
+          "line": 908
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 912
+          "line": 913
         }
       ],
       "notes": ""
@@ -2634,7 +2781,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 914
+          "line": 915
         }
       ],
       "notes": ""
@@ -2646,7 +2793,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 918
+          "line": 919
         }
       ],
       "notes": ""
@@ -2658,7 +2805,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 920
+          "line": 921
         }
       ],
       "notes": ""
@@ -2670,7 +2817,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 929
+          "line": 930
         }
       ],
       "notes": ""
@@ -2682,7 +2829,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 948
+          "line": 949
         }
       ],
       "notes": ""
@@ -2694,7 +2841,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 949
+          "line": 950
         }
       ],
       "notes": ""
@@ -2706,7 +2853,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 950
+          "line": 951
         }
       ],
       "notes": ""
@@ -2718,7 +2865,19 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 960
+          "line": 961
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Use this only if repeated notes merge into one long note.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 966
         }
       ],
       "notes": ""
@@ -2730,7 +2889,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 964
+          "line": 972
         }
       ],
       "notes": ""
@@ -2742,7 +2901,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 968
+          "line": 976
         }
       ],
       "notes": ""
@@ -2754,7 +2913,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 976
+          "line": 984
         }
       ],
       "notes": ""
@@ -2766,11 +2925,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 983
+          "line": 991
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 989
+          "line": 997
         }
       ],
       "notes": ""
@@ -2782,31 +2941,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 996
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Select Spark ROI",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1003
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Select the region above the keys where spark bars and sparks appear.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1007
+          "line": 1004
         }
       ],
       "notes": ""
@@ -2818,27 +2953,15 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1012
+          "line": 1020
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1637
+          "line": 1676
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1816
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Show or hide the spark ROI overlay on the video.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1017
+          "line": 1855
         }
       ],
       "notes": ""
@@ -2850,7 +2973,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1023
+          "line": 1031
         }
       ],
       "notes": ""
@@ -2862,7 +2985,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1028
+          "line": 1036
         }
       ],
       "notes": ""
@@ -2874,7 +2997,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1031
+          "line": 1039
         }
       ],
       "notes": ""
@@ -2886,7 +3009,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1035
+          "line": 1043
         }
       ],
       "notes": ""
@@ -2898,7 +3021,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1043
+          "line": 1051
         }
       ],
       "notes": ""
@@ -2910,7 +3033,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1046
+          "line": 1054
         }
       ],
       "notes": ""
@@ -2922,7 +3045,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1050
+          "line": 1058
         }
       ],
       "notes": ""
@@ -2934,7 +3057,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1058
+          "line": 1066
         }
       ],
       "notes": ""
@@ -2946,7 +3069,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1061
+          "line": 1069
         }
       ],
       "notes": ""
@@ -2958,7 +3081,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1065
+          "line": 1073
         }
       ],
       "notes": ""
@@ -2970,7 +3093,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1074
+          "line": 1082
         }
       ],
       "notes": ""
@@ -2984,7 +3107,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1090
+          "line": 1098
         }
       ],
       "notes": ""
@@ -2996,7 +3119,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1097
+          "line": 1105
         }
       ],
       "notes": ""
@@ -3008,7 +3131,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1117
+          "line": 1125
         }
       ],
       "notes": ""
@@ -3020,7 +3143,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1119
+          "line": 1127
         }
       ],
       "notes": ""
@@ -3032,7 +3155,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1123
+          "line": 1131
         }
       ],
       "notes": ""
@@ -3044,7 +3167,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1134
+          "line": 1142
         }
       ],
       "notes": ""
@@ -3056,7 +3179,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1144
+          "line": 1152
         }
       ],
       "notes": ""
@@ -3068,7 +3191,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1161
+          "line": 1169
         }
       ],
       "notes": ""
@@ -3080,23 +3203,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1175
+          "line": 1183
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1650
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Custom MIDI Processing Range",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1181
+          "line": 1689
         }
       ],
       "notes": ""
@@ -3108,11 +3219,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1190
+          "line": 1208
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1248
+          "line": 1276
         }
       ],
       "notes": ""
@@ -3124,19 +3235,19 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1201
+          "line": 1219
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1218
+          "line": 1236
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1259
+          "line": 1287
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1276
+          "line": 1304
         }
       ],
       "notes": ""
@@ -3148,11 +3259,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1207
+          "line": 1225
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1265
+          "line": 1293
         }
       ],
       "notes": ""
@@ -3164,31 +3275,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1229
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Video Processing Range",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1238
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Trim Video",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1284
+          "line": 1247
         }
       ],
       "notes": ""
@@ -3200,7 +3287,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1292
+          "line": 1320
         }
       ],
       "notes": ""
@@ -3224,19 +3311,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1301
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Enable Hand Assignment (MIDI Channels)",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1305
+          "line": 1329
         }
       ],
       "notes": ""
@@ -3248,7 +3323,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1315
+          "line": 1355
         }
       ],
       "notes": ""
@@ -3268,7 +3343,7 @@
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1325
+          "line": 1365
         }
       ],
       "notes": ""
@@ -3280,7 +3355,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1326
+          "line": 1366
         }
       ],
       "notes": ""
@@ -3292,7 +3367,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1331
+          "line": 1371
         }
       ],
       "notes": ""
@@ -3304,7 +3379,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1333
+          "line": 1373
         }
       ],
       "notes": ""
@@ -3316,7 +3391,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1479
+          "line": 1519
         }
       ],
       "notes": ""
@@ -3328,19 +3403,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1480
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "⚠️ Trim Video - Irreversible Action",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1486
+          "line": 1520
         }
       ],
       "notes": ""
@@ -3354,7 +3417,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1517
+          "line": 1557
         }
       ],
       "notes": ""
@@ -3366,34 +3429,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1519
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "\n<b>⚠️ WARNING: This action is IRREVERSIBLE</b><br><br>\nThis will permanently trim the video session to frames {start_frame} to {end_text}.<br><br>\n<b>After trimming:</b><br>\n• Frames outside this range will become inaccessible<br>\n• Video navigation will be restricted to this range<br>\n• MIDI processing will be limited to this range<br><br>\n<b>Are you sure you want to proceed?</b>\n        ",
-      "placeholders": [
-        "{end_text}",
-        "{start_frame}"
-      ],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1521
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "⚠️ YES, TRIM VIDEO",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1536
+          "line": 1559
         }
       ],
       "notes": ""
@@ -3405,11 +3441,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1639
+          "line": 1678
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1818
+          "line": 1857
         }
       ],
       "notes": ""
@@ -3423,7 +3459,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1653
+          "line": 1692
         }
       ],
       "notes": ""
@@ -3438,7 +3474,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1672
+          "line": 1711
         }
       ],
       "notes": ""
@@ -3452,7 +3488,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1679
+          "line": 1718
         }
       ],
       "notes": ""
@@ -3464,7 +3500,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1794
+          "line": 1833
         }
       ],
       "notes": ""
@@ -3478,7 +3514,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1837
+          "line": 1876
         }
       ],
       "notes": ""
@@ -3492,7 +3528,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1841
+          "line": 1880
         }
       ],
       "notes": ""
@@ -3504,7 +3540,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1921
+          "line": 1960
         }
       ],
       "notes": ""

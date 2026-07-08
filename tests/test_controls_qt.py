@@ -1,5 +1,5 @@
 from PySide6.QtCore import QSettings
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QGroupBox, QLabel
 
 from synthesia2midi.app_config import OverlayConfig
 from synthesia2midi.gui.controls_qt import ControlPanelQt
@@ -209,6 +209,53 @@ def test_calibration_section_shows_visible_step_instructions():
         assert panel.left_right_color_family_note.text() == (
             "Left/Right refer to Synthesia note colors, not the physical side of the keyboard."
         )
+    finally:
+        panel.close()
+        panel.deleteLater()
+
+
+def _all_label_texts(widget):
+    return [label.text() for label in widget.findChildren(QLabel)]
+
+
+def _all_group_titles(widget):
+    return [group.title() for group in widget.findChildren(QGroupBox)]
+
+
+def test_detection_section_uses_sensitivity_and_symptom_copy():
+    QApplication.instance() or QApplication([])
+    panel = ControlPanelQt()
+    try:
+        texts = _all_label_texts(panel)
+        titles = _all_group_titles(panel)
+
+        assert "Detection Sensitivity" in titles
+        assert "Detection Threshold" not in titles
+        assert "Detection Sensitivity:" in texts
+        assert "Missing notes? Lower it. Extra notes? Raise it." in texts
+    finally:
+        panel.close()
+        panel.deleteLater()
+
+
+def test_spark_midi_trim_optional_sections_use_plain_recovery_copy():
+    QApplication.instance() or QApplication([])
+    panel = ControlPanelQt()
+    try:
+        texts = _all_label_texts(panel)
+        titles = _all_group_titles(panel)
+
+        assert "Use this only if repeated notes merge into one long note." in texts
+        assert panel.spark_roi_select_button.text() == "Select Spark Area Above Keys"
+        assert "Convert Only Part of the Video" in titles
+        assert "This affects MIDI creation only. It does not trim or change the video session." in texts
+        assert "Permanently Trim Project" in titles
+        assert (
+            "Most users should use MIDI range instead. Trim changes the working video session, not the original video file."
+        ) in texts
+        assert panel.trim_video_button.text() == "Permanently Trim Project"
+        assert panel.hand_assignment_cb.text() == "Put each hand/color on a separate MIDI channel"
+        assert "Use this only if the video uses different colors for left and right hand notes." in texts
     finally:
         panel.close()
         panel.deleteLater()

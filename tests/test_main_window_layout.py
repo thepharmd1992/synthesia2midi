@@ -700,8 +700,10 @@ def test_spark_roi_controls_stack_and_stay_inside_panel(monkeypatch):
         select_rect = _rect_in_control_panel(control_panel, control_panel.spark_roi_select_button)
         toggle_rect = _rect_in_control_panel(control_panel, control_panel.spark_roi_toggle_button)
 
+        assert control_panel.spark_roi_select_button.text() == "Select Spark Area Above Keys"
         assert toggle_rect.top() > select_rect.bottom()
         assert toggle_rect.right() <= control_panel.width()
+        assert select_rect.right() <= control_panel.width()
     finally:
         app.close()
 

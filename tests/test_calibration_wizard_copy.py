@@ -28,3 +28,21 @@ def test_calibration_wizard_uses_plain_keyboard_box_language():
     finally:
         dialog.close()
         dialog.deleteLater()
+
+
+def test_edit_current_reason_label_keeps_base_copy_when_controller_sets_tooltip():
+    QApplication.instance() or QApplication([])
+    dialog = CalibrationWizard(None, AppState())
+    try:
+        dialog.show()
+        QApplication.processEvents()
+        dialog.set_edit_current_calibration_enabled(False, "Some controller tooltip")
+
+        assert dialog.edit_current_reason_label.text() == (
+            "Edit becomes available after you create key overlays."
+        )
+        assert dialog.edit_current_reason_label.isVisible()
+        assert dialog.edit_current_calibration_button.toolTip() == "Some controller tooltip"
+    finally:
+        dialog.close()
+        dialog.deleteLater()

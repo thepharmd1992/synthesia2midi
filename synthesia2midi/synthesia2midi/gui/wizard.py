@@ -159,8 +159,6 @@ class CalibrationWizard(QDialog):
         self.edit_current_reason_label.setVisible(not enabled)
         if tooltip:
             self.edit_current_calibration_button.setToolTip(tooltip)
-            if not enabled:
-                self.edit_current_reason_label.setText(tooltip)
 
     def _submit(self):
         logging.info("=== WIZARD _SUBMIT CALLED ===")

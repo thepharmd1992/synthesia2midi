@@ -652,6 +652,13 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation>Готово к конвертации</translation>
     </message>
     <message>
+        <location filename="../gui/controls_qt.py" line="251"/>
+        <location filename="../gui/controls_qt.py" line="1746"/>
+        <location filename="../gui/controls_qt.py" line="1752"/>
+        <source>Load a video to convert.</source>
+        <translation>Загрузите видео для конвертации.</translation>
+    </message>
+    <message>
         <location filename="../gui/controls_qt.py" line="246"/>
         <source>Edit MIDI</source>
         <translation>Редактировать MIDI</translation>
@@ -775,6 +782,38 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <location filename="../gui/controls_qt.py" line="421"/>
         <source>Captures a pressed-overlay example for this type. Pause on a frame where that type is highlighted, click the button, then click that highlighted overlay.</source>
         <translation>Захватывает образец нажатого оверлея для этого типа. Остановитесь на кадре, где этот тип подсвечен, нажмите кнопку, затем щёлкните этот подсвеченный оверлей.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1759"/>
+        <source>Create key overlays first.</source>
+        <translation>Сначала создайте наложения клавиш.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1770"/>
+        <location filename="../gui/controls_qt.py" line="1782"/>
+        <source>Capture a no-key frame.</source>
+        <translation>Захватите кадр без нажатых клавиш.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1789"/>
+        <location filename="../gui/controls_qt.py" line="1797"/>
+        <source>Capture at least one pressed-key example.</source>
+        <translation>Захватите хотя бы один пример нажатой клавиши.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1804"/>
+        <source>Check detection sensitivity.</source>
+        <translation>Проверьте чувствительность обнаружения.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1810"/>
+        <source>Check MIDI tempo.</source>
+        <translation>Проверьте темп MIDI.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1815"/>
+        <source>Ready to create MIDI.</source>
+        <translation>Готово к созданию MIDI.</translation>
     </message>
     <message>
         <location filename="../gui/controls_qt.py" line="433"/>

@@ -652,6 +652,13 @@ Ve a un fotograma donde no haya teclas iluminadas, o continúa si esto es espera
         <translation>Listo para convertir</translation>
     </message>
     <message>
+        <location filename="../gui/controls_qt.py" line="251"/>
+        <location filename="../gui/controls_qt.py" line="1746"/>
+        <location filename="../gui/controls_qt.py" line="1752"/>
+        <source>Load a video to convert.</source>
+        <translation>Carga un video para convertir.</translation>
+    </message>
+    <message>
         <location filename="../gui/controls_qt.py" line="246"/>
         <source>Edit MIDI</source>
         <translation>Editar MIDI</translation>
@@ -763,6 +770,38 @@ Ve a un fotograma donde no haya teclas iluminadas, o continúa si esto es espera
         <location filename="../gui/controls_qt.py" line="421"/>
         <source>Captures a pressed-overlay example for this type. Pause on a frame where that type is highlighted, click the button, then click that highlighted overlay.</source>
         <translation>Captura un ejemplo de superposición presionada para este tipo. Pausa en un fotograma donde ese tipo esté resaltado, haz clic en el botón y luego en esa superposición resaltada.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1759"/>
+        <source>Create key overlays first.</source>
+        <translation>Crea primero las superposiciones de teclas.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1770"/>
+        <location filename="../gui/controls_qt.py" line="1782"/>
+        <source>Capture a no-key frame.</source>
+        <translation>Captura un fotograma sin teclas activas.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1789"/>
+        <location filename="../gui/controls_qt.py" line="1797"/>
+        <source>Capture at least one pressed-key example.</source>
+        <translation>Captura al menos un ejemplo de tecla presionada.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1804"/>
+        <source>Check detection sensitivity.</source>
+        <translation>Revisa la sensibilidad de detección.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1810"/>
+        <source>Check MIDI tempo.</source>
+        <translation>Revisa el tempo MIDI.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1815"/>
+        <source>Ready to create MIDI.</source>
+        <translation>Listo para crear MIDI.</translation>
     </message>
     <message>
         <location filename="../gui/controls_qt.py" line="433"/>

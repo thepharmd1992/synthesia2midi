@@ -652,6 +652,13 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation>変換準備完了</translation>
     </message>
     <message>
+        <location filename="../gui/controls_qt.py" line="251"/>
+        <location filename="../gui/controls_qt.py" line="1746"/>
+        <location filename="../gui/controls_qt.py" line="1752"/>
+        <source>Load a video to convert.</source>
+        <translation>変換する動画を読み込んでください。</translation>
+    </message>
+    <message>
         <location filename="../gui/controls_qt.py" line="246"/>
         <source>Edit MIDI</source>
         <translation>MIDIを編集</translation>
@@ -775,6 +782,38 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <location filename="../gui/controls_qt.py" line="421"/>
         <source>Captures a pressed-overlay example for this type. Pause on a frame where that type is highlighted, click the button, then click that highlighted overlay.</source>
         <translation>この種類の押されたオーバーレイ例を取得します。その種類がハイライトされているフレームで一時停止し、ボタンをクリックしてから、ハイライトされたオーバーレイをクリックします。</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1759"/>
+        <source>Create key overlays first.</source>
+        <translation>先にキーオーバーレイを作成してください。</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1770"/>
+        <location filename="../gui/controls_qt.py" line="1782"/>
+        <source>Capture a no-key frame.</source>
+        <translation>キーが光っていないフレームを取得してください。</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1789"/>
+        <location filename="../gui/controls_qt.py" line="1797"/>
+        <source>Capture at least one pressed-key example.</source>
+        <translation>押されたキーの例を少なくとも1つ取得してください。</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1804"/>
+        <source>Check detection sensitivity.</source>
+        <translation>検出感度を確認してください。</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1810"/>
+        <source>Check MIDI tempo.</source>
+        <translation>MIDIテンポを確認してください。</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1815"/>
+        <source>Ready to create MIDI.</source>
+        <translation>MIDIを作成できます。</translation>
     </message>
     <message>
         <location filename="../gui/controls_qt.py" line="433"/>

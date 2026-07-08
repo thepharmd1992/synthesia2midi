@@ -652,6 +652,13 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation>변환 준비됨</translation>
     </message>
     <message>
+        <location filename="../gui/controls_qt.py" line="251"/>
+        <location filename="../gui/controls_qt.py" line="1746"/>
+        <location filename="../gui/controls_qt.py" line="1752"/>
+        <source>Load a video to convert.</source>
+        <translation>변환할 동영상을 불러오세요.</translation>
+    </message>
+    <message>
         <location filename="../gui/controls_qt.py" line="246"/>
         <source>Edit MIDI</source>
         <translation>MIDI 편집</translation>
@@ -775,6 +782,38 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <location filename="../gui/controls_qt.py" line="421"/>
         <source>Captures a pressed-overlay example for this type. Pause on a frame where that type is highlighted, click the button, then click that highlighted overlay.</source>
         <translation>이 유형의 눌린 오버레이 예시를 캡처합니다. 해당 유형이 강조된 프레임에서 일시정지하고 버튼을 클릭한 다음 강조된 오버레이를 클릭하세요.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1759"/>
+        <source>Create key overlays first.</source>
+        <translation>먼저 건반 오버레이를 만드세요.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1770"/>
+        <location filename="../gui/controls_qt.py" line="1782"/>
+        <source>Capture a no-key frame.</source>
+        <translation>켜진 건반이 없는 프레임을 캡처하세요.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1789"/>
+        <location filename="../gui/controls_qt.py" line="1797"/>
+        <source>Capture at least one pressed-key example.</source>
+        <translation>눌린 건반 예시를 하나 이상 캡처하세요.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1804"/>
+        <source>Check detection sensitivity.</source>
+        <translation>감지 민감도를 확인하세요.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1810"/>
+        <source>Check MIDI tempo.</source>
+        <translation>MIDI 템포를 확인하세요.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1815"/>
+        <source>Ready to create MIDI.</source>
+        <translation>MIDI를 만들 준비가 되었습니다.</translation>
     </message>
     <message>
         <location filename="../gui/controls_qt.py" line="433"/>

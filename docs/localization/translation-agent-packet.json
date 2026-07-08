@@ -1553,6 +1553,26 @@
     },
     {
       "context": "ControlPanelQt",
+      "source": "Load a video to convert.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 251
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1746
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1752
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
       "source": "Edit MIDI",
       "placeholders": [],
       "locations": [
@@ -1833,6 +1853,86 @@
         {
           "filename": "../gui/controls_qt.py",
           "line": 421
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Create key overlays first.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1759
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Capture a no-key frame.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1770
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1782
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Capture at least one pressed-key example.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1789
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1797
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Check detection sensitivity.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1804
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Check MIDI tempo.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1810
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Ready to create MIDI.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1815
         }
       ],
       "notes": ""

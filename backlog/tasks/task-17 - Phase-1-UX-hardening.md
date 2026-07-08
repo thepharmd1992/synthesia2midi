@@ -48,7 +48,6 @@ Implement the first UX hardening slice from the internal settings/calibration au
   - `.venv/bin/python -m compileall -q synthesia2midi`
   - `.venv/bin/python -m pytest tests/test_controls_qt.py tests/test_startup_dialog.py tests/test_youtube_download_dialog.py tests/test_auto_detect_tuning_dialog.py tests/test_ui_string_audit.py tests/test_localization.py`
   - `.venv/bin/python -m pytest`
-- Implementation plan will be created after spec review.
 - Task 7 actual verification on `2026-07-08`:
   - `.venv/bin/python -m synthesia2midi.tools.audit_ui_strings --output docs/localization/ui-string-manifest.json`
     - Passed (`Wrote 569 UI string candidates`)

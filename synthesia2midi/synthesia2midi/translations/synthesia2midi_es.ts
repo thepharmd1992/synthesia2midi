@@ -14,267 +14,280 @@
         <translation>La detección automática inicial necesitó un perfil alternativo (no el perfil predeterminado). Ajusta los parámetros si quieres refinar este resultado.</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="104"/>
         <source>Reset All to Active Defaults</source>
-        <translation>Restablecer todo a los valores activos predeterminados</translation>
+        <translation type="vanished">Restablecer todo a los valores activos predeterminados</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="115"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="127"/>
         <source>Basic</source>
         <translation>Básico</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="119"/>
         <source>Advanced</source>
-        <translation>Avanzado</translation>
+        <translation type="vanished">Avanzado</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="123"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="104"/>
+        <source>Check the overlays on the video. If they line up with the keys, click Save. If the edges are off, adjust the edge controls.</source>
+        <translation>Revisa las superposiciones en el video. Si coinciden con las teclas, haz clic en Guardar. Si los bordes no coinciden, ajusta los controles de borde.</translation>
+    </message>
+    <message>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="115"/>
+        <source>Reset to Recommended Settings</source>
+        <translation>Restablecer a ajustes recomendados</translation>
+    </message>
+    <message>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="131"/>
+        <source>Advanced Detector Settings</source>
+        <translation>Configuración avanzada del detector</translation>
+    </message>
+    <message>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="135"/>
         <source>Preview Status</source>
         <translation>Estado de vista previa</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="134"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="146"/>
         <source>Yes</source>
         <translation>Sí</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="136"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="148"/>
         <source>No</source>
         <translation>No</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="139"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="151"/>
         <source>Detected White Keys:</source>
         <translation>Teclas blancas detectadas:</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="141"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="153"/>
         <source>Detected Black Keys:</source>
         <translation>Teclas negras detectadas:</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="143"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="155"/>
         <source>Detected Total Keys:</source>
         <translation>Total de teclas detectadas:</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="145"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="157"/>
         <source>Overlays Created:</source>
         <translation>Superposiciones creadas:</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="147"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="159"/>
         <source>Leftmost Note/Octave:</source>
         <translation>Nota/octava más a la izquierda:</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="149"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="161"/>
         <source>Fallback Profile Used:</source>
         <translation>Perfil alternativo usado:</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="160"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="172"/>
         <source>Save</source>
         <translation>Guardar</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="224"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="236"/>
         <source>Left Edge Outward</source>
         <translation>Borde izquierdo hacia afuera</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="225"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="237"/>
         <source>outward &lt;-</source>
         <translation>hacia afuera &lt;-</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="238"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="250"/>
         <source>Right Edge Outward</source>
         <translation>Borde derecho hacia afuera</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="239"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="251"/>
         <source>-&gt; outward</source>
         <translation>-&gt; hacia afuera</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="259"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="271"/>
         <source>Reset Section</source>
         <translation>Restablecer sección</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="267"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="279"/>
         <source>No parameters available.</source>
         <translation>No hay parámetros disponibles.</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="527"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="539"/>
         <source>Edge Drift Correction</source>
         <translation>Corrección de deriva de bordes</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="528"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="540"/>
         <source>Black Key Detection</source>
         <translation>Detección de teclas negras</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="529"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="541"/>
         <source>White Strip Selection</source>
         <translation>Selección de franja blanca</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="530"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="542"/>
         <source>White Separator Extraction</source>
         <translation>Extracción de separadores blancos</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="533"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="545"/>
         <source>Assignment and Recovery</source>
         <translation>Asignación y recuperación</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="534"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="546"/>
         <source>Geometry and Padding</source>
         <translation>Geometría y margen interno</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="540"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="552"/>
         <source>Black Upper Ratio</source>
         <translation>Proporción superior negra</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="541"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="553"/>
         <source>Black Bottom Ratio</source>
         <translation>Proporción inferior negra</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="542"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="554"/>
         <source>Black Threshold Method</source>
         <translation>Método de umbral negro</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="543"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="555"/>
         <source>Black Threshold</source>
         <translation>Umbral negro</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="544"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="556"/>
         <source>Black Adaptive Block Size</source>
         <translation>Tamaño de bloque adaptativo negro</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="547"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="559"/>
         <source>Black Adaptive C</source>
         <translation>C adaptativa negra</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="548"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="560"/>
         <source>Black Column Ratio</source>
         <translation>Proporción de columna negra</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="549"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="561"/>
         <source>Black Min Width</source>
         <translation>Ancho mínimo negro</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="550"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="562"/>
         <source>Black Max Width</source>
         <translation>Ancho máximo negro</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="551"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="563"/>
         <source>White Bottom Ratio</source>
         <translation>Proporción inferior blanca</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="552"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="564"/>
         <source>White Initial Top Ratio</source>
         <translation>Proporción superior inicial blanca</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="553"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="565"/>
         <source>White Strip Dark Threshold</source>
         <translation>Umbral oscuro de franja blanca</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="556"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="568"/>
         <source>White Strip Dark Fraction</source>
         <translation>Fracción oscura de franja blanca</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="559"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="571"/>
         <source>White Strip Min Run</source>
         <translation>Secuencia mínima de franja blanca</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="560"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="572"/>
         <source>White Strip Allow Failures</source>
         <translation>Permitir fallos en franja blanca</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="563"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="575"/>
         <source>White Sep Ratio</source>
         <translation>Proporción de separación blanca</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="564"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="576"/>
         <source>White Sep Dyn Min</source>
         <translation>Mín. dinámico de separación blanca</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="565"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="577"/>
         <source>White Sep Close Kernel</source>
         <translation>Kernel de cierre de separación blanca</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="568"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="580"/>
         <source>White Sep Open Kernel</source>
         <translation>Kernel de apertura de separación blanca</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="569"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="581"/>
         <source>White Sep Min Width</source>
         <translation>Ancho mínimo de separación blanca</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="570"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="582"/>
         <source>Type Aware Assignment</source>
         <translation>Asignación según tipo</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="571"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="583"/>
         <source>Black Recovery Enabled</source>
         <translation>Recuperación negra activada</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="572"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="584"/>
         <source>Black Recovery Ratio</source>
         <translation>Proporción de recuperación negra</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="573"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="585"/>
         <source>Black Recovery Column Ratio Scale</source>
         <translation>Escala de proporción de columna para recuperación negra</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="576"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="588"/>
         <source>Black Split Max Factor</source>
         <translation>Factor máximo de división negra</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="577"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="589"/>
         <source>Padding Percent</source>
         <translation>Porcentaje de margen interno</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="578"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="590"/>
         <source>White Edge Left Shift Ticks</source>
         <translation>Ticks de desplazamiento izquierdo del borde blanco</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="581"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="593"/>
         <source>White Edge Right Shift Ticks</source>
         <translation>Ticks de desplazamiento derecho del borde blanco</translation>
     </message>
@@ -550,32 +563,78 @@ Después de hacer clic en OK:
         <translation>Aún no hay un contexto reutilizable de calibración automática disponible. Ejecuta primero la detección automática con selección de ROI.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="261"/>
         <source>Assisted calibration found {count} candidate samples.</source>
-        <translation>La calibración asistida encontró {count} muestras candidatas.</translation>
+        <translation type="vanished">La calibración asistida encontró {count} muestras candidatas.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="265"/>
         <source>Color families found: {count}</source>
-        <translation>Familias de color encontradas: {count}</translation>
+        <translation type="vanished">Familias de color encontradas: {count}</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="277"/>
         <source>not present in this video</source>
-        <translation>no presente en este video</translation>
+        <translation type="vanished">no presente en este video</translation>
+    </message>
+    <message>
+        <source>not found</source>
+        <translation type="vanished">no encontrado</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="261"/>
+        <source>Left White</source>
+        <translation>Blanca izquierda</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="262"/>
+        <source>Left Black</source>
+        <translation>Negra izquierda</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="263"/>
+        <source>Right White</source>
+        <translation>Blanca derecha</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="264"/>
+        <source>Right Black</source>
+        <translation>Negra derecha</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="267"/>
+        <source>Assisted calibration found {count} possible pressed-key samples.</source>
+        <translation>La calibración asistida encontró {count} posibles muestras de teclas presionadas.</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="271"/>
+        <source>Found {count} Synthesia note color families.</source>
+        <translation>Se encontraron {count} familias de colores de notas de Synthesia.</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="275"/>
+        <source>Left/Right refer to Synthesia note colors, not the physical side of the keyboard.</source>
+        <translation>Izquierda/Derecha se refieren a los colores de notas de Synthesia, no al lado físico del teclado.</translation>
     </message>
     <message>
         <location filename="../gui/calibration_wizard_controller.py" line="287"/>
-        <source>not found</source>
-        <translation>no encontrado</translation>
+        <source>{label}: not present in this video</source>
+        <translation>{label}: no aparece en este video</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="336"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="294"/>
+        <source>{label}: found</source>
+        <translation>{label}: encontrado</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="301"/>
+        <source>{label}: not found</source>
+        <translation>{label}: no encontrado</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="350"/>
         <source>Unlit Frame May Contain Lit Keys</source>
         <translation>El fotograma sin iluminar puede contener teclas iluminadas</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="337"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="351"/>
         <source>It looks like these keys may be lit: {notes}.
 
 Move to a frame where no keys are lit, or continue if this is expected.</source>
@@ -584,49 +643,49 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
 Ve a un fotograma donde no haya teclas iluminadas, o continúa si esto es esperado.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="353"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="367"/>
         <source>Scanning for lit key examples...</source>
         <translation>Buscando ejemplos de teclas iluminadas...</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="354"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="368"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="359"/>
-        <location filename="../gui/calibration_wizard_controller.py" line="384"/>
-        <location filename="../gui/calibration_wizard_controller.py" line="394"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="373"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="398"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="408"/>
         <source>Assisted Calibration</source>
         <translation>Calibración asistida</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="385"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="399"/>
         <source>No lit examples were found for assisted calibration. Existing calibration samples were left unchanged.</source>
         <translation>No se encontraron ejemplos iluminados para la calibración asistida. Las muestras de calibración existentes se dejaron sin cambios.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="397"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="411"/>
         <source>Apply these calibration updates?</source>
         <translation>¿Aplicar estas actualizaciones de calibración?</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="458"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="472"/>
         <source>Open Manual Fit for the current manual calibration.</source>
         <translation>Abrir Ajuste manual para la calibración manual actual.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="460"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="474"/>
         <source>Edit Current Calibration becomes available after manual overlays exist.</source>
         <translation>Editar calibración actual estará disponible cuando existan superposiciones manuales.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="466"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="480"/>
         <source>Open the auto-detect tuning panel for the current calibration.</source>
         <translation>Abrir el panel de ajuste de detección automática para la calibración actual.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="471"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="485"/>
         <source>Edit Current Calibration becomes available after an auto-detect run.</source>
         <translation>Editar calibración actual estará disponible después de ejecutar la detección automática.</translation>
     </message>
@@ -651,709 +710,709 @@ Ve a un fotograma donde no haya teclas iluminadas, o continúa si esto es espera
 <context>
     <name>ControlPanelQt</name>
     <message>
-        <location filename="../gui/controls_qt.py" line="247"/>
-        <location filename="../gui/controls_qt.py" line="1778"/>
+        <location filename="../gui/controls_qt.py" line="251"/>
+        <location filename="../gui/controls_qt.py" line="1832"/>
         <source>Convert</source>
         <translation>Convertir</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="253"/>
-        <location filename="../gui/controls_qt.py" line="1901"/>
-        <location filename="../gui/controls_qt.py" line="1907"/>
+        <location filename="../gui/controls_qt.py" line="257"/>
+        <location filename="../gui/controls_qt.py" line="1955"/>
+        <location filename="../gui/controls_qt.py" line="1961"/>
         <source>Load a video to convert.</source>
         <translation>Carga un video para convertir.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="257"/>
+        <location filename="../gui/controls_qt.py" line="261"/>
         <source>Edit MIDI</source>
         <translation>Editar MIDI</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="262"/>
+        <location filename="../gui/controls_qt.py" line="266"/>
         <source>Overlay</source>
         <translation>Superposición</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="263"/>
-        <location filename="../gui/controls_qt.py" line="1793"/>
+        <location filename="../gui/controls_qt.py" line="267"/>
+        <location filename="../gui/controls_qt.py" line="1847"/>
         <source>None</source>
         <translation>Ninguno</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="326"/>
-        <location filename="../gui/controls_qt.py" line="751"/>
-        <location filename="../gui/controls_qt.py" line="941"/>
+        <location filename="../gui/controls_qt.py" line="330"/>
+        <location filename="../gui/controls_qt.py" line="755"/>
+        <location filename="../gui/controls_qt.py" line="945"/>
         <source>Help</source>
         <translation>Ayuda</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="329"/>
+        <location filename="../gui/controls_qt.py" line="333"/>
         <source>Initial calibration directions (recommended order):</source>
         <translation>Instrucciones de calibración inicial (orden recomendado):</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="342"/>
+        <location filename="../gui/controls_qt.py" line="346"/>
         <source>If a key type is not present in this video, uncheck its &apos;Present in Video&apos; box.</source>
         <translation>Si un tipo de tecla no aparece en este video, desmarca su casilla &apos;Presente en el video&apos;.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="343"/>
+        <location filename="../gui/controls_qt.py" line="347"/>
         <source>Octave Transpose: shifts the generated MIDI up/down by octaves.</source>
         <translation>Transposición por octavas: desplaza el MIDI generado hacia arriba o abajo por octavas.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="742"/>
+        <location filename="../gui/controls_qt.py" line="746"/>
         <source>Overlays</source>
         <translation>Superposiciones</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="381"/>
+        <location filename="../gui/controls_qt.py" line="385"/>
         <source>Creates overlays for the keyboard in your video. Re-run if overlays don&apos;t line up.</source>
         <translation>Crea superposiciones para el teclado del video. Vuelve a ejecutarlo si no se alinean.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="395"/>
+        <location filename="../gui/controls_qt.py" line="399"/>
         <source>Octave</source>
         <translation>Octava</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="404"/>
+        <location filename="../gui/controls_qt.py" line="408"/>
         <source>Shifts the MIDI output up/down by octaves.</source>
         <translation>Desplaza la salida MIDI hacia arriba o abajo por octavas.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="417"/>
+        <location filename="../gui/controls_qt.py" line="421"/>
         <source>Captures what unpressed overlays look like from the current frame. Pause on a frame with no highlighted notes first.</source>
         <translation>Captura cómo se ven las superposiciones sin presionar en el fotograma actual. Primero pausa en un fotograma sin notas resaltadas.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="439"/>
-        <location filename="../gui/controls_qt.py" line="1101"/>
-        <location filename="../gui/controls_qt.py" line="1743"/>
-        <location filename="../gui/controls_qt.py" line="1870"/>
+        <location filename="../gui/controls_qt.py" line="443"/>
+        <location filename="../gui/controls_qt.py" line="1105"/>
+        <location filename="../gui/controls_qt.py" line="1797"/>
+        <location filename="../gui/controls_qt.py" line="1924"/>
         <source>Not Set</source>
         <translation>Sin definir</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="471"/>
+        <location filename="../gui/controls_qt.py" line="475"/>
         <source>Lit Key Exemplars</source>
         <translation>Ejemplos de teclas iluminadas</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="485"/>
+        <location filename="../gui/controls_qt.py" line="489"/>
         <source>Set {label}</source>
         <translation>Definir {label}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="490"/>
+        <location filename="../gui/controls_qt.py" line="494"/>
         <source>Captures a pressed-overlay example for this type. Pause on a frame where that type is highlighted, click the button, then click that highlighted overlay.</source>
         <translation>Captura un ejemplo de superposición presionada para este tipo. Pausa en un fotograma donde ese tipo esté resaltado, haz clic en el botón y luego en esa superposición resaltada.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1914"/>
+        <location filename="../gui/controls_qt.py" line="1968"/>
         <source>Create key overlays first.</source>
         <translation>Crea primero las superposiciones de teclas.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1925"/>
-        <location filename="../gui/controls_qt.py" line="1937"/>
+        <location filename="../gui/controls_qt.py" line="1979"/>
+        <location filename="../gui/controls_qt.py" line="1991"/>
         <source>Capture a no-key frame.</source>
         <translation>Captura un fotograma sin teclas activas.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1944"/>
-        <location filename="../gui/controls_qt.py" line="1952"/>
+        <location filename="../gui/controls_qt.py" line="1998"/>
+        <location filename="../gui/controls_qt.py" line="2006"/>
         <source>Capture at least one pressed-key example.</source>
         <translation>Captura al menos un ejemplo de tecla presionada.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1959"/>
+        <location filename="../gui/controls_qt.py" line="2013"/>
         <source>Check detection sensitivity.</source>
         <translation>Revisa la sensibilidad de detección.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1965"/>
+        <location filename="../gui/controls_qt.py" line="2019"/>
         <source>Check MIDI tempo.</source>
         <translation>Revisa el tempo MIDI.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1970"/>
+        <location filename="../gui/controls_qt.py" line="2024"/>
         <source>Ready to create MIDI.</source>
         <translation>Listo para crear MIDI.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="502"/>
+        <location filename="../gui/controls_qt.py" line="506"/>
         <source>Present</source>
         <translation>Presente</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="330"/>
+        <location filename="../gui/controls_qt.py" line="334"/>
         <source>1) Find Keyboard Box: create overlays that line up with the keyboard in your video.</source>
         <translation>1) Encontrar el recuadro del teclado: crea superposiciones que se alineen con el teclado del video.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="334"/>
+        <location filename="../gui/controls_qt.py" line="338"/>
         <source>2) Capture No-Key Frame: pause where no keys are glowing, then click Capture No-Key Frame.</source>
         <translation>2) Capturar fotograma sin teclas: pausa donde no haya teclas iluminadas y luego haz clic en Capturar fotograma sin teclas.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="338"/>
+        <location filename="../gui/controls_qt.py" line="342"/>
         <source>3) Capture Pressed-Key Examples: for each button you need (Left/Right x White/Black), pause where that kind of overlay is glowing, click the button, then click that overlay in the video. Left/Right refer to Synthesia note colors, not the physical side of the keyboard.</source>
         <translation>3) Capturar ejemplos de teclas pulsadas: para cada botón que necesites (Izquierda/Derecha x Blanca/Negra), pausa donde ese tipo de superposición esté iluminado, haz clic en el botón y luego en esa superposición del video. Izquierda/Derecha se refieren a los colores de notas de Synthesia, no al lado físico del teclado.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="375"/>
+        <location filename="../gui/controls_qt.py" line="379"/>
         <source>Draw Keyboard Box and Find Keys</source>
         <translation>Dibuja el recuadro del teclado y encuentra las teclas.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="388"/>
+        <location filename="../gui/controls_qt.py" line="392"/>
         <source>Find the keyboard</source>
         <translation>Encuentra el teclado</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="389"/>
+        <location filename="../gui/controls_qt.py" line="393"/>
         <source>Pause on a clear frame where the full keyboard is visible.</source>
         <translation>Pausa en un fotograma claro donde se vea completo el teclado.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="411"/>
+        <location filename="../gui/controls_qt.py" line="415"/>
         <source>Capture No-Key Frame</source>
         <translation>Capturar fotograma sin teclas</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="423"/>
+        <location filename="../gui/controls_qt.py" line="427"/>
         <source>Capture no-key frame</source>
         <translation>Capturar fotograma sin teclas</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="427"/>
+        <location filename="../gui/controls_qt.py" line="431"/>
         <source>Pause where no keys are glowing.</source>
         <translation>Pausa donde no haya teclas iluminadas.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="446"/>
+        <location filename="../gui/controls_qt.py" line="450"/>
         <source>Capture pressed-key examples</source>
         <translation>Capturar ejemplos de teclas pulsadas</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="451"/>
+        <location filename="../gui/controls_qt.py" line="455"/>
         <source>Pause where a key is glowing, then click that key.</source>
         <translation>Pausa donde una tecla esté iluminada y luego haz clic en esa tecla.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="459"/>
+        <location filename="../gui/controls_qt.py" line="463"/>
         <source>Left/Right refer to Synthesia note colors, not the physical side of the keyboard.</source>
         <translation>Izquierda/Derecha se refieren a los colores de notas de Synthesia, no al lado físico del teclado.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="504"/>
+        <location filename="../gui/controls_qt.py" line="508"/>
         <source>Uncheck if this key type never appears in this video.</source>
         <translation>Desmarca si este tipo de tecla nunca aparece en este video.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="525"/>
+        <location filename="../gui/controls_qt.py" line="529"/>
         <source>Calibration</source>
         <translation>Calibración</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="535"/>
+        <location filename="../gui/controls_qt.py" line="539"/>
         <source>Key Alignment</source>
         <translation>Alineación de teclas</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="540"/>
+        <location filename="../gui/controls_qt.py" line="544"/>
         <source>Align White Keys</source>
         <translation>Alinear teclas blancas</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="543"/>
+        <location filename="../gui/controls_qt.py" line="547"/>
         <source>Align Black Keys</source>
         <translation>Alinear teclas negras</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="546"/>
+        <location filename="../gui/controls_qt.py" line="550"/>
         <source>Manual Fit</source>
         <translation>Ajuste manual</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="566"/>
+        <location filename="../gui/controls_qt.py" line="570"/>
         <source>Overlay Size Adjustment</source>
         <translation>Ajuste de tamaño de superposición</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="583"/>
+        <location filename="../gui/controls_qt.py" line="587"/>
         <source>Current:</source>
         <translation>Actual:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="586"/>
+        <location filename="../gui/controls_qt.py" line="590"/>
         <source>Reset</source>
         <translation>Restablecer</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="609"/>
+        <location filename="../gui/controls_qt.py" line="613"/>
         <source>White Key Height</source>
         <translation>Altura de tecla blanca</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="626"/>
+        <location filename="../gui/controls_qt.py" line="630"/>
         <source>White Key Width</source>
         <translation>Ancho de tecla blanca</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="643"/>
+        <location filename="../gui/controls_qt.py" line="647"/>
         <source>Black Key Height</source>
         <translation>Altura de tecla negra</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="660"/>
+        <location filename="../gui/controls_qt.py" line="664"/>
         <source>Black Key Width</source>
         <translation>Ancho de tecla negra</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="677"/>
+        <location filename="../gui/controls_qt.py" line="681"/>
         <source>Left Slant</source>
         <translation>Inclinación izquierda</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="694"/>
+        <location filename="../gui/controls_qt.py" line="698"/>
         <source>Right Slant</source>
         <translation>Inclinación derecha</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="716"/>
+        <location filename="../gui/controls_qt.py" line="720"/>
         <source>Overlay Appearance</source>
         <translation>Apariencia de superposición</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="721"/>
+        <location filename="../gui/controls_qt.py" line="725"/>
         <source>Overlay Color:</source>
         <translation>Color de superposición:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="755"/>
+        <location filename="../gui/controls_qt.py" line="759"/>
         <source>Before tuning detection: run Unlit Key Calibration + at least one Lit Key Exemplar.</source>
         <translation>Antes de ajustar la detección: ejecuta Calibración de teclas sin iluminar y al menos un Ejemplo de tecla iluminada.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="756"/>
+        <location filename="../gui/controls_qt.py" line="760"/>
         <source>Detection Threshold: main sensitivity setting for pressed vs unpressed.</source>
         <translation>Umbral de detección: ajuste principal de sensibilidad para presionada vs. sin presionar.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="757"/>
+        <location filename="../gui/controls_qt.py" line="761"/>
         <source>If notes are missed: lower the threshold. If you get false notes: raise the threshold.</source>
         <translation>Si faltan notas: baja el umbral. Si aparecen notas falsas: sube el umbral.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="758"/>
+        <location filename="../gui/controls_qt.py" line="762"/>
         <source>Histogram Detection: uses a color-pattern match inside each overlay. Use when pressed overlays have strong gradients or uneven lighting.</source>
         <translation>Detección por histograma: usa una coincidencia de patrón de color dentro de cada superposición. Úsala cuando las superposiciones presionadas tengan gradientes fuertes o iluminación desigual.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="762"/>
+        <location filename="../gui/controls_qt.py" line="766"/>
         <source>Delta Detection: uses frame-to-frame change to confirm press/release. Use when the pressed color fades in/out gradually instead of switching cleanly.</source>
         <translation>Detección delta: usa el cambio entre fotogramas para confirmar pulsación/liberación. Úsala cuando el color presionado aparezca o desaparezca gradualmente en lugar de cambiar con claridad.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="766"/>
+        <location filename="../gui/controls_qt.py" line="770"/>
         <source>Black Key Filter: reduces false black-key presses caused by nearby overlays.</source>
         <translation>Filtro de teclas negras: reduce pulsaciones falsas de teclas negras causadas por superposiciones cercanas.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="775"/>
+        <location filename="../gui/controls_qt.py" line="779"/>
         <source>Detection Threshold</source>
         <translation>Umbral de detección</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="786"/>
-        <location filename="../gui/controls_qt.py" line="791"/>
+        <location filename="../gui/controls_qt.py" line="790"/>
+        <location filename="../gui/controls_qt.py" line="795"/>
         <source>Main sensitivity. Lower = detects more; higher = fewer false notes.</source>
         <translation>Sensibilidad principal. Más bajo = detecta más; más alto = menos notas falsas.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="794"/>
+        <location filename="../gui/controls_qt.py" line="798"/>
         <source>Detection Threshold:</source>
         <translation>Umbral de detección:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="801"/>
+        <location filename="../gui/controls_qt.py" line="805"/>
         <source>Detection Modes</source>
         <translation>Modos de detección</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="820"/>
+        <location filename="../gui/controls_qt.py" line="824"/>
         <source>Enable Histogram Detection</source>
         <translation>Activar detección por histograma</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="824"/>
+        <location filename="../gui/controls_qt.py" line="828"/>
         <source>Uses a color-pattern match inside the overlay. Helpful with gradients/uneven lighting.</source>
         <translation>Usa una coincidencia de patrón de color dentro de la superposición. Útil con gradientes o iluminación desigual.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="836"/>
-        <location filename="../gui/controls_qt.py" line="841"/>
+        <location filename="../gui/controls_qt.py" line="840"/>
+        <location filename="../gui/controls_qt.py" line="845"/>
         <source>How strong the histogram match must be (only used when Histogram Detection is enabled).</source>
         <translation>Qué tan fuerte debe ser la coincidencia del histograma (solo se usa cuando la detección por histograma está activada).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="843"/>
+        <location filename="../gui/controls_qt.py" line="847"/>
         <source>Strength:</source>
         <translation>Intensidad:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="846"/>
+        <location filename="../gui/controls_qt.py" line="850"/>
         <source>Enable Delta Detection</source>
         <translation>Activar detección delta</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="850"/>
+        <location filename="../gui/controls_qt.py" line="854"/>
         <source>Uses frame-to-frame change to confirm press/release (helps when color fades).</source>
         <translation>Usa el cambio entre fotogramas para confirmar pulsación/liberación (ayuda cuando el color se desvanece).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="861"/>
-        <location filename="../gui/controls_qt.py" line="866"/>
+        <location filename="../gui/controls_qt.py" line="865"/>
+        <location filename="../gui/controls_qt.py" line="870"/>
         <source>How big the change must be to count as a press (only used when Delta Detection is enabled).</source>
         <translation>Qué tan grande debe ser el cambio para contarse como pulsación (solo se usa cuando la detección delta está activada).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="868"/>
+        <location filename="../gui/controls_qt.py" line="872"/>
         <source>Rise:</source>
         <translation>Subida:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="877"/>
-        <location filename="../gui/controls_qt.py" line="882"/>
+        <location filename="../gui/controls_qt.py" line="881"/>
+        <location filename="../gui/controls_qt.py" line="886"/>
         <source>How big the change must be to count as a release (only used when Delta Detection is enabled).</source>
         <translation>Qué tan grande debe ser el cambio para contarse como liberación (solo se usa cuando la detección delta está activada).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="884"/>
+        <location filename="../gui/controls_qt.py" line="888"/>
         <source>Fall:</source>
         <translation>Bajada:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="887"/>
+        <location filename="../gui/controls_qt.py" line="891"/>
         <source>Enable Black Key Filter</source>
         <translation>Activar filtro de teclas negras</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="891"/>
+        <location filename="../gui/controls_qt.py" line="895"/>
         <source>Reduces false black-key presses from nearby overlays.</source>
         <translation>Reduce pulsaciones falsas de teclas negras por superposiciones cercanas.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="903"/>
-        <location filename="../gui/controls_qt.py" line="908"/>
+        <location filename="../gui/controls_qt.py" line="907"/>
+        <location filename="../gui/controls_qt.py" line="912"/>
         <source>Controls how strict black-key filtering is (only used when Black Key Filter is enabled).</source>
         <translation>Controla qué tan estricto es el filtrado de teclas negras (solo se usa cuando el filtro está activado).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="910"/>
+        <location filename="../gui/controls_qt.py" line="914"/>
         <source>Similarity:</source>
         <translation>Similitud:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="914"/>
+        <location filename="../gui/controls_qt.py" line="918"/>
         <source>Restore Defaults</source>
         <translation>Restaurar valores predeterminados</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="916"/>
+        <location filename="../gui/controls_qt.py" line="920"/>
         <source>Reset detection threshold and detection mode parameter sliders to their defaults. Detection mode checkboxes stay unchanged.</source>
         <translation>Restablece el umbral de detección y los controles de parámetros de modo a sus valores predeterminados. Las casillas de modo de detección no cambian.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="925"/>
+        <location filename="../gui/controls_qt.py" line="929"/>
         <source>Detection</source>
         <translation>Detección</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="944"/>
+        <location filename="../gui/controls_qt.py" line="948"/>
         <source>Use Spark Detection only when:</source>
         <translation>Usa Detección de chispas solo cuando:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="945"/>
+        <location filename="../gui/controls_qt.py" line="949"/>
         <source>1) Key overlays stay ON across repeated notes (false continuous press).</source>
         <translation>1) Las superposiciones de teclas permanecen ENCENDIDAS en notas repetidas (falsa pulsación continua).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="946"/>
+        <location filename="../gui/controls_qt.py" line="950"/>
         <source>2) Key overlays are solid color (no fading or gradients).</source>
         <translation>2) Las superposiciones de teclas son de color sólido (sin desvanecimientos ni gradientes).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="956"/>
+        <location filename="../gui/controls_qt.py" line="960"/>
         <source>Spark Detection</source>
         <translation>Detección de chispas</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="960"/>
+        <location filename="../gui/controls_qt.py" line="964"/>
         <source>Enable Spark Detection</source>
         <translation>Activar detección de chispas</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="964"/>
+        <location filename="../gui/controls_qt.py" line="968"/>
         <source>Use only when key overlays stay ON across repeated notes (false continuous press), and the overlays are solid color (no fading or gradients).</source>
         <translation>Úsala solo cuando las superposiciones de teclas permanecen ENCENDIDAS en notas repetidas (falsa pulsación continua) y son de color sólido (sin desvanecimientos ni gradientes).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="972"/>
+        <location filename="../gui/controls_qt.py" line="976"/>
         <source>Sensitivity:</source>
         <translation>Sensibilidad:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="979"/>
-        <location filename="../gui/controls_qt.py" line="985"/>
+        <location filename="../gui/controls_qt.py" line="983"/>
+        <location filename="../gui/controls_qt.py" line="989"/>
         <source>Controls how aggressively Spark Detection splits false continuous notes.</source>
         <translation>Controla con qué agresividad la detección de chispas divide notas falsas continuas.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="992"/>
+        <location filename="../gui/controls_qt.py" line="996"/>
         <source>Spark Calibration</source>
         <translation>Calibración de chispas</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="999"/>
+        <location filename="../gui/controls_qt.py" line="1003"/>
         <source>Select Spark ROI</source>
         <translation>Seleccionar ROI de chispas</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1003"/>
+        <location filename="../gui/controls_qt.py" line="1007"/>
         <source>Select the region above the keys where spark bars and sparks appear.</source>
         <translation>Selecciona la región sobre las teclas donde aparecen las barras y chispas.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1008"/>
-        <location filename="../gui/controls_qt.py" line="1585"/>
-        <location filename="../gui/controls_qt.py" line="1762"/>
+        <location filename="../gui/controls_qt.py" line="1012"/>
+        <location filename="../gui/controls_qt.py" line="1637"/>
+        <location filename="../gui/controls_qt.py" line="1816"/>
         <source>Hide Spark Overlays</source>
         <translation>Ocultar superposiciones de chispas</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1013"/>
+        <location filename="../gui/controls_qt.py" line="1017"/>
         <source>Show or hide the spark ROI overlay on the video.</source>
         <translation>Muestra u oculta la superposición de ROI de chispas en el video.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1019"/>
+        <location filename="../gui/controls_qt.py" line="1023"/>
         <source>Manual Calibration</source>
         <translation>Calibración manual</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1024"/>
+        <location filename="../gui/controls_qt.py" line="1028"/>
         <source>Step 1)</source>
         <translation>Paso 1)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1027"/>
+        <location filename="../gui/controls_qt.py" line="1031"/>
         <source>Calibrate Background</source>
         <translation>Calibrar fondo</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1031"/>
+        <location filename="../gui/controls_qt.py" line="1035"/>
         <source>Manual calibration: capture baseline brightness when there are no bars or sparks.</source>
         <translation>Calibración manual: captura el brillo base cuando no hay barras ni chispas.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1039"/>
+        <location filename="../gui/controls_qt.py" line="1043"/>
         <source>Step 2)</source>
         <translation>Paso 2)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1042"/>
+        <location filename="../gui/controls_qt.py" line="1046"/>
         <source>Calibrate Bar Only</source>
         <translation>Calibrar solo barra</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1046"/>
+        <location filename="../gui/controls_qt.py" line="1050"/>
         <source>Manual calibration: click an overlay showing colored bars with no sparks.</source>
         <translation>Calibración manual: haz clic en una superposición que muestre barras de color sin chispas.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1054"/>
+        <location filename="../gui/controls_qt.py" line="1058"/>
         <source>Step 3)</source>
         <translation>Paso 3)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1057"/>
+        <location filename="../gui/controls_qt.py" line="1061"/>
         <source>Calibrate Dimmest Sparks</source>
         <translation>Calibrar chispas más tenues</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1061"/>
+        <location filename="../gui/controls_qt.py" line="1065"/>
         <source>Manual calibration: click an overlay where sparks are just barely visible.</source>
         <translation>Calibración manual: haz clic en una superposición donde las chispas apenas sean visibles.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1070"/>
+        <location filename="../gui/controls_qt.py" line="1074"/>
         <source>Auto Calibration:</source>
         <translation>Calibración automática:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1086"/>
+        <location filename="../gui/controls_qt.py" line="1090"/>
         <source>Auto {key_type_label}</source>
         <translation>Auto {key_type_label}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1093"/>
+        <location filename="../gui/controls_qt.py" line="1097"/>
         <source>Recommended: auto-calibrate spark detection for this key type. Navigate to the frame where a key first turns ON, then click that overlay.</source>
         <translation>Recomendado: calibrar automáticamente la detección de chispas para este tipo de tecla. Ve al fotograma donde una tecla se ENCIENDE por primera vez y haz clic en esa superposición.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1113"/>
+        <location filename="../gui/controls_qt.py" line="1117"/>
         <source>Spark Preview / Status</source>
         <translation>Vista previa / estado de chispas</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1115"/>
+        <location filename="../gui/controls_qt.py" line="1119"/>
         <source>Preview will show spark calibration status here.</source>
         <translation>La vista previa mostrará aquí el estado de calibración de chispas.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1119"/>
+        <location filename="../gui/controls_qt.py" line="1123"/>
         <source>Preview not available yet.</source>
         <translation>La vista previa aún no está disponible.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1130"/>
+        <location filename="../gui/controls_qt.py" line="1134"/>
         <source>Spark</source>
         <translation>Chispa</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1140"/>
+        <location filename="../gui/controls_qt.py" line="1144"/>
         <source>Frame Rate Override</source>
         <translation>Anulación de velocidad de fotogramas</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1157"/>
+        <location filename="../gui/controls_qt.py" line="1161"/>
         <source>Auto</source>
         <translation>Auto</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1171"/>
-        <location filename="../gui/controls_qt.py" line="1598"/>
+        <location filename="../gui/controls_qt.py" line="1175"/>
+        <location filename="../gui/controls_qt.py" line="1650"/>
         <source>Current FPS: Auto-detected</source>
         <translation>FPS actual: detectado automáticamente</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1177"/>
+        <location filename="../gui/controls_qt.py" line="1181"/>
         <source>Custom MIDI Processing Range</source>
         <translation>Rango personalizado de procesamiento MIDI</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1186"/>
-        <location filename="../gui/controls_qt.py" line="1244"/>
+        <location filename="../gui/controls_qt.py" line="1190"/>
+        <location filename="../gui/controls_qt.py" line="1248"/>
         <source>Start Frame:</source>
         <translation>Fotograma inicial:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1197"/>
-        <location filename="../gui/controls_qt.py" line="1214"/>
-        <location filename="../gui/controls_qt.py" line="1255"/>
-        <location filename="../gui/controls_qt.py" line="1272"/>
+        <location filename="../gui/controls_qt.py" line="1201"/>
+        <location filename="../gui/controls_qt.py" line="1218"/>
+        <location filename="../gui/controls_qt.py" line="1259"/>
+        <location filename="../gui/controls_qt.py" line="1276"/>
         <source>Set to Current</source>
         <translation>Usar actual</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1203"/>
-        <location filename="../gui/controls_qt.py" line="1261"/>
+        <location filename="../gui/controls_qt.py" line="1207"/>
+        <location filename="../gui/controls_qt.py" line="1265"/>
         <source>End Frame:</source>
         <translation>Fotograma final:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1225"/>
+        <location filename="../gui/controls_qt.py" line="1229"/>
         <source>MIDI</source>
         <translation>MIDI</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1234"/>
+        <location filename="../gui/controls_qt.py" line="1238"/>
         <source>Video Processing Range</source>
         <translation>Rango de procesamiento de video</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1280"/>
+        <location filename="../gui/controls_qt.py" line="1284"/>
         <source>Trim Video</source>
         <translation>Recortar video</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1288"/>
+        <location filename="../gui/controls_qt.py" line="1292"/>
         <source>Trim</source>
         <translation>Recortar</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="300"/>
+        <location filename="../gui/controls_qt.py" line="304"/>
         <source>Language:</source>
         <translation>Idioma:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1297"/>
+        <location filename="../gui/controls_qt.py" line="1301"/>
         <source>Optional Features</source>
         <translation>Funciones opcionales</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1301"/>
+        <location filename="../gui/controls_qt.py" line="1305"/>
         <source>Enable Hand Assignment (MIDI Channels)</source>
         <translation>Activar asignación de manos (canales MIDI)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1311"/>
+        <location filename="../gui/controls_qt.py" line="1315"/>
         <source>Optional</source>
         <translation>Opcional</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="297"/>
-        <location filename="../gui/controls_qt.py" line="317"/>
-        <location filename="../gui/controls_qt.py" line="1321"/>
+        <location filename="../gui/controls_qt.py" line="301"/>
+        <location filename="../gui/controls_qt.py" line="321"/>
+        <location filename="../gui/controls_qt.py" line="1325"/>
         <source>Language</source>
         <translation>Idioma</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1322"/>
+        <location filename="../gui/controls_qt.py" line="1326"/>
         <source>Restart Synthesia2MIDI to apply the selected language.</source>
         <translation>Reinicia Synthesia2MIDI para aplicar el idioma seleccionado.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1327"/>
+        <location filename="../gui/controls_qt.py" line="1331"/>
         <source>Converting...</source>
         <translation>Convirtiendo...</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1329"/>
+        <location filename="../gui/controls_qt.py" line="1333"/>
         <source>Converting video to MIDI...</source>
         <translation>Convirtiendo video a MIDI...</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1475"/>
+        <location filename="../gui/controls_qt.py" line="1479"/>
         <source>Invalid Trim Range</source>
         <translation>Rango de recorte no válido</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1476"/>
+        <location filename="../gui/controls_qt.py" line="1480"/>
         <source>Start frame must be less than end frame.</source>
         <translation>El fotograma inicial debe ser menor que el fotograma final.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1482"/>
+        <location filename="../gui/controls_qt.py" line="1486"/>
         <source>⚠️ Trim Video - Irreversible Action</source>
         <translation>⚠️ Recortar video - Acción irreversible</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1513"/>
+        <location filename="../gui/controls_qt.py" line="1517"/>
         <source>frame {end_frame}</source>
         <translation>fotograma {end_frame}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1515"/>
+        <location filename="../gui/controls_qt.py" line="1519"/>
         <source>end of video</source>
         <translation>fin del video</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1517"/>
+        <location filename="../gui/controls_qt.py" line="1521"/>
         <source>
 &lt;b&gt;⚠️ WARNING: This action is IRREVERSIBLE&lt;/b&gt;&lt;br&gt;&lt;br&gt;
 This will permanently trim the video session to frames {start_frame} to {end_text}.&lt;br&gt;&lt;br&gt;
@@ -1372,48 +1431,48 @@ Esto recortará permanentemente la sesión de video a los fotogramas {start_fram
 &lt;b&gt;¿Seguro que quieres continuar?&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1532"/>
+        <location filename="../gui/controls_qt.py" line="1536"/>
         <source>⚠️ YES, TRIM VIDEO</source>
         <translation>⚠️ SÍ, RECORTAR VIDEO</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1587"/>
-        <location filename="../gui/controls_qt.py" line="1764"/>
+        <location filename="../gui/controls_qt.py" line="1639"/>
+        <location filename="../gui/controls_qt.py" line="1818"/>
         <source>Show Spark Overlays</source>
         <translation>Mostrar superposiciones de chispas</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1601"/>
+        <location filename="../gui/controls_qt.py" line="1653"/>
         <source>Current FPS: {fps} (override)</source>
         <translation>FPS actual: {fps} (anulación)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1620"/>
+        <location filename="../gui/controls_qt.py" line="1672"/>
         <source>Current FPS: {fps_override} (override, detected: {detected_fps})</source>
         <translation>FPS actual: {fps_override} (anulación, detectado: {detected_fps})</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1627"/>
+        <location filename="../gui/controls_qt.py" line="1679"/>
         <source>Current FPS: {detected_fps} (auto-detected)</source>
         <translation>FPS actual: {detected_fps} (detectado automáticamente)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1740"/>
+        <location filename="../gui/controls_qt.py" line="1794"/>
         <source>Unlit State Calibrated</source>
         <translation>Estado sin iluminar calibrado</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1783"/>
+        <location filename="../gui/controls_qt.py" line="1837"/>
         <source>Success: {message}</source>
         <translation>Correcto: {message}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1787"/>
+        <location filename="../gui/controls_qt.py" line="1841"/>
         <source>Error: {message}</source>
         <translation>Error: {message}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1867"/>
+        <location filename="../gui/controls_qt.py" line="1921"/>
         <source>Calibrated</source>
         <translation>Calibrado</translation>
     </message>
@@ -1919,42 +1978,42 @@ Error estándar: {stderr_text}</translation>
 <context>
     <name>OverlayManager</name>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="128"/>
+        <location filename="../workflows/overlay_manager.py" line="138"/>
         <source>Alignment Complete</source>
         <translation>Alineación completa</translation>
     </message>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="129"/>
+        <location filename="../workflows/overlay_manager.py" line="139"/>
         <source>{modified_count} &apos;{target_key_color_type}&apos; keys aligned vertically to overlay {master_overlay_key_id}.</source>
         <translation>{modified_count} teclas &apos;{target_key_color_type}&apos; alineadas verticalmente con la superposición {master_overlay_key_id}.</translation>
     </message>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="144"/>
+        <location filename="../workflows/overlay_manager.py" line="154"/>
         <source>Alignment Info</source>
         <translation>Información de alineación</translation>
     </message>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="145"/>
+        <location filename="../workflows/overlay_manager.py" line="155"/>
         <source>No other &apos;{target_key_color_type}&apos; keys needed vertical alignment.</source>
         <translation>Ninguna otra tecla &apos;{target_key_color_type}&apos; necesitó alineación vertical.</translation>
     </message>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="156"/>
-        <location filename="../workflows/overlay_manager.py" line="169"/>
-        <location filename="../workflows/overlay_manager.py" line="184"/>
-        <location filename="../workflows/overlay_manager.py" line="197"/>
+        <location filename="../workflows/overlay_manager.py" line="166"/>
+        <location filename="../workflows/overlay_manager.py" line="179"/>
+        <location filename="../workflows/overlay_manager.py" line="194"/>
+        <location filename="../workflows/overlay_manager.py" line="207"/>
         <source>Alignment Error</source>
         <translation>Error de alineación</translation>
     </message>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="157"/>
-        <location filename="../workflows/overlay_manager.py" line="185"/>
+        <location filename="../workflows/overlay_manager.py" line="167"/>
+        <location filename="../workflows/overlay_manager.py" line="195"/>
         <source>No overlay selected to act as master.</source>
         <translation>No se seleccionó ninguna superposición para usar como maestra.</translation>
     </message>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="170"/>
-        <location filename="../workflows/overlay_manager.py" line="198"/>
+        <location filename="../workflows/overlay_manager.py" line="180"/>
+        <location filename="../workflows/overlay_manager.py" line="208"/>
         <source>Selected overlay ID {selected_overlay_id} not found.</source>
         <translation>No se encontró el ID de superposición seleccionado {selected_overlay_id}.</translation>
     </message>

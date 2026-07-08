@@ -14,267 +14,280 @@
         <translation>初始自动检测需要使用后备配置（不是默认配置）。如需优化结果，请调整参数。</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="104"/>
         <source>Reset All to Active Defaults</source>
-        <translation>全部重置为当前默认值</translation>
+        <translation type="vanished">全部重置为当前默认值</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="115"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="127"/>
         <source>Basic</source>
         <translation>基础</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="119"/>
         <source>Advanced</source>
-        <translation>高级</translation>
+        <translation type="vanished">高级</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="123"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="104"/>
+        <source>Check the overlays on the video. If they line up with the keys, click Save. If the edges are off, adjust the edge controls.</source>
+        <translation>检查视频上的叠加层。如果它们与琴键对齐，请点击“保存”。如果边缘不准，请调整边缘控件。</translation>
+    </message>
+    <message>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="115"/>
+        <source>Reset to Recommended Settings</source>
+        <translation>重置为推荐设置</translation>
+    </message>
+    <message>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="131"/>
+        <source>Advanced Detector Settings</source>
+        <translation>高级检测器设置</translation>
+    </message>
+    <message>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="135"/>
         <source>Preview Status</source>
         <translation>预览状态</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="134"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="146"/>
         <source>Yes</source>
         <translation>是</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="136"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="148"/>
         <source>No</source>
         <translation>否</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="139"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="151"/>
         <source>Detected White Keys:</source>
         <translation>检测到的白键：</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="141"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="153"/>
         <source>Detected Black Keys:</source>
         <translation>检测到的黑键：</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="143"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="155"/>
         <source>Detected Total Keys:</source>
         <translation>检测到的琴键总数：</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="145"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="157"/>
         <source>Overlays Created:</source>
         <translation>已创建覆盖层：</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="147"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="159"/>
         <source>Leftmost Note/Octave:</source>
         <translation>最左音符/八度：</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="149"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="161"/>
         <source>Fallback Profile Used:</source>
         <translation>已使用后备配置：</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="160"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="172"/>
         <source>Save</source>
         <translation>保存</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="224"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="236"/>
         <source>Left Edge Outward</source>
         <translation>左边缘向外</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="225"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="237"/>
         <source>outward &lt;-</source>
         <translation>向外 &lt;-</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="238"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="250"/>
         <source>Right Edge Outward</source>
         <translation>右边缘向外</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="239"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="251"/>
         <source>-&gt; outward</source>
         <translation>-&gt; 向外</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="259"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="271"/>
         <source>Reset Section</source>
         <translation>重置此部分</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="267"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="279"/>
         <source>No parameters available.</source>
         <translation>没有可用参数。</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="527"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="539"/>
         <source>Edge Drift Correction</source>
         <translation>边缘漂移修正</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="528"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="540"/>
         <source>Black Key Detection</source>
         <translation>黑键检测</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="529"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="541"/>
         <source>White Strip Selection</source>
         <translation>白键条带选择</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="530"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="542"/>
         <source>White Separator Extraction</source>
         <translation>白键分隔提取</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="533"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="545"/>
         <source>Assignment and Recovery</source>
         <translation>分配和恢复</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="534"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="546"/>
         <source>Geometry and Padding</source>
         <translation>几何和内边距</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="540"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="552"/>
         <source>Black Upper Ratio</source>
         <translation>黑键上部比例</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="541"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="553"/>
         <source>Black Bottom Ratio</source>
         <translation>黑键底部比例</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="542"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="554"/>
         <source>Black Threshold Method</source>
         <translation>黑键阈值方法</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="543"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="555"/>
         <source>Black Threshold</source>
         <translation>黑键阈值</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="544"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="556"/>
         <source>Black Adaptive Block Size</source>
         <translation>黑键自适应块大小</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="547"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="559"/>
         <source>Black Adaptive C</source>
         <translation>黑键自适应 C</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="548"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="560"/>
         <source>Black Column Ratio</source>
         <translation>黑键列比例</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="549"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="561"/>
         <source>Black Min Width</source>
         <translation>黑键最小宽度</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="550"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="562"/>
         <source>Black Max Width</source>
         <translation>黑键最大宽度</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="551"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="563"/>
         <source>White Bottom Ratio</source>
         <translation>白键底部比例</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="552"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="564"/>
         <source>White Initial Top Ratio</source>
         <translation>白键初始顶部比例</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="553"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="565"/>
         <source>White Strip Dark Threshold</source>
         <translation>白键条带暗部阈值</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="556"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="568"/>
         <source>White Strip Dark Fraction</source>
         <translation>白键条带暗部占比</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="559"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="571"/>
         <source>White Strip Min Run</source>
         <translation>白键条带最小连续段</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="560"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="572"/>
         <source>White Strip Allow Failures</source>
         <translation>允许白键条带失败</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="563"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="575"/>
         <source>White Sep Ratio</source>
         <translation>白键分隔比例</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="564"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="576"/>
         <source>White Sep Dyn Min</source>
         <translation>白键分隔动态最小值</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="565"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="577"/>
         <source>White Sep Close Kernel</source>
         <translation>白键分隔闭运算核</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="568"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="580"/>
         <source>White Sep Open Kernel</source>
         <translation>白键分隔开运算核</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="569"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="581"/>
         <source>White Sep Min Width</source>
         <translation>白键分隔最小宽度</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="570"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="582"/>
         <source>Type Aware Assignment</source>
         <translation>按类型分配</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="571"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="583"/>
         <source>Black Recovery Enabled</source>
         <translation>启用黑键恢复</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="572"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="584"/>
         <source>Black Recovery Ratio</source>
         <translation>黑键恢复比例</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="573"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="585"/>
         <source>Black Recovery Column Ratio Scale</source>
         <translation>黑键恢复列比例缩放</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="576"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="588"/>
         <source>Black Split Max Factor</source>
         <translation>黑键拆分最大系数</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="577"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="589"/>
         <source>Padding Percent</source>
         <translation>内边距百分比</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="578"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="590"/>
         <source>White Edge Left Shift Ticks</source>
         <translation>白键左边缘左移刻度</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="581"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="593"/>
         <source>White Edge Right Shift Ticks</source>
         <translation>白键右边缘右移刻度</translation>
     </message>
@@ -550,32 +563,78 @@ After clicking OK:
         <translation>尚无可复用的自动检测校准上下文。请先通过 ROI 选择运行一次自动检测。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="261"/>
         <source>Assisted calibration found {count} candidate samples.</source>
-        <translation>辅助校准找到了 {count} 个候选样本。</translation>
+        <translation type="vanished">辅助校准找到了 {count} 个候选样本。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="265"/>
         <source>Color families found: {count}</source>
-        <translation>找到的颜色组：{count}</translation>
+        <translation type="vanished">找到的颜色组：{count}</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="277"/>
         <source>not present in this video</source>
-        <translation>此视频中不存在</translation>
+        <translation type="vanished">此视频中不存在</translation>
+    </message>
+    <message>
+        <source>not found</source>
+        <translation type="vanished">未找到</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="261"/>
+        <source>Left White</source>
+        <translation>左白</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="262"/>
+        <source>Left Black</source>
+        <translation>左黑</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="263"/>
+        <source>Right White</source>
+        <translation>右白</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="264"/>
+        <source>Right Black</source>
+        <translation>右黑</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="267"/>
+        <source>Assisted calibration found {count} possible pressed-key samples.</source>
+        <translation>辅助校准找到了 {count} 个可能的按键样本。</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="271"/>
+        <source>Found {count} Synthesia note color families.</source>
+        <translation>找到 {count} 个 Synthesia 音符颜色族。</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="275"/>
+        <source>Left/Right refer to Synthesia note colors, not the physical side of the keyboard.</source>
+        <translation>左/右指的是 Synthesia 音符颜色，不是键盘的物理左右侧。</translation>
     </message>
     <message>
         <location filename="../gui/calibration_wizard_controller.py" line="287"/>
-        <source>not found</source>
-        <translation>未找到</translation>
+        <source>{label}: not present in this video</source>
+        <translation>{label}：此视频中不存在</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="336"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="294"/>
+        <source>{label}: found</source>
+        <translation>{label}：已找到</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="301"/>
+        <source>{label}: not found</source>
+        <translation>{label}：未找到</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="350"/>
         <source>Unlit Frame May Contain Lit Keys</source>
         <translation>未点亮帧可能包含已点亮的琴键</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="337"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="351"/>
         <source>It looks like these keys may be lit: {notes}.
 
 Move to a frame where no keys are lit, or continue if this is expected.</source>
@@ -584,49 +643,49 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
 请移到没有琴键点亮的帧，或者如果这是预期情况则继续。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="353"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="367"/>
         <source>Scanning for lit key examples...</source>
         <translation>正在扫描已点亮琴键示例...</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="354"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="368"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="359"/>
-        <location filename="../gui/calibration_wizard_controller.py" line="384"/>
-        <location filename="../gui/calibration_wizard_controller.py" line="394"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="373"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="398"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="408"/>
         <source>Assisted Calibration</source>
         <translation>辅助校准</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="385"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="399"/>
         <source>No lit examples were found for assisted calibration. Existing calibration samples were left unchanged.</source>
         <translation>未找到用于辅助校准的已点亮示例。现有校准样本保持不变。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="397"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="411"/>
         <source>Apply these calibration updates?</source>
         <translation>应用这些校准更新吗？</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="458"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="472"/>
         <source>Open Manual Fit for the current manual calibration.</source>
         <translation>为当前手动校准打开手动贴合。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="460"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="474"/>
         <source>Edit Current Calibration becomes available after manual overlays exist.</source>
         <translation>手动覆盖层存在后，才可使用编辑当前校准。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="466"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="480"/>
         <source>Open the auto-detect tuning panel for the current calibration.</source>
         <translation>为当前校准打开自动检测调校面板。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="471"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="485"/>
         <source>Edit Current Calibration becomes available after an auto-detect run.</source>
         <translation>自动检测运行后，才可使用编辑当前校准。</translation>
     </message>
@@ -651,709 +710,709 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
 <context>
     <name>ControlPanelQt</name>
     <message>
-        <location filename="../gui/controls_qt.py" line="247"/>
-        <location filename="../gui/controls_qt.py" line="1778"/>
+        <location filename="../gui/controls_qt.py" line="251"/>
+        <location filename="../gui/controls_qt.py" line="1832"/>
         <source>Convert</source>
         <translation>转换</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="253"/>
-        <location filename="../gui/controls_qt.py" line="1901"/>
-        <location filename="../gui/controls_qt.py" line="1907"/>
+        <location filename="../gui/controls_qt.py" line="257"/>
+        <location filename="../gui/controls_qt.py" line="1955"/>
+        <location filename="../gui/controls_qt.py" line="1961"/>
         <source>Load a video to convert.</source>
         <translation>加载要转换的视频。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="257"/>
+        <location filename="../gui/controls_qt.py" line="261"/>
         <source>Edit MIDI</source>
         <translation>编辑 MIDI</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="262"/>
+        <location filename="../gui/controls_qt.py" line="266"/>
         <source>Overlay</source>
         <translation>覆盖层</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="263"/>
-        <location filename="../gui/controls_qt.py" line="1793"/>
+        <location filename="../gui/controls_qt.py" line="267"/>
+        <location filename="../gui/controls_qt.py" line="1847"/>
         <source>None</source>
         <translation>无</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="297"/>
-        <location filename="../gui/controls_qt.py" line="317"/>
-        <location filename="../gui/controls_qt.py" line="1321"/>
+        <location filename="../gui/controls_qt.py" line="301"/>
+        <location filename="../gui/controls_qt.py" line="321"/>
+        <location filename="../gui/controls_qt.py" line="1325"/>
         <source>Language</source>
         <translation>语言</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="300"/>
+        <location filename="../gui/controls_qt.py" line="304"/>
         <source>Language:</source>
         <translation>语言：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="326"/>
-        <location filename="../gui/controls_qt.py" line="751"/>
-        <location filename="../gui/controls_qt.py" line="941"/>
+        <location filename="../gui/controls_qt.py" line="330"/>
+        <location filename="../gui/controls_qt.py" line="755"/>
+        <location filename="../gui/controls_qt.py" line="945"/>
         <source>Help</source>
         <translation>帮助</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="329"/>
+        <location filename="../gui/controls_qt.py" line="333"/>
         <source>Initial calibration directions (recommended order):</source>
         <translation>初始校准说明（推荐顺序）：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="342"/>
+        <location filename="../gui/controls_qt.py" line="346"/>
         <source>If a key type is not present in this video, uncheck its &apos;Present in Video&apos; box.</source>
         <translation>如果此视频中不存在某种琴键类型，请取消勾选其“视频中存在”框。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="343"/>
+        <location filename="../gui/controls_qt.py" line="347"/>
         <source>Octave Transpose: shifts the generated MIDI up/down by octaves.</source>
         <translation>八度移调：按八度上移/下移生成的 MIDI。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="742"/>
+        <location filename="../gui/controls_qt.py" line="746"/>
         <source>Overlays</source>
         <translation>覆盖层</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="381"/>
+        <location filename="../gui/controls_qt.py" line="385"/>
         <source>Creates overlays for the keyboard in your video. Re-run if overlays don&apos;t line up.</source>
         <translation>为视频中的键盘创建覆盖层。如果覆盖层未对齐，请重新运行。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="395"/>
+        <location filename="../gui/controls_qt.py" line="399"/>
         <source>Octave</source>
         <translation>八度</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="404"/>
+        <location filename="../gui/controls_qt.py" line="408"/>
         <source>Shifts the MIDI output up/down by octaves.</source>
         <translation>按八度上移/下移 MIDI 输出。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="417"/>
+        <location filename="../gui/controls_qt.py" line="421"/>
         <source>Captures what unpressed overlays look like from the current frame. Pause on a frame with no highlighted notes first.</source>
         <translation>从当前帧捕获未按下覆盖层的外观。请先暂停在没有高亮音符的一帧。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="439"/>
-        <location filename="../gui/controls_qt.py" line="1101"/>
-        <location filename="../gui/controls_qt.py" line="1743"/>
-        <location filename="../gui/controls_qt.py" line="1870"/>
+        <location filename="../gui/controls_qt.py" line="443"/>
+        <location filename="../gui/controls_qt.py" line="1105"/>
+        <location filename="../gui/controls_qt.py" line="1797"/>
+        <location filename="../gui/controls_qt.py" line="1924"/>
         <source>Not Set</source>
         <translation>未设置</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="471"/>
+        <location filename="../gui/controls_qt.py" line="475"/>
         <source>Lit Key Exemplars</source>
         <translation>亮起琴键样本</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="485"/>
+        <location filename="../gui/controls_qt.py" line="489"/>
         <source>Set {label}</source>
         <translation>设置 {label}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="490"/>
+        <location filename="../gui/controls_qt.py" line="494"/>
         <source>Captures a pressed-overlay example for this type. Pause on a frame where that type is highlighted, click the button, then click that highlighted overlay.</source>
         <translation>为此类型捕获按下覆盖层示例。暂停在该类型高亮的一帧，点击按钮，然后点击该高亮覆盖层。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1914"/>
+        <location filename="../gui/controls_qt.py" line="1968"/>
         <source>Create key overlays first.</source>
         <translation>请先创建按键叠加层。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1925"/>
-        <location filename="../gui/controls_qt.py" line="1937"/>
+        <location filename="../gui/controls_qt.py" line="1979"/>
+        <location filename="../gui/controls_qt.py" line="1991"/>
         <source>Capture a no-key frame.</source>
         <translation>捕获没有按键亮起的帧。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1944"/>
-        <location filename="../gui/controls_qt.py" line="1952"/>
+        <location filename="../gui/controls_qt.py" line="1998"/>
+        <location filename="../gui/controls_qt.py" line="2006"/>
         <source>Capture at least one pressed-key example.</source>
         <translation>至少捕获一个按下按键的示例。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1959"/>
+        <location filename="../gui/controls_qt.py" line="2013"/>
         <source>Check detection sensitivity.</source>
         <translation>检查检测灵敏度。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1965"/>
+        <location filename="../gui/controls_qt.py" line="2019"/>
         <source>Check MIDI tempo.</source>
         <translation>检查 MIDI 速度。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1970"/>
+        <location filename="../gui/controls_qt.py" line="2024"/>
         <source>Ready to create MIDI.</source>
         <translation>已准备好创建 MIDI。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="502"/>
+        <location filename="../gui/controls_qt.py" line="506"/>
         <source>Present</source>
         <translation>存在</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="330"/>
+        <location filename="../gui/controls_qt.py" line="334"/>
         <source>1) Find Keyboard Box: create overlays that line up with the keyboard in your video.</source>
         <translation>1) 找到键盘框：创建与视频中的键盘对齐的覆盖层。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="334"/>
+        <location filename="../gui/controls_qt.py" line="338"/>
         <source>2) Capture No-Key Frame: pause where no keys are glowing, then click Capture No-Key Frame.</source>
         <translation>2) 捕获无按键画面：在没有按键发亮的画面上暂停，然后单击“捕获无按键画面”。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="338"/>
+        <location filename="../gui/controls_qt.py" line="342"/>
         <source>3) Capture Pressed-Key Examples: for each button you need (Left/Right x White/Black), pause where that kind of overlay is glowing, click the button, then click that overlay in the video. Left/Right refer to Synthesia note colors, not the physical side of the keyboard.</source>
         <translation>3) 捕获按键示例：对于你需要的每个按钮（左/右 x 白/黑），在对应覆盖层发亮的画面上暂停，单击按钮，然后在视频中单击该覆盖层。左/右指的是 Synthesia 音符颜色，不是键盘的物理左右侧。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="375"/>
+        <location filename="../gui/controls_qt.py" line="379"/>
         <source>Draw Keyboard Box and Find Keys</source>
         <translation>绘制键盘框并找出按键</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="388"/>
+        <location filename="../gui/controls_qt.py" line="392"/>
         <source>Find the keyboard</source>
         <translation>找到键盘</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="389"/>
+        <location filename="../gui/controls_qt.py" line="393"/>
         <source>Pause on a clear frame where the full keyboard is visible.</source>
         <translation>在键盘完整可见的清晰画面上暂停。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="411"/>
+        <location filename="../gui/controls_qt.py" line="415"/>
         <source>Capture No-Key Frame</source>
         <translation>捕获无按键画面</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="423"/>
+        <location filename="../gui/controls_qt.py" line="427"/>
         <source>Capture no-key frame</source>
         <translation>捕获无按键画面</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="427"/>
+        <location filename="../gui/controls_qt.py" line="431"/>
         <source>Pause where no keys are glowing.</source>
         <translation>在没有按键发亮的地方暂停。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="446"/>
+        <location filename="../gui/controls_qt.py" line="450"/>
         <source>Capture pressed-key examples</source>
         <translation>捕获按键示例</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="451"/>
+        <location filename="../gui/controls_qt.py" line="455"/>
         <source>Pause where a key is glowing, then click that key.</source>
         <translation>在某个按键发亮的位置暂停，然后单击该按键。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="459"/>
+        <location filename="../gui/controls_qt.py" line="463"/>
         <source>Left/Right refer to Synthesia note colors, not the physical side of the keyboard.</source>
         <translation>左/右指的是 Synthesia 音符颜色，不是键盘的物理左右侧。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="504"/>
+        <location filename="../gui/controls_qt.py" line="508"/>
         <source>Uncheck if this key type never appears in this video.</source>
         <translation>如果此琴键类型从未出现在此视频中，请取消勾选。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="525"/>
+        <location filename="../gui/controls_qt.py" line="529"/>
         <source>Calibration</source>
         <translation>校准</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="535"/>
+        <location filename="../gui/controls_qt.py" line="539"/>
         <source>Key Alignment</source>
         <translation>琴键对齐</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="540"/>
+        <location filename="../gui/controls_qt.py" line="544"/>
         <source>Align White Keys</source>
         <translation>对齐白键</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="543"/>
+        <location filename="../gui/controls_qt.py" line="547"/>
         <source>Align Black Keys</source>
         <translation>对齐黑键</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="546"/>
+        <location filename="../gui/controls_qt.py" line="550"/>
         <source>Manual Fit</source>
         <translation>手动贴合</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="566"/>
+        <location filename="../gui/controls_qt.py" line="570"/>
         <source>Overlay Size Adjustment</source>
         <translation>覆盖层大小调整</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="583"/>
+        <location filename="../gui/controls_qt.py" line="587"/>
         <source>Current:</source>
         <translation>当前：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="586"/>
+        <location filename="../gui/controls_qt.py" line="590"/>
         <source>Reset</source>
         <translation>重置</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="609"/>
+        <location filename="../gui/controls_qt.py" line="613"/>
         <source>White Key Height</source>
         <translation>白键高度</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="626"/>
+        <location filename="../gui/controls_qt.py" line="630"/>
         <source>White Key Width</source>
         <translation>白键宽度</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="643"/>
+        <location filename="../gui/controls_qt.py" line="647"/>
         <source>Black Key Height</source>
         <translation>黑键高度</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="660"/>
+        <location filename="../gui/controls_qt.py" line="664"/>
         <source>Black Key Width</source>
         <translation>黑键宽度</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="677"/>
+        <location filename="../gui/controls_qt.py" line="681"/>
         <source>Left Slant</source>
         <translation>左倾斜</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="694"/>
+        <location filename="../gui/controls_qt.py" line="698"/>
         <source>Right Slant</source>
         <translation>右倾斜</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="716"/>
+        <location filename="../gui/controls_qt.py" line="720"/>
         <source>Overlay Appearance</source>
         <translation>覆盖层外观</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="721"/>
+        <location filename="../gui/controls_qt.py" line="725"/>
         <source>Overlay Color:</source>
         <translation>覆盖层颜色：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="755"/>
+        <location filename="../gui/controls_qt.py" line="759"/>
         <source>Before tuning detection: run Unlit Key Calibration + at least one Lit Key Exemplar.</source>
         <translation>调校检测前：先运行未亮键校准 + 至少一个亮起琴键样本。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="756"/>
+        <location filename="../gui/controls_qt.py" line="760"/>
         <source>Detection Threshold: main sensitivity setting for pressed vs unpressed.</source>
         <translation>检测阈值：区分按下和未按下的主要灵敏度设置。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="757"/>
+        <location filename="../gui/controls_qt.py" line="761"/>
         <source>If notes are missed: lower the threshold. If you get false notes: raise the threshold.</source>
         <translation>如果漏检音符：降低阈值。如果出现误检音符：提高阈值。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="758"/>
+        <location filename="../gui/controls_qt.py" line="762"/>
         <source>Histogram Detection: uses a color-pattern match inside each overlay. Use when pressed overlays have strong gradients or uneven lighting.</source>
         <translation>直方图检测：在每个覆盖层内使用颜色模式匹配。适用于按下覆盖层有强渐变或光照不均的情况。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="762"/>
+        <location filename="../gui/controls_qt.py" line="766"/>
         <source>Delta Detection: uses frame-to-frame change to confirm press/release. Use when the pressed color fades in/out gradually instead of switching cleanly.</source>
         <translation>增量检测：使用帧间变化确认按下/释放。适用于按下颜色逐渐淡入淡出而非清晰切换的情况。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="766"/>
+        <location filename="../gui/controls_qt.py" line="770"/>
         <source>Black Key Filter: reduces false black-key presses caused by nearby overlays.</source>
         <translation>黑键过滤：减少附近覆盖层导致的黑键误按。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="775"/>
+        <location filename="../gui/controls_qt.py" line="779"/>
         <source>Detection Threshold</source>
         <translation>检测阈值</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="786"/>
-        <location filename="../gui/controls_qt.py" line="791"/>
+        <location filename="../gui/controls_qt.py" line="790"/>
+        <location filename="../gui/controls_qt.py" line="795"/>
         <source>Main sensitivity. Lower = detects more; higher = fewer false notes.</source>
         <translation>主要灵敏度。较低 = 检测更多；较高 = 减少误检音符。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="794"/>
+        <location filename="../gui/controls_qt.py" line="798"/>
         <source>Detection Threshold:</source>
         <translation>检测阈值：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="801"/>
+        <location filename="../gui/controls_qt.py" line="805"/>
         <source>Detection Modes</source>
         <translation>检测模式</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="820"/>
+        <location filename="../gui/controls_qt.py" line="824"/>
         <source>Enable Histogram Detection</source>
         <translation>启用直方图检测</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="824"/>
+        <location filename="../gui/controls_qt.py" line="828"/>
         <source>Uses a color-pattern match inside the overlay. Helpful with gradients/uneven lighting.</source>
         <translation>在覆盖层内使用颜色模式匹配。对渐变/光照不均有帮助。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="836"/>
-        <location filename="../gui/controls_qt.py" line="841"/>
+        <location filename="../gui/controls_qt.py" line="840"/>
+        <location filename="../gui/controls_qt.py" line="845"/>
         <source>How strong the histogram match must be (only used when Histogram Detection is enabled).</source>
         <translation>直方图匹配必须达到的强度（仅在启用直方图检测时使用）。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="843"/>
+        <location filename="../gui/controls_qt.py" line="847"/>
         <source>Strength:</source>
         <translation>强度：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="846"/>
+        <location filename="../gui/controls_qt.py" line="850"/>
         <source>Enable Delta Detection</source>
         <translation>启用增量检测</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="850"/>
+        <location filename="../gui/controls_qt.py" line="854"/>
         <source>Uses frame-to-frame change to confirm press/release (helps when color fades).</source>
         <translation>使用帧间变化确认按下/释放（有助于颜色渐变时检测）。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="861"/>
-        <location filename="../gui/controls_qt.py" line="866"/>
+        <location filename="../gui/controls_qt.py" line="865"/>
+        <location filename="../gui/controls_qt.py" line="870"/>
         <source>How big the change must be to count as a press (only used when Delta Detection is enabled).</source>
         <translation>变化需要多大才算按下（仅在启用增量检测时使用）。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="868"/>
+        <location filename="../gui/controls_qt.py" line="872"/>
         <source>Rise:</source>
         <translation>上升：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="877"/>
-        <location filename="../gui/controls_qt.py" line="882"/>
+        <location filename="../gui/controls_qt.py" line="881"/>
+        <location filename="../gui/controls_qt.py" line="886"/>
         <source>How big the change must be to count as a release (only used when Delta Detection is enabled).</source>
         <translation>变化需要多大才算释放（仅在启用增量检测时使用）。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="884"/>
+        <location filename="../gui/controls_qt.py" line="888"/>
         <source>Fall:</source>
         <translation>下降：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="887"/>
+        <location filename="../gui/controls_qt.py" line="891"/>
         <source>Enable Black Key Filter</source>
         <translation>启用黑键过滤</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="891"/>
+        <location filename="../gui/controls_qt.py" line="895"/>
         <source>Reduces false black-key presses from nearby overlays.</source>
         <translation>减少附近覆盖层导致的黑键误按。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="903"/>
-        <location filename="../gui/controls_qt.py" line="908"/>
+        <location filename="../gui/controls_qt.py" line="907"/>
+        <location filename="../gui/controls_qt.py" line="912"/>
         <source>Controls how strict black-key filtering is (only used when Black Key Filter is enabled).</source>
         <translation>控制黑键过滤的严格程度（仅在启用黑键过滤时使用）。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="910"/>
+        <location filename="../gui/controls_qt.py" line="914"/>
         <source>Similarity:</source>
         <translation>相似度：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="914"/>
+        <location filename="../gui/controls_qt.py" line="918"/>
         <source>Restore Defaults</source>
         <translation>恢复默认值</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="916"/>
+        <location filename="../gui/controls_qt.py" line="920"/>
         <source>Reset detection threshold and detection mode parameter sliders to their defaults. Detection mode checkboxes stay unchanged.</source>
         <translation>将检测阈值和检测模式参数滑块重置为默认值。检测模式复选框保持不变。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="925"/>
+        <location filename="../gui/controls_qt.py" line="929"/>
         <source>Detection</source>
         <translation>检测</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="944"/>
+        <location filename="../gui/controls_qt.py" line="948"/>
         <source>Use Spark Detection only when:</source>
         <translation>仅在以下情况使用火花检测：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="945"/>
+        <location filename="../gui/controls_qt.py" line="949"/>
         <source>1) Key overlays stay ON across repeated notes (false continuous press).</source>
         <translation>1) 琴键覆盖层在重复音之间一直保持开启（误判为持续按下）。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="946"/>
+        <location filename="../gui/controls_qt.py" line="950"/>
         <source>2) Key overlays are solid color (no fading or gradients).</source>
         <translation>2) 琴键覆盖层为纯色（无淡入淡出或渐变）。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="956"/>
+        <location filename="../gui/controls_qt.py" line="960"/>
         <source>Spark Detection</source>
         <translation>火花检测</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="960"/>
+        <location filename="../gui/controls_qt.py" line="964"/>
         <source>Enable Spark Detection</source>
         <translation>启用火花检测</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="964"/>
+        <location filename="../gui/controls_qt.py" line="968"/>
         <source>Use only when key overlays stay ON across repeated notes (false continuous press), and the overlays are solid color (no fading or gradients).</source>
         <translation>仅当琴键覆盖层在重复音之间一直保持开启（误判为持续按下），且覆盖层为纯色（无淡入淡出或渐变）时使用。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="972"/>
+        <location filename="../gui/controls_qt.py" line="976"/>
         <source>Sensitivity:</source>
         <translation>灵敏度：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="979"/>
-        <location filename="../gui/controls_qt.py" line="985"/>
+        <location filename="../gui/controls_qt.py" line="983"/>
+        <location filename="../gui/controls_qt.py" line="989"/>
         <source>Controls how aggressively Spark Detection splits false continuous notes.</source>
         <translation>控制火花检测拆分误判连续音符的积极程度。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="992"/>
+        <location filename="../gui/controls_qt.py" line="996"/>
         <source>Spark Calibration</source>
         <translation>火花校准</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="999"/>
+        <location filename="../gui/controls_qt.py" line="1003"/>
         <source>Select Spark ROI</source>
         <translation>选择火花 ROI</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1003"/>
+        <location filename="../gui/controls_qt.py" line="1007"/>
         <source>Select the region above the keys where spark bars and sparks appear.</source>
         <translation>选择琴键上方出现火花条和火花的区域。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1008"/>
-        <location filename="../gui/controls_qt.py" line="1585"/>
-        <location filename="../gui/controls_qt.py" line="1762"/>
+        <location filename="../gui/controls_qt.py" line="1012"/>
+        <location filename="../gui/controls_qt.py" line="1637"/>
+        <location filename="../gui/controls_qt.py" line="1816"/>
         <source>Hide Spark Overlays</source>
         <translation>隐藏火花覆盖层</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1013"/>
+        <location filename="../gui/controls_qt.py" line="1017"/>
         <source>Show or hide the spark ROI overlay on the video.</source>
         <translation>显示或隐藏视频上的火花 ROI 覆盖层。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1019"/>
+        <location filename="../gui/controls_qt.py" line="1023"/>
         <source>Manual Calibration</source>
         <translation>手动校准</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1024"/>
+        <location filename="../gui/controls_qt.py" line="1028"/>
         <source>Step 1)</source>
         <translation>步骤 1)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1027"/>
+        <location filename="../gui/controls_qt.py" line="1031"/>
         <source>Calibrate Background</source>
         <translation>校准背景</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1031"/>
+        <location filename="../gui/controls_qt.py" line="1035"/>
         <source>Manual calibration: capture baseline brightness when there are no bars or sparks.</source>
         <translation>手动校准：在没有条形或火花时捕获基线亮度。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1039"/>
+        <location filename="../gui/controls_qt.py" line="1043"/>
         <source>Step 2)</source>
         <translation>步骤 2)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1042"/>
+        <location filename="../gui/controls_qt.py" line="1046"/>
         <source>Calibrate Bar Only</source>
         <translation>校准仅条形</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1046"/>
+        <location filename="../gui/controls_qt.py" line="1050"/>
         <source>Manual calibration: click an overlay showing colored bars with no sparks.</source>
         <translation>手动校准：点击显示彩色条形但无火花的覆盖层。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1054"/>
+        <location filename="../gui/controls_qt.py" line="1058"/>
         <source>Step 3)</source>
         <translation>步骤 3)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1057"/>
+        <location filename="../gui/controls_qt.py" line="1061"/>
         <source>Calibrate Dimmest Sparks</source>
         <translation>校准最暗火花</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1061"/>
+        <location filename="../gui/controls_qt.py" line="1065"/>
         <source>Manual calibration: click an overlay where sparks are just barely visible.</source>
         <translation>手动校准：点击火花刚刚可见的覆盖层。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1070"/>
+        <location filename="../gui/controls_qt.py" line="1074"/>
         <source>Auto Calibration:</source>
         <translation>自动校准：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1086"/>
+        <location filename="../gui/controls_qt.py" line="1090"/>
         <source>Auto {key_type_label}</source>
         <translation>自动 {key_type_label}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1093"/>
+        <location filename="../gui/controls_qt.py" line="1097"/>
         <source>Recommended: auto-calibrate spark detection for this key type. Navigate to the frame where a key first turns ON, then click that overlay.</source>
         <translation>建议：为此键类型自动校准火花检测。导航到琴键刚亮起的一帧，然后点击该覆盖层。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1113"/>
+        <location filename="../gui/controls_qt.py" line="1117"/>
         <source>Spark Preview / Status</source>
         <translation>火花预览 / 状态</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1115"/>
+        <location filename="../gui/controls_qt.py" line="1119"/>
         <source>Preview will show spark calibration status here.</source>
         <translation>此处将显示火花校准状态。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1119"/>
+        <location filename="../gui/controls_qt.py" line="1123"/>
         <source>Preview not available yet.</source>
         <translation>预览尚不可用。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1130"/>
+        <location filename="../gui/controls_qt.py" line="1134"/>
         <source>Spark</source>
         <translation>火花</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1140"/>
+        <location filename="../gui/controls_qt.py" line="1144"/>
         <source>Frame Rate Override</source>
         <translation>帧率覆盖</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1157"/>
+        <location filename="../gui/controls_qt.py" line="1161"/>
         <source>Auto</source>
         <translation>自动</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1171"/>
-        <location filename="../gui/controls_qt.py" line="1598"/>
+        <location filename="../gui/controls_qt.py" line="1175"/>
+        <location filename="../gui/controls_qt.py" line="1650"/>
         <source>Current FPS: Auto-detected</source>
         <translation>当前 FPS：自动检测</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1177"/>
+        <location filename="../gui/controls_qt.py" line="1181"/>
         <source>Custom MIDI Processing Range</source>
         <translation>自定义 MIDI 处理范围</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1186"/>
-        <location filename="../gui/controls_qt.py" line="1244"/>
+        <location filename="../gui/controls_qt.py" line="1190"/>
+        <location filename="../gui/controls_qt.py" line="1248"/>
         <source>Start Frame:</source>
         <translation>起始帧：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1197"/>
-        <location filename="../gui/controls_qt.py" line="1214"/>
-        <location filename="../gui/controls_qt.py" line="1255"/>
-        <location filename="../gui/controls_qt.py" line="1272"/>
+        <location filename="../gui/controls_qt.py" line="1201"/>
+        <location filename="../gui/controls_qt.py" line="1218"/>
+        <location filename="../gui/controls_qt.py" line="1259"/>
+        <location filename="../gui/controls_qt.py" line="1276"/>
         <source>Set to Current</source>
         <translation>设为当前</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1203"/>
-        <location filename="../gui/controls_qt.py" line="1261"/>
+        <location filename="../gui/controls_qt.py" line="1207"/>
+        <location filename="../gui/controls_qt.py" line="1265"/>
         <source>End Frame:</source>
         <translation>结束帧：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1225"/>
+        <location filename="../gui/controls_qt.py" line="1229"/>
         <source>MIDI</source>
         <translation>MIDI</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1234"/>
+        <location filename="../gui/controls_qt.py" line="1238"/>
         <source>Video Processing Range</source>
         <translation>视频处理范围</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1280"/>
+        <location filename="../gui/controls_qt.py" line="1284"/>
         <source>Trim Video</source>
         <translation>裁剪视频</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1288"/>
+        <location filename="../gui/controls_qt.py" line="1292"/>
         <source>Trim</source>
         <translation>裁剪</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1297"/>
+        <location filename="../gui/controls_qt.py" line="1301"/>
         <source>Optional Features</source>
         <translation>可选功能</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1301"/>
+        <location filename="../gui/controls_qt.py" line="1305"/>
         <source>Enable Hand Assignment (MIDI Channels)</source>
         <translation>启用左右手分配（MIDI 通道）</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1311"/>
+        <location filename="../gui/controls_qt.py" line="1315"/>
         <source>Optional</source>
         <translation>可选</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1322"/>
+        <location filename="../gui/controls_qt.py" line="1326"/>
         <source>Restart Synthesia2MIDI to apply the selected language.</source>
         <translation>重启 Synthesia2MIDI 以应用所选语言。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1327"/>
+        <location filename="../gui/controls_qt.py" line="1331"/>
         <source>Converting...</source>
         <translation>正在转换...</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1329"/>
+        <location filename="../gui/controls_qt.py" line="1333"/>
         <source>Converting video to MIDI...</source>
         <translation>正在将视频转换为 MIDI...</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1475"/>
+        <location filename="../gui/controls_qt.py" line="1479"/>
         <source>Invalid Trim Range</source>
         <translation>裁剪范围无效</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1476"/>
+        <location filename="../gui/controls_qt.py" line="1480"/>
         <source>Start frame must be less than end frame.</source>
         <translation>起始帧必须小于结束帧。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1482"/>
+        <location filename="../gui/controls_qt.py" line="1486"/>
         <source>⚠️ Trim Video - Irreversible Action</source>
         <translation>⚠️ 裁剪视频 - 不可逆操作</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1513"/>
+        <location filename="../gui/controls_qt.py" line="1517"/>
         <source>frame {end_frame}</source>
         <translation>第 {end_frame} 帧</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1515"/>
+        <location filename="../gui/controls_qt.py" line="1519"/>
         <source>end of video</source>
         <translation>视频末尾</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1517"/>
+        <location filename="../gui/controls_qt.py" line="1521"/>
         <source>
 &lt;b&gt;⚠️ WARNING: This action is IRREVERSIBLE&lt;/b&gt;&lt;br&gt;&lt;br&gt;
 This will permanently trim the video session to frames {start_frame} to {end_text}.&lt;br&gt;&lt;br&gt;
@@ -1374,48 +1433,48 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
         </translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1532"/>
+        <location filename="../gui/controls_qt.py" line="1536"/>
         <source>⚠️ YES, TRIM VIDEO</source>
         <translation>⚠️ 是，裁剪视频</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1587"/>
-        <location filename="../gui/controls_qt.py" line="1764"/>
+        <location filename="../gui/controls_qt.py" line="1639"/>
+        <location filename="../gui/controls_qt.py" line="1818"/>
         <source>Show Spark Overlays</source>
         <translation>显示火花覆盖层</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1601"/>
+        <location filename="../gui/controls_qt.py" line="1653"/>
         <source>Current FPS: {fps} (override)</source>
         <translation>当前 FPS：{fps}（覆盖）</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1620"/>
+        <location filename="../gui/controls_qt.py" line="1672"/>
         <source>Current FPS: {fps_override} (override, detected: {detected_fps})</source>
         <translation>当前 FPS：{fps_override}（覆盖，检测到：{detected_fps}）</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1627"/>
+        <location filename="../gui/controls_qt.py" line="1679"/>
         <source>Current FPS: {detected_fps} (auto-detected)</source>
         <translation>当前 FPS：{detected_fps}（自动检测）</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1740"/>
+        <location filename="../gui/controls_qt.py" line="1794"/>
         <source>Unlit State Calibrated</source>
         <translation>未亮状态已校准</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1783"/>
+        <location filename="../gui/controls_qt.py" line="1837"/>
         <source>Success: {message}</source>
         <translation>成功：{message}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1787"/>
+        <location filename="../gui/controls_qt.py" line="1841"/>
         <source>Error: {message}</source>
         <translation>错误：{message}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1867"/>
+        <location filename="../gui/controls_qt.py" line="1921"/>
         <source>Calibrated</source>
         <translation>已校准</translation>
     </message>
@@ -1921,42 +1980,42 @@ Stderr：{stderr_text}</translation>
 <context>
     <name>OverlayManager</name>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="128"/>
+        <location filename="../workflows/overlay_manager.py" line="138"/>
         <source>Alignment Complete</source>
         <translation>对齐完成</translation>
     </message>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="129"/>
+        <location filename="../workflows/overlay_manager.py" line="139"/>
         <source>{modified_count} &apos;{target_key_color_type}&apos; keys aligned vertically to overlay {master_overlay_key_id}.</source>
         <translation>已将 {modified_count} 个“{target_key_color_type}”琴键垂直对齐到覆盖层 {master_overlay_key_id}。</translation>
     </message>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="144"/>
+        <location filename="../workflows/overlay_manager.py" line="154"/>
         <source>Alignment Info</source>
         <translation>对齐信息</translation>
     </message>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="145"/>
+        <location filename="../workflows/overlay_manager.py" line="155"/>
         <source>No other &apos;{target_key_color_type}&apos; keys needed vertical alignment.</source>
         <translation>没有其他“{target_key_color_type}”琴键需要垂直对齐。</translation>
     </message>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="156"/>
-        <location filename="../workflows/overlay_manager.py" line="169"/>
-        <location filename="../workflows/overlay_manager.py" line="184"/>
-        <location filename="../workflows/overlay_manager.py" line="197"/>
+        <location filename="../workflows/overlay_manager.py" line="166"/>
+        <location filename="../workflows/overlay_manager.py" line="179"/>
+        <location filename="../workflows/overlay_manager.py" line="194"/>
+        <location filename="../workflows/overlay_manager.py" line="207"/>
         <source>Alignment Error</source>
         <translation>对齐错误</translation>
     </message>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="157"/>
-        <location filename="../workflows/overlay_manager.py" line="185"/>
+        <location filename="../workflows/overlay_manager.py" line="167"/>
+        <location filename="../workflows/overlay_manager.py" line="195"/>
         <source>No overlay selected to act as master.</source>
         <translation>未选择可作为基准的覆盖层。</translation>
     </message>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="170"/>
-        <location filename="../workflows/overlay_manager.py" line="198"/>
+        <location filename="../workflows/overlay_manager.py" line="180"/>
+        <location filename="../workflows/overlay_manager.py" line="208"/>
         <source>Selected overlay ID {selected_overlay_id} not found.</source>
         <translation>找不到所选覆盖层 ID {selected_overlay_id}。</translation>
     </message>

@@ -257,36 +257,50 @@ class CalibrationWizardController:
         return cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
 
     def _proposal_summary_text(self, proposal) -> str:
+        slot_labels = {
+            "LW": translate("CalibrationWizardController", "Left White"),
+            "LB": translate("CalibrationWizardController", "Left Black"),
+            "RW": translate("CalibrationWizardController", "Right White"),
+            "RB": translate("CalibrationWizardController", "Right Black"),
+        }
         lines = [
             translate(
                 "CalibrationWizardController",
-                "Assisted calibration found {count} candidate samples.",
+                "Assisted calibration found {count} possible pressed-key samples.",
             ).format(count=proposal.candidate_count),
             translate(
                 "CalibrationWizardController",
-                "Color families found: {count}",
+                "Found {count} Synthesia note color families.",
             ).format(count=proposal.assignment_result.family_count),
+            translate(
+                "CalibrationWizardController",
+                "Left/Right refer to Synthesia note colors, not the physical side of the keyboard.",
+            ),
         ]
         for slot in ("LW", "LB", "RW", "RB"):
             assignment = proposal.assignment_result.assignments.get(slot)
             if assignment is None:
                 continue
+            label = slot_labels[slot]
             if not assignment.enabled:
                 lines.append(
-                    f"{slot}: "
-                    + translate(
+                    translate(
                         "CalibrationWizardController",
-                        "not present in this video",
-                    )
+                        "{label}: not present in this video",
+                    ).format(label=label)
                 )
             elif assignment.rgb is not None:
-                lines.append(f"{slot}: {assignment.rgb}")
+                lines.append(
+                    translate(
+                        "CalibrationWizardController",
+                        "{label}: found",
+                    ).format(label=label)
+                )
             else:
                 lines.append(
-                    f"{slot}: "
-                    + translate(
+                    translate(
                         "CalibrationWizardController",
-                        "not found",
+                        "{label}: not found",
                     )
                 )
         return "\n".join(lines)

@@ -73,7 +73,19 @@
     },
     {
       "context": "AutoDetectTuningDialog",
-      "source": "Reset All to Active Defaults",
+      "source": "Basic",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 127
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Check the overlays on the video. If they line up with the keys, click Save. If the edges are off, adjust the edge controls.",
       "placeholders": [],
       "locations": [
         {
@@ -85,7 +97,7 @@
     },
     {
       "context": "AutoDetectTuningDialog",
-      "source": "Basic",
+      "source": "Reset to Recommended Settings",
       "placeholders": [],
       "locations": [
         {
@@ -97,12 +109,12 @@
     },
     {
       "context": "AutoDetectTuningDialog",
-      "source": "Advanced",
+      "source": "Advanced Detector Settings",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 119
+          "line": 131
         }
       ],
       "notes": ""
@@ -114,7 +126,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 123
+          "line": 135
         }
       ],
       "notes": ""
@@ -126,7 +138,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 134
+          "line": 146
         }
       ],
       "notes": ""
@@ -138,7 +150,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 136
+          "line": 148
         }
       ],
       "notes": ""
@@ -150,7 +162,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 139
+          "line": 151
         }
       ],
       "notes": ""
@@ -162,7 +174,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 141
+          "line": 153
         }
       ],
       "notes": ""
@@ -174,7 +186,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 143
+          "line": 155
         }
       ],
       "notes": ""
@@ -186,7 +198,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 145
+          "line": 157
         }
       ],
       "notes": ""
@@ -198,7 +210,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 147
+          "line": 159
         }
       ],
       "notes": ""
@@ -210,7 +222,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 149
+          "line": 161
         }
       ],
       "notes": ""
@@ -222,7 +234,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 160
+          "line": 172
         }
       ],
       "notes": ""
@@ -234,7 +246,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 224
+          "line": 236
         }
       ],
       "notes": ""
@@ -246,7 +258,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 225
+          "line": 237
         }
       ],
       "notes": ""
@@ -258,7 +270,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 238
+          "line": 250
         }
       ],
       "notes": ""
@@ -270,7 +282,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 239
+          "line": 251
         }
       ],
       "notes": ""
@@ -282,7 +294,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 259
+          "line": 271
         }
       ],
       "notes": ""
@@ -294,7 +306,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 267
+          "line": 279
         }
       ],
       "notes": ""
@@ -306,7 +318,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 527
+          "line": 539
         }
       ],
       "notes": ""
@@ -318,7 +330,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 528
+          "line": 540
         }
       ],
       "notes": ""
@@ -330,7 +342,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 529
+          "line": 541
         }
       ],
       "notes": ""
@@ -342,7 +354,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 530
+          "line": 542
         }
       ],
       "notes": ""
@@ -354,7 +366,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 533
+          "line": 545
         }
       ],
       "notes": ""
@@ -366,7 +378,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 534
+          "line": 546
         }
       ],
       "notes": ""
@@ -378,7 +390,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 540
+          "line": 552
         }
       ],
       "notes": ""
@@ -390,7 +402,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 541
+          "line": 553
         }
       ],
       "notes": ""
@@ -402,7 +414,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 542
+          "line": 554
         }
       ],
       "notes": ""
@@ -414,7 +426,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 543
+          "line": 555
         }
       ],
       "notes": ""
@@ -426,7 +438,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 544
+          "line": 556
         }
       ],
       "notes": ""
@@ -438,7 +450,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 547
+          "line": 559
         }
       ],
       "notes": ""
@@ -450,7 +462,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 548
+          "line": 560
         }
       ],
       "notes": ""
@@ -462,7 +474,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 549
+          "line": 561
         }
       ],
       "notes": ""
@@ -474,7 +486,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 550
+          "line": 562
         }
       ],
       "notes": ""
@@ -486,7 +498,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 551
+          "line": 563
         }
       ],
       "notes": ""
@@ -498,7 +510,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 552
+          "line": 564
         }
       ],
       "notes": ""
@@ -510,7 +522,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 553
+          "line": 565
         }
       ],
       "notes": ""
@@ -522,7 +534,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 556
+          "line": 568
         }
       ],
       "notes": ""
@@ -534,7 +546,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 559
+          "line": 571
         }
       ],
       "notes": ""
@@ -546,7 +558,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 560
+          "line": 572
         }
       ],
       "notes": ""
@@ -558,7 +570,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 563
+          "line": 575
         }
       ],
       "notes": ""
@@ -570,7 +582,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 564
+          "line": 576
         }
       ],
       "notes": ""
@@ -582,7 +594,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 565
+          "line": 577
         }
       ],
       "notes": ""
@@ -594,7 +606,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 568
+          "line": 580
         }
       ],
       "notes": ""
@@ -606,7 +618,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 569
+          "line": 581
         }
       ],
       "notes": ""
@@ -618,7 +630,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 570
+          "line": 582
         }
       ],
       "notes": ""
@@ -630,7 +642,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 571
+          "line": 583
         }
       ],
       "notes": ""
@@ -642,7 +654,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 572
+          "line": 584
         }
       ],
       "notes": ""
@@ -654,7 +666,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 573
+          "line": 585
         }
       ],
       "notes": ""
@@ -666,7 +678,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 576
+          "line": 588
         }
       ],
       "notes": ""
@@ -678,7 +690,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 577
+          "line": 589
         }
       ],
       "notes": ""
@@ -690,7 +702,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 578
+          "line": 590
         }
       ],
       "notes": ""
@@ -702,7 +714,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 581
+          "line": 593
         }
       ],
       "notes": ""
@@ -1329,10 +1341,8 @@
     },
     {
       "context": "CalibrationWizardController",
-      "source": "Assisted calibration found {count} candidate samples.",
-      "placeholders": [
-        "{count}"
-      ],
+      "source": "Left White",
+      "placeholders": [],
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
@@ -1343,38 +1353,118 @@
     },
     {
       "context": "CalibrationWizardController",
-      "source": "Color families found: {count}",
+      "source": "Left Black",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 262
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Right White",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 263
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Right Black",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 264
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Assisted calibration found {count} possible pressed-key samples.",
       "placeholders": [
         "{count}"
       ],
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 265
+          "line": 267
         }
       ],
       "notes": ""
     },
     {
       "context": "CalibrationWizardController",
-      "source": "not present in this video",
+      "source": "Found {count} Synthesia note color families.",
+      "placeholders": [
+        "{count}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 271
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Left/Right refer to Synthesia note colors, not the physical side of the keyboard.",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 277
+          "line": 275
         }
       ],
       "notes": ""
     },
     {
       "context": "CalibrationWizardController",
-      "source": "not found",
-      "placeholders": [],
+      "source": "{label}: not present in this video",
+      "placeholders": [
+        "{label}"
+      ],
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
           "line": 287
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "{label}: found",
+      "placeholders": [
+        "{label}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 294
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "{label}: not found",
+      "placeholders": [
+        "{label}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 301
         }
       ],
       "notes": ""
@@ -1386,7 +1476,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 336
+          "line": 350
         }
       ],
       "notes": ""
@@ -1400,7 +1490,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 337
+          "line": 351
         }
       ],
       "notes": ""
@@ -1412,7 +1502,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 353
+          "line": 367
         }
       ],
       "notes": ""
@@ -1424,7 +1514,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 354
+          "line": 368
         }
       ],
       "notes": ""
@@ -1436,15 +1526,15 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 359
+          "line": 373
         },
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 384
+          "line": 398
         },
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 394
+          "line": 408
         }
       ],
       "notes": ""
@@ -1456,7 +1546,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 385
+          "line": 399
         }
       ],
       "notes": ""
@@ -1468,7 +1558,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 397
+          "line": 411
         }
       ],
       "notes": ""
@@ -1480,7 +1570,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 458
+          "line": 472
         }
       ],
       "notes": ""
@@ -1492,7 +1582,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 460
+          "line": 474
         }
       ],
       "notes": ""
@@ -1504,7 +1594,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 466
+          "line": 480
         }
       ],
       "notes": ""
@@ -1516,7 +1606,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 471
+          "line": 485
         }
       ],
       "notes": ""
@@ -1554,11 +1644,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 247
+          "line": 251
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1778
+          "line": 1832
         }
       ],
       "notes": ""
@@ -1570,15 +1660,15 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 253
+          "line": 257
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1901
+          "line": 1955
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1907
+          "line": 1961
         }
       ],
       "notes": ""
@@ -1590,7 +1680,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 257
+          "line": 261
         }
       ],
       "notes": ""
@@ -1602,7 +1692,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 262
+          "line": 266
         }
       ],
       "notes": ""
@@ -1614,11 +1704,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 263
+          "line": 267
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1793
+          "line": 1847
         }
       ],
       "notes": ""
@@ -1630,15 +1720,15 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 326
+          "line": 330
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 751
+          "line": 755
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 941
+          "line": 945
         }
       ],
       "notes": ""
@@ -1650,7 +1740,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 329
+          "line": 333
         }
       ],
       "notes": ""
@@ -1662,7 +1752,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 342
+          "line": 346
         }
       ],
       "notes": ""
@@ -1674,7 +1764,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 343
+          "line": 347
         }
       ],
       "notes": ""
@@ -1686,7 +1776,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 742
+          "line": 746
         }
       ],
       "notes": ""
@@ -1698,7 +1788,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 381
+          "line": 385
         }
       ],
       "notes": ""
@@ -1710,7 +1800,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 395
+          "line": 399
         }
       ],
       "notes": ""
@@ -1722,7 +1812,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 404
+          "line": 408
         }
       ],
       "notes": ""
@@ -1734,7 +1824,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 417
+          "line": 421
         }
       ],
       "notes": ""
@@ -1746,19 +1836,19 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 439
+          "line": 443
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1101
+          "line": 1105
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1743
+          "line": 1797
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1870
+          "line": 1924
         }
       ],
       "notes": ""
@@ -1770,7 +1860,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 471
+          "line": 475
         }
       ],
       "notes": ""
@@ -1784,7 +1874,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 485
+          "line": 489
         }
       ],
       "notes": ""
@@ -1796,7 +1886,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 490
+          "line": 494
         }
       ],
       "notes": ""
@@ -1808,7 +1898,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1914
+          "line": 1968
         }
       ],
       "notes": ""
@@ -1820,11 +1910,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1925
+          "line": 1979
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1937
+          "line": 1991
         }
       ],
       "notes": ""
@@ -1836,11 +1926,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1944
+          "line": 1998
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1952
+          "line": 2006
         }
       ],
       "notes": ""
@@ -1852,7 +1942,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1959
+          "line": 2013
         }
       ],
       "notes": ""
@@ -1864,7 +1954,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1965
+          "line": 2019
         }
       ],
       "notes": ""
@@ -1876,7 +1966,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1970
+          "line": 2024
         }
       ],
       "notes": ""
@@ -1888,7 +1978,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 502
+          "line": 506
         }
       ],
       "notes": ""
@@ -1900,7 +1990,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 330
+          "line": 334
         }
       ],
       "notes": ""
@@ -1912,7 +2002,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 334
+          "line": 338
         }
       ],
       "notes": ""
@@ -1924,7 +2014,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 338
+          "line": 342
         }
       ],
       "notes": ""
@@ -1936,7 +2026,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 375
+          "line": 379
         }
       ],
       "notes": ""
@@ -1948,7 +2038,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 388
+          "line": 392
         }
       ],
       "notes": ""
@@ -1960,7 +2050,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 389
+          "line": 393
         }
       ],
       "notes": ""
@@ -1972,7 +2062,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 411
+          "line": 415
         }
       ],
       "notes": ""
@@ -1984,7 +2074,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 423
+          "line": 427
         }
       ],
       "notes": ""
@@ -1996,7 +2086,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 427
+          "line": 431
         }
       ],
       "notes": ""
@@ -2008,7 +2098,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 446
+          "line": 450
         }
       ],
       "notes": ""
@@ -2020,7 +2110,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 451
+          "line": 455
         }
       ],
       "notes": ""
@@ -2032,7 +2122,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 459
+          "line": 463
         }
       ],
       "notes": ""
@@ -2044,7 +2134,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 504
+          "line": 508
         }
       ],
       "notes": ""
@@ -2056,7 +2146,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 525
+          "line": 529
         }
       ],
       "notes": ""
@@ -2068,7 +2158,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 535
+          "line": 539
         }
       ],
       "notes": ""
@@ -2080,7 +2170,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 540
+          "line": 544
         }
       ],
       "notes": ""
@@ -2092,7 +2182,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 543
+          "line": 547
         }
       ],
       "notes": ""
@@ -2104,7 +2194,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 546
+          "line": 550
         }
       ],
       "notes": ""
@@ -2116,7 +2206,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 566
+          "line": 570
         }
       ],
       "notes": ""
@@ -2128,7 +2218,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 583
+          "line": 587
         }
       ],
       "notes": ""
@@ -2140,7 +2230,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 586
+          "line": 590
         }
       ],
       "notes": ""
@@ -2152,7 +2242,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 609
+          "line": 613
         }
       ],
       "notes": ""
@@ -2164,7 +2254,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 626
+          "line": 630
         }
       ],
       "notes": ""
@@ -2176,7 +2266,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 643
+          "line": 647
         }
       ],
       "notes": ""
@@ -2188,7 +2278,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 660
+          "line": 664
         }
       ],
       "notes": ""
@@ -2200,7 +2290,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 677
+          "line": 681
         }
       ],
       "notes": ""
@@ -2212,7 +2302,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 694
+          "line": 698
         }
       ],
       "notes": ""
@@ -2224,7 +2314,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 716
+          "line": 720
         }
       ],
       "notes": ""
@@ -2236,7 +2326,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 721
+          "line": 725
         }
       ],
       "notes": ""
@@ -2248,7 +2338,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 755
+          "line": 759
         }
       ],
       "notes": ""
@@ -2260,7 +2350,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 756
+          "line": 760
         }
       ],
       "notes": ""
@@ -2272,7 +2362,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 757
+          "line": 761
         }
       ],
       "notes": ""
@@ -2284,7 +2374,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 758
+          "line": 762
         }
       ],
       "notes": ""
@@ -2296,7 +2386,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 762
+          "line": 766
         }
       ],
       "notes": ""
@@ -2308,7 +2398,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 766
+          "line": 770
         }
       ],
       "notes": ""
@@ -2320,7 +2410,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 775
+          "line": 779
         }
       ],
       "notes": ""
@@ -2332,11 +2422,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 786
+          "line": 790
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 791
+          "line": 795
         }
       ],
       "notes": ""
@@ -2348,7 +2438,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 794
+          "line": 798
         }
       ],
       "notes": ""
@@ -2360,7 +2450,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 801
+          "line": 805
         }
       ],
       "notes": ""
@@ -2372,7 +2462,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 820
+          "line": 824
         }
       ],
       "notes": ""
@@ -2384,7 +2474,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 824
+          "line": 828
         }
       ],
       "notes": ""
@@ -2396,11 +2486,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 836
+          "line": 840
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 841
+          "line": 845
         }
       ],
       "notes": ""
@@ -2412,7 +2502,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 843
+          "line": 847
         }
       ],
       "notes": ""
@@ -2424,7 +2514,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 846
+          "line": 850
         }
       ],
       "notes": ""
@@ -2436,7 +2526,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 850
+          "line": 854
         }
       ],
       "notes": ""
@@ -2448,11 +2538,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 861
+          "line": 865
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 866
+          "line": 870
         }
       ],
       "notes": ""
@@ -2464,7 +2554,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 868
+          "line": 872
         }
       ],
       "notes": ""
@@ -2476,11 +2566,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 877
+          "line": 881
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 882
+          "line": 886
         }
       ],
       "notes": ""
@@ -2492,7 +2582,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 884
+          "line": 888
         }
       ],
       "notes": ""
@@ -2504,7 +2594,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 887
+          "line": 891
         }
       ],
       "notes": ""
@@ -2516,7 +2606,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 891
+          "line": 895
         }
       ],
       "notes": ""
@@ -2528,11 +2618,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 903
+          "line": 907
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 908
+          "line": 912
         }
       ],
       "notes": ""
@@ -2544,7 +2634,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 910
+          "line": 914
         }
       ],
       "notes": ""
@@ -2556,7 +2646,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 914
+          "line": 918
         }
       ],
       "notes": ""
@@ -2568,7 +2658,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 916
+          "line": 920
         }
       ],
       "notes": ""
@@ -2580,7 +2670,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 925
+          "line": 929
         }
       ],
       "notes": ""
@@ -2592,7 +2682,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 944
+          "line": 948
         }
       ],
       "notes": ""
@@ -2604,7 +2694,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 945
+          "line": 949
         }
       ],
       "notes": ""
@@ -2616,7 +2706,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 946
+          "line": 950
         }
       ],
       "notes": ""
@@ -2628,7 +2718,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 956
+          "line": 960
         }
       ],
       "notes": ""
@@ -2640,7 +2730,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 960
+          "line": 964
         }
       ],
       "notes": ""
@@ -2652,7 +2742,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 964
+          "line": 968
         }
       ],
       "notes": ""
@@ -2664,7 +2754,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 972
+          "line": 976
         }
       ],
       "notes": ""
@@ -2676,11 +2766,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 979
+          "line": 983
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 985
+          "line": 989
         }
       ],
       "notes": ""
@@ -2692,7 +2782,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 992
+          "line": 996
         }
       ],
       "notes": ""
@@ -2704,7 +2794,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 999
+          "line": 1003
         }
       ],
       "notes": ""
@@ -2716,7 +2806,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1003
+          "line": 1007
         }
       ],
       "notes": ""
@@ -2728,15 +2818,15 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1008
+          "line": 1012
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1585
+          "line": 1637
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1762
+          "line": 1816
         }
       ],
       "notes": ""
@@ -2748,7 +2838,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1013
+          "line": 1017
         }
       ],
       "notes": ""
@@ -2760,7 +2850,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1019
+          "line": 1023
         }
       ],
       "notes": ""
@@ -2772,7 +2862,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1024
+          "line": 1028
         }
       ],
       "notes": ""
@@ -2784,7 +2874,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1027
+          "line": 1031
         }
       ],
       "notes": ""
@@ -2796,7 +2886,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1031
+          "line": 1035
         }
       ],
       "notes": ""
@@ -2808,7 +2898,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1039
+          "line": 1043
         }
       ],
       "notes": ""
@@ -2820,7 +2910,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1042
+          "line": 1046
         }
       ],
       "notes": ""
@@ -2832,7 +2922,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1046
+          "line": 1050
         }
       ],
       "notes": ""
@@ -2844,7 +2934,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1054
+          "line": 1058
         }
       ],
       "notes": ""
@@ -2856,7 +2946,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1057
+          "line": 1061
         }
       ],
       "notes": ""
@@ -2868,7 +2958,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1061
+          "line": 1065
         }
       ],
       "notes": ""
@@ -2880,7 +2970,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1070
+          "line": 1074
         }
       ],
       "notes": ""
@@ -2894,7 +2984,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1086
+          "line": 1090
         }
       ],
       "notes": ""
@@ -2906,7 +2996,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1093
+          "line": 1097
         }
       ],
       "notes": ""
@@ -2918,7 +3008,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1113
+          "line": 1117
         }
       ],
       "notes": ""
@@ -2930,7 +3020,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1115
+          "line": 1119
         }
       ],
       "notes": ""
@@ -2942,7 +3032,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1119
+          "line": 1123
         }
       ],
       "notes": ""
@@ -2954,7 +3044,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1130
+          "line": 1134
         }
       ],
       "notes": ""
@@ -2966,7 +3056,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1140
+          "line": 1144
         }
       ],
       "notes": ""
@@ -2978,7 +3068,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1157
+          "line": 1161
         }
       ],
       "notes": ""
@@ -2990,11 +3080,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1171
+          "line": 1175
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1598
+          "line": 1650
         }
       ],
       "notes": ""
@@ -3006,7 +3096,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1177
+          "line": 1181
         }
       ],
       "notes": ""
@@ -3018,11 +3108,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1186
+          "line": 1190
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1244
+          "line": 1248
         }
       ],
       "notes": ""
@@ -3034,19 +3124,19 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1197
+          "line": 1201
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1214
+          "line": 1218
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1255
+          "line": 1259
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1272
+          "line": 1276
         }
       ],
       "notes": ""
@@ -3058,11 +3148,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1203
+          "line": 1207
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1261
+          "line": 1265
         }
       ],
       "notes": ""
@@ -3074,7 +3164,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1225
+          "line": 1229
         }
       ],
       "notes": ""
@@ -3086,7 +3176,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1234
+          "line": 1238
         }
       ],
       "notes": ""
@@ -3098,7 +3188,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1280
+          "line": 1284
         }
       ],
       "notes": ""
@@ -3110,7 +3200,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1288
+          "line": 1292
         }
       ],
       "notes": ""
@@ -3122,7 +3212,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 300
+          "line": 304
         }
       ],
       "notes": ""
@@ -3134,7 +3224,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1297
+          "line": 1301
         }
       ],
       "notes": ""
@@ -3146,7 +3236,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1301
+          "line": 1305
         }
       ],
       "notes": ""
@@ -3158,7 +3248,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1311
+          "line": 1315
         }
       ],
       "notes": ""
@@ -3170,15 +3260,15 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 297
+          "line": 301
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 317
+          "line": 321
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1321
+          "line": 1325
         }
       ],
       "notes": ""
@@ -3190,7 +3280,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1322
+          "line": 1326
         }
       ],
       "notes": ""
@@ -3202,7 +3292,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1327
+          "line": 1331
         }
       ],
       "notes": ""
@@ -3214,7 +3304,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1329
+          "line": 1333
         }
       ],
       "notes": ""
@@ -3226,7 +3316,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1475
+          "line": 1479
         }
       ],
       "notes": ""
@@ -3238,7 +3328,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1476
+          "line": 1480
         }
       ],
       "notes": ""
@@ -3250,7 +3340,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1482
+          "line": 1486
         }
       ],
       "notes": ""
@@ -3264,7 +3354,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1513
+          "line": 1517
         }
       ],
       "notes": ""
@@ -3276,7 +3366,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1515
+          "line": 1519
         }
       ],
       "notes": ""
@@ -3291,7 +3381,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1517
+          "line": 1521
         }
       ],
       "notes": ""
@@ -3303,7 +3393,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1532
+          "line": 1536
         }
       ],
       "notes": ""
@@ -3315,11 +3405,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1587
+          "line": 1639
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1764
+          "line": 1818
         }
       ],
       "notes": ""
@@ -3333,7 +3423,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1601
+          "line": 1653
         }
       ],
       "notes": ""
@@ -3348,7 +3438,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1620
+          "line": 1672
         }
       ],
       "notes": ""
@@ -3362,7 +3452,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1627
+          "line": 1679
         }
       ],
       "notes": ""
@@ -3374,7 +3464,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1740
+          "line": 1794
         }
       ],
       "notes": ""
@@ -3388,7 +3478,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1783
+          "line": 1837
         }
       ],
       "notes": ""
@@ -3402,7 +3492,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1787
+          "line": 1841
         }
       ],
       "notes": ""
@@ -3414,7 +3504,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1867
+          "line": 1921
         }
       ],
       "notes": ""
@@ -4503,7 +4593,7 @@
       "locations": [
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 128
+          "line": 138
         }
       ],
       "notes": ""
@@ -4519,7 +4609,7 @@
       "locations": [
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 129
+          "line": 139
         }
       ],
       "notes": ""
@@ -4531,7 +4621,7 @@
       "locations": [
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 144
+          "line": 154
         }
       ],
       "notes": ""
@@ -4545,7 +4635,7 @@
       "locations": [
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 145
+          "line": 155
         }
       ],
       "notes": ""
@@ -4557,19 +4647,19 @@
       "locations": [
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 156
+          "line": 166
         },
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 169
+          "line": 179
         },
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 184
+          "line": 194
         },
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 197
+          "line": 207
         }
       ],
       "notes": ""
@@ -4581,11 +4671,11 @@
       "locations": [
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 157
+          "line": 167
         },
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 185
+          "line": 195
         }
       ],
       "notes": ""
@@ -4599,11 +4689,11 @@
       "locations": [
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 170
+          "line": 180
         },
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 198
+          "line": 208
         }
       ],
       "notes": ""

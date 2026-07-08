@@ -100,25 +100,37 @@ class AutoDetectTuningDialog(QDialog):
             banner.setStyleSheet("color: #8a6d00; background: #fff8db; border: 1px solid #e6d390; padding: 6px;")
             layout.addWidget(banner)
 
+        self.guidance_label = QLabel(
+            QCoreApplication.translate(
+                "AutoDetectTuningDialog",
+                "Check the overlays on the video. If they line up with the keys, click Save. If the edges are off, adjust the edge controls.",
+            )
+        )
+        self.guidance_label.setWordWrap(True)
+        self.guidance_label.setStyleSheet("color: #444;")
+        layout.addWidget(self.guidance_label)
+
         controls_row = QHBoxLayout()
-        reset_all_btn = QPushButton(QCoreApplication.translate("AutoDetectTuningDialog", "Reset All to Active Defaults"))
-        reset_all_btn.clicked.connect(self._reset_all_to_defaults)
-        controls_row.addWidget(reset_all_btn)
+        self.reset_all_button = QPushButton(
+            QCoreApplication.translate("AutoDetectTuningDialog", "Reset to Recommended Settings")
+        )
+        self.reset_all_button.clicked.connect(self._reset_all_to_defaults)
+        controls_row.addWidget(self.reset_all_button)
         controls_row.addStretch()
         layout.addLayout(controls_row)
 
-        tabs = QTabWidget()
-        tabs.tabBar().setExpanding(False)
-        tabs.setStyleSheet("QTabWidget::tab-bar { alignment: right; }")
-        tabs.addTab(
+        self.tabs = QTabWidget()
+        self.tabs.tabBar().setExpanding(False)
+        self.tabs.setStyleSheet("QTabWidget::tab-bar { alignment: right; }")
+        self.tabs.addTab(
             self._build_param_tab(get_basic_auto_detect_param_keys()),
             QCoreApplication.translate("AutoDetectTuningDialog", "Basic"),
         )
-        tabs.addTab(
+        self.tabs.addTab(
             self._build_param_tab(get_advanced_auto_detect_param_keys()),
-            QCoreApplication.translate("AutoDetectTuningDialog", "Advanced"),
+            QCoreApplication.translate("AutoDetectTuningDialog", "Advanced Detector Settings"),
         )
-        layout.addWidget(tabs, 1)
+        layout.addWidget(self.tabs, 1)
 
         status_group = QGroupBox(QCoreApplication.translate("AutoDetectTuningDialog", "Preview Status"))
         status_layout = QGridLayout(status_group)

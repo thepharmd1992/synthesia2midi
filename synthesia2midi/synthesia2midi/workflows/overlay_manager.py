@@ -362,7 +362,6 @@ class OverlayManager:
             key_color: "white" or "black" - which key type to adjust
             dimension: "width" or "height" - which dimension to adjust
             delta: Amount to adjust (typically +2 or -2 pixels)
-
         """
         if dimension in {"left_slant", "right_slant"}:
             self._adjust_overlay_slant(dimension, delta)
@@ -370,55 +369,64 @@ class OverlayManager:
 
         white_key_note_names = {name for name in NOTE_NAMES_SHARP if "♯" not in name and "♭" not in name}
         modified_count = 0
-
+        
         for overlay in self.app_state.overlays:
             is_white_key = overlay.note_name_in_octave in white_key_note_names
             target_is_white = key_color.lower() == "white"
-
+            
             # Only adjust overlays of the matching key color type
-            if is_white_key != target_is_white:
-                continue
-
-            if dimension == "width":
-                new_width = overlay.width + delta
-                if new_width < 1:  # Minimum width of 1 pixel
-                    continue
-
-                center_x = overlay.x + overlay.width / 2
-                overlay.width = new_width
-                overlay.x = center_x - new_width / 2
-
-                if overlay.x < 0:
-                    overlay.x = 0
-                elif self.ui_updater and self.ui_updater.has_video_loaded():
-                    video_session = self.ui_updater.get_video_session()
-                    if video_session and overlay.x + overlay.width > video_session.width:
-                        overlay.x = video_session.width - overlay.width
-
-            elif dimension == "height":
-                new_height = overlay.height + delta
-                if new_height < 1:  # Minimum height of 1 pixel
-                    continue
-
-                center_y = overlay.y + overlay.height / 2
-                overlay.height = new_height
-                overlay.y = center_y - new_height / 2
-
-                if overlay.y < 0:
-                    overlay.y = 0
-                elif self.ui_updater and self.ui_updater.has_video_loaded():
-                    video_session = self.ui_updater.get_video_session()
-                    if video_session and overlay.y + overlay.height > video_session.height:
-                        overlay.y = video_session.height - overlay.height
-
-            modified_count += 1
-
+            if is_white_key == target_is_white:
+                if dimension == "width":
+                    # Calculate new width
+                    new_width = overlay.width + delta
+                    if new_width < 1:  # Minimum width of 1 pixel
+                        continue
+                        
+                    # Calculate center position
+                    center_x = overlay.x + overlay.width / 2
+                    
+                    # Set new width and adjust x to keep center fixed
+                    overlay.width = new_width
+                    overlay.x = center_x - new_width / 2
+                    
+                    # Ensure overlay stays within image bounds
+                    if overlay.x < 0:
+                        overlay.x = 0
+                    elif self.ui_updater and self.ui_updater.has_video_loaded():
+                        video_session = self.ui_updater.get_video_session()
+                        if video_session and overlay.x + overlay.width > video_session.width:
+                            overlay.x = video_session.width - overlay.width
+                        
+                elif dimension == "height":
+                    # Calculate new height
+                    new_height = overlay.height + delta
+                    if new_height < 1:  # Minimum height of 1 pixel
+                        continue
+                        
+                    # Calculate center position
+                    center_y = overlay.y + overlay.height / 2
+                    
+                    # Set new height and adjust y to keep center fixed
+                    overlay.height = new_height
+                    overlay.y = center_y - new_height / 2
+                    
+                    # Ensure overlay stays within image bounds
+                    if overlay.y < 0:
+                        overlay.y = 0
+                    elif self.ui_updater and self.ui_updater.has_video_loaded():
+                        video_session = self.ui_updater.get_video_session()
+                        if video_session and overlay.y + overlay.height > video_session.height:
+                            overlay.y = video_session.height - overlay.height
+                
+                modified_count += 1
+        
         if modified_count > 0:
             self.app_state.unsaved_changes = True
-
+            
+            # Redraw frame if canvas is available
             if self.ui_updater and self.app_state.video.current_frame_index is not None:
                 self.ui_updater.refresh_canvas()
-
+            
             self.logger.info(f"Adjusted {dimension} by {delta} pixels for {modified_count} {key_color} keys")
 
     def _adjust_overlay_slant(self, dimension: str, delta: int) -> None:

@@ -160,6 +160,8 @@ class ControlPanelQt(QWidget):
         
         # Widget references for state updates
         self.widgets = {}
+        self._overlay_adjustment_values: dict[tuple[str, str], int] = {}
+        self._overlay_adjustment_value_labels: dict[tuple[str, str], QLabel] = {}
         
         self._setup_ui()
         self.update_controls_from_state()
@@ -568,11 +570,30 @@ class ControlPanelQt(QWidget):
         size_grid.setHorizontalSpacing(14)
         size_grid.setVerticalSpacing(10)
 
-        def add_size_control(row, column, label, dec_button, inc_button):
+        def add_size_control(row, column, label, dec_button, inc_button, key_color, dimension):
+            key = self._overlay_adjustment_key(key_color, dimension)
             cell = QVBoxLayout()
             cell.setContentsMargins(0, 0, 0, 0)
             cell.setSpacing(4)
             cell.addWidget(label)
+
+            value_row = QHBoxLayout()
+            value_row.setContentsMargins(0, 0, 0, 0)
+            value_row.setSpacing(6)
+            value_caption = QLabel(translate("ControlPanelQt", "Current:"))
+            value_label = QLabel("0")
+            value_label.setMinimumWidth(24)
+            reset_button = QPushButton(translate("ControlPanelQt", "Reset"))
+            reset_button.setMaximumWidth(72)
+            reset_button.clicked.connect(
+                lambda checked=False, kc=key_color, dim=dimension: self._reset_overlay_adjustment(kc, dim)
+            )
+            value_row.addWidget(value_caption)
+            value_row.addWidget(value_label)
+            value_row.addWidget(reset_button)
+            value_row.addStretch()
+            cell.addLayout(value_row)
+
             button_row = QHBoxLayout()
             button_row.setContentsMargins(0, 0, 0, 0)
             button_row.setSpacing(4)
@@ -580,61 +601,112 @@ class ControlPanelQt(QWidget):
             button_row.addWidget(inc_button)
             button_row.addStretch()
             cell.addLayout(button_row)
+            self._overlay_adjustment_value_labels[key] = value_label
+            self._set_overlay_adjustment_value(key_color, dimension, 0)
             size_grid.addLayout(cell, row, column)
+            return value_label, reset_button
 
         self.white_height_label = QLabel(translate("ControlPanelQt", "White Key Height"))
         self.white_height_dec_button = QPushButton("-")
         self.white_height_dec_button.setFixedSize(30, 30)
-        self.white_height_dec_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("white", "height", -2))
+        self.white_height_dec_button.clicked.connect(lambda: self._apply_overlay_adjustment("white", "height", -2))
         self.white_height_inc_button = QPushButton("+")
         self.white_height_inc_button.setFixedSize(30, 30)
-        self.white_height_inc_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("white", "height", 2))
-        add_size_control(0, 0, self.white_height_label, self.white_height_dec_button, self.white_height_inc_button)
+        self.white_height_inc_button.clicked.connect(lambda: self._apply_overlay_adjustment("white", "height", 2))
+        self.white_height_value_label, self.white_height_reset_button = add_size_control(
+            0,
+            0,
+            self.white_height_label,
+            self.white_height_dec_button,
+            self.white_height_inc_button,
+            "white",
+            "height",
+        )
 
         self.white_width_label = QLabel(translate("ControlPanelQt", "White Key Width"))
         self.white_width_dec_button = QPushButton("-")
         self.white_width_dec_button.setFixedSize(30, 30)
-        self.white_width_dec_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("white", "width", -2))
+        self.white_width_dec_button.clicked.connect(lambda: self._apply_overlay_adjustment("white", "width", -2))
         self.white_width_inc_button = QPushButton("+")
         self.white_width_inc_button.setFixedSize(30, 30)
-        self.white_width_inc_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("white", "width", 2))
-        add_size_control(0, 1, self.white_width_label, self.white_width_dec_button, self.white_width_inc_button)
+        self.white_width_inc_button.clicked.connect(lambda: self._apply_overlay_adjustment("white", "width", 2))
+        self.white_width_value_label, self.white_width_reset_button = add_size_control(
+            0,
+            1,
+            self.white_width_label,
+            self.white_width_dec_button,
+            self.white_width_inc_button,
+            "white",
+            "width",
+        )
 
         self.black_height_label = QLabel(translate("ControlPanelQt", "Black Key Height"))
         self.black_height_dec_button = QPushButton("-")
         self.black_height_dec_button.setFixedSize(30, 30)
-        self.black_height_dec_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("black", "height", -2))
+        self.black_height_dec_button.clicked.connect(lambda: self._apply_overlay_adjustment("black", "height", -2))
         self.black_height_inc_button = QPushButton("+")
         self.black_height_inc_button.setFixedSize(30, 30)
-        self.black_height_inc_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("black", "height", 2))
-        add_size_control(1, 0, self.black_height_label, self.black_height_dec_button, self.black_height_inc_button)
+        self.black_height_inc_button.clicked.connect(lambda: self._apply_overlay_adjustment("black", "height", 2))
+        self.black_height_value_label, self.black_height_reset_button = add_size_control(
+            1,
+            0,
+            self.black_height_label,
+            self.black_height_dec_button,
+            self.black_height_inc_button,
+            "black",
+            "height",
+        )
 
         self.black_width_label = QLabel(translate("ControlPanelQt", "Black Key Width"))
         self.black_width_dec_button = QPushButton("-")
         self.black_width_dec_button.setFixedSize(30, 30)
-        self.black_width_dec_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("black", "width", -2))
+        self.black_width_dec_button.clicked.connect(lambda: self._apply_overlay_adjustment("black", "width", -2))
         self.black_width_inc_button = QPushButton("+")
         self.black_width_inc_button.setFixedSize(30, 30)
-        self.black_width_inc_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("black", "width", 2))
-        add_size_control(1, 1, self.black_width_label, self.black_width_dec_button, self.black_width_inc_button)
+        self.black_width_inc_button.clicked.connect(lambda: self._apply_overlay_adjustment("black", "width", 2))
+        self.black_width_value_label, self.black_width_reset_button = add_size_control(
+            1,
+            1,
+            self.black_width_label,
+            self.black_width_dec_button,
+            self.black_width_inc_button,
+            "black",
+            "width",
+        )
 
         self.left_slant_label = QLabel(translate("ControlPanelQt", "Left Slant"))
         self.left_slant_dec_button = QPushButton("-")
         self.left_slant_dec_button.setFixedSize(30, 30)
-        self.left_slant_dec_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("all", "left_slant", -1))
+        self.left_slant_dec_button.clicked.connect(lambda: self._apply_overlay_adjustment("all", "left_slant", -1))
         self.left_slant_inc_button = QPushButton("+")
         self.left_slant_inc_button.setFixedSize(30, 30)
-        self.left_slant_inc_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("all", "left_slant", 1))
-        add_size_control(2, 0, self.left_slant_label, self.left_slant_dec_button, self.left_slant_inc_button)
+        self.left_slant_inc_button.clicked.connect(lambda: self._apply_overlay_adjustment("all", "left_slant", 1))
+        self.left_slant_value_label, self.left_slant_reset_button = add_size_control(
+            2,
+            0,
+            self.left_slant_label,
+            self.left_slant_dec_button,
+            self.left_slant_inc_button,
+            "all",
+            "left_slant",
+        )
 
         self.right_slant_label = QLabel(translate("ControlPanelQt", "Right Slant"))
         self.right_slant_dec_button = QPushButton("-")
         self.right_slant_dec_button.setFixedSize(30, 30)
-        self.right_slant_dec_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("all", "right_slant", -1))
+        self.right_slant_dec_button.clicked.connect(lambda: self._apply_overlay_adjustment("all", "right_slant", -1))
         self.right_slant_inc_button = QPushButton("+")
         self.right_slant_inc_button.setFixedSize(30, 30)
-        self.right_slant_inc_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("all", "right_slant", 1))
-        add_size_control(2, 1, self.right_slant_label, self.right_slant_dec_button, self.right_slant_inc_button)
+        self.right_slant_inc_button.clicked.connect(lambda: self._apply_overlay_adjustment("all", "right_slant", 1))
+        self.right_slant_value_label, self.right_slant_reset_button = add_size_control(
+            2,
+            1,
+            self.right_slant_label,
+            self.right_slant_dec_button,
+            self.right_slant_inc_button,
+            "all",
+            "right_slant",
+        )
 
         size_layout.addLayout(size_grid)
 
@@ -1478,6 +1550,31 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
         }
         color_hex = color_map.get(color_name, "#FF0000")
         self.color_square.setStyleSheet(f"background-color: {color_hex}; border: 1px solid black;")
+
+    def _overlay_adjustment_key(self, key_color: str, dimension: str) -> tuple[str, str]:
+        return key_color, dimension
+
+    def _set_overlay_adjustment_value(self, key_color: str, dimension: str, value: int) -> None:
+        key = self._overlay_adjustment_key(key_color, dimension)
+        self._overlay_adjustment_values[key] = value
+        label = self._overlay_adjustment_value_labels.get(key)
+        if label is not None:
+            label.setText(str(value))
+
+    def _apply_overlay_adjustment(self, key_color: str, dimension: str, delta: int) -> None:
+        key = self._overlay_adjustment_key(key_color, dimension)
+        current_value = self._overlay_adjustment_values.get(key, 0)
+        self._set_overlay_adjustment_value(key_color, dimension, current_value + delta)
+        self.overlay_size_adjustment_requested.emit(key_color, dimension, delta)
+
+    def _reset_overlay_adjustment(self, key_color: str, dimension: str) -> None:
+        key = self._overlay_adjustment_key(key_color, dimension)
+        current_value = self._overlay_adjustment_values.get(key, 0)
+        if current_value == 0:
+            self._set_overlay_adjustment_value(key_color, dimension, 0)
+            return
+        self._set_overlay_adjustment_value(key_color, dimension, 0)
+        self.overlay_size_adjustment_requested.emit(key_color, dimension, -current_value)
     
     def _toggle_spark_roi_visibility(self):
         """Toggle spark ROI overlay visibility."""

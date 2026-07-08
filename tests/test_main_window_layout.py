@@ -197,13 +197,24 @@ def test_overlays_tab_exposes_left_and_right_slant_controls(monkeypatch):
 
         assert app.control_panel.left_slant_label.text() == "Left Slant"
         assert app.control_panel.right_slant_label.text() == "Right Slant"
+        assert app.control_panel.left_slant_value_label.text() == "0"
+        assert app.control_panel.right_slant_value_label.text() == "0"
+        assert app.control_panel.left_slant_reset_button.text() == "Reset"
+        assert app.control_panel.right_slant_reset_button.text() == "Reset"
 
         app.control_panel.left_slant_inc_button.click()
         app.control_panel.right_slant_dec_button.click()
 
+        assert app.control_panel.left_slant_value_label.text() == "1"
+        assert app.control_panel.right_slant_value_label.text() == "-1"
+
+        app.control_panel.left_slant_reset_button.click()
+
+        assert app.control_panel.left_slant_value_label.text() == "0"
         assert emitted == [
             ("all", "left_slant", 1),
             ("all", "right_slant", -1),
+            ("all", "left_slant", -1),
         ]
     finally:
         app.close()

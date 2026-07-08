@@ -810,100 +810,100 @@ Ve a un fotograma donde no haya teclas iluminadas, o continúa si esto es espera
     <message>
       <location filename="../gui/controls_qt.py" line="759" />
       <source>Before tuning detection: capture a no-key frame and at least one pressed-key example.</source>
-      <translation>Before tuning detection: capture a no-key frame and at least one pressed-key example.</translation>
+      <translation>Antes de ajustar la detección: captura un fotograma sin teclas activas y al menos un ejemplo de tecla presionada.</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="760" />
       <source>Detection Sensitivity: main setting for pressed vs unpressed keys.</source>
-      <translation>Detection Sensitivity: main setting for pressed vs unpressed keys.</translation>
+      <translation>Sensibilidad de detección: ajuste principal para distinguir teclas presionadas de no presionadas.</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="761" />
       <location filename="../gui/controls_qt.py" line="801" />
       <source>Missing notes? Lower it. Extra notes? Raise it.</source>
-      <translation>Missing notes? Lower it. Extra notes? Raise it.</translation>
+      <translation>¿Faltan notas? Bájala. ¿Notas extra? Súbela.</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="762" />
       <source>Histogram Detection helps when pressed colors have gradients or uneven lighting.</source>
-      <translation>Histogram Detection helps when pressed colors have gradients or uneven lighting.</translation>
+      <translation>La detección por histograma ayuda cuando los colores presionados tienen degradados o iluminación irregular.</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="766" />
       <source>Delta Detection helps when pressed colors fade in or out instead of switching cleanly.</source>
-      <translation>Delta Detection helps when pressed colors fade in or out instead of switching cleanly.</translation>
+      <translation>La detección por delta ayuda cuando los colores presionados aparecen o desaparecen gradualmente en lugar de cambiar de golpe.</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="770" />
       <source>Black Key Filter reduces false black-key notes caused by nearby overlays.</source>
-      <translation>Black Key Filter reduces false black-key notes caused by nearby overlays.</translation>
+      <translation>El filtro de teclas negras reduce notas falsas de teclas negras causadas por superposiciones cercanas.</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="779" />
       <source>Detection Sensitivity</source>
-      <translation>Detection Sensitivity</translation>
+      <translation>Sensibilidad de detección</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="798" />
       <source>Detection Sensitivity:</source>
-      <translation>Detection Sensitivity:</translation>
+      <translation>Sensibilidad de detección:</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1011" />
       <source>Select Spark Area Above Keys</source>
-      <translation>Select Spark Area Above Keys</translation>
+      <translation>Seleccionar área de destellos sobre las teclas</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1015" />
       <source>Select the area above the keys where spark bars and flashes appear.</source>
-      <translation>Select the area above the keys where spark bars and flashes appear.</translation>
+      <translation>Selecciona el área sobre las teclas donde aparecen barras y destellos.</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1025" />
       <source>Show or hide the spark area overlay on the video.</source>
-      <translation>Show or hide the spark area overlay on the video.</translation>
+      <translation>Muestra u oculta la superposición del área de destellos en el video.</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1189" />
       <source>Convert Only Part of the Video</source>
-      <translation>Convert Only Part of the Video</translation>
+      <translation>Convertir solo parte del video</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1193" />
       <source>This affects MIDI creation only. It does not trim or change the video session.</source>
-      <translation>This affects MIDI creation only. It does not trim or change the video session.</translation>
+      <translation>Esto afecta solo la creación del MIDI. No recorta ni cambia la sesión de video.</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1256" />
       <location filename="../gui/controls_qt.py" line="1312" />
       <location filename="../gui/controls_qt.py" line="1526" />
       <source>Permanently Trim Project</source>
-      <translation>Permanently Trim Project</translation>
+      <translation>Recortar proyecto permanentemente</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1261" />
       <source>Most users should use MIDI range instead. Trim changes the working video session, not the original video file.</source>
-      <translation>Most users should use MIDI range instead. Trim changes the working video session, not the original video file.</translation>
+      <translation>La mayoría de los usuarios debería usar el rango MIDI. Recortar cambia la sesión de video de trabajo, no el archivo de video original.</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1334" />
       <source>Put each hand/color on a separate MIDI channel</source>
-      <translation>Put each hand/color on a separate MIDI channel</translation>
+      <translation>Poner cada mano/color en un canal MIDI separado</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1340" />
       <source>Use this only if the video uses different colors for left and right hand notes.</source>
-      <translation>Use this only if the video uses different colors for left and right hand notes.</translation>
+      <translation>Usa esto solo si el video usa colores diferentes para las notas de la mano izquierda y derecha.</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1562" />
       <source>&lt;b&gt;This will permanently trim the working video session.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Frames outside {start_frame} to {end_text} will be unavailable in this project session.&lt;br&gt;&lt;br&gt;Most users should cancel and use the MIDI range controls instead.</source>
-      <translation>&lt;b&gt;This will permanently trim the working video session.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Frames outside {start_frame} to {end_text} will be unavailable in this project session.&lt;br&gt;&lt;br&gt;Most users should cancel and use the MIDI range controls instead.</translation>
+      <translation>&lt;b&gt;Esto recortará permanentemente la sesión de video de trabajo.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Los fotogramas fuera de {start_frame} a {end_text} no estarán disponibles en esta sesión del proyecto.&lt;br&gt;&lt;br&gt;La mayoría de los usuarios debería cancelar y usar los controles de rango MIDI.</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1575" />
       <source>Trim Project</source>
-      <translation>Trim Project</translation>
+      <translation>Recortar proyecto</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="2007" />
@@ -1242,7 +1242,7 @@ Ve a un fotograma donde no haya teclas iluminadas, o continúa si esto es espera
     <message>
       <location filename="../gui/controls_qt.py" line="966" />
       <source>Use this only if repeated notes merge into one long note.</source>
-      <translation>Use this only if repeated notes merge into one long note.</translation>
+      <translation>Usa esto solo si las notas repetidas se fusionan en una sola nota larga.</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="972" />

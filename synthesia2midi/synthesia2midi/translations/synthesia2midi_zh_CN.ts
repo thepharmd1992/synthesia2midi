@@ -822,100 +822,100 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
     <message>
       <location filename="../gui/controls_qt.py" line="759" />
       <source>Before tuning detection: capture a no-key frame and at least one pressed-key example.</source>
-      <translation>Before tuning detection: capture a no-key frame and at least one pressed-key example.</translation>
+      <translation>调整检测前：先捕获一个没有按键亮起的帧，以及至少一个按键亮起的示例。</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="760" />
       <source>Detection Sensitivity: main setting for pressed vs unpressed keys.</source>
-      <translation>Detection Sensitivity: main setting for pressed vs unpressed keys.</translation>
+      <translation>检测灵敏度：区分按下和未按下按键的主要设置。</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="761" />
       <location filename="../gui/controls_qt.py" line="801" />
       <source>Missing notes? Lower it. Extra notes? Raise it.</source>
-      <translation>Missing notes? Lower it. Extra notes? Raise it.</translation>
+      <translation>漏掉音符？调低它。多出音符？调高它。</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="762" />
       <source>Histogram Detection helps when pressed colors have gradients or uneven lighting.</source>
-      <translation>Histogram Detection helps when pressed colors have gradients or uneven lighting.</translation>
+      <translation>当按下颜色有渐变或光照不均时，直方图检测会有帮助。</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="766" />
       <source>Delta Detection helps when pressed colors fade in or out instead of switching cleanly.</source>
-      <translation>Delta Detection helps when pressed colors fade in or out instead of switching cleanly.</translation>
+      <translation>当按下颜色是淡入或淡出，而不是清晰切换时，差值检测会有帮助。</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="770" />
       <source>Black Key Filter reduces false black-key notes caused by nearby overlays.</source>
-      <translation>Black Key Filter reduces false black-key notes caused by nearby overlays.</translation>
+      <translation>黑键过滤可减少附近叠加层导致的黑键误检。</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="779" />
       <source>Detection Sensitivity</source>
-      <translation>Detection Sensitivity</translation>
+      <translation>检测灵敏度</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="798" />
       <source>Detection Sensitivity:</source>
-      <translation>Detection Sensitivity:</translation>
+      <translation>检测灵敏度：</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1011" />
       <source>Select Spark Area Above Keys</source>
-      <translation>Select Spark Area Above Keys</translation>
+      <translation>选择按键上方的火花区域</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1015" />
       <source>Select the area above the keys where spark bars and flashes appear.</source>
-      <translation>Select the area above the keys where spark bars and flashes appear.</translation>
+      <translation>选择按键上方出现火花条和闪光的区域。</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1025" />
       <source>Show or hide the spark area overlay on the video.</source>
-      <translation>Show or hide the spark area overlay on the video.</translation>
+      <translation>显示或隐藏视频中的火花区域叠加层。</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1189" />
       <source>Convert Only Part of the Video</source>
-      <translation>Convert Only Part of the Video</translation>
+      <translation>只转换视频的一部分</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1193" />
       <source>This affects MIDI creation only. It does not trim or change the video session.</source>
-      <translation>This affects MIDI creation only. It does not trim or change the video session.</translation>
+      <translation>这只影响 MIDI 创建。它不会裁剪或更改视频会话。</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1256" />
       <location filename="../gui/controls_qt.py" line="1312" />
       <location filename="../gui/controls_qt.py" line="1526" />
       <source>Permanently Trim Project</source>
-      <translation>Permanently Trim Project</translation>
+      <translation>永久裁剪项目</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1261" />
       <source>Most users should use MIDI range instead. Trim changes the working video session, not the original video file.</source>
-      <translation>Most users should use MIDI range instead. Trim changes the working video session, not the original video file.</translation>
+      <translation>大多数用户应改用 MIDI 范围。裁剪会更改当前工作视频会话，而不是原始视频文件。</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1334" />
       <source>Put each hand/color on a separate MIDI channel</source>
-      <translation>Put each hand/color on a separate MIDI channel</translation>
+      <translation>将每只手/每种颜色放到单独的 MIDI 通道</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1340" />
       <source>Use this only if the video uses different colors for left and right hand notes.</source>
-      <translation>Use this only if the video uses different colors for left and right hand notes.</translation>
+      <translation>仅当视频使用不同颜色表示左手和右手音符时使用此项。</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1562" />
       <source>&lt;b&gt;This will permanently trim the working video session.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Frames outside {start_frame} to {end_text} will be unavailable in this project session.&lt;br&gt;&lt;br&gt;Most users should cancel and use the MIDI range controls instead.</source>
-      <translation>&lt;b&gt;This will permanently trim the working video session.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Frames outside {start_frame} to {end_text} will be unavailable in this project session.&lt;br&gt;&lt;br&gt;Most users should cancel and use the MIDI range controls instead.</translation>
+      <translation>&lt;b&gt;这将永久裁剪当前工作视频会话。&lt;/b&gt;&lt;br&gt;&lt;br&gt;{start_frame} 到 {end_text} 之外的帧将在此项目会话中不可用。&lt;br&gt;&lt;br&gt;大多数用户应取消并改用 MIDI 范围控件。</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="1575" />
       <source>Trim Project</source>
-      <translation>Trim Project</translation>
+      <translation>裁剪项目</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="2007" />
@@ -1254,7 +1254,7 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
     <message>
       <location filename="../gui/controls_qt.py" line="966" />
       <source>Use this only if repeated notes merge into one long note.</source>
-      <translation>Use this only if repeated notes merge into one long note.</translation>
+      <translation>仅当重复音符合并成一个长音符时使用此项。</translation>
     </message>
     <message>
       <location filename="../gui/controls_qt.py" line="972" />

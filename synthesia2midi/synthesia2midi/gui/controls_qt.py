@@ -1560,10 +1560,12 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
         if label is not None:
             label.setText(str(value))
 
-    def _apply_overlay_adjustment(self, key_color: str, dimension: str, delta: int) -> None:
+    def confirm_overlay_adjustment_applied(self, key_color: str, dimension: str, delta: int) -> None:
         key = self._overlay_adjustment_key(key_color, dimension)
         current_value = self._overlay_adjustment_values.get(key, 0)
         self._set_overlay_adjustment_value(key_color, dimension, current_value + delta)
+
+    def _apply_overlay_adjustment(self, key_color: str, dimension: str, delta: int) -> None:
         self.overlay_size_adjustment_requested.emit(key_color, dimension, delta)
 
     def _reset_overlay_adjustment(self, key_color: str, dimension: str) -> None:
@@ -1572,7 +1574,6 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
         if current_value == 0:
             self._set_overlay_adjustment_value(key_color, dimension, 0)
             return
-        self._set_overlay_adjustment_value(key_color, dimension, 0)
         self.overlay_size_adjustment_requested.emit(key_color, dimension, -current_value)
     
     def _toggle_spark_roi_visibility(self):

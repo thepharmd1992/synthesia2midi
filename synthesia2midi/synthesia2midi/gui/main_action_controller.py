@@ -78,7 +78,10 @@ class MainActionController:
             controller.open()
 
     def handle_overlay_size_adjustment(self, key_color: str, dimension: str, delta: int) -> None:
-        self.app.overlay_manager.adjust_overlay_sizes(key_color, dimension, delta)
+        applied = self.app.overlay_manager.adjust_overlay_sizes(key_color, dimension, delta)
+        control_panel = getattr(self.app, "control_panel", None)
+        if control_panel is not None and (applied or not self.app.app_state.overlays):
+            control_panel.confirm_overlay_adjustment_applied(key_color, dimension, delta)
 
     def toggle_hist_detection(self, enabled=None) -> None:
         detection_manager = self._detection_manager()

@@ -354,7 +354,7 @@ class OverlayManager:
         
         return True
     
-    def adjust_overlay_sizes(self, key_color: str, dimension: str, delta: int):
+    def adjust_overlay_sizes(self, key_color: str, dimension: str, delta: int) -> bool:
         """
         Adjust overlay sizes symmetrically from center.
         
@@ -362,86 +362,87 @@ class OverlayManager:
             key_color: "white" or "black" - which key type to adjust
             dimension: "width" or "height" - which dimension to adjust
             delta: Amount to adjust (typically +2 or -2 pixels)
+
+        Returns:
+            True when the requested step was applied and can be counted by the UI.
         """
         if dimension in {"left_slant", "right_slant"}:
-            self._adjust_overlay_slant(dimension, delta)
-            return
+            return self._adjust_overlay_slant(dimension, delta)
 
         white_key_note_names = {name for name in NOTE_NAMES_SHARP if "♯" not in name and "♭" not in name}
-        modified_count = 0
-        
-        for overlay in self.app_state.overlays:
-            is_white_key = overlay.note_name_in_octave in white_key_note_names
-            target_is_white = key_color.lower() == "white"
-            
-            # Only adjust overlays of the matching key color type
-            if is_white_key == target_is_white:
-                if dimension == "width":
-                    # Calculate new width
-                    new_width = overlay.width + delta
-                    if new_width < 1:  # Minimum width of 1 pixel
-                        continue
-                        
-                    # Calculate center position
-                    center_x = overlay.x + overlay.width / 2
-                    
-                    # Set new width and adjust x to keep center fixed
-                    overlay.width = new_width
-                    overlay.x = center_x - new_width / 2
-                    
-                    # Ensure overlay stays within image bounds
-                    if overlay.x < 0:
-                        overlay.x = 0
-                    elif self.ui_updater and self.ui_updater.has_video_loaded():
-                        video_session = self.ui_updater.get_video_session()
-                        if video_session and overlay.x + overlay.width > video_session.width:
-                            overlay.x = video_session.width - overlay.width
-                        
-                elif dimension == "height":
-                    # Calculate new height
-                    new_height = overlay.height + delta
-                    if new_height < 1:  # Minimum height of 1 pixel
-                        continue
-                        
-                    # Calculate center position
-                    center_y = overlay.y + overlay.height / 2
-                    
-                    # Set new height and adjust y to keep center fixed
-                    overlay.height = new_height
-                    overlay.y = center_y - new_height / 2
-                    
-                    # Ensure overlay stays within image bounds
-                    if overlay.y < 0:
-                        overlay.y = 0
-                    elif self.ui_updater and self.ui_updater.has_video_loaded():
-                        video_session = self.ui_updater.get_video_session()
-                        if video_session and overlay.y + overlay.height > video_session.height:
-                            overlay.y = video_session.height - overlay.height
-                
-                modified_count += 1
-        
-        if modified_count > 0:
-            self.app_state.unsaved_changes = True
-            
-            # Redraw frame if canvas is available
-            if self.ui_updater and self.app_state.video.current_frame_index is not None:
-                self.ui_updater.refresh_canvas()
-            
-            self.logger.info(f"Adjusted {dimension} by {delta} pixels for {modified_count} {key_color} keys")
+        target_is_white = key_color.lower() == "white"
+        target_overlays = [
+            overlay
+            for overlay in self.app_state.overlays
+            if (overlay.note_name_in_octave in white_key_note_names) == target_is_white
+        ]
 
-    def _adjust_overlay_slant(self, dimension: str, delta: int) -> None:
+        if not target_overlays:
+            return False
+
+        size_attr = "width" if dimension == "width" else "height"
+        if dimension not in {"width", "height"}:
+            self.logger.warning("Unsupported overlay adjustment dimension: %s", dimension)
+            return False
+
+        if any(float(getattr(overlay, size_attr)) + delta < 1 for overlay in target_overlays):
+            self.logger.info(
+                "Skipped %s adjustment by %s for %s keys because at least one overlay would shrink below 1px",
+                dimension,
+                delta,
+                key_color,
+            )
+            return False
+        
+        for overlay in target_overlays:
+            if dimension == "width":
+                new_width = overlay.width + delta
+                center_x = overlay.x + overlay.width / 2
+                overlay.width = new_width
+                overlay.x = center_x - new_width / 2
+
+                if overlay.x < 0:
+                    overlay.x = 0
+                elif self.ui_updater and self.ui_updater.has_video_loaded():
+                    video_session = self.ui_updater.get_video_session()
+                    if video_session and overlay.x + overlay.width > video_session.width:
+                        overlay.x = video_session.width - overlay.width
+
+            elif dimension == "height":
+                new_height = overlay.height + delta
+                center_y = overlay.y + overlay.height / 2
+                overlay.height = new_height
+                overlay.y = center_y - new_height / 2
+
+                if overlay.y < 0:
+                    overlay.y = 0
+                elif self.ui_updater and self.ui_updater.has_video_loaded():
+                    video_session = self.ui_updater.get_video_session()
+                    if video_session and overlay.y + overlay.height > video_session.height:
+                        overlay.y = video_session.height - overlay.height
+        
+        modified_count = len(target_overlays)
+        self.app_state.unsaved_changes = True
+
+        if self.ui_updater and self.app_state.video.current_frame_index is not None:
+            self.ui_updater.refresh_canvas()
+
+        self.logger.info(f"Adjusted {dimension} by {delta} pixels for {modified_count} {key_color} keys")
+        return True
+
+    def _adjust_overlay_slant(self, dimension: str, delta: int) -> bool:
         key_overlays = [
             overlay
             for overlay in self.app_state.overlays
             if getattr(overlay, "overlay_type", "key") == "key"
         ]
         if not key_overlays:
-            return
+            return False
 
         left = min(float(overlay.x) for overlay in key_overlays)
         right = max(float(overlay.x) + float(overlay.width) for overlay in key_overlays)
         span = max(1.0, right - left)
-        modified_count = 0
+        planned_rotations: list[tuple[OverlayConfig, float]] = []
 
         for overlay in key_overlays:
             center_x = float(overlay.x) + (float(overlay.width) / 2.0)
@@ -452,11 +453,24 @@ class OverlayManager:
             if weight <= 0:
                 continue
             current_rotation = float(getattr(overlay, "rotation_degrees", 0.0) or 0.0)
-            overlay.rotation_degrees = max(-45.0, min(45.0, current_rotation + (float(delta) * weight)))
-            modified_count += 1
+            new_rotation = current_rotation + (float(delta) * weight)
+            if new_rotation < -45.0 or new_rotation > 45.0:
+                self.logger.info(
+                    "Skipped %s adjustment by %s because at least one overlay would exceed the supported slant range",
+                    dimension,
+                    delta,
+                )
+                return False
+            planned_rotations.append((overlay, new_rotation))
 
-        if modified_count > 0:
-            self.app_state.unsaved_changes = True
-            if self.ui_updater and self.app_state.video.current_frame_index is not None:
-                self.ui_updater.refresh_canvas()
-            self.logger.info("Adjusted %s by %s for %s overlays", dimension, delta, modified_count)
+        if not planned_rotations:
+            return False
+
+        for overlay, new_rotation in planned_rotations:
+            overlay.rotation_degrees = new_rotation
+
+        self.app_state.unsaved_changes = True
+        if self.ui_updater and self.app_state.video.current_frame_index is not None:
+            self.ui_updater.refresh_canvas()
+        self.logger.info("Adjusted %s by %s for %s overlays", dimension, delta, len(planned_rotations))
+        return True

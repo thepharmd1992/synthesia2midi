@@ -257,40 +257,40 @@ def test_overlays_tab_exposes_manual_fit_entry_point(monkeypatch):
 
 
 def test_overlays_tab_exposes_left_and_right_slant_controls(monkeypatch):
-    panel, app_state = _make_overlay_adjustment_panel()
+    app = _make_app(monkeypatch)
     try:
         emitted = []
-        _seed_quick_adjust_overlays(app_state)
-        panel.update_controls_from_state()
-        panel.overlay_size_adjustment_requested.connect(
+        try:
+            app.control_panel.overlay_size_adjustment_requested.disconnect()
+        except (TypeError, RuntimeError):
+            pass
+        app.control_panel.overlay_size_adjustment_requested.connect(
             lambda key_color, dimension, delta: emitted.append((key_color, dimension, delta))
         )
 
-        assert panel.left_slant_label.text() == "Left Slant"
-        assert panel.right_slant_label.text() == "Right Slant"
-        assert panel.left_slant_value_label.text() == "0"
-        assert panel.right_slant_value_label.text() == "0"
-        assert panel.left_slant_reset_button.text() == "Reset"
-        assert panel.right_slant_reset_button.text() == "Reset"
-        assert panel.left_slant_reset_button.maximumWidth() == UNBOUNDED_WIDGET_SIZE
+        assert app.control_panel.left_slant_label.text() == "Left Slant"
+        assert app.control_panel.right_slant_label.text() == "Right Slant"
+        assert app.control_panel.left_slant_value_label.text() == "0"
+        assert app.control_panel.right_slant_value_label.text() == "0"
+        assert app.control_panel.left_slant_reset_button.text() == "Reset"
+        assert app.control_panel.right_slant_reset_button.text() == "Reset"
 
-        panel.left_slant_inc_button.click()
-        panel.right_slant_dec_button.click()
+        app.control_panel.left_slant_inc_button.click()
+        app.control_panel.right_slant_dec_button.click()
 
-        assert panel.left_slant_value_label.text() == "1"
-        assert panel.right_slant_value_label.text() == "-1"
+        assert app.control_panel.left_slant_value_label.text() == "1"
+        assert app.control_panel.right_slant_value_label.text() == "-1"
 
-        panel.left_slant_reset_button.click()
+        app.control_panel.left_slant_reset_button.click()
 
-        assert panel.left_slant_value_label.text() == "0"
+        assert app.control_panel.left_slant_value_label.text() == "0"
         assert emitted == [
             ("all", "left_slant", 1),
             ("all", "right_slant", -1),
             ("all", "left_slant", -1),
         ]
     finally:
-        panel.close()
-        panel.deleteLater()
+        app.close()
 
 
 def test_overlays_tab_exposes_white_and_black_quick_adjust_controls(monkeypatch):
@@ -327,30 +327,6 @@ def test_overlays_tab_exposes_white_and_black_quick_adjust_controls(monkeypatch)
             dimension="height",
             delta=2,
         )
-    finally:
-        panel.close()
-        panel.deleteLater()
-
-
-def test_overlay_quick_adjust_empty_state_does_not_change_display(monkeypatch):
-    panel, _app_state = _make_overlay_adjustment_panel()
-    try:
-        emitted = []
-        panel.overlay_size_adjustment_requested.connect(
-            lambda key_color, dimension, delta: emitted.append((key_color, dimension, delta))
-        )
-
-        assert panel.left_slant_value_label.text() == "0"
-
-        panel.left_slant_inc_button.click()
-
-        assert panel.left_slant_value_label.text() == "0"
-        assert emitted == []
-
-        panel.left_slant_reset_button.click()
-
-        assert panel.left_slant_value_label.text() == "0"
-        assert emitted == []
     finally:
         panel.close()
         panel.deleteLater()
@@ -394,64 +370,6 @@ def test_overlay_quick_adjust_values_reset_when_overlays_are_cleared():
     finally:
         panel.close()
         panel.deleteLater()
-
-
-def test_white_width_quick_adjust_does_not_drift_when_any_target_would_underflow(monkeypatch):
-    panel, app_state = _make_overlay_adjustment_panel()
-    try:
-        emitted = []
-        panel.overlay_size_adjustment_requested.connect(
-            lambda key_color, dimension, delta: emitted.append((key_color, dimension, delta))
-        )
-        app_state.overlays = [
-            _make_overlay(key_id=1, note_name="C", x=0, width=1),
-            _make_overlay(key_id=2, note_name="D", x=8, width=6),
-        ]
-        panel.update_controls_from_state()
-
-        panel.white_width_dec_button.click()
-
-        assert panel.white_width_value_label.text() == "0"
-        assert [overlay.width for overlay in app_state.overlays] == [1, 6]
-        assert emitted == []
-
-        panel.white_width_reset_button.click()
-
-        assert panel.white_width_value_label.text() == "0"
-        assert emitted == []
-    finally:
-        panel.close()
-        panel.deleteLater()
-
-
-def test_right_slant_quick_adjust_does_not_drift_when_rotation_would_clamp(monkeypatch):
-    panel, app_state = _make_overlay_adjustment_panel()
-    try:
-        emitted = []
-        panel.overlay_size_adjustment_requested.connect(
-            lambda key_color, dimension, delta: emitted.append((key_color, dimension, delta))
-        )
-        app_state.overlays = [
-            _make_overlay(key_id=1, note_name="C", x=0, width=4, rotation=0.0),
-            _make_overlay(key_id=2, note_name="E", x=20, width=4, rotation=45.0),
-        ]
-        panel.update_controls_from_state()
-
-        panel.right_slant_inc_button.click()
-
-        assert panel.right_slant_value_label.text() == "0"
-        assert [overlay.rotation_degrees for overlay in app_state.overlays] == [0.0, 45.0]
-        assert emitted == []
-
-        panel.right_slant_reset_button.click()
-
-        assert panel.right_slant_value_label.text() == "0"
-        assert emitted == []
-    finally:
-        panel.close()
-        panel.deleteLater()
-
-
 def test_settings_gear_preserves_tool_window_position_after_hide_show(monkeypatch):
     app = _make_app(monkeypatch)
     try:

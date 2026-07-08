@@ -13,6 +13,7 @@ dependencies:
   - TASK-16
 documentation:
   - docs/superpowers/specs/2026-07-08-phase-1-ux-hardening-design.md
+  - docs/superpowers/plans/2026-07-08-phase-1-ux-hardening.md
 modified_files: []
 priority: high
 ordinal: 17000
@@ -41,6 +42,7 @@ Implement the first UX hardening slice from the internal settings/calibration au
 
 <!-- SECTION:NOTES:BEGIN -->
 - Design spec: `docs/superpowers/specs/2026-07-08-phase-1-ux-hardening-design.md`
+- Implementation plan: `docs/superpowers/plans/2026-07-08-phase-1-ux-hardening.md`
 - Expected focused gates include:
   - `git diff --check`
   - `.venv/bin/python -m compileall -q synthesia2midi`

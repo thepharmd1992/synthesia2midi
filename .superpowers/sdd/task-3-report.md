@@ -158,3 +158,26 @@ Results:
   - Empty/baseline/underflow/clamp coverage: `5 passed in 0.45s`
   - `git diff --check`: clean
   - `git diff --stat 0132644..HEAD -- synthesia2midi/synthesia2midi/workflows/overlay_manager.py synthesia2midi/synthesia2midi/gui/main_action_controller.py`: no output
+
+## Fix
+- Files changed:
+  - `synthesia2midi/synthesia2midi/gui/controls_qt.py`
+  - `tests/test_main_window_layout.py`
+- Behavior changed:
+  - `ControlPanelQt._apply_overlay_adjustment(...)` now follows the Task 3 brief literally again: it always updates the visible local counter by the requested delta and always emits `overlay_size_adjustment_requested(key_color, dimension, delta)`.
+  - `_reset_overlay_adjustment(...)` keeps the local counted reset model: if the displayed value is already `0`, it emits nothing; otherwise it resets the display to `0` and emits the inverse counted delta.
+  - Removed the panel-side safety-gate helpers and restored `test_overlays_tab_exposes_left_and_right_slant_controls` to the brief’s app-level `Video2MidiApp` shape.
+  - Mixed partial backend mutations remain intentionally deferred as follow-up work because suppressing or re-shaping the emitted request would conflict with the brief’s signal-preservation requirement.
+- Tests run:
+  - `.venv/bin/python -m pytest tests/test_main_window_layout.py::test_overlays_tab_exposes_left_and_right_slant_controls -v`
+  - `.venv/bin/python -m pytest tests/test_main_window_layout.py::test_overlays_tab_exposes_left_and_right_slant_controls tests/test_main_window_layout.py::test_overlays_tab_exposes_white_and_black_quick_adjust_controls -v`
+  - `.venv/bin/python -m pytest tests/test_main_window_layout.py::test_overlay_quick_adjust_values_reset_when_overlay_baseline_changes tests/test_main_window_layout.py::test_overlay_quick_adjust_values_reset_when_overlays_are_cleared -v`
+  - `git diff --check`
+  - `git diff --stat 0132644..HEAD -- synthesia2midi/synthesia2midi/workflows/overlay_manager.py synthesia2midi/synthesia2midi/gui/main_action_controller.py`
+- Results:
+  - Restored app-level slant test: `1 passed`
+  - Reviewer quick-adjust pair: `2 passed in 1.03s`
+  - Baseline-change and overlays-cleared reset checks: `2 passed in 0.93s`
+  - `git diff --check`: clean
+  - `git diff --stat 0132644..HEAD -- synthesia2midi/synthesia2midi/workflows/overlay_manager.py synthesia2midi/synthesia2midi/gui/main_action_controller.py`: no output
+  - Code/test commit: `c5fbfbc` (`Restore Task 3 overlay quick-adjust contract`)

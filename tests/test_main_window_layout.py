@@ -67,6 +67,15 @@ def _make_overlay(*, key_id: int, note_name: str, x: float, width: float, rotati
     )
 
 
+def _seed_quick_adjust_overlays(app_state) -> None:
+    app_state.overlays = [
+        _make_overlay(key_id=1, note_name="C", x=0, width=6, rotation=0.0),
+        _make_overlay(key_id=2, note_name="C♯", x=8, width=4, rotation=0.0),
+        _make_overlay(key_id=3, note_name="E", x=16, width=6, rotation=0.0),
+        _make_overlay(key_id=4, note_name="F♯", x=24, width=4, rotation=0.0),
+    ]
+
+
 def _make_overlay_adjustment_panel():
     QApplication.instance() or QApplication([])
     app_state = AppState()
@@ -78,6 +87,7 @@ def _make_overlay_adjustment_panel():
         overlay_manager=overlay_manager,
     )
     controller = MainActionController(app)
+    panel._test_main_action_controller = controller
     panel.overlay_size_adjustment_requested.connect(controller.handle_overlay_size_adjustment)
     return panel, app_state
 
@@ -252,49 +262,52 @@ def test_overlays_tab_exposes_manual_fit_entry_point(monkeypatch):
 
 
 def test_overlays_tab_exposes_left_and_right_slant_controls(monkeypatch):
-    app = _make_app(monkeypatch)
+    panel, app_state = _make_overlay_adjustment_panel()
     try:
         emitted = []
-        app.control_panel.overlay_size_adjustment_requested.connect(
+        _seed_quick_adjust_overlays(app_state)
+        panel.overlay_size_adjustment_requested.connect(
             lambda key_color, dimension, delta: emitted.append((key_color, dimension, delta))
         )
 
-        assert app.control_panel.left_slant_label.text() == "Left Slant"
-        assert app.control_panel.right_slant_label.text() == "Right Slant"
-        assert app.control_panel.left_slant_value_label.text() == "0"
-        assert app.control_panel.right_slant_value_label.text() == "0"
-        assert app.control_panel.left_slant_reset_button.text() == "Reset"
-        assert app.control_panel.right_slant_reset_button.text() == "Reset"
-        assert app.control_panel.left_slant_reset_button.maximumWidth() == UNBOUNDED_WIDGET_SIZE
+        assert panel.left_slant_label.text() == "Left Slant"
+        assert panel.right_slant_label.text() == "Right Slant"
+        assert panel.left_slant_value_label.text() == "0"
+        assert panel.right_slant_value_label.text() == "0"
+        assert panel.left_slant_reset_button.text() == "Reset"
+        assert panel.right_slant_reset_button.text() == "Reset"
+        assert panel.left_slant_reset_button.maximumWidth() == UNBOUNDED_WIDGET_SIZE
 
-        app.control_panel.left_slant_inc_button.click()
-        app.control_panel.right_slant_dec_button.click()
+        panel.left_slant_inc_button.click()
+        panel.right_slant_dec_button.click()
 
-        assert app.control_panel.left_slant_value_label.text() == "1"
-        assert app.control_panel.right_slant_value_label.text() == "-1"
+        assert panel.left_slant_value_label.text() == "1"
+        assert panel.right_slant_value_label.text() == "-1"
 
-        app.control_panel.left_slant_reset_button.click()
+        panel.left_slant_reset_button.click()
 
-        assert app.control_panel.left_slant_value_label.text() == "0"
+        assert panel.left_slant_value_label.text() == "0"
         assert emitted == [
             ("all", "left_slant", 1),
             ("all", "right_slant", -1),
             ("all", "left_slant", -1),
         ]
     finally:
-        app.close()
+        panel.close()
+        panel.deleteLater()
 
 
 def test_overlays_tab_exposes_white_and_black_quick_adjust_controls(monkeypatch):
-    app = _make_app(monkeypatch)
+    panel, app_state = _make_overlay_adjustment_panel()
     try:
         emitted = []
-        app.control_panel.overlay_size_adjustment_requested.connect(
+        _seed_quick_adjust_overlays(app_state)
+        panel.overlay_size_adjustment_requested.connect(
             lambda key_color, dimension, delta: emitted.append((key_color, dimension, delta))
         )
 
         _assert_quick_adjust_control(
-            app.control_panel,
+            panel,
             emitted,
             label_attr="white_width_label",
             value_label_attr="white_width_value_label",
@@ -306,7 +319,7 @@ def test_overlays_tab_exposes_white_and_black_quick_adjust_controls(monkeypatch)
             delta=2,
         )
         _assert_quick_adjust_control(
-            app.control_panel,
+            panel,
             emitted,
             label_attr="black_height_label",
             value_label_attr="black_height_value_label",
@@ -318,7 +331,70 @@ def test_overlays_tab_exposes_white_and_black_quick_adjust_controls(monkeypatch)
             delta=2,
         )
     finally:
-        app.close()
+        panel.close()
+        panel.deleteLater()
+
+
+def test_overlay_quick_adjust_empty_state_does_not_change_display(monkeypatch):
+    panel, _app_state = _make_overlay_adjustment_panel()
+    try:
+        emitted = []
+        panel.overlay_size_adjustment_requested.connect(
+            lambda key_color, dimension, delta: emitted.append((key_color, dimension, delta))
+        )
+
+        assert panel.left_slant_value_label.text() == "0"
+
+        panel.left_slant_inc_button.click()
+
+        assert panel.left_slant_value_label.text() == "0"
+        assert emitted == [("all", "left_slant", 1)]
+
+        panel.left_slant_reset_button.click()
+
+        assert panel.left_slant_value_label.text() == "0"
+        assert emitted == [("all", "left_slant", 1)]
+    finally:
+        panel.close()
+        panel.deleteLater()
+
+
+def test_overlay_quick_adjust_values_reset_when_overlay_baseline_changes():
+    panel, app_state = _make_overlay_adjustment_panel()
+    try:
+        _seed_quick_adjust_overlays(app_state)
+
+        panel.white_width_inc_button.click()
+
+        assert panel.white_width_value_label.text() == "2"
+
+        for overlay in app_state.overlays:
+            overlay.x += 10
+
+        panel.update_controls_from_state()
+
+        assert panel.white_width_value_label.text() == "0"
+    finally:
+        panel.close()
+        panel.deleteLater()
+
+
+def test_overlay_quick_adjust_values_reset_when_overlays_are_cleared():
+    panel, app_state = _make_overlay_adjustment_panel()
+    try:
+        _seed_quick_adjust_overlays(app_state)
+
+        panel.white_width_inc_button.click()
+
+        assert panel.white_width_value_label.text() == "2"
+
+        app_state.overlays.clear()
+        panel.update_controls_from_state()
+
+        assert panel.white_width_value_label.text() == "0"
+    finally:
+        panel.close()
+        panel.deleteLater()
 
 
 def test_white_width_quick_adjust_does_not_drift_when_any_target_would_underflow(monkeypatch):

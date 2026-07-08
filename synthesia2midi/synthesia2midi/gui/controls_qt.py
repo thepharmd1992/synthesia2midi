@@ -162,6 +162,7 @@ class ControlPanelQt(QWidget):
         self.widgets = {}
         self._overlay_adjustment_values: dict[tuple[str, str], int] = {}
         self._overlay_adjustment_value_labels: dict[tuple[str, str], QLabel] = {}
+        self._overlay_adjustment_basis: tuple[tuple[int, float, float, float, float, float], ...] | None = None
         
         self._setup_ui()
         self.update_controls_from_state()
@@ -1553,6 +1554,23 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
     def _overlay_adjustment_key(self, key_color: str, dimension: str) -> tuple[str, str]:
         return key_color, dimension
 
+    def _current_overlay_adjustment_basis(self) -> tuple[tuple[int, float, float, float, float, float], ...] | None:
+        overlays = getattr(self.app_state, "overlays", None)
+        if not overlays:
+            return None
+        ordered_overlays = sorted(overlays, key=lambda overlay: int(getattr(overlay, "key_id", 0)))
+        return tuple(
+            (
+                int(getattr(overlay, "key_id", 0)),
+                float(getattr(overlay, "x", 0.0)),
+                float(getattr(overlay, "y", 0.0)),
+                float(getattr(overlay, "width", 0.0)),
+                float(getattr(overlay, "height", 0.0)),
+                float(getattr(overlay, "rotation_degrees", 0.0) or 0.0),
+            )
+            for overlay in ordered_overlays
+        )
+
     def _set_overlay_adjustment_value(self, key_color: str, dimension: str, value: int) -> None:
         key = self._overlay_adjustment_key(key_color, dimension)
         self._overlay_adjustment_values[key] = value
@@ -1560,10 +1578,25 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
         if label is not None:
             label.setText(str(value))
 
+    def clear_overlay_adjustments(self) -> None:
+        for key_color, dimension in self._overlay_adjustment_value_labels:
+            self._set_overlay_adjustment_value(key_color, dimension, 0)
+
+    def _sync_overlay_adjustment_state(self) -> None:
+        current_basis = self._current_overlay_adjustment_basis()
+        if current_basis is None:
+            self.clear_overlay_adjustments()
+            self._overlay_adjustment_basis = None
+            return
+        if self._overlay_adjustment_basis != current_basis:
+            self.clear_overlay_adjustments()
+            self._overlay_adjustment_basis = current_basis
+
     def confirm_overlay_adjustment_applied(self, key_color: str, dimension: str, delta: int) -> None:
         key = self._overlay_adjustment_key(key_color, dimension)
         current_value = self._overlay_adjustment_values.get(key, 0)
         self._set_overlay_adjustment_value(key_color, dimension, current_value + delta)
+        self._overlay_adjustment_basis = self._current_overlay_adjustment_basis()
 
     def _apply_overlay_adjustment(self, key_color: str, dimension: str, delta: int) -> None:
         self.overlay_size_adjustment_requested.emit(key_color, dimension, delta)
@@ -1635,6 +1668,8 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
             return
         
         try:
+            self._sync_overlay_adjustment_state()
+
             # Update detection settings
             if hasattr(self.app_state, 'detection'):
                 threshold_percent = int(self.app_state.detection.detection_threshold * 100)

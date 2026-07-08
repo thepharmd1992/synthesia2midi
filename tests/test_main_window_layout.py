@@ -62,6 +62,7 @@ def _assert_quick_adjust_control(
     assert getattr(control_panel, label_attr).text() == expected_label
     assert getattr(control_panel, value_label_attr).text() == "0"
     assert getattr(control_panel, reset_button_attr).text() == "Reset"
+    assert getattr(control_panel, reset_button_attr).maximumWidth() == UNBOUNDED_WIDGET_SIZE
 
     getattr(control_panel, increment_button_attr).click()
 
@@ -232,6 +233,7 @@ def test_overlays_tab_exposes_left_and_right_slant_controls(monkeypatch):
         assert app.control_panel.right_slant_value_label.text() == "0"
         assert app.control_panel.left_slant_reset_button.text() == "Reset"
         assert app.control_panel.right_slant_reset_button.text() == "Reset"
+        assert app.control_panel.left_slant_reset_button.maximumWidth() == UNBOUNDED_WIDGET_SIZE
 
         app.control_panel.left_slant_inc_button.click()
         app.control_panel.right_slant_dec_button.click()

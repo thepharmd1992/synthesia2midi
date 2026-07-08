@@ -584,7 +584,6 @@ class ControlPanelQt(QWidget):
             value_label = QLabel("0")
             value_label.setMinimumWidth(24)
             reset_button = QPushButton(translate("ControlPanelQt", "Reset"))
-            reset_button.setMaximumWidth(72)
             reset_button.clicked.connect(
                 lambda checked=False, kc=key_color, dim=dimension: self._reset_overlay_adjustment(kc, dim)
             )

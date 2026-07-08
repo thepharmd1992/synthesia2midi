@@ -8,7 +8,7 @@ from synthesia2midi.core.app_state import AppState
 from synthesia2midi.gui.controls_qt import ControlPanelQt
 from synthesia2midi.gui.main_action_controller import MainActionController
 from synthesia2midi.main import Video2MidiApp
-from synthesia2midi.workflows.overlay_manager import OverlayManager
+from synthesia2midi.workflows.overlay_manager import OverlayAdjustmentResult, OverlayManager
 
 UNBOUNDED_WIDGET_SIZE = 16777215
 
@@ -81,7 +81,9 @@ def _make_overlay_adjustment_panel():
     app_state = AppState()
     panel = ControlPanelQt(app_state=app_state)
     overlay_manager = OverlayManager(app_state)
-    controller = MainActionController(SimpleNamespace(overlay_manager=overlay_manager))
+    controller = MainActionController(
+        SimpleNamespace(overlay_manager=overlay_manager, control_panel=panel)
+    )
     panel._test_overlay_manager = overlay_manager
     panel._test_main_action_controller = controller
     panel.overlay_size_adjustment_requested.connect(controller.handle_overlay_size_adjustment)
@@ -259,39 +261,40 @@ def test_overlays_tab_exposes_manual_fit_entry_point(monkeypatch):
 
 
 def test_overlays_tab_exposes_left_and_right_slant_controls(monkeypatch):
-    panel, app_state = _make_overlay_adjustment_panel()
+    app = _make_app(monkeypatch)
     try:
         emitted = []
-        _seed_quick_adjust_overlays(app_state)
-        panel.update_controls_from_state()
-        panel.overlay_size_adjustment_requested.connect(
+        try:
+            app.control_panel.overlay_size_adjustment_requested.disconnect()
+        except (TypeError, RuntimeError):
+            pass
+        app.control_panel.overlay_size_adjustment_requested.connect(
             lambda key_color, dimension, delta: emitted.append((key_color, dimension, delta))
         )
 
-        assert panel.left_slant_label.text() == "Left Slant"
-        assert panel.right_slant_label.text() == "Right Slant"
-        assert panel.left_slant_value_label.text() == "0"
-        assert panel.right_slant_value_label.text() == "0"
-        assert panel.left_slant_reset_button.text() == "Reset"
-        assert panel.right_slant_reset_button.text() == "Reset"
+        assert app.control_panel.left_slant_label.text() == "Left Slant"
+        assert app.control_panel.right_slant_label.text() == "Right Slant"
+        assert app.control_panel.left_slant_value_label.text() == "0"
+        assert app.control_panel.right_slant_value_label.text() == "0"
+        assert app.control_panel.left_slant_reset_button.text() == "Reset"
+        assert app.control_panel.right_slant_reset_button.text() == "Reset"
 
-        panel.left_slant_inc_button.click()
-        panel.right_slant_dec_button.click()
+        app.control_panel.left_slant_inc_button.click()
+        app.control_panel.right_slant_dec_button.click()
 
-        assert panel.left_slant_value_label.text() == "1"
-        assert panel.right_slant_value_label.text() == "-1"
+        assert app.control_panel.left_slant_value_label.text() == "1"
+        assert app.control_panel.right_slant_value_label.text() == "-1"
 
-        panel.left_slant_reset_button.click()
+        app.control_panel.left_slant_reset_button.click()
 
-        assert panel.left_slant_value_label.text() == "0"
+        assert app.control_panel.left_slant_value_label.text() == "0"
         assert emitted == [
             ("all", "left_slant", 1),
             ("all", "right_slant", -1),
             ("all", "left_slant", -1),
         ]
     finally:
-        panel.close()
-        panel.deleteLater()
+        app.close()
 
 
 def test_overlays_tab_exposes_white_and_black_quick_adjust_controls(monkeypatch):
@@ -444,6 +447,56 @@ def test_right_slant_quick_adjust_becomes_indeterminate_when_backend_clamps_mixe
     finally:
         panel.close()
         panel.deleteLater()
+
+
+def test_overlay_manager_reports_mixed_results_for_partial_and_clamped_adjustments():
+    app_state = AppState()
+    app_state.overlays = [
+        _make_overlay(key_id=1, note_name="C", x=10, width=6, rotation=0.0),
+        _make_overlay(key_id=2, note_name="E", x=20, width=2, rotation=0.0),
+        _make_overlay(key_id=3, note_name="G", x=30, width=4, rotation=44.5),
+    ]
+    overlay_manager = OverlayManager(app_state)
+
+    width_result = overlay_manager.adjust_overlay_sizes("white", "width", -2)
+    slant_result = overlay_manager.adjust_overlay_sizes("all", "right_slant", 1)
+
+    assert width_result == OverlayAdjustmentResult(
+        key_color="white",
+        dimension="width",
+        delta=-2,
+        status="mixed",
+    )
+    assert slant_result == OverlayAdjustmentResult(
+        key_color="all",
+        dimension="right_slant",
+        delta=1,
+        status="mixed",
+    )
+
+
+def test_main_action_controller_passes_overlay_adjustment_result_back_to_control_panel():
+    app_state = AppState()
+    app_state.overlays = [_make_overlay(key_id=1, note_name="C", x=10, width=6)]
+    overlay_manager = OverlayManager(app_state)
+    received = []
+    control_panel = SimpleNamespace(
+        apply_overlay_adjustment_result=lambda result: received.append(result)
+    )
+    controller = MainActionController(
+        SimpleNamespace(overlay_manager=overlay_manager, control_panel=control_panel)
+    )
+
+    controller.handle_overlay_size_adjustment("white", "width", 2)
+
+    assert received == [
+        OverlayAdjustmentResult(
+            key_color="white",
+            dimension="width",
+            delta=2,
+            status="full",
+        )
+    ]
 
 
 def test_settings_gear_preserves_tool_window_position_after_hide_show(monkeypatch):

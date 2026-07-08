@@ -5,7 +5,9 @@ This module handles overlay manipulation operations such as alignment and key ty
 """
 
 import logging
-from typing import Optional, Tuple
+import math
+from dataclasses import dataclass
+from typing import Literal, Optional, Tuple
 
 import cv2
 import numpy as np
@@ -18,6 +20,14 @@ from ..gui.controls_qt import KEY_TYPES
 from ..gui.ui_update_interface import UIUpdateInterface
 
 translate = QCoreApplication.translate
+
+
+@dataclass(frozen=True)
+class OverlayAdjustmentResult:
+    key_color: str
+    dimension: str
+    delta: int
+    status: Literal["full", "none", "mixed"]
 
 
 class OverlayManager:
@@ -364,11 +374,12 @@ class OverlayManager:
             delta: Amount to adjust (typically +2 or -2 pixels)
         """
         if dimension in {"left_slant", "right_slant"}:
-            self._adjust_overlay_slant(dimension, delta)
-            return
+            return self._adjust_overlay_slant(dimension, delta)
 
         white_key_note_names = {name for name in NOTE_NAMES_SHARP if "♯" not in name and "♭" not in name}
         modified_count = 0
+        relevant_count = 0
+        clamped = False
         
         for overlay in self.app_state.overlays:
             is_white_key = overlay.note_name_in_octave in white_key_note_names
@@ -376,7 +387,10 @@ class OverlayManager:
             
             # Only adjust overlays of the matching key color type
             if is_white_key == target_is_white:
+                relevant_count += 1
                 if dimension == "width":
+                    before_x = float(overlay.x)
+                    before_width = float(overlay.width)
                     # Calculate new width
                     new_width = overlay.width + delta
                     if new_width < 1:  # Minimum width of 1 pixel
@@ -388,6 +402,7 @@ class OverlayManager:
                     # Set new width and adjust x to keep center fixed
                     overlay.width = new_width
                     overlay.x = center_x - new_width / 2
+                    expected_x = float(overlay.x)
                     
                     # Ensure overlay stays within image bounds
                     if overlay.x < 0:
@@ -396,8 +411,17 @@ class OverlayManager:
                         video_session = self.ui_updater.get_video_session()
                         if video_session and overlay.x + overlay.width > video_session.width:
                             overlay.x = video_session.width - overlay.width
+                    if not math.isclose(float(overlay.x), expected_x):
+                        clamped = True
+                    if not (
+                        math.isclose(float(overlay.x), before_x)
+                        and math.isclose(float(overlay.width), before_width)
+                    ):
+                        modified_count += 1
                         
                 elif dimension == "height":
+                    before_y = float(overlay.y)
+                    before_height = float(overlay.height)
                     # Calculate new height
                     new_height = overlay.height + delta
                     if new_height < 1:  # Minimum height of 1 pixel
@@ -409,6 +433,7 @@ class OverlayManager:
                     # Set new height and adjust y to keep center fixed
                     overlay.height = new_height
                     overlay.y = center_y - new_height / 2
+                    expected_y = float(overlay.y)
                     
                     # Ensure overlay stays within image bounds
                     if overlay.y < 0:
@@ -417,8 +442,13 @@ class OverlayManager:
                         video_session = self.ui_updater.get_video_session()
                         if video_session and overlay.y + overlay.height > video_session.height:
                             overlay.y = video_session.height - overlay.height
-                
-                modified_count += 1
+                    if not math.isclose(float(overlay.y), expected_y):
+                        clamped = True
+                    if not (
+                        math.isclose(float(overlay.y), before_y)
+                        and math.isclose(float(overlay.height), before_height)
+                    ):
+                        modified_count += 1
         
         if modified_count > 0:
             self.app_state.unsaved_changes = True
@@ -428,20 +458,41 @@ class OverlayManager:
                 self.ui_updater.refresh_canvas()
             
             self.logger.info(f"Adjusted {dimension} by {delta} pixels for {modified_count} {key_color} keys")
+        if clamped:
+            status = "mixed"
+        elif modified_count == 0:
+            status = "none"
+        elif modified_count == relevant_count and relevant_count > 0:
+            status = "full"
+        else:
+            status = "mixed"
+        return OverlayAdjustmentResult(
+            key_color=key_color,
+            dimension=dimension,
+            delta=delta,
+            status=status,
+        )
 
-    def _adjust_overlay_slant(self, dimension: str, delta: int) -> None:
+    def _adjust_overlay_slant(self, dimension: str, delta: int) -> OverlayAdjustmentResult:
         key_overlays = [
             overlay
             for overlay in self.app_state.overlays
             if getattr(overlay, "overlay_type", "key") == "key"
         ]
         if not key_overlays:
-            return
+            return OverlayAdjustmentResult(
+                key_color="all",
+                dimension=dimension,
+                delta=delta,
+                status="none",
+            )
 
         left = min(float(overlay.x) for overlay in key_overlays)
         right = max(float(overlay.x) + float(overlay.width) for overlay in key_overlays)
         span = max(1.0, right - left)
         modified_count = 0
+        weighted_count = 0
+        clamped = False
 
         for overlay in key_overlays:
             center_x = float(overlay.x) + (float(overlay.width) / 2.0)
@@ -451,12 +502,31 @@ class OverlayManager:
             weight = left_weight if dimension == "left_slant" else right_weight
             if weight <= 0:
                 continue
+            weighted_count += 1
             current_rotation = float(getattr(overlay, "rotation_degrees", 0.0) or 0.0)
-            overlay.rotation_degrees = max(-45.0, min(45.0, current_rotation + (float(delta) * weight)))
-            modified_count += 1
+            requested_rotation = current_rotation + (float(delta) * weight)
+            overlay.rotation_degrees = max(-45.0, min(45.0, requested_rotation))
+            if not math.isclose(float(overlay.rotation_degrees), requested_rotation):
+                clamped = True
+            if not math.isclose(float(overlay.rotation_degrees), current_rotation):
+                modified_count += 1
 
         if modified_count > 0:
             self.app_state.unsaved_changes = True
             if self.ui_updater and self.app_state.video.current_frame_index is not None:
                 self.ui_updater.refresh_canvas()
             self.logger.info("Adjusted %s by %s for %s overlays", dimension, delta, modified_count)
+        if clamped:
+            status = "mixed"
+        elif modified_count == 0:
+            status = "none"
+        elif modified_count == weighted_count and weighted_count > 0:
+            status = "full"
+        else:
+            status = "mixed"
+        return OverlayAdjustmentResult(
+            key_color="all",
+            dimension=dimension,
+            delta=delta,
+            status=status,
+        )

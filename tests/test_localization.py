@@ -48,6 +48,18 @@ TASK_5_PRODUCTION_LOCALE_STRINGS = [
     "Use this only if repeated notes merge into one long note.",
 ]
 
+TASK_6_PRODUCTION_LOCALE_STRINGS = [
+    "If YouTube blocks the download",
+    "Synthesia2MIDI can retry using saved browser cookies only if YouTube blocks the normal download.",
+    "1080p - recommended for best MIDI detection",
+    "720p - faster, may be less accurate",
+    "480p - fastest, highest risk of bad calibration",
+    "recommended for best MIDI detection",
+    "faster, may be less accurate",
+    "fastest, highest risk of bad calibration",
+    "Up to {preset} ({actual_height}p source) - {note}",
+]
+
 
 def _production_translation_locales():
     from synthesia2midi.localization import supported_user_locales
@@ -216,6 +228,29 @@ def test_task_5_production_strings_are_localized_in_non_english_catalogs():
         for source in TASK_5_PRODUCTION_LOCALE_STRINGS:
             translated = translations_by_source.get(source)
             assert translated is not None, f"{locale_name} missing Task 5 source: {source}"
+            if translated == source:
+                identical_english.append((locale_name, source))
+
+    assert identical_english == []
+
+
+def test_task_6_production_strings_are_localized_in_non_english_catalogs():
+    identical_english = []
+
+    for locale_name in _production_translation_locales():
+        ts_path = Path(f"synthesia2midi/synthesia2midi/translations/synthesia2midi_{locale_name}.ts")
+        tree = ET.parse(ts_path)
+        translations_by_source = {}
+
+        for message in tree.findall(".//message"):
+            source = message.findtext("source") or ""
+            translation = message.findtext("translation") or ""
+            if source:
+                translations_by_source[source] = translation
+
+        for source in TASK_6_PRODUCTION_LOCALE_STRINGS:
+            translated = translations_by_source.get(source)
+            assert translated is not None, f"{locale_name} missing Task 6 source: {source}"
             if translated == source:
                 identical_english.append((locale_name, source))
 

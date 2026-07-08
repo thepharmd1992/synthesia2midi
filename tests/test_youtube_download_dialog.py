@@ -136,6 +136,9 @@ def test_dialog_uses_refresh_info_label_and_default_1080p_quality(tmp_path):
 
     assert dialog.fetch_info_btn.text() == "Refresh Info"
     assert dialog.quality_combo.currentData() == "1080p"
+    assert dialog.quality_combo.itemText(0) == "1080p - recommended for best MIDI detection"
+    assert dialog.quality_combo.itemText(1) == "720p - faster, may be less accurate"
+    assert dialog.quality_combo.itemText(2) == "480p - fastest, highest risk of bad calibration"
     assert [dialog.quality_combo.itemData(i) for i in range(dialog.quality_combo.count())] == [
         "1080p",
         "720p",
@@ -143,7 +146,10 @@ def test_dialog_uses_refresh_info_label_and_default_1080p_quality(tmp_path):
     ]
     assert dialog.browser_combo.currentData() == "chrome"
     assert dialog.auto_retry_checkbox.isChecked()
-    assert "faster processing" in dialog.quality_combo.itemText(1)
+    assert dialog.fallback_group.title() == "If YouTube blocks the download"
+    assert dialog.fallback_hint_label.text() == (
+        "Synthesia2MIDI can retry using saved browser cookies only if YouTube blocks the normal download."
+    )
 
 
 def test_dialog_restores_saved_cookie_retry_preferences(tmp_path):
@@ -218,9 +224,21 @@ def test_video_info_success_uses_real_available_quality_options(tmp_path):
             "duration": 24,
             "uploader": "Tuttopiano",
             "available_qualities": {
-                "1080p": {"available": True, "actual_height": 720, "note": "Highest detail"},
-                "720p": {"available": True, "actual_height": 720, "note": "Faster processing, higher calibration risk"},
-                "480p": {"available": True, "actual_height": 360, "note": "Fastest processing, highest calibration risk"},
+                "1080p": {
+                    "available": True,
+                    "actual_height": 720,
+                    "note": "recommended for best MIDI detection",
+                },
+                "720p": {
+                    "available": True,
+                    "actual_height": 720,
+                    "note": "faster, may be less accurate",
+                },
+                "480p": {
+                    "available": True,
+                    "actual_height": 360,
+                    "note": "fastest, highest risk of bad calibration",
+                },
             },
         },
     )
@@ -231,6 +249,41 @@ def test_video_info_success_uses_real_available_quality_options(tmp_path):
     ]
     assert dialog.quality_combo.currentData() == "720p"
     assert dialog.quality_combo.itemText(1).startswith("Up to 480p (360p source)")
+
+
+def test_video_info_success_rewords_legacy_quality_notes(tmp_path):
+    QApplication.instance() or QApplication([])
+    dialog = YouTubeDownloadDialog(default_output_dir=str(tmp_path))
+    dialog.url_input.setText("https://www.youtube.com/watch?v=SFFSZQCnU_M")
+
+    dialog._on_video_info_fetched(
+        "https://www.youtube.com/watch?v=SFFSZQCnU_M",
+        {
+            "title": "Mary",
+            "duration": 24,
+            "uploader": "Tuttopiano",
+            "available_qualities": {
+                "1080p": {"available": True, "actual_height": 1080, "note": "Highest detail"},
+                "720p": {
+                    "available": True,
+                    "actual_height": 720,
+                    "note": "Faster processing, higher calibration risk",
+                },
+                "480p": {
+                    "available": True,
+                    "actual_height": 360,
+                    "note": "Fastest processing, highest calibration risk",
+                },
+            },
+        },
+    )
+
+    assert dialog.quality_combo.itemText(0) == (
+        "Up to 1080p (1080p source) - recommended for best MIDI detection"
+    )
+    assert dialog.quality_combo.itemText(2) == (
+        "Up to 480p (360p source) - fastest, highest risk of bad calibration"
+    )
 
 
 def test_download_starts_with_indeterminate_progress(monkeypatch, tmp_path):

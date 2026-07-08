@@ -134,8 +134,18 @@ class YouTubeDownloadDialog(QDialog):
         self.quality_combo.setEnabled(False)
         layout.addWidget(self.quality_combo)
 
-        fallback_group = QGroupBox(QCoreApplication.translate("YouTubeDownloadDialog", "YouTube Access Fallback"))
+        self.fallback_group = QGroupBox(
+            QCoreApplication.translate("YouTubeDownloadDialog", "If YouTube blocks the download")
+        )
         fallback_layout = QVBoxLayout()
+        self.fallback_hint_label = QLabel(
+            QCoreApplication.translate(
+                "YouTubeDownloadDialog",
+                "Synthesia2MIDI can retry using saved browser cookies only if YouTube blocks the normal download.",
+            )
+        )
+        self.fallback_hint_label.setWordWrap(True)
+        fallback_layout.addWidget(self.fallback_hint_label)
 
         self.browser_combo = QComboBox()
         self.browser_combo.addItem("Chrome", "chrome")
@@ -151,8 +161,8 @@ class YouTubeDownloadDialog(QDialog):
         self.auto_retry_checkbox.toggled.connect(self._on_auto_retry_toggled)
         fallback_layout.addWidget(self.auto_retry_checkbox)
 
-        fallback_group.setLayout(fallback_layout)
-        layout.addWidget(fallback_group)
+        self.fallback_group.setLayout(fallback_layout)
+        layout.addWidget(self.fallback_group)
 
         # Fetch info button
         self.fetch_info_btn = QPushButton(QCoreApplication.translate("YouTubeDownloadDialog", "Refresh Info"))
@@ -495,16 +505,21 @@ class YouTubeDownloadDialog(QDialog):
 
     def _reset_quality_options(self):
         self.quality_combo.clear()
-        self.quality_combo.addItem("1080p", "1080p")
         self.quality_combo.addItem(
             QCoreApplication.translate(
-                "YouTubeDownloadDialog", "720p - faster processing, higher calibration risk"
+                "YouTubeDownloadDialog", "1080p - recommended for best MIDI detection"
+            ),
+            "1080p",
+        )
+        self.quality_combo.addItem(
+            QCoreApplication.translate(
+                "YouTubeDownloadDialog", "720p - faster, may be less accurate"
             ),
             "720p",
         )
         self.quality_combo.addItem(
             QCoreApplication.translate(
-                "YouTubeDownloadDialog", "480p - fastest processing, highest calibration risk"
+                "YouTubeDownloadDialog", "480p - fastest, highest risk of bad calibration"
             ),
             "480p",
         )
@@ -551,17 +566,41 @@ class YouTubeDownloadDialog(QDialog):
 
     def _quality_option_label(self, preset, quality_info):
         actual_height = quality_info.get("actual_height")
-        note = quality_info.get("note", "")
+        note = self._quality_note_text(quality_info.get("note", ""))
+        if note:
+            return QCoreApplication.translate(
+                "YouTubeDownloadDialog",
+                "Up to {preset} ({actual_height}p source) - {note}",
+            ).format(preset=preset, actual_height=actual_height, note=note)
         target_height = YouTubeDownloader.QUALITY_PRESETS[preset]["height"]
         if actual_height and actual_height != target_height:
-            label = QCoreApplication.translate(
+            return QCoreApplication.translate(
                 "YouTubeDownloadDialog", "Up to {target_height}p ({actual_height}p source)"
             ).format(target_height=target_height, actual_height=actual_height)
-        else:
-            label = preset
-        if note:
-            return f"{label} - {note.lower()}"
-        return label
+        return preset
+
+    def _quality_note_text(self, note):
+        note_copy = {
+            "Highest detail": QCoreApplication.translate(
+                "YouTubeDownloadDialog", "recommended for best MIDI detection"
+            ),
+            "recommended for best MIDI detection": QCoreApplication.translate(
+                "YouTubeDownloadDialog", "recommended for best MIDI detection"
+            ),
+            "Faster processing, higher calibration risk": QCoreApplication.translate(
+                "YouTubeDownloadDialog", "faster, may be less accurate"
+            ),
+            "faster, may be less accurate": QCoreApplication.translate(
+                "YouTubeDownloadDialog", "faster, may be less accurate"
+            ),
+            "Fastest processing, highest calibration risk": QCoreApplication.translate(
+                "YouTubeDownloadDialog", "fastest, highest risk of bad calibration"
+            ),
+            "fastest, highest risk of bad calibration": QCoreApplication.translate(
+                "YouTubeDownloadDialog", "fastest, highest risk of bad calibration"
+            ),
+        }
+        return note_copy.get(note, note)
 
     def preferred_browser(self):
         current = self.browser_combo.currentData() if hasattr(self, "browser_combo") else self._preferred_browser

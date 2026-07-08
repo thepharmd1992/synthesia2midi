@@ -66,7 +66,7 @@
     {
       "classification": "do_not_translate",
       "context": "addItem",
-      "line": 141,
+      "line": 151,
       "origin": "static",
       "role": "arg0",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -75,7 +75,7 @@
     {
       "classification": "do_not_translate",
       "context": "addItem",
-      "line": 142,
+      "line": 152,
       "origin": "static",
       "role": "arg0",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -93,7 +93,7 @@
     {
       "classification": "do_not_translate",
       "context": "addItem",
-      "line": 143,
+      "line": 153,
       "origin": "static",
       "role": "arg0",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -174,7 +174,7 @@
     {
       "classification": "technical_id",
       "context": "addItem",
-      "line": 141,
+      "line": 151,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -183,7 +183,7 @@
     {
       "classification": "technical_id",
       "context": "addItem",
-      "line": 142,
+      "line": 152,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -192,7 +192,7 @@
     {
       "classification": "technical_id",
       "context": "addItem",
-      "line": 143,
+      "line": 153,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -281,6 +281,15 @@
     },
     {
       "classification": "translate",
+      "context": "QCoreApplication.translate",
+      "line": 509,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
+      "text": "1080p - recommended for best MIDI detection"
+    },
+    {
+      "classification": "translate",
       "context": "translate",
       "line": 338,
       "origin": "static",
@@ -309,25 +318,25 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 506,
+      "line": 521,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
-      "text": "480p - fastest processing, highest calibration risk"
+      "text": "480p - fastest, highest risk of bad calibration"
     },
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 500,
+      "line": 515,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
-      "text": "720p - faster processing, higher calibration risk"
+      "text": "720p - faster, may be less accurate"
     },
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 286,
+      "line": 296,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -345,7 +354,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 277,
+      "line": 287,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -354,7 +363,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 292,
+      "line": 302,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -372,7 +381,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 609,
+      "line": 648,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -651,7 +660,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 149,
+      "line": 159,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -1074,7 +1083,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 186,
+      "line": 196,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -1101,7 +1110,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 395,
+      "line": 405,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -1308,7 +1317,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 191,
+      "line": 201,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -1713,7 +1722,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 416,
+      "line": 426,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -1722,7 +1731,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 456,
+      "line": 466,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -1731,7 +1740,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 448,
+      "line": 458,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -1740,7 +1749,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 477,
+      "line": 487,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -1749,7 +1758,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 474,
+      "line": 484,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -1767,7 +1776,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 608,
+      "line": 647,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -1776,7 +1785,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 164,
+      "line": 174,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -1785,7 +1794,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 181,
+      "line": 191,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -2064,7 +2073,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 330,
+      "line": 340,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -2136,7 +2145,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 478,
+      "line": 488,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -2145,7 +2154,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 335,
+      "line": 345,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -2154,7 +2163,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 331,
+      "line": 341,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -2217,7 +2226,25 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 260,
+      "line": 590,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
+      "text": "faster, may be less accurate"
+    },
+    {
+      "classification": "translate",
+      "context": "QCoreApplication.translate",
+      "line": 596,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
+      "text": "fastest, highest risk of bad calibration"
+    },
+    {
+      "classification": "translate",
+      "context": "QCoreApplication.translate",
+      "line": 270,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -2442,6 +2469,15 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
+      "line": 138,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
+      "text": "If YouTube blocks the download"
+    },
+    {
+      "classification": "translate",
+      "context": "QCoreApplication.translate",
       "line": 95,
       "origin": "static",
       "role": "arg1",
@@ -2505,7 +2541,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 214,
+      "line": 224,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -3540,7 +3576,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 171,
+      "line": 181,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -3554,6 +3590,15 @@
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/startup_dialog.py",
       "text": "Recent Videos"
+    },
+    {
+      "classification": "translate",
+      "context": "QCoreApplication.translate",
+      "line": 584,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
+      "text": "recommended for best MIDI detection"
     },
     {
       "classification": "translate",
@@ -3576,7 +3621,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 158,
+      "line": 168,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -4188,7 +4233,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 401,
+      "line": 411,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -4251,7 +4296,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 442,
+      "line": 452,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -4286,6 +4331,15 @@
     },
     {
       "classification": "translate",
+      "context": "QCoreApplication.translate",
+      "line": 142,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
+      "text": "Synthesia2MIDI can retry using saved browser cookies only if YouTube blocks the normal download."
+    },
+    {
+      "classification": "translate",
       "context": "translate",
       "line": 444,
       "origin": "static",
@@ -4314,7 +4368,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 365,
+      "line": 375,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -4512,7 +4566,16 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 557,
+      "line": 571,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
+      "text": "Up to {preset} ({actual_height}p source) - {note}"
+    },
+    {
+      "classification": "translate",
+      "context": "QCoreApplication.translate",
+      "line": 577,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -4593,7 +4656,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 364,
+      "line": 374,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -4620,7 +4683,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 457,
+      "line": 467,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
@@ -4944,15 +5007,6 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 137,
-      "origin": "static",
-      "role": "arg1",
-      "source": "synthesia2midi/synthesia2midi/gui/youtube_download_dialog.py",
-      "text": "YouTube Access Fallback"
-    },
-    {
-      "classification": "translate",
-      "context": "QCoreApplication.translate",
       "line": 99,
       "origin": "static",
       "role": "arg1",
@@ -5073,7 +5127,7 @@
     "dynamic_user_data": 4,
     "path_or_url": 2,
     "technical_id": 6,
-    "translate": 540
+    "translate": 546
   },
   "schema_version": 1
 }

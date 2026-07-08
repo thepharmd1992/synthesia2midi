@@ -6668,12 +6668,24 @@
     },
     {
       "context": "YouTubeDownloadDialog",
-      "source": "YouTube Access Fallback",
+      "source": "If YouTube blocks the download",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 137
+          "line": 138
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Synthesia2MIDI can retry using saved browser cookies only if YouTube blocks the normal download.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 142
         }
       ],
       "notes": ""
@@ -6685,7 +6697,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 149
+          "line": 159
         }
       ],
       "notes": ""
@@ -6697,7 +6709,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 158
+          "line": 168
         }
       ],
       "notes": ""
@@ -6709,7 +6721,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 164
+          "line": 174
         }
       ],
       "notes": ""
@@ -6721,23 +6733,23 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 171
+          "line": 181
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 217
+          "line": 227
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 222
+          "line": 232
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 246
+          "line": 256
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 304
+          "line": 314
         }
       ],
       "notes": ""
@@ -6749,7 +6761,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 181
+          "line": 191
         }
       ],
       "notes": ""
@@ -6761,11 +6773,11 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 186
+          "line": 196
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 489
+          "line": 499
         }
       ],
       "notes": ""
@@ -6777,7 +6789,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 191
+          "line": 201
         }
       ],
       "notes": ""
@@ -6789,11 +6801,11 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 214
+          "line": 224
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 244
+          "line": 254
         }
       ],
       "notes": ""
@@ -6805,11 +6817,11 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 219
+          "line": 229
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 260
+          "line": 270
         }
       ],
       "notes": ""
@@ -6823,7 +6835,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 277
+          "line": 287
         }
       ],
       "notes": ""
@@ -6837,7 +6849,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 286
+          "line": 296
         }
       ],
       "notes": ""
@@ -6851,7 +6863,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 292
+          "line": 302
         }
       ],
       "notes": ""
@@ -6863,7 +6875,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 330
+          "line": 340
         }
       ],
       "notes": ""
@@ -6877,7 +6889,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 331
+          "line": 341
         }
       ],
       "notes": ""
@@ -6889,7 +6901,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 335
+          "line": 345
         }
       ],
       "notes": ""
@@ -6901,7 +6913,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 364
+          "line": 374
         }
       ],
       "notes": ""
@@ -6913,7 +6925,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 365
+          "line": 375
         }
       ],
       "notes": ""
@@ -6925,11 +6937,11 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 376
+          "line": 386
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 416
+          "line": 426
         }
       ],
       "notes": ""
@@ -6941,7 +6953,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 395
+          "line": 405
         }
       ],
       "notes": ""
@@ -6953,7 +6965,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 401
+          "line": 411
         }
       ],
       "notes": ""
@@ -6965,7 +6977,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 442
+          "line": 452
         }
       ],
       "notes": ""
@@ -6977,7 +6989,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 448
+          "line": 458
         }
       ],
       "notes": ""
@@ -6989,7 +7001,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 456
+          "line": 466
         }
       ],
       "notes": ""
@@ -7001,7 +7013,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 457
+          "line": 467
         }
       ],
       "notes": ""
@@ -7013,7 +7025,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 474
+          "line": 484
         }
       ],
       "notes": ""
@@ -7025,7 +7037,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 477
+          "line": 487
         }
       ],
       "notes": ""
@@ -7039,31 +7051,59 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 478
+          "line": 488
         }
       ],
       "notes": ""
     },
     {
       "context": "YouTubeDownloadDialog",
-      "source": "720p - faster processing, higher calibration risk",
+      "source": "1080p - recommended for best MIDI detection",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 500
+          "line": 509
         }
       ],
       "notes": ""
     },
     {
       "context": "YouTubeDownloadDialog",
-      "source": "480p - fastest processing, highest calibration risk",
+      "source": "720p - faster, may be less accurate",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 506
+          "line": 515
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "480p - fastest, highest risk of bad calibration",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 521
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Up to {preset} ({actual_height}p source) - {note}",
+      "placeholders": [
+        "{actual_height}",
+        "{note}",
+        "{preset}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 571
         }
       ],
       "notes": ""
@@ -7078,7 +7118,55 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 557
+          "line": 577
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "recommended for best MIDI detection",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 584
+        },
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 587
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "faster, may be less accurate",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 590
+        },
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 593
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "fastest, highest risk of bad calibration",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 596
+        },
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 599
         }
       ],
       "notes": ""
@@ -7090,7 +7178,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 608
+          "line": 647
         }
       ],
       "notes": ""
@@ -7102,7 +7190,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 609
+          "line": 648
         }
       ],
       "notes": ""

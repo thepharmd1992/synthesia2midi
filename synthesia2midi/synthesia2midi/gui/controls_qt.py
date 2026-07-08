@@ -6,6 +6,7 @@ window connects to workflows/state updates.
 """
 
 import logging
+import math
 from dataclasses import dataclass
 from typing import Optional
 
@@ -151,6 +152,7 @@ class ControlPanelQt(QWidget):
     DEFAULT_RISE_DELTA_THRESHOLD = 15
     DEFAULT_FALL_DELTA_THRESHOLD = 5
     DEFAULT_SIMILARITY_RATIO = 60
+    OVERLAY_ADJUSTMENT_INDETERMINATE = "--"
     
     def __init__(self, parent=None, app_state: AppState = None, state_manager=None, settings=None):
         super().__init__(parent)
@@ -160,8 +162,9 @@ class ControlPanelQt(QWidget):
         
         # Widget references for state updates
         self.widgets = {}
-        self._overlay_adjustment_values: dict[tuple[str, str], int] = {}
+        self._overlay_adjustment_values: dict[tuple[str, str], int | None] = {}
         self._overlay_adjustment_value_labels: dict[tuple[str, str], QLabel] = {}
+        self._overlay_adjustment_reset_buttons: dict[tuple[str, str], QPushButton] = {}
         self._overlay_adjustment_basis: tuple[tuple[int, float, float, float, float, float], ...] | None = None
         
         self._setup_ui()
@@ -602,6 +605,7 @@ class ControlPanelQt(QWidget):
             button_row.addStretch()
             cell.addLayout(button_row)
             self._overlay_adjustment_value_labels[key] = value_label
+            self._overlay_adjustment_reset_buttons[key] = reset_button
             self._set_overlay_adjustment_value(key_color, dimension, 0)
             size_grid.addLayout(cell, row, column)
             return value_label, reset_button
@@ -1554,6 +1558,109 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
     def _overlay_adjustment_key(self, key_color: str, dimension: str) -> tuple[str, str]:
         return key_color, dimension
 
+    def _overlay_adjustment_targets(self, key_color: str, dimension: str):
+        overlays = getattr(self.app_state, "overlays", None) or []
+        if dimension in {"left_slant", "right_slant"}:
+            return [
+                overlay
+                for overlay in overlays
+                if getattr(overlay, "overlay_type", "key") == "key"
+            ]
+
+        target_is_white = key_color.lower() == "white"
+        return [
+            overlay
+            for overlay in overlays
+            if (
+                "♯" not in str(getattr(overlay, "note_name_in_octave", ""))
+                and "♭" not in str(getattr(overlay, "note_name_in_octave", ""))
+            ) == target_is_white
+        ]
+
+    def _capture_overlay_adjustment_state(
+        self, key_color: str, dimension: str
+    ) -> dict[int, tuple[float, ...]]:
+        state: dict[int, tuple[float, ...]] = {}
+        for overlay in self._overlay_adjustment_targets(key_color, dimension):
+            overlay_id = int(getattr(overlay, "key_id", 0))
+            if dimension == "width":
+                state[overlay_id] = (
+                    float(getattr(overlay, "x", 0.0)),
+                    float(getattr(overlay, "width", 0.0)),
+                )
+            elif dimension == "height":
+                state[overlay_id] = (
+                    float(getattr(overlay, "y", 0.0)),
+                    float(getattr(overlay, "height", 0.0)),
+                )
+            else:
+                state[overlay_id] = (
+                    float(getattr(overlay, "x", 0.0)),
+                    float(getattr(overlay, "width", 0.0)),
+                    float(getattr(overlay, "rotation_degrees", 0.0) or 0.0),
+                )
+        return state
+
+    def _slant_adjustment_weights(self, state: dict[int, tuple[float, ...]], dimension: str) -> dict[int, float]:
+        if not state:
+            return {}
+
+        left = min(values[0] for values in state.values())
+        right = max(values[0] + values[1] for values in state.values())
+        span = max(1.0, right - left)
+        weights: dict[int, float] = {}
+        for overlay_id, (x, width, _rotation) in state.items():
+            center_x = x + (width / 2.0)
+            norm = (center_x - left) / span
+            left_weight = max(0.0, min(1.0, (0.5 - norm) / 0.5))
+            right_weight = max(0.0, min(1.0, (norm - 0.5) / 0.5))
+            weights[overlay_id] = left_weight if dimension == "left_slant" else right_weight
+        return weights
+
+    def _classify_overlay_adjustment_result(
+        self,
+        dimension: str,
+        delta: int,
+        before_state: dict[int, tuple[float, ...]],
+        after_state: dict[int, tuple[float, ...]],
+    ) -> str:
+        if before_state == after_state:
+            return "none"
+        if before_state.keys() != after_state.keys():
+            return "mixed"
+
+        if dimension == "width":
+            for overlay_id, (before_x, before_width) in before_state.items():
+                expected_width = before_width + float(delta)
+                if expected_width < 1.0:
+                    return "mixed"
+                expected_x = before_x - (float(delta) / 2.0)
+                after_x, after_width = after_state.get(overlay_id, (math.nan, math.nan))
+                if not (math.isclose(after_width, expected_width) and math.isclose(after_x, expected_x)):
+                    return "mixed"
+            return "full"
+
+        if dimension == "height":
+            for overlay_id, (before_y, before_height) in before_state.items():
+                expected_height = before_height + float(delta)
+                if expected_height < 1.0:
+                    return "mixed"
+                expected_y = before_y - (float(delta) / 2.0)
+                after_y, after_height = after_state.get(overlay_id, (math.nan, math.nan))
+                if not (math.isclose(after_height, expected_height) and math.isclose(after_y, expected_y)):
+                    return "mixed"
+            return "full"
+
+        weights = self._slant_adjustment_weights(before_state, dimension)
+        for overlay_id, (_x, _width, before_rotation) in before_state.items():
+            expected_rotation = before_rotation + (float(delta) * weights.get(overlay_id, 0.0))
+            after_rotation = after_state.get(overlay_id, (math.nan, math.nan, math.nan))[2]
+            if expected_rotation < -45.0 or expected_rotation > 45.0:
+                return "mixed"
+            if not math.isclose(after_rotation, expected_rotation):
+                return "mixed"
+        return "full"
+
     def _current_overlay_adjustment_basis(self) -> tuple[tuple[int, float, float, float, float, float], ...] | None:
         overlays = getattr(self.app_state, "overlays", None)
         if not overlays:
@@ -1571,12 +1678,15 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
             for overlay in ordered_overlays
         )
 
-    def _set_overlay_adjustment_value(self, key_color: str, dimension: str, value: int) -> None:
+    def _set_overlay_adjustment_value(self, key_color: str, dimension: str, value: int | None) -> None:
         key = self._overlay_adjustment_key(key_color, dimension)
         self._overlay_adjustment_values[key] = value
         label = self._overlay_adjustment_value_labels.get(key)
         if label is not None:
-            label.setText(str(value))
+            label.setText(self.OVERLAY_ADJUSTMENT_INDETERMINATE if value is None else str(value))
+        reset_button = self._overlay_adjustment_reset_buttons.get(key)
+        if reset_button is not None:
+            reset_button.setEnabled(isinstance(value, int) and value != 0)
 
     def clear_overlay_adjustments(self) -> None:
         for key_color, dimension in self._overlay_adjustment_value_labels:
@@ -1595,15 +1705,23 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
     def _apply_overlay_adjustment(self, key_color: str, dimension: str, delta: int) -> None:
         key = self._overlay_adjustment_key(key_color, dimension)
         current_value = self._overlay_adjustment_values.get(key, 0)
-        self._set_overlay_adjustment_value(key_color, dimension, current_value + delta)
+        before_state = self._capture_overlay_adjustment_state(key_color, dimension)
         self.overlay_size_adjustment_requested.emit(key_color, dimension, delta)
+        after_state = self._capture_overlay_adjustment_state(key_color, dimension)
+        result = self._classify_overlay_adjustment_result(dimension, delta, before_state, after_state)
+        if result == "full":
+            if isinstance(current_value, int):
+                self._set_overlay_adjustment_value(key_color, dimension, current_value + delta)
+            else:
+                self._set_overlay_adjustment_value(key_color, dimension, None)
+        elif result == "mixed":
+            self._set_overlay_adjustment_value(key_color, dimension, None)
         self._overlay_adjustment_basis = self._current_overlay_adjustment_basis()
 
     def _reset_overlay_adjustment(self, key_color: str, dimension: str) -> None:
         key = self._overlay_adjustment_key(key_color, dimension)
         current_value = self._overlay_adjustment_values.get(key, 0)
-        if current_value == 0:
-            self._set_overlay_adjustment_value(key_color, dimension, 0)
+        if not isinstance(current_value, int) or current_value == 0:
             return
         self._set_overlay_adjustment_value(key_color, dimension, 0)
         self.overlay_size_adjustment_requested.emit(key_color, dimension, -current_value)

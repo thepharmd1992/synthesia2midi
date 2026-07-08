@@ -53,13 +53,13 @@ def _show_settings_section(control_panel, label: str) -> None:
     control_panel.tab_widget.setCurrentIndex(labels.index(label))
 
 
-def _make_overlay(*, key_id: int, note_name: str, x: float, width: float, rotation: float = 0.0) -> OverlayConfig:
+def _make_overlay(*, key_id: int, note_name: str, x: float, width: float, y: float = 2.0, rotation: float = 0.0) -> OverlayConfig:
     return OverlayConfig(
         key_id=key_id,
         note_octave=4,
         note_name_in_octave=note_name,
         x=x,
-        y=0,
+        y=y,
         width=width,
         height=8,
         key_type="LW",
@@ -69,10 +69,10 @@ def _make_overlay(*, key_id: int, note_name: str, x: float, width: float, rotati
 
 def _seed_quick_adjust_overlays(app_state) -> None:
     app_state.overlays = [
-        _make_overlay(key_id=1, note_name="C", x=0, width=6, rotation=0.0),
-        _make_overlay(key_id=2, note_name="C♯", x=8, width=4, rotation=0.0),
-        _make_overlay(key_id=3, note_name="E", x=16, width=6, rotation=0.0),
-        _make_overlay(key_id=4, note_name="F♯", x=24, width=4, rotation=0.0),
+        _make_overlay(key_id=1, note_name="C", x=2, width=6, rotation=0.0),
+        _make_overlay(key_id=2, note_name="C♯", x=10, width=4, rotation=0.0),
+        _make_overlay(key_id=3, note_name="E", x=18, width=6, rotation=0.0),
+        _make_overlay(key_id=4, note_name="F♯", x=26, width=4, rotation=0.0),
     ]
 
 
@@ -82,6 +82,8 @@ def _make_overlay_adjustment_panel():
     panel = ControlPanelQt(app_state=app_state)
     overlay_manager = OverlayManager(app_state)
     controller = MainActionController(SimpleNamespace(overlay_manager=overlay_manager))
+    panel._test_overlay_manager = overlay_manager
+    panel._test_main_action_controller = controller
     panel.overlay_size_adjustment_requested.connect(controller.handle_overlay_size_adjustment)
     return panel, app_state
 
@@ -257,40 +259,39 @@ def test_overlays_tab_exposes_manual_fit_entry_point(monkeypatch):
 
 
 def test_overlays_tab_exposes_left_and_right_slant_controls(monkeypatch):
-    app = _make_app(monkeypatch)
+    panel, app_state = _make_overlay_adjustment_panel()
     try:
         emitted = []
-        try:
-            app.control_panel.overlay_size_adjustment_requested.disconnect()
-        except (TypeError, RuntimeError):
-            pass
-        app.control_panel.overlay_size_adjustment_requested.connect(
+        _seed_quick_adjust_overlays(app_state)
+        panel.update_controls_from_state()
+        panel.overlay_size_adjustment_requested.connect(
             lambda key_color, dimension, delta: emitted.append((key_color, dimension, delta))
         )
 
-        assert app.control_panel.left_slant_label.text() == "Left Slant"
-        assert app.control_panel.right_slant_label.text() == "Right Slant"
-        assert app.control_panel.left_slant_value_label.text() == "0"
-        assert app.control_panel.right_slant_value_label.text() == "0"
-        assert app.control_panel.left_slant_reset_button.text() == "Reset"
-        assert app.control_panel.right_slant_reset_button.text() == "Reset"
+        assert panel.left_slant_label.text() == "Left Slant"
+        assert panel.right_slant_label.text() == "Right Slant"
+        assert panel.left_slant_value_label.text() == "0"
+        assert panel.right_slant_value_label.text() == "0"
+        assert panel.left_slant_reset_button.text() == "Reset"
+        assert panel.right_slant_reset_button.text() == "Reset"
 
-        app.control_panel.left_slant_inc_button.click()
-        app.control_panel.right_slant_dec_button.click()
+        panel.left_slant_inc_button.click()
+        panel.right_slant_dec_button.click()
 
-        assert app.control_panel.left_slant_value_label.text() == "1"
-        assert app.control_panel.right_slant_value_label.text() == "-1"
+        assert panel.left_slant_value_label.text() == "1"
+        assert panel.right_slant_value_label.text() == "-1"
 
-        app.control_panel.left_slant_reset_button.click()
+        panel.left_slant_reset_button.click()
 
-        assert app.control_panel.left_slant_value_label.text() == "0"
+        assert panel.left_slant_value_label.text() == "0"
         assert emitted == [
             ("all", "left_slant", 1),
             ("all", "right_slant", -1),
             ("all", "left_slant", -1),
         ]
     finally:
-        app.close()
+        panel.close()
+        panel.deleteLater()
 
 
 def test_overlays_tab_exposes_white_and_black_quick_adjust_controls(monkeypatch):
@@ -370,6 +371,81 @@ def test_overlay_quick_adjust_values_reset_when_overlays_are_cleared():
     finally:
         panel.close()
         panel.deleteLater()
+
+
+def test_white_width_quick_adjust_becomes_indeterminate_when_backend_partially_applies():
+    panel, app_state = _make_overlay_adjustment_panel()
+    try:
+        emitted = []
+        app_state.overlays = [
+            _make_overlay(key_id=1, note_name="C", x=10, width=6),
+            _make_overlay(key_id=2, note_name="E", x=20, width=2),
+            _make_overlay(key_id=3, note_name="F♯", x=30, width=4),
+        ]
+        panel.update_controls_from_state()
+        panel.overlay_size_adjustment_requested.connect(
+            lambda key_color, dimension, delta: emitted.append((key_color, dimension, delta))
+        )
+
+        first_white = app_state.overlays[0]
+        second_white = app_state.overlays[1]
+        first_before = (first_white.x, first_white.width)
+        second_before = (second_white.x, second_white.width)
+
+        panel.white_width_dec_button.click()
+
+        assert emitted == [("white", "width", -2)]
+        assert (first_white.x, first_white.width) == (first_before[0] + 1, first_before[1] - 2)
+        assert (second_white.x, second_white.width) == second_before
+        assert panel.white_width_value_label.text() == "--"
+
+        emitted.clear()
+        panel.white_width_reset_button.click()
+
+        assert emitted == []
+        assert panel.white_width_value_label.text() == "--"
+    finally:
+        panel.close()
+        panel.deleteLater()
+
+
+def test_right_slant_quick_adjust_becomes_indeterminate_when_backend_clamps_mixed_overlays():
+    panel, app_state = _make_overlay_adjustment_panel()
+    try:
+        emitted = []
+        app_state.overlays = [
+            _make_overlay(key_id=1, note_name="C", x=0, width=4, rotation=0.0),
+            _make_overlay(key_id=2, note_name="E", x=12, width=4, rotation=0.0),
+            _make_overlay(key_id=3, note_name="G", x=20, width=4, rotation=44.5),
+        ]
+        panel.update_controls_from_state()
+        panel.overlay_size_adjustment_requested.connect(
+            lambda key_color, dimension, delta: emitted.append((key_color, dimension, delta))
+        )
+
+        middle_overlay = app_state.overlays[1]
+        right_overlay = app_state.overlays[2]
+        middle_before = middle_overlay.rotation_degrees
+        right_before = right_overlay.rotation_degrees
+
+        panel.right_slant_inc_button.click()
+
+        assert emitted == [("all", "right_slant", 1)]
+        assert middle_overlay.rotation_degrees > middle_before
+        assert right_overlay.rotation_degrees == 45.0
+        assert right_overlay.rotation_degrees > right_before
+        assert panel.right_slant_value_label.text() == "--"
+
+        emitted.clear()
+        panel.right_slant_reset_button.click()
+
+        assert emitted == []
+        assert panel.right_slant_value_label.text() == "--"
+    finally:
+        panel.close()
+        panel.deleteLater()
+
+
 def test_settings_gear_preserves_tool_window_position_after_hide_show(monkeypatch):
     app = _make_app(monkeypatch)
     try:

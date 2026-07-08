@@ -301,7 +301,7 @@ class CalibrationWizardController:
                     translate(
                         "CalibrationWizardController",
                         "{label}: not found",
-                    )
+                    ).format(label=label)
                 )
         return "\n".join(lines)
 

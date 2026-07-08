@@ -338,12 +338,12 @@ def test_overlay_quick_adjust_empty_state_does_not_change_display(monkeypatch):
         panel.left_slant_inc_button.click()
 
         assert panel.left_slant_value_label.text() == "0"
-        assert emitted == []
+        assert emitted == [("all", "left_slant", 1)]
 
         panel.left_slant_reset_button.click()
 
         assert panel.left_slant_value_label.text() == "0"
-        assert emitted == []
+        assert emitted == [("all", "left_slant", 1)]
     finally:
         panel.close()
         panel.deleteLater()
@@ -406,12 +406,12 @@ def test_white_width_quick_adjust_does_not_drift_when_any_target_would_underflow
 
         assert panel.white_width_value_label.text() == "0"
         assert [overlay.width for overlay in app_state.overlays] == [1, 6]
-        assert emitted == []
+        assert emitted == [("white", "width", -2)]
 
         panel.white_width_reset_button.click()
 
         assert panel.white_width_value_label.text() == "0"
-        assert emitted == []
+        assert emitted == [("white", "width", -2)]
     finally:
         panel.close()
         panel.deleteLater()
@@ -434,12 +434,12 @@ def test_right_slant_quick_adjust_does_not_drift_when_rotation_would_clamp(monke
 
         assert panel.right_slant_value_label.text() == "0"
         assert [overlay.rotation_degrees for overlay in app_state.overlays] == [0.0, 45.0]
-        assert emitted == []
+        assert emitted == [("all", "right_slant", 1)]
 
         panel.right_slant_reset_button.click()
 
         assert panel.right_slant_value_label.text() == "0"
-        assert emitted == []
+        assert emitted == [("all", "right_slant", 1)]
     finally:
         panel.close()
         panel.deleteLater()

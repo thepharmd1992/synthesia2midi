@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
     QSlider, QSpinBox, QStackedWidget, QToolButton, QVBoxLayout, QWidget
 )
 
+from synthesia2midi.app_config import NOTE_NAMES_SHARP
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.localization import (
     load_preferred_locale,
@@ -1592,22 +1593,81 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
             self.clear_overlay_adjustments()
             self._overlay_adjustment_basis = current_basis
 
-    def confirm_overlay_adjustment_applied(self, key_color: str, dimension: str, delta: int) -> None:
+    def _white_key_note_names(self) -> set[str]:
+        return {name for name in NOTE_NAMES_SHARP if "♯" not in name and "♭" not in name}
+
+    def _overlay_targets_for_adjustment(self, key_color: str) -> list:
+        white_key_note_names = self._white_key_note_names()
+        target_is_white = key_color.lower() == "white"
+        return [
+            overlay
+            for overlay in getattr(self.app_state, "overlays", []) or []
+            if (overlay.note_name_in_octave in white_key_note_names) == target_is_white
+        ]
+
+    def _overlay_slant_targets(self, dimension: str) -> list[tuple[object, float]]:
+        key_overlays = [
+            overlay
+            for overlay in getattr(self.app_state, "overlays", []) or []
+            if getattr(overlay, "overlay_type", "key") == "key"
+        ]
+        if not key_overlays:
+            return []
+
+        left = min(float(overlay.x) for overlay in key_overlays)
+        right = max(float(overlay.x) + float(overlay.width) for overlay in key_overlays)
+        span = max(1.0, right - left)
+        targets: list[tuple[object, float]] = []
+
+        for overlay in key_overlays:
+            center_x = float(overlay.x) + (float(overlay.width) / 2.0)
+            norm = (center_x - left) / span
+            left_weight = max(0.0, min(1.0, (0.5 - norm) / 0.5))
+            right_weight = max(0.0, min(1.0, (norm - 0.5) / 0.5))
+            weight = left_weight if dimension == "left_slant" else right_weight
+            if weight > 0:
+                targets.append((overlay, weight))
+
+        return targets
+
+    def _can_apply_overlay_adjustment(self, key_color: str, dimension: str, delta: int) -> bool:
+        if dimension in {"width", "height"}:
+            target_overlays = self._overlay_targets_for_adjustment(key_color)
+            if not target_overlays:
+                return False
+            return all(float(getattr(overlay, dimension, 0.0)) + float(delta) >= 1.0 for overlay in target_overlays)
+
+        if dimension in {"left_slant", "right_slant"}:
+            targets = self._overlay_slant_targets(dimension)
+            if not targets:
+                return False
+            return all(
+                -45.0 <= float(getattr(overlay, "rotation_degrees", 0.0) or 0.0) + (float(delta) * weight) <= 45.0
+                for overlay, weight in targets
+            )
+
+        return False
+
+    def _apply_overlay_adjustment(self, key_color: str, dimension: str, delta: int) -> None:
+        self._sync_overlay_adjustment_state()
+        if not self._can_apply_overlay_adjustment(key_color, dimension, delta):
+            return
         key = self._overlay_adjustment_key(key_color, dimension)
         current_value = self._overlay_adjustment_values.get(key, 0)
         self._set_overlay_adjustment_value(key_color, dimension, current_value + delta)
+        self.overlay_size_adjustment_requested.emit(key_color, dimension, delta)
         self._overlay_adjustment_basis = self._current_overlay_adjustment_basis()
 
-    def _apply_overlay_adjustment(self, key_color: str, dimension: str, delta: int) -> None:
-        self.overlay_size_adjustment_requested.emit(key_color, dimension, delta)
-
     def _reset_overlay_adjustment(self, key_color: str, dimension: str) -> None:
+        self._sync_overlay_adjustment_state()
         key = self._overlay_adjustment_key(key_color, dimension)
         current_value = self._overlay_adjustment_values.get(key, 0)
         if current_value == 0:
             self._set_overlay_adjustment_value(key_color, dimension, 0)
             return
+        self._set_overlay_adjustment_value(key_color, dimension, 0)
         self.overlay_size_adjustment_requested.emit(key_color, dimension, -current_value)
+        self._overlay_adjustment_basis = self._current_overlay_adjustment_basis()
     
     def _toggle_spark_roi_visibility(self):
         """Toggle spark ROI overlay visibility."""

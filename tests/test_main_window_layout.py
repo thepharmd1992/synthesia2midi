@@ -46,6 +46,37 @@ def _show_settings_section(control_panel, label: str) -> None:
     control_panel.tab_widget.setCurrentIndex(labels.index(label))
 
 
+def _assert_quick_adjust_control(
+    control_panel,
+    emitted,
+    *,
+    label_attr: str,
+    value_label_attr: str,
+    reset_button_attr: str,
+    increment_button_attr: str,
+    expected_label: str,
+    key_color: str,
+    dimension: str,
+    delta: int,
+) -> None:
+    assert getattr(control_panel, label_attr).text() == expected_label
+    assert getattr(control_panel, value_label_attr).text() == "0"
+    assert getattr(control_panel, reset_button_attr).text() == "Reset"
+
+    getattr(control_panel, increment_button_attr).click()
+
+    assert getattr(control_panel, value_label_attr).text() == str(delta)
+
+    getattr(control_panel, reset_button_attr).click()
+
+    assert getattr(control_panel, value_label_attr).text() == "0"
+    assert emitted == [
+        (key_color, dimension, delta),
+        (key_color, dimension, -delta),
+    ]
+    emitted.clear()
+
+
 def test_main_window_prioritizes_video_with_settings_gear_and_tool_window(monkeypatch):
     app = _make_app(monkeypatch)
     try:
@@ -216,6 +247,46 @@ def test_overlays_tab_exposes_left_and_right_slant_controls(monkeypatch):
             ("all", "right_slant", -1),
             ("all", "left_slant", -1),
         ]
+    finally:
+        app.close()
+
+
+def test_overlays_tab_exposes_white_and_black_quick_adjust_controls(monkeypatch):
+    app = _make_app(monkeypatch)
+    try:
+        emitted = []
+        try:
+            app.control_panel.overlay_size_adjustment_requested.disconnect()
+        except (TypeError, RuntimeError):
+            pass
+        app.control_panel.overlay_size_adjustment_requested.connect(
+            lambda key_color, dimension, delta: emitted.append((key_color, dimension, delta))
+        )
+
+        _assert_quick_adjust_control(
+            app.control_panel,
+            emitted,
+            label_attr="white_width_label",
+            value_label_attr="white_width_value_label",
+            reset_button_attr="white_width_reset_button",
+            increment_button_attr="white_width_inc_button",
+            expected_label="White Key Width",
+            key_color="white",
+            dimension="width",
+            delta=2,
+        )
+        _assert_quick_adjust_control(
+            app.control_panel,
+            emitted,
+            label_attr="black_height_label",
+            value_label_attr="black_height_value_label",
+            reset_button_attr="black_height_reset_button",
+            increment_button_attr="black_height_inc_button",
+            expected_label="Black Key Height",
+            key_color="black",
+            dimension="height",
+            delta=2,
+        )
     finally:
         app.close()
 

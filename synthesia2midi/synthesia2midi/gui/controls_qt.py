@@ -1650,9 +1650,9 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
 
     def _apply_overlay_adjustment(self, key_color: str, dimension: str, delta: int) -> None:
         self._sync_overlay_adjustment_state()
-        self.overlay_size_adjustment_requested.emit(key_color, dimension, delta)
         if not self._can_apply_overlay_adjustment(key_color, dimension, delta):
             return
+        self.overlay_size_adjustment_requested.emit(key_color, dimension, delta)
         key = self._overlay_adjustment_key(key_color, dimension)
         current_value = self._overlay_adjustment_values.get(key, 0)
         self._set_overlay_adjustment_value(key_color, dimension, current_value + delta)

@@ -132,3 +132,29 @@ Results:
   - Reviewer quick-adjust pair: `2 passed in 0.39s`
   - Empty/baseline/underflow/clamp coverage: `5 passed in 0.41s`
   - `git diff --check`: clean
+
+## Fix
+- Restored `synthesia2midi/synthesia2midi/workflows/overlay_manager.py` to match `git show 0132644:synthesia2midi/synthesia2midi/workflows/overlay_manager.py` and committed the cleanup as `f85f617` (`Restore overlay manager to base`).
+- Verification:
+  - `.venv/bin/python -m pytest tests/test_main_window_layout.py::test_overlays_tab_exposes_left_and_right_slant_controls tests/test_main_window_layout.py::test_overlays_tab_exposes_white_and_black_quick_adjust_controls -v` -> `2 passed`
+  - `git diff --check` -> clean
+  - `git diff --stat 0132644..HEAD -- synthesia2midi/synthesia2midi/workflows/overlay_manager.py synthesia2midi/synthesia2midi/gui/main_action_controller.py` -> no output
+
+## Fix
+- Files changed:
+  - `synthesia2midi/synthesia2midi/gui/controls_qt.py`
+  - `tests/test_main_window_layout.py`
+- Behavior changed:
+  - `ControlPanelQt._apply_overlay_adjustment(...)` now stops before emitting `overlay_size_adjustment_requested(...)` when `_can_apply_overlay_adjustment(...)` rejects the click, so impossible empty/underflow/slant-clamp edge clicks never reach `MainActionController` or `OverlayManager`.
+  - Valid quick-adjust clicks still emit the same `overlay_size_adjustment_requested(str, str, int)` payloads and still advance the visible local counter.
+  - Reset behavior stays local-counted only: it emits the inverse displayed value when non-zero and remains silent at `0`.
+- Tests run:
+  - `.venv/bin/python -m pytest tests/test_main_window_layout.py::test_overlays_tab_exposes_left_and_right_slant_controls tests/test_main_window_layout.py::test_overlays_tab_exposes_white_and_black_quick_adjust_controls -v`
+  - `.venv/bin/python -m pytest tests/test_main_window_layout.py::test_overlay_quick_adjust_empty_state_does_not_change_display tests/test_main_window_layout.py::test_overlay_quick_adjust_values_reset_when_overlay_baseline_changes tests/test_main_window_layout.py::test_overlay_quick_adjust_values_reset_when_overlays_are_cleared tests/test_main_window_layout.py::test_white_width_quick_adjust_does_not_drift_when_any_target_would_underflow tests/test_main_window_layout.py::test_right_slant_quick_adjust_does_not_drift_when_rotation_would_clamp -v`
+  - `git diff --check`
+  - `git diff --stat 0132644..HEAD -- synthesia2midi/synthesia2midi/workflows/overlay_manager.py synthesia2midi/synthesia2midi/gui/main_action_controller.py`
+- Results:
+  - Reviewer quick-adjust pair: `2 passed in 0.42s`
+  - Empty/baseline/underflow/clamp coverage: `5 passed in 0.45s`
+  - `git diff --check`: clean
+  - `git diff --stat 0132644..HEAD -- synthesia2midi/synthesia2midi/workflows/overlay_manager.py synthesia2midi/synthesia2midi/gui/main_action_controller.py`: no output

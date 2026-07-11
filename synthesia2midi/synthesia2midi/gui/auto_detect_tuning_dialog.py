@@ -127,9 +127,14 @@ class AutoDetectTuningDialog(QDialog):
             QCoreApplication.translate("AutoDetectTuningDialog", "Basic"),
         )
         self.tabs.addTab(
-            self._build_param_tab(get_advanced_auto_detect_param_keys()),
-            QCoreApplication.translate("AutoDetectTuningDialog", "Advanced Detector Settings"),
+            self._build_param_tab(
+                get_advanced_auto_detect_param_keys(),
+                expand_first=False,
+                expert=True,
+            ),
+            QCoreApplication.translate("AutoDetectTuningDialog", "Advanced (Expert)"),
         )
+        self.tabs.setCurrentIndex(0)
         layout.addWidget(self.tabs, 1)
 
         status_group = QGroupBox(QCoreApplication.translate("AutoDetectTuningDialog", "Preview Status"))
@@ -192,7 +197,13 @@ class AutoDetectTuningDialog(QDialog):
             cancel_btn.clicked.connect(self.reject)
         layout.addWidget(buttons)
 
-    def _build_param_tab(self, param_keys: List[str]) -> QWidget:
+    def _build_param_tab(
+        self,
+        param_keys: List[str],
+        *,
+        expand_first: bool = True,
+        expert: bool = False,
+    ) -> QWidget:
         tab = QWidget()
         tab_layout = QVBoxLayout(tab)
         tab_layout.setContentsMargins(0, 0, 0, 0)
@@ -207,6 +218,17 @@ class AutoDetectTuningDialog(QDialog):
         sections_layout.setContentsMargins(0, 0, 0, 0)
         sections_layout.setSpacing(8)
 
+        section_registry = []
+        if expert:
+            self.expert_note = QLabel(
+                QCoreApplication.translate(
+                    "AutoDetectTuningDialog",
+                    "Use these controls only when Basic edge alignment cannot line the overlays up with the keys.",
+                )
+            )
+            self.expert_note.setWordWrap(True)
+            sections_layout.addWidget(self.expert_note)
+
         first_section = True
         param_key_set = set(param_keys)
         for category in AUTO_DETECT_PARAM_CATEGORIES:
@@ -218,8 +240,12 @@ class AutoDetectTuningDialog(QDialog):
             if not category_keys:
                 continue
 
-            section = CollapsibleSection(self._translate_category(category), expanded=first_section)
+            section = CollapsibleSection(
+                self._translate_category(category),
+                expanded=first_section and expand_first,
+            )
             first_section = False
+            section_registry.append(section)
             content_layout = section.content_layout()
 
             if category == "Edge Drift Correction":
@@ -274,6 +300,11 @@ class AutoDetectTuningDialog(QDialog):
             )
             content_layout.addWidget(reset_section_btn)
             sections_layout.addWidget(section)
+
+        if expert:
+            self.expert_sections = section_registry
+        else:
+            self.basic_sections = section_registry
 
         if first_section:
             empty_label = QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "No parameters available."))

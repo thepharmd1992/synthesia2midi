@@ -70,6 +70,12 @@ def test_auto_detect_tuning_dialog_uses_user_guidance_copy():
             "If the edges are off, adjust the edge controls."
         ) in label_texts
         assert "Reset to Recommended Settings" in button_texts
-        assert tabs.tabText(1) == "Advanced Detector Settings"
+        assert tabs.tabText(1) == "Advanced (Expert)"
+        assert tabs.currentIndex() == 0
+        assert dialog.expert_note.text() == (
+            "Use these controls only when Basic edge alignment cannot line the overlays up with the keys."
+        )
+        assert dialog.expert_sections
+        assert all(not section._content.isVisible() for section in dialog.expert_sections)
     finally:
         dialog.close()

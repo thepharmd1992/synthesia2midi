@@ -53,6 +53,12 @@ def _show_settings_section(control_panel, label: str) -> None:
     control_panel.tab_widget.setCurrentIndex(labels.index(label))
 
 
+def _show_advanced_section(control_panel, key: str) -> None:
+    _show_settings_section(control_panel, "Advanced")
+    control_panel.advanced_sections[key]._toggle.setChecked(True)
+    QApplication.processEvents()
+
+
 def _make_overlay(*, key_id: int, note_name: str, x: float, width: float, y: float = 2.0, rotation: float = 0.0) -> OverlayConfig:
     return OverlayConfig(
         key_id=key_id,
@@ -163,9 +169,8 @@ def test_main_window_prioritizes_video_with_settings_gear_and_tool_window(monkey
             "Calibration",
             "Overlays",
             "Detection",
-            "Spark",
             "MIDI",
-            "Trim",
+            "Advanced",
             "Optional",
             "Language",
         ]
@@ -644,7 +649,9 @@ def test_detection_mode_sliders_share_left_edge(monkeypatch):
     try:
         app.show()
         app.settings_toggle_button.click()
-        _show_settings_section(app.control_panel, "Detection")
+        _show_advanced_section(app.control_panel, "histogram")
+        app.control_panel.advanced_sections["delta"]._toggle.setChecked(True)
+        app.control_panel.advanced_sections["black_keys"]._toggle.setChecked(True)
         QApplication.processEvents()
 
         control_panel = app.control_panel
@@ -698,14 +705,14 @@ def test_spark_roi_controls_stack_and_stay_inside_panel(monkeypatch):
     try:
         app.show()
         app.settings_toggle_button.click()
-        _show_settings_section(app.control_panel, "Spark")
+        _show_advanced_section(app.control_panel, "repeated_notes")
         QApplication.processEvents()
 
         control_panel = app.control_panel
         select_rect = _rect_in_control_panel(control_panel, control_panel.spark_roi_select_button)
         toggle_rect = _rect_in_control_panel(control_panel, control_panel.spark_roi_toggle_button)
 
-        assert control_panel.spark_roi_select_button.text() == "Select Spark Area Above Keys"
+        assert control_panel.spark_roi_select_button.text() == "Select Flash Area Above Keys"
         assert toggle_rect.top() > select_rect.bottom()
         assert toggle_rect.right() <= control_panel.width()
         assert select_rect.right() <= control_panel.width()
@@ -718,7 +725,7 @@ def test_spark_auto_calibration_controls_stack_vertically(monkeypatch):
     try:
         app.show()
         app.settings_toggle_button.click()
-        _show_settings_section(app.control_panel, "Spark")
+        _show_advanced_section(app.control_panel, "repeated_notes")
         QApplication.processEvents()
 
         control_panel = app.control_panel

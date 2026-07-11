@@ -246,7 +246,9 @@ def test_spark_midi_trim_optional_sections_use_plain_recovery_copy():
         titles = _all_group_titles(panel)
 
         assert "Use this only if repeated notes merge into one long note." in texts
-        assert panel.spark_roi_select_button.text() == "Select Spark Area Above Keys"
+        assert panel.spark_roi_select_button.text() == "Select Flash Area Above Keys"
+        assert "Repeated Notes Fix" in titles
+        assert "Repeated-Note Setup" in titles
         assert "Convert Only Part of the Video" in titles
         assert "This affects MIDI creation only. It does not trim or change the video session." in texts
         assert "Permanently Trim Project" in titles
@@ -256,6 +258,49 @@ def test_spark_midi_trim_optional_sections_use_plain_recovery_copy():
         assert panel.trim_video_button.text() == "Permanently Trim Project"
         assert panel.hand_assignment_cb.text() == "Put each hand/color on a separate MIDI channel"
         assert "Use this only if the video uses different colors for left and right hand notes." in texts
+    finally:
+        panel.close()
+        panel.deleteLater()
+
+
+def test_advanced_settings_are_symptom_led_and_collapsed_by_default():
+    QApplication.instance() or QApplication([])
+    panel = ControlPanelQt()
+    try:
+        rail_labels = [
+            panel.settings_section_rail.item(index).text()
+            for index in range(panel.settings_section_rail.count())
+        ]
+        assert rail_labels == [
+            "Guide",
+            "Calibration",
+            "Overlays",
+            "Detection",
+            "MIDI",
+            "Advanced",
+            "Optional",
+            "Language",
+        ]
+        assert set(panel.advanced_sections) == {
+            "histogram",
+            "delta",
+            "black_keys",
+            "repeated_notes",
+            "trim",
+            "glossary",
+        }
+        assert all(not section._content.isVisible() for section in panel.advanced_sections.values())
+        assert panel.advanced_sections["histogram"]._content.isAncestorOf(panel.histogram_detection_cb)
+        assert panel.advanced_sections["delta"]._content.isAncestorOf(panel.delta_detection_cb)
+        assert panel.advanced_sections["black_keys"]._content.isAncestorOf(panel.black_key_filter_cb)
+        assert panel.advanced_sections["repeated_notes"]._content.isAncestorOf(panel.spark_detection_cb)
+        assert panel.advanced_sections["trim"]._content.isAncestorOf(panel.trim_video_button)
+
+        detection_index = rail_labels.index("Detection")
+        detection_page = panel.tab_widget.widget(detection_index)
+        assert not detection_page.isAncestorOf(panel.histogram_detection_cb)
+        assert not detection_page.isAncestorOf(panel.delta_detection_cb)
+        assert not detection_page.isAncestorOf(panel.black_key_filter_cb)
     finally:
         panel.close()
         panel.deleteLater()

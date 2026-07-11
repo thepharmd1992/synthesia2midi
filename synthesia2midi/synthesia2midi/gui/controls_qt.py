@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
 
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.gui.calibration_guide import CalibrationGuideWidget, derive_guide_snapshot
+from synthesia2midi.gui.ui_glossary import UiGlossary
 from synthesia2midi.localization import (
     load_preferred_locale,
     locale_display_name,
@@ -28,10 +29,10 @@ from synthesia2midi.localization import (
 # Key type constants
 KEY_TYPES = ["LW", "LB", "RW", "RB"]
 KEY_TYPE_LABELS = {
-    "LW": "Left Hand White",
-    "LB": "Left Hand Black", 
-    "RW": "Right Hand White",
-    "RB": "Right Hand Black"
+    "LW": "Left White",
+    "LB": "Left Black",
+    "RW": "Right White",
+    "RB": "Right Black",
 }
 
 translate = QCoreApplication.translate
@@ -212,6 +213,7 @@ class ControlPanelQt(QWidget):
         self._create_spark_detection_tab()
         self._create_midi_settings_tab()
         self._create_video_trim_tab()
+        self._create_advanced_settings_tab()
         self._create_optional_settings_tab()
         self._create_language_settings_tab()
 
@@ -808,14 +810,20 @@ class ControlPanelQt(QWidget):
         
         layout.addWidget(threshold_group)
         
-        # Detection modes
-        modes_group = QGroupBox(translate("ControlPanelQt", "Detection Modes"))
-        modes_layout = QVBoxLayout(modes_group)
-        modes_layout.setContentsMargins(15, 10, 15, 10)
+        # Specialist modes are composed into the collapsed Advanced page.
+        self.histogram_advanced_widget = QWidget()
+        histogram_layout = QVBoxLayout(self.histogram_advanced_widget)
+        histogram_layout.setContentsMargins(0, 0, 0, 0)
+        self.delta_advanced_widget = QWidget()
+        delta_layout = QVBoxLayout(self.delta_advanced_widget)
+        delta_layout.setContentsMargins(0, 0, 0, 0)
+        self.black_key_advanced_widget = QWidget()
+        black_key_layout = QVBoxLayout(self.black_key_advanced_widget)
+        black_key_layout.setContentsMargins(0, 0, 0, 0)
         
         slider_label_width = 62
 
-        def add_slider_row(label_text, slider, value_label, *, indent=0):
+        def add_slider_row(target_layout, label_text, slider, value_label, *, indent=0):
             row = QHBoxLayout()
             row.setContentsMargins(indent, 0, 0, 0)
             row.setSpacing(6)
@@ -825,7 +833,7 @@ class ControlPanelQt(QWidget):
             row.addWidget(slider)
             row.addWidget(value_label)
             row.addStretch()
-            modes_layout.addLayout(row)
+            target_layout.addLayout(row)
 
         # Histogram detection with sensitivity slider
         self.histogram_detection_cb = QCheckBox(translate("ControlPanelQt", "Enable Histogram Detection"))
@@ -834,7 +842,7 @@ class ControlPanelQt(QWidget):
         self.histogram_detection_cb.setToolTip(
             translate("ControlPanelQt", "Uses a color-pattern match inside the overlay. Helpful with gradients/uneven lighting.")
         )
-        modes_layout.addWidget(self.histogram_detection_cb)
+        histogram_layout.addWidget(self.histogram_detection_cb)
         
         # Add histogram threshold slider
         self.histogram_threshold_slider = QSlider(Qt.Horizontal)
@@ -851,7 +859,7 @@ class ControlPanelQt(QWidget):
         self.histogram_threshold_label.setToolTip(
             translate("ControlPanelQt", "How strong the histogram match must be (only used when Histogram Detection is enabled).")
         )
-        add_slider_row(translate("ControlPanelQt", "Strength:"), self.histogram_threshold_slider, self.histogram_threshold_label)
+        add_slider_row(histogram_layout, translate("ControlPanelQt", "Strength:"), self.histogram_threshold_slider, self.histogram_threshold_label)
         
         # Delta detection with rise/fall sliders
         self.delta_detection_cb = QCheckBox(translate("ControlPanelQt", "Enable Delta Detection"))
@@ -860,7 +868,7 @@ class ControlPanelQt(QWidget):
         self.delta_detection_cb.setToolTip(
             translate("ControlPanelQt", "Uses frame-to-frame change to confirm press/release (helps when color fades).")
         )
-        modes_layout.addWidget(self.delta_detection_cb)
+        delta_layout.addWidget(self.delta_detection_cb)
         
         self.rise_delta_slider = QSlider(Qt.Horizontal)
         self.rise_delta_slider.setFixedWidth(110)
@@ -876,7 +884,7 @@ class ControlPanelQt(QWidget):
         self.rise_delta_label.setToolTip(
             translate("ControlPanelQt", "How big the change must be to count as a press (only used when Delta Detection is enabled).")
         )
-        add_slider_row(translate("ControlPanelQt", "Rise:"), self.rise_delta_slider, self.rise_delta_label, indent=16)
+        add_slider_row(delta_layout, translate("ControlPanelQt", "Rise:"), self.rise_delta_slider, self.rise_delta_label, indent=16)
         
         self.fall_delta_slider = QSlider(Qt.Horizontal)
         self.fall_delta_slider.setFixedWidth(110)
@@ -892,7 +900,7 @@ class ControlPanelQt(QWidget):
         self.fall_delta_label.setToolTip(
             translate("ControlPanelQt", "How big the change must be to count as a release (only used when Delta Detection is enabled).")
         )
-        add_slider_row(translate("ControlPanelQt", "Fall:"), self.fall_delta_slider, self.fall_delta_label, indent=16)
+        add_slider_row(delta_layout, translate("ControlPanelQt", "Fall:"), self.fall_delta_slider, self.fall_delta_label, indent=16)
         
         # Black key filter with similarity ratio slider
         self.black_key_filter_cb = QCheckBox(translate("ControlPanelQt", "Enable Black Key Filter"))
@@ -901,7 +909,7 @@ class ControlPanelQt(QWidget):
         self.black_key_filter_cb.setToolTip(
             translate("ControlPanelQt", "Reduces false black-key presses from nearby overlays.")
         )
-        modes_layout.addWidget(self.black_key_filter_cb)
+        black_key_layout.addWidget(self.black_key_filter_cb)
         
         # Add similarity ratio slider
         self.similarity_ratio_slider = QSlider(Qt.Horizontal)
@@ -918,9 +926,7 @@ class ControlPanelQt(QWidget):
         self.similarity_ratio_label.setToolTip(
             translate("ControlPanelQt", "Controls how strict black-key filtering is (only used when Black Key Filter is enabled).")
         )
-        add_slider_row(translate("ControlPanelQt", "Similarity:"), self.similarity_ratio_slider, self.similarity_ratio_label)
-        
-        layout.addWidget(modes_group)
+        add_slider_row(black_key_layout, translate("ControlPanelQt", "Similarity:"), self.similarity_ratio_slider, self.similarity_ratio_label)
 
         self.restore_detection_defaults_button = QPushButton(translate("ControlPanelQt", "Restore Defaults"))
         self.restore_detection_defaults_button.setToolTip(
@@ -930,8 +936,6 @@ class ControlPanelQt(QWidget):
             )
         )
         self.restore_detection_defaults_button.clicked.connect(self._restore_detection_defaults)
-        layout.addWidget(self.restore_detection_defaults_button, alignment=Qt.AlignLeft)
-        
         layout.addStretch()
         self._add_settings_section(tab, translate("ControlPanelQt", "Detection"))
     
@@ -964,7 +968,7 @@ class ControlPanelQt(QWidget):
         layout.addWidget(help_section)
 
         # Spark detection toggle
-        main_group = QGroupBox(translate("ControlPanelQt", "Spark Detection"))
+        main_group = QGroupBox(translate("ControlPanelQt", "Repeated Notes Fix"))
         main_group.setObjectName("first_in_tab")  # For CSS styling
         main_layout = QVBoxLayout(main_group)
 
@@ -975,7 +979,7 @@ class ControlPanelQt(QWidget):
         spark_guidance_label.setStyleSheet("color: #555;")
         main_layout.addWidget(spark_guidance_label)
 
-        self.spark_detection_cb = QCheckBox(translate("ControlPanelQt", "Enable Spark Detection"))
+        self.spark_detection_cb = QCheckBox(translate("ControlPanelQt", "Enable Repeated Notes Fix"))
         self.spark_detection_cb.toggled.connect(self.spark_detection_toggled.emit)
         self.spark_detection_cb.toggled.connect(self._update_spark_controls_state)
         self.spark_detection_cb.setToolTip(
@@ -1007,14 +1011,14 @@ class ControlPanelQt(QWidget):
         layout.addWidget(main_group)
 
         # Spark calibration
-        calibration_group = QGroupBox(translate("ControlPanelQt", "Spark Calibration"))
+        calibration_group = QGroupBox(translate("ControlPanelQt", "Repeated-Note Setup"))
         calibration_layout = QVBoxLayout(calibration_group)
 
         # ROI selection
         roi_layout = QVBoxLayout()
         roi_layout.setContentsMargins(0, 0, 0, 0)
         roi_layout.setSpacing(6)
-        self.spark_roi_select_button = QPushButton(translate("ControlPanelQt", "Select Spark Area Above Keys"))
+        self.spark_roi_select_button = QPushButton(translate("ControlPanelQt", "Select Flash Area Above Keys"))
         self.spark_roi_select_button.setMaximumWidth(264)
         self.spark_roi_select_button.clicked.connect(self.spark_roi_selection_requested.emit)
         self.spark_roi_select_button.setToolTip(
@@ -1145,7 +1149,7 @@ class ControlPanelQt(QWidget):
 
         scroll_area.setWidget(content)
         tab_layout.addWidget(scroll_area)
-        self._add_settings_section(tab, translate("ControlPanelQt", "Spark"))
+        self.spark_settings_page = tab
     
     def _create_midi_settings_tab(self):
         """Tab 5: MIDI Settings"""
@@ -1323,7 +1327,63 @@ class ControlPanelQt(QWidget):
         layout.addWidget(trim_group)
         
         layout.addStretch()
-        self._add_settings_section(tab, translate("ControlPanelQt", "Trim"))
+        self.trim_settings_page = tab
+
+    def _create_advanced_settings_tab(self):
+        """Compose specialist recovery controls under symptom-led sections."""
+        tab = QWidget()
+        layout = QVBoxLayout(tab)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(6)
+
+        section_specs = [
+            (
+                "histogram",
+                translate("ControlPanelQt", "Gradient or uneven pressed colors"),
+                self.histogram_advanced_widget,
+            ),
+            (
+                "delta",
+                translate("ControlPanelQt", "Pressed colors fade in or out"),
+                self.delta_advanced_widget,
+            ),
+            (
+                "black_keys",
+                translate("ControlPanelQt", "False black-key notes"),
+                self.black_key_advanced_widget,
+            ),
+            (
+                "repeated_notes",
+                translate("ControlPanelQt", "Repeated notes merge together"),
+                self.spark_settings_page,
+            ),
+            (
+                "trim",
+                translate("ControlPanelQt", "Permanently Trim Project"),
+                self.trim_settings_page,
+            ),
+        ]
+        self.advanced_sections = {}
+        for key, title, content in section_specs:
+            section = CollapsibleSection(title, expanded=False)
+            section.content_layout().addWidget(content)
+            layout.addWidget(section)
+            self.advanced_sections[key] = section
+
+        self.advanced_sections["black_keys"].content_layout().addWidget(
+            self.restore_detection_defaults_button,
+            alignment=Qt.AlignLeft,
+        )
+
+        glossary_section = CollapsibleSection(
+            translate("ControlPanelQt", "Glossary"), expanded=False
+        )
+        self.ui_glossary = UiGlossary()
+        glossary_section.content_layout().addWidget(self.ui_glossary)
+        layout.addWidget(glossary_section)
+        self.advanced_sections["glossary"] = glossary_section
+        layout.addStretch(1)
+        self._add_settings_section(tab, translate("ControlPanelQt", "Advanced"))
     
     def _create_optional_settings_tab(self):
         """Tab 7: Optional Settings"""
@@ -1527,37 +1587,10 @@ class ControlPanelQt(QWidget):
             )
             return
         
-        # Create red warning dialog
+        # Keep the platform warning style so contrast and keyboard behavior remain native.
         msg_box = QMessageBox(self)
         msg_box.setWindowTitle(translate("ControlPanelQt", "Permanently Trim Project"))
         msg_box.setIcon(QMessageBox.Warning)
-        
-        # Red styling for the dialog
-        msg_box.setStyleSheet("""
-            QMessageBox {
-                background-color: #2b2b2b;
-                color: white;
-            }
-            QMessageBox QLabel {
-                color: #ff6b6b;
-                font-weight: bold;
-                font-size: 14px;
-            }
-            QMessageBox QPushButton {
-                background-color: #ff4757;
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 4px;
-                font-weight: bold;
-            }
-            QMessageBox QPushButton:hover {
-                background-color: #ff3742;
-            }
-            QMessageBox QPushButton:pressed {
-                background-color: #ff2731;
-            }
-        """)
         
         end_text = (
             translate("ControlPanelQt", "frame {end_frame}").format(end_frame=end_frame)
@@ -1576,7 +1609,6 @@ class ControlPanelQt(QWidget):
         msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
         msg_box.setDefaultButton(QMessageBox.Cancel)
         
-        # Make the Yes button red too
         yes_button = msg_box.button(QMessageBox.Yes)
         yes_button.setText(translate("ControlPanelQt", "Trim Project"))
         

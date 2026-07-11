@@ -256,7 +256,9 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.settings_toggle_button.setAccessibleName(
             QCoreApplication.translate("Video2MidiApp", "Settings")
         )
-        self.settings_toggle_button.setToolTip(QCoreApplication.translate("Video2MidiApp", "Show settings"))
+        settings_description = QCoreApplication.translate("Video2MidiApp", "Show settings")
+        self.settings_toggle_button.setAccessibleDescription(settings_description)
+        self.settings_toggle_button.setToolTip(settings_description)
         self.settings_toggle_button.setStyleSheet(
             "QToolButton#settings_toggle_button {"
             "background-color: rgba(34, 38, 45, 0.82);"

@@ -6,6 +6,7 @@ from enum import Enum
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QDialog,
+    QGridLayout,
     QHBoxLayout,
     QLabel,
     QPushButton,
@@ -63,6 +64,7 @@ class AssistedCalibrationDialog(QDialog):
             self.tr("Left/Right refer to Synthesia note colors, not the physical side of the keyboard.")
         )
         self.color_family_note.setWordWrap(True)
+        self.color_family_note.setMinimumHeight(self.color_family_note.sizeHint().height())
         layout.addWidget(self.color_family_note)
 
         slot_labels = {
@@ -101,18 +103,20 @@ class AssistedCalibrationDialog(QDialog):
             layout.addLayout(row_layout)
             self.rows[slot] = AssistedCalibrationRow(name_label, swatch, status_label)
 
-        button_layout = QHBoxLayout()
+        button_layout = QGridLayout()
         self.keep_button = QPushButton(self.tr("Keep Current Examples"))
+        self.keep_button.setMinimumHeight(36)
         self.keep_button.clicked.connect(self._keep)
-        button_layout.addWidget(self.keep_button)
+        button_layout.addWidget(self.keep_button, 0, 0)
         self.try_another_button = QPushButton(self.tr("Try Another Frame"))
+        self.try_another_button.setMinimumHeight(36)
         self.try_another_button.clicked.connect(self._retry)
-        button_layout.addWidget(self.try_another_button)
-        button_layout.addStretch(1)
+        button_layout.addWidget(self.try_another_button, 0, 1)
         self.use_button = QPushButton(self.tr("Use These Examples"))
+        self.use_button.setMinimumHeight(36)
         self.use_button.setDefault(True)
         self.use_button.clicked.connect(self._use)
-        button_layout.addWidget(self.use_button)
+        button_layout.addWidget(self.use_button, 1, 0, 1, 2)
         layout.addLayout(button_layout)
 
     def _use(self) -> None:

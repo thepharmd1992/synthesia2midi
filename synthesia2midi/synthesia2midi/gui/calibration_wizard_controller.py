@@ -495,6 +495,13 @@ class CalibrationWizardController:
         if self.video_loading_workflow:
             self.video_loading_workflow.save_current_config()
         self._set_assisted_calibration_guide_state("applied")
+        refresh_readiness = getattr(
+            getattr(self.app, "control_panel", None),
+            "_update_conversion_readiness_display",
+            None,
+        )
+        if callable(refresh_readiness):
+            refresh_readiness()
         return True
 
     def _queue_assisted_auto_calibration(

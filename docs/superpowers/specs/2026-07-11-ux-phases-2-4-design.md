@@ -360,4 +360,3 @@ done
 - Font and style metrics vary by platform. Deterministic tests should measure text against allocated geometry and retain a small safety margin.
 - Moving controls can accidentally break signal wiring. Tests must assert both state restoration and signal emission for moved controls.
 - The assisted scan currently captures no-key references before proposing examples. Retry/cancel must restore that snapshot exactly.
-

@@ -153,18 +153,22 @@ class AutoDetectTuningDialog(QDialog):
             else QCoreApplication.translate("AutoDetectTuningDialog", "No")
         )
 
-        status_layout.addWidget(QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "Detected White Keys:")), 0, 0)
-        status_layout.addWidget(self._status_labels["white"], 0, 1)
-        status_layout.addWidget(QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "Detected Black Keys:")), 0, 2)
-        status_layout.addWidget(self._status_labels["black"], 0, 3)
-        status_layout.addWidget(QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "Detected Total Keys:")), 1, 0)
-        status_layout.addWidget(self._status_labels["total"], 1, 1)
-        status_layout.addWidget(QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "Overlays Created:")), 1, 2)
-        status_layout.addWidget(self._status_labels["overlays"], 1, 3)
-        status_layout.addWidget(QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "Leftmost Note/Octave:")), 2, 0)
-        status_layout.addWidget(self._status_labels["leftmost"], 2, 1)
-        status_layout.addWidget(QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "Fallback Profile Used:")), 2, 2)
-        status_layout.addWidget(self._status_labels["fallback"], 2, 3)
+        status_rows = [
+            (QCoreApplication.translate("AutoDetectTuningDialog", "Detected White Keys:"), "white"),
+            (QCoreApplication.translate("AutoDetectTuningDialog", "Detected Black Keys:"), "black"),
+            (QCoreApplication.translate("AutoDetectTuningDialog", "Detected Total Keys:"), "total"),
+            (QCoreApplication.translate("AutoDetectTuningDialog", "Overlays Created:"), "overlays"),
+            (QCoreApplication.translate("AutoDetectTuningDialog", "Leftmost Note/Octave:"), "leftmost"),
+            (QCoreApplication.translate("AutoDetectTuningDialog", "Fallback Profile Used:"), "fallback"),
+        ]
+        for row, (label_text, key) in enumerate(status_rows):
+            label = QLabel(label_text)
+            label.setMinimumHeight(label.sizeHint().height())
+            value_label = self._status_labels[key]
+            value_label.setMinimumHeight(value_label.sizeHint().height())
+            status_layout.addWidget(label, row, 0)
+            status_layout.addWidget(value_label, row, 1)
+        status_layout.setColumnStretch(1, 1)
         layout.addWidget(status_group)
 
         self._warning_label = QLabel("")

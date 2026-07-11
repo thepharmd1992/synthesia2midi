@@ -21,4 +21,3 @@ class UiGlossary(QWidget):
             label.setWordWrap(True)
             layout.addWidget(label)
             self.labels.append(label)
-

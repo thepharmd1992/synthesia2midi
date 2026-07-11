@@ -150,6 +150,7 @@ class GuideStepRow(QWidget):
 
         self.instruction_label = QLabel(instruction)
         self.instruction_label.setWordWrap(True)
+        self.instruction_label.setMinimumHeight(self.instruction_label.sizeHint().height())
         layout.addWidget(self.instruction_label)
         if illustration is not None:
             layout.addWidget(illustration)

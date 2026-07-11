@@ -9,7 +9,16 @@ from typing import Callable, Sequence
 
 import numpy as np
 from PySide6.QtGui import QFont
-from PySide6.QtWidgets import QAbstractButton, QApplication, QLabel, QWidget
+from PySide6.QtWidgets import (
+    QAbstractButton,
+    QAbstractSpinBox,
+    QApplication,
+    QComboBox,
+    QLabel,
+    QLineEdit,
+    QSlider,
+    QWidget,
+)
 
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.detection.assisted_calibration import (
@@ -39,11 +48,21 @@ SETTINGS_SURFACES = [
     ("settings-language", "Language"),
 ]
 
+ADVANCED_SECTION_SURFACES = [
+    ("settings-advanced-histogram", "histogram"),
+    ("settings-advanced-delta", "delta"),
+    ("settings-advanced-black-keys", "black_keys"),
+    ("settings-advanced-repeated-notes", "repeated_notes"),
+    ("settings-advanced-trim", "trim"),
+    ("settings-advanced-glossary", "glossary"),
+]
+
 
 def surface_names() -> list[str]:
     return [
         "startup",
         *(name for name, _label in SETTINGS_SURFACES),
+        *(name for name, _key in ADVANCED_SECTION_SURFACES),
         "calibration-wizard",
         "assisted-calibration",
         "auto-detect-basic",
@@ -79,17 +98,16 @@ def _assisted_proposal() -> AssistedCalibrationProposal:
     )
 
 
-def _settings_surface(label: str) -> ControlPanelQt:
+def _settings_surface(label: str, *, advanced_section: str | None = None) -> ControlPanelQt:
     panel = ControlPanelQt(app_state=AppState())
     labels = [panel.settings_section_rail.item(index).text() for index in range(panel.settings_section_rail.count())]
     source_labels = [source_label for _name, source_label in SETTINGS_SURFACES]
     index = source_labels.index(label)
     # Translation can change the displayed label, but page order remains stable.
     panel.settings_section_rail.setCurrentRow(index)
-    if label == "Advanced":
-        for section in panel.advanced_sections.values():
-            section._toggle.setChecked(True)
-    panel.resize(max(820, panel.sizeHint().width()), 900)
+    if advanced_section is not None:
+        panel.advanced_sections[advanced_section]._toggle.setChecked(True)
+    panel.resize(700, 760)
     return panel
 
 
@@ -113,6 +131,13 @@ def _surface_factories() -> list[tuple[str, Callable[[], QWidget]]]:
     ]
     for name, label in SETTINGS_SURFACES:
         factories.append((name, lambda page_label=label: _settings_surface(page_label)))
+    for name, section_key in ADVANCED_SECTION_SURFACES:
+        factories.append(
+            (
+                name,
+                lambda key=section_key: _settings_surface("Advanced", advanced_section=key),
+            )
+        )
     factories.extend(
         [
             ("calibration-wizard", lambda: CalibrationWizard(None, AppState())),
@@ -147,6 +172,23 @@ def _detect_clipping(widget: QWidget) -> list[str]:
         )
         if label.width() + 2 < required or label.height() + 2 < required_height:
             findings.append(f"QLabel:{label.text()}")
+
+    overlap_types = (QAbstractButton, QAbstractSpinBox, QComboBox, QLabel, QLineEdit, QSlider)
+    candidates = [
+        child
+        for child in widget.findChildren(QWidget)
+        if child.isVisible() and isinstance(child, overlap_types)
+    ]
+    parents = {child.parentWidget() for child in candidates}
+    for parent in parents:
+        siblings = [child for child in candidates if child.parentWidget() is parent]
+        for index, child in enumerate(siblings):
+            for other in siblings[index + 1 :]:
+                if not child.geometry().intersects(other.geometry()):
+                    continue
+                child_text = child.text() if hasattr(child, "text") else child.metaObject().className()
+                other_text = other.text() if hasattr(other, "text") else other.metaObject().className()
+                findings.append(f"overlap:{child_text}<>{other_text}")
     return sorted(set(findings))
 
 
@@ -178,7 +220,6 @@ def render_matrix(output: Path, *, locale_name: str, font_scale: float) -> int:
     try:
         for name, factory in _surface_factories():
             widget = factory()
-            widget.resize(widget.sizeHint().expandedTo(widget.minimumSizeHint()))
             widget.show()
             app.processEvents()
             image = widget.grab().toImage()

@@ -191,12 +191,15 @@ class ManualKeyboardFitDialog(QDialog):
             spinbox.setValue(0)
             spinbox.setFixedWidth(78)
             reset_button = QPushButton("0")
-            reset_button.setFixedWidth(32)
-            reset_button.setToolTip(
-                QCoreApplication.translate("ManualKeyboardFitDialog", "Reset {label}").format(
-                    label=_translate_param_label(label)
-                )
+            reset_button.setFixedSize(36, 36)
+            reset_text = QCoreApplication.translate(
+                "ManualKeyboardFitDialog", "Reset {label}"
+            ).format(
+                label=_translate_param_label(label)
             )
+            reset_button.setToolTip(reset_text)
+            reset_button.setAccessibleName(reset_text)
+            reset_button.setAccessibleDescription(reset_text)
 
             slider.valueChanged.connect(
                 lambda value, param_name=name: self._handle_slider_changed(param_name, value)
@@ -244,12 +247,15 @@ class ManualKeyboardFitDialog(QDialog):
             spinbox.setValue(0)
             spinbox.setFixedWidth(78)
             reset_button = QPushButton("0")
-            reset_button.setFixedWidth(32)
-            reset_button.setToolTip(
-                QCoreApplication.translate("ManualKeyboardFitDialog", "Reset {label}").format(
-                    label=_translate_param_label(label)
-                )
+            reset_button.setFixedSize(36, 36)
+            reset_text = QCoreApplication.translate(
+                "ManualKeyboardFitDialog", "Reset {label}"
+            ).format(
+                label=_translate_param_label(label)
             )
+            reset_button.setToolTip(reset_text)
+            reset_button.setAccessibleName(reset_text)
+            reset_button.setAccessibleDescription(reset_text)
 
             slider.valueChanged.connect(
                 lambda value, param_name=name: self._handle_local_slider_changed(param_name, value)

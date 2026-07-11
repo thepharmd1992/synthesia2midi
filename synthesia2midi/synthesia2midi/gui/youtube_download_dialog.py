@@ -84,6 +84,11 @@ class YouTubeDownloadDialog(QDialog):
         self.downloader.preferred_browser = self._preferred_browser
         self.downloader.auto_cookie_retry = self._auto_cookie_retry
         self.setup_ui()
+        opening_hint = self.sizeHint()
+        self.resize(
+            max(self.width(), opening_hint.width()),
+            max(self.height(), opening_hint.height()),
+        )
         
     def setup_ui(self):
         """Setup the dialog UI"""
@@ -145,6 +150,7 @@ class YouTubeDownloadDialog(QDialog):
             )
         )
         self.fallback_hint_label.setWordWrap(True)
+        self.fallback_hint_label.setMinimumHeight(self.fallback_hint_label.sizeHint().height())
         fallback_layout.addWidget(self.fallback_hint_label)
 
         self.browser_combo = QComboBox()

@@ -636,12 +636,16 @@ class ControlPanelQt(QWidget):
             button_row.setSpacing(4)
             button_row.addWidget(dec_button)
             button_row.addWidget(inc_button)
-            dec_button.setAccessibleName(
-                translate("ControlPanelQt", "Decrease {setting}").format(setting=label.text())
+            decrease_text = translate("ControlPanelQt", "Decrease {setting}").format(
+                setting=label.text()
             )
-            inc_button.setAccessibleName(
-                translate("ControlPanelQt", "Increase {setting}").format(setting=label.text())
+            increase_text = translate("ControlPanelQt", "Increase {setting}").format(
+                setting=label.text()
             )
+            dec_button.setAccessibleName(decrease_text)
+            dec_button.setAccessibleDescription(decrease_text)
+            inc_button.setAccessibleName(increase_text)
+            inc_button.setAccessibleDescription(increase_text)
             button_row.addStretch()
             cell.addLayout(button_row)
             self._overlay_adjustment_value_labels[key] = value_label
@@ -852,7 +856,7 @@ class ControlPanelQt(QWidget):
         self.black_key_advanced_widget = QWidget()
         black_key_layout = QVBoxLayout(self.black_key_advanced_widget)
         black_key_layout.setContentsMargins(0, 0, 0, 0)
-        
+
         self.advanced_slider_labels = []
         advanced_slider_label_specs = []
 

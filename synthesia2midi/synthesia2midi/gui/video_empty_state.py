@@ -45,4 +45,3 @@ class VideoEmptyState(QWidget):
         actions.addStretch(1)
         layout.addLayout(actions)
         layout.addStretch(1)
-

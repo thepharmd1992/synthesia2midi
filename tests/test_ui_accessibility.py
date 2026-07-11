@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QApplication
 
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.gui.controls_qt import ControlPanelQt
+from synthesia2midi.gui.manual_keyboard_fit_dialog import ManualKeyboardFitDialog
 from synthesia2midi.gui.startup_dialog import StartupDialog
 from synthesia2midi.gui.wizard import CalibrationWizard
 from synthesia2midi.gui.youtube_download_dialog import YouTubeDownloadDialog
@@ -42,6 +43,7 @@ def test_small_adjustment_targets_have_names_and_are_at_least_36_pixels():
             assert button.minimumHeight() >= 36
             if button.text() in {"+", "-"}:
                 assert button.accessibleName()
+                assert button.accessibleDescription()
     finally:
         panel.close()
 
@@ -54,8 +56,27 @@ def test_main_settings_target_is_40_pixels_and_accessibly_named(monkeypatch):
         assert app.settings_toggle_button.width() >= 40
         assert app.settings_toggle_button.height() >= 40
         assert app.settings_toggle_button.accessibleName() == "Settings"
+        assert app.settings_toggle_button.accessibleDescription()
     finally:
         app.close()
+
+
+def test_manual_fit_reset_targets_are_accessible_and_at_least_36_pixels():
+    QApplication.instance() or QApplication([])
+    dialog = ManualKeyboardFitDialog()
+    try:
+        reset_buttons = [
+            *dialog.param_reset_buttons.values(),
+            *dialog.local_param_reset_buttons.values(),
+        ]
+        assert reset_buttons
+        for button in reset_buttons:
+            assert button.minimumWidth() >= 36
+            assert button.minimumHeight() >= 36
+            assert button.accessibleName()
+            assert button.accessibleDescription()
+    finally:
+        dialog.close()
 
 
 def test_required_dialogs_define_beginner_path_focus_order():

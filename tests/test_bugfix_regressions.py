@@ -955,6 +955,10 @@ def test_assisted_calibration_accept_preserves_prior_slots_not_found_by_scan(mon
     QApplication.instance() or QApplication([])
     save_log = []
     controller = _make_assisted_calibration_controller(save_log=save_log)
+    refresh_calls = []
+    controller.app.control_panel = SimpleNamespace(
+        _update_conversion_readiness_display=lambda: refresh_calls.append("refresh")
+    )
     state = controller.app_state
     state.detection.exemplar_key_type_enabled["LB"] = True
     state.detection.exemplar_lit_colors["LB"] = (4, 5, 6)
@@ -984,6 +988,7 @@ def test_assisted_calibration_accept_preserves_prior_slots_not_found_by_scan(mon
         np.array([0.3, 0.7], dtype=np.float32),
     )
     assert save_log == ["save"]
+    assert refresh_calls == ["refresh"]
 
 
 def test_main_action_controller_delegates_histogram_and_similarity_thresholds():

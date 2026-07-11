@@ -569,6 +569,9 @@ def test_minimum_width_calibration_controls_do_not_overlap(monkeypatch):
         QApplication.processEvents()
 
         control_panel = app.control_panel
+        if not app.settings_tool_window.isVisible():
+            app.settings_toggle_button.click()
+            QApplication.processEvents()
         _show_settings_section(control_panel, "Calibration")
         QApplication.processEvents()
 

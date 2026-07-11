@@ -162,6 +162,9 @@ class StartupDialog(QDialog):
         # Set default button
         self.local_file_btn.setDefault(True)
         self.local_file_btn.setFocus()
+        QWidget.setTabOrder(self.local_file_btn, self.youtube_btn)
+        if self.recent_video_buttons:
+            QWidget.setTabOrder(self.youtube_btn, self.recent_video_buttons[0])
         
     def _on_local_file_clicked(self):
         """Handle local file button click"""

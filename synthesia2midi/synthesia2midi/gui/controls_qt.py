@@ -227,6 +227,12 @@ class ControlPanelQt(QWidget):
         main_layout.addLayout(settings_layout, 1)
 
         self.settings_section_rail.setCurrentRow(0)
+        QWidget.setTabOrder(
+            self.settings_section_rail,
+            self.guide_page.step_rows[0].primary_button,
+        )
+        QWidget.setTabOrder(self.guide_page.step_rows[0].primary_button, self.convert_button)
+        QWidget.setTabOrder(self.convert_button, self.midi_touchup_button)
 
     def _create_guide_tab(self) -> None:
         self.guide_page = CalibrationGuideWidget()
@@ -246,6 +252,17 @@ class ControlPanelQt(QWidget):
         if self.settings_section_rail.count() == 0:
             return
 
+        metrics = self.settings_section_rail.fontMetrics()
+        widest_text = max(
+            metrics.horizontalAdvance(self.settings_section_rail.item(index).text())
+            for index in range(self.settings_section_rail.count())
+        )
+        rail_width = max(98, widest_text + 28)
+        self.settings_section_rail.setFixedWidth(rail_width)
+        self.settings_section_rail_container.setFixedWidth(rail_width)
+        if hasattr(self, "settings_rail_actions"):
+            self.settings_rail_actions.setFixedWidth(rail_width)
+
         row_height = self.settings_section_rail.sizeHintForRow(0)
         if row_height <= 0:
             row_height = 30
@@ -253,13 +270,17 @@ class ControlPanelQt(QWidget):
         self.settings_section_rail.setFixedHeight(
             (row_height * self.settings_section_rail.count()) + frame + 4
         )
+
+    def fit_settings_section_rail(self) -> None:
+        """Recalculate rail geometry after a font or translation change."""
+        self._fit_settings_section_rail_to_items()
     
     def _create_global_action_widgets(self):
         """Create section-independent actions shown in the lower rail."""
         self.convert_button = QPushButton(QCoreApplication.translate("ControlPanelQt", "Convert"))
         self.convert_button.setObjectName("convert_button")
         self.convert_button.clicked.connect(self._handle_conversion_request)
-        self.convert_button.setMinimumHeight(34)
+        self.convert_button.setMinimumHeight(36)
 
         self.conversion_status = QLabel(
             QCoreApplication.translate("ControlPanelQt", "Load a video to convert.")
@@ -268,7 +289,7 @@ class ControlPanelQt(QWidget):
 
         self.midi_touchup_button = QPushButton(QCoreApplication.translate("ControlPanelQt", "Edit MIDI"))
         self.midi_touchup_button.setObjectName("midi_touchup_button")
-        self.midi_touchup_button.setMinimumHeight(34)
+        self.midi_touchup_button.setMinimumHeight(36)
         self.midi_touchup_button.clicked.connect(self.midi_touchup_requested.emit)
 
         self.selected_overlay_caption = QLabel(QCoreApplication.translate("ControlPanelQt", "Overlay"))
@@ -451,7 +472,7 @@ class ControlPanelQt(QWidget):
         self.unlit_status_label = QLabel(translate("ControlPanelQt", "Not Set"))
         self.unlit_status_label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         self.unlit_status_label.setFixedHeight(20)
-        self.unlit_status_label.setStyleSheet("font-style: italic; color: #888;")
+        self.unlit_status_label.setStyleSheet("font-style: italic; color: #595959;")
         unlit_stack.addWidget(self.unlit_status_label)
         layout.addLayout(unlit_stack)
 
@@ -610,6 +631,12 @@ class ControlPanelQt(QWidget):
             button_row.setSpacing(4)
             button_row.addWidget(dec_button)
             button_row.addWidget(inc_button)
+            dec_button.setAccessibleName(
+                translate("ControlPanelQt", "Decrease {setting}").format(setting=label.text())
+            )
+            inc_button.setAccessibleName(
+                translate("ControlPanelQt", "Increase {setting}").format(setting=label.text())
+            )
             button_row.addStretch()
             cell.addLayout(button_row)
             self._overlay_adjustment_value_labels[key] = value_label
@@ -620,10 +647,10 @@ class ControlPanelQt(QWidget):
 
         self.white_height_label = QLabel(translate("ControlPanelQt", "White Key Height"))
         self.white_height_dec_button = QPushButton("-")
-        self.white_height_dec_button.setFixedSize(30, 30)
+        self.white_height_dec_button.setFixedSize(36, 36)
         self.white_height_dec_button.clicked.connect(lambda: self._apply_overlay_adjustment("white", "height", -2))
         self.white_height_inc_button = QPushButton("+")
-        self.white_height_inc_button.setFixedSize(30, 30)
+        self.white_height_inc_button.setFixedSize(36, 36)
         self.white_height_inc_button.clicked.connect(lambda: self._apply_overlay_adjustment("white", "height", 2))
         self.white_height_value_label, self.white_height_reset_button = add_size_control(
             0,
@@ -637,10 +664,10 @@ class ControlPanelQt(QWidget):
 
         self.white_width_label = QLabel(translate("ControlPanelQt", "White Key Width"))
         self.white_width_dec_button = QPushButton("-")
-        self.white_width_dec_button.setFixedSize(30, 30)
+        self.white_width_dec_button.setFixedSize(36, 36)
         self.white_width_dec_button.clicked.connect(lambda: self._apply_overlay_adjustment("white", "width", -2))
         self.white_width_inc_button = QPushButton("+")
-        self.white_width_inc_button.setFixedSize(30, 30)
+        self.white_width_inc_button.setFixedSize(36, 36)
         self.white_width_inc_button.clicked.connect(lambda: self._apply_overlay_adjustment("white", "width", 2))
         self.white_width_value_label, self.white_width_reset_button = add_size_control(
             0,
@@ -654,10 +681,10 @@ class ControlPanelQt(QWidget):
 
         self.black_height_label = QLabel(translate("ControlPanelQt", "Black Key Height"))
         self.black_height_dec_button = QPushButton("-")
-        self.black_height_dec_button.setFixedSize(30, 30)
+        self.black_height_dec_button.setFixedSize(36, 36)
         self.black_height_dec_button.clicked.connect(lambda: self._apply_overlay_adjustment("black", "height", -2))
         self.black_height_inc_button = QPushButton("+")
-        self.black_height_inc_button.setFixedSize(30, 30)
+        self.black_height_inc_button.setFixedSize(36, 36)
         self.black_height_inc_button.clicked.connect(lambda: self._apply_overlay_adjustment("black", "height", 2))
         self.black_height_value_label, self.black_height_reset_button = add_size_control(
             1,
@@ -671,10 +698,10 @@ class ControlPanelQt(QWidget):
 
         self.black_width_label = QLabel(translate("ControlPanelQt", "Black Key Width"))
         self.black_width_dec_button = QPushButton("-")
-        self.black_width_dec_button.setFixedSize(30, 30)
+        self.black_width_dec_button.setFixedSize(36, 36)
         self.black_width_dec_button.clicked.connect(lambda: self._apply_overlay_adjustment("black", "width", -2))
         self.black_width_inc_button = QPushButton("+")
-        self.black_width_inc_button.setFixedSize(30, 30)
+        self.black_width_inc_button.setFixedSize(36, 36)
         self.black_width_inc_button.clicked.connect(lambda: self._apply_overlay_adjustment("black", "width", 2))
         self.black_width_value_label, self.black_width_reset_button = add_size_control(
             1,
@@ -688,10 +715,10 @@ class ControlPanelQt(QWidget):
 
         self.left_slant_label = QLabel(translate("ControlPanelQt", "Left Slant"))
         self.left_slant_dec_button = QPushButton("-")
-        self.left_slant_dec_button.setFixedSize(30, 30)
+        self.left_slant_dec_button.setFixedSize(36, 36)
         self.left_slant_dec_button.clicked.connect(lambda: self._apply_overlay_adjustment("all", "left_slant", -1))
         self.left_slant_inc_button = QPushButton("+")
-        self.left_slant_inc_button.setFixedSize(30, 30)
+        self.left_slant_inc_button.setFixedSize(36, 36)
         self.left_slant_inc_button.clicked.connect(lambda: self._apply_overlay_adjustment("all", "left_slant", 1))
         self.left_slant_value_label, self.left_slant_reset_button = add_size_control(
             2,
@@ -705,10 +732,10 @@ class ControlPanelQt(QWidget):
 
         self.right_slant_label = QLabel(translate("ControlPanelQt", "Right Slant"))
         self.right_slant_dec_button = QPushButton("-")
-        self.right_slant_dec_button.setFixedSize(30, 30)
+        self.right_slant_dec_button.setFixedSize(36, 36)
         self.right_slant_dec_button.clicked.connect(lambda: self._apply_overlay_adjustment("all", "right_slant", -1))
         self.right_slant_inc_button = QPushButton("+")
-        self.right_slant_inc_button.setFixedSize(30, 30)
+        self.right_slant_inc_button.setFixedSize(36, 36)
         self.right_slant_inc_button.clicked.connect(lambda: self._apply_overlay_adjustment("all", "right_slant", 1))
         self.right_slant_value_label, self.right_slant_reset_button = add_size_control(
             2,
@@ -1121,7 +1148,7 @@ class ControlPanelQt(QWidget):
             row.addWidget(button)
 
             status = QLabel(translate("ControlPanelQt", "Not Set"))
-            status.setStyleSheet("color: grey; font-style: italic;")
+            status.setStyleSheet("color: #595959; font-style: italic;")
             self.auto_calib_status_labels[key_type] = status
             row.addWidget(status)
 
@@ -1140,7 +1167,7 @@ class ControlPanelQt(QWidget):
 
         self.spark_status_label = QLabel(translate("ControlPanelQt", "Preview not available yet."))
         self.spark_status_label.setWordWrap(True)
-        self.spark_status_label.setStyleSheet("color: grey; font-style: italic;")
+        self.spark_status_label.setStyleSheet("color: #595959; font-style: italic;")
         preview_layout.addWidget(self.spark_status_label)
 
         layout.addWidget(preview_group)
@@ -1460,7 +1487,7 @@ class ControlPanelQt(QWidget):
             color_tuple = self.app_state.detection.exemplar_lit_colors.get(key_type)
 
         if not is_enabled:
-            swatch.setStyleSheet("border: 1px dashed #888; background-color: #d0d0d0;")
+            swatch.setStyleSheet("border: 1px dashed #595959; background-color: #d0d0d0;")
             return
 
         if color_tuple is None:
@@ -1869,10 +1896,10 @@ class ControlPanelQt(QWidget):
                 
                 if has_unlit_calibration:
                     self.unlit_status_label.setText(translate("ControlPanelQt", "Unlit State Calibrated"))
-                    self.unlit_status_label.setStyleSheet("color: #4CAF50; font-style: italic;")
+                    self.unlit_status_label.setStyleSheet("color: #2e7d32; font-style: italic;")
                 else:
                     self.unlit_status_label.setText(translate("ControlPanelQt", "Not Set"))
-                    self.unlit_status_label.setStyleSheet("color: #888; font-style: italic;")
+                    self.unlit_status_label.setStyleSheet("color: #595959; font-style: italic;")
             
             # Update exemplar availability controls and swatches
             if hasattr(self.app_state, 'detection') and hasattr(self.app_state.detection, 'exemplar_lit_colors'):
@@ -1996,10 +2023,10 @@ class ControlPanelQt(QWidget):
                 
                 if is_calibrated:
                     label.setText(translate("ControlPanelQt", "Calibrated"))
-                    label.setStyleSheet("color: green; font-style: italic; font-size: 12px;")
+                    label.setStyleSheet("color: #2e7d32; font-style: italic; font-size: 12px;")
                 else:
                     label.setText(translate("ControlPanelQt", "Not Set"))
-                    label.setStyleSheet("color: grey; font-style: italic;")
+                    label.setStyleSheet("color: #595959; font-style: italic;")
 
     def update_selected_overlay_display(self):
         """Update selected overlay display (compatibility wrapper)."""

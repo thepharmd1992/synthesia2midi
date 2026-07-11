@@ -145,8 +145,8 @@ def test_main_window_prioritizes_video_with_settings_gear_and_tool_window(monkey
         assert not app.settings_toggle_button.isHidden()
         assert app.settings_toggle_button.text() == "\u2699"
         assert app.settings_toggle_button.toolTip() == "Show settings"
-        assert app.settings_toggle_button.width() <= 36
-        assert app.settings_toggle_button.height() <= 36
+        assert app.settings_toggle_button.width() == 40
+        assert app.settings_toggle_button.height() == 40
         assert app.settings_toggle_button.isCheckable()
         assert not app.settings_toggle_button.isChecked()
         assert not app.video_empty_state.isHidden()
@@ -163,7 +163,7 @@ def test_main_window_prioritizes_video_with_settings_gear_and_tool_window(monkey
         assert app.control_panel.tab_widget.maximumWidth() >= 700
         assert app.control_panel.tab_widget.maximumHeight() == UNBOUNDED_WIDGET_SIZE
         assert not isinstance(app.control_panel.tab_widget, QTabWidget)
-        assert app.control_panel.settings_section_rail.width() <= 125
+        assert app.control_panel.settings_section_rail.width() >= 98
         assert _settings_section_labels(app.control_panel) == [
             "Guide",
             "Calibration",

@@ -252,14 +252,17 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.settings_toggle_button.setObjectName("settings_toggle_button")
         self.settings_toggle_button.setText("\u2699")
         self.settings_toggle_button.setCheckable(True)
-        self.settings_toggle_button.setFixedSize(32, 32)
+        self.settings_toggle_button.setFixedSize(40, 40)
+        self.settings_toggle_button.setAccessibleName(
+            QCoreApplication.translate("Video2MidiApp", "Settings")
+        )
         self.settings_toggle_button.setToolTip(QCoreApplication.translate("Video2MidiApp", "Show settings"))
         self.settings_toggle_button.setStyleSheet(
             "QToolButton#settings_toggle_button {"
             "background-color: rgba(34, 38, 45, 0.82);"
             "color: white;"
             "border: 1px solid rgba(255, 255, 255, 0.45);"
-            "border-radius: 16px;"
+            "border-radius: 20px;"
             "font-size: 18px;"
             "font-weight: 600;"
             "}"

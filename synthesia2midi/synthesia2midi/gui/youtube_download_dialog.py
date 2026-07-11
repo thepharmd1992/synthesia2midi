@@ -10,7 +10,7 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QDialogButtonBox, QGroupBox, QHBoxLayout,
     QCheckBox, QLabel, QLineEdit, QMessageBox, QProgressBar,
-    QPushButton, QSizePolicy, QTextEdit, QVBoxLayout
+    QPushButton, QSizePolicy, QTextEdit, QVBoxLayout, QWidget
 )
 
 from ..youtube_downloader import (
@@ -203,6 +203,13 @@ class YouTubeDownloadDialog(QDialog):
         button_layout.addWidget(self.close_btn)
         
         layout.addLayout(button_layout)
+        QWidget.setTabOrder(self.url_input, self.fetch_info_btn)
+        QWidget.setTabOrder(self.fetch_info_btn, self.quality_combo)
+        QWidget.setTabOrder(self.quality_combo, self.browser_combo)
+        QWidget.setTabOrder(self.browser_combo, self.auto_retry_checkbox)
+        QWidget.setTabOrder(self.auto_retry_checkbox, self.download_btn)
+        QWidget.setTabOrder(self.download_btn, self.cancel_btn)
+        QWidget.setTabOrder(self.cancel_btn, self.close_btn)
         
     def on_url_changed(self, text):
         """Handle URL input changes"""

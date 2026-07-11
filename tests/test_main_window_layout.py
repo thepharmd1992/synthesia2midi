@@ -143,6 +143,10 @@ def test_main_window_prioritizes_video_with_settings_gear_and_tool_window(monkey
         assert app.settings_toggle_button.height() <= 36
         assert app.settings_toggle_button.isCheckable()
         assert not app.settings_toggle_button.isChecked()
+        assert not app.video_empty_state.isHidden()
+        assert app.video_empty_state.open_video_button.text() == "Open Video"
+        assert app.video_empty_state.youtube_button.text() == "Download from YouTube"
+        assert app.video_empty_state.settings_button.text() == "Settings"
         assert app.settings_tool_window.windowFlags() & Qt.Tool
         assert not app.settings_tool_window.isVisible()
         assert isinstance(app.settings_scroll_area, QScrollArea)
@@ -155,6 +159,7 @@ def test_main_window_prioritizes_video_with_settings_gear_and_tool_window(monkey
         assert not isinstance(app.control_panel.tab_widget, QTabWidget)
         assert app.control_panel.settings_section_rail.width() <= 125
         assert _settings_section_labels(app.control_panel) == [
+            "Guide",
             "Calibration",
             "Overlays",
             "Detection",

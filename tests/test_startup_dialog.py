@@ -49,3 +49,16 @@ def test_startup_dialog_language_selector_is_prominent_and_saves_restart_notice(
     finally:
         dialog.close()
         dialog.deleteLater()
+
+
+def test_startup_dialog_explains_suitable_input_without_tooltip():
+    QApplication.instance() or QApplication([])
+    dialog = StartupDialog()
+    try:
+        assert dialog.input_cue_label.text() == (
+            "Choose a Synthesia-style piano video with visible keys and falling notes."
+        )
+        assert dialog.input_cue_label.wordWrap()
+    finally:
+        dialog.close()
+        dialog.deleteLater()

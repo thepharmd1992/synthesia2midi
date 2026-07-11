@@ -39,6 +39,8 @@ class VideoSessionCoordinator:
         app = self.app
         self._close_existing_session(log_prefix)
         app.state_manager.reset_to_defaults()
+        if hasattr(app, "set_video_loaded_state"):
+            app.set_video_loaded_state(False)
 
         logging.info("%s: Calling VideoLoadingWorkflow.load_video_file(%s)", log_prefix, filepath)
         success, video_session = app.video_loading_workflow.load_video_file(filepath)
@@ -50,6 +52,8 @@ class VideoSessionCoordinator:
             log_prefix=log_prefix,
             update_fps_display=update_fps_display,
         )
+        if hasattr(app, "set_video_loaded_state"):
+            app.set_video_loaded_state(True)
         return True
 
     def apply_loaded_session(

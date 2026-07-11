@@ -78,7 +78,7 @@ def test_startup_dialog_emits_recent_file_before_closing(tmp_path):
         QApplication.processEvents()
 
 
-def test_startup_dialog_recent_rows_are_compact_title_only(tmp_path):
+def test_startup_dialog_recent_rows_are_readable_and_keep_full_path_in_tooltip(tmp_path):
     QApplication.instance() or QApplication([])
     recent_path = tmp_path / "nested" / "song.mp4"
     recent_path.parent.mkdir()
@@ -91,10 +91,39 @@ def test_startup_dialog_recent_rows_are_compact_title_only(tmp_path):
         assert type(recent_button) is QPushButton
         assert recent_button.text() == "song.mp4"
         assert str(recent_path.parent) not in recent_button.text()
-        assert recent_button.maximumHeight() <= 32
+        assert recent_button.minimumHeight() >= 36
+        assert recent_button.toolTip() == str(recent_path)
     finally:
         dialog.deleteLater()
         QApplication.processEvents()
+
+
+def test_startup_dialog_disambiguates_duplicate_filenames(tmp_path):
+    QApplication.instance() or QApplication([])
+    first = tmp_path / "one" / "song.mp4"
+    second = tmp_path / "two" / "song.mp4"
+    first.parent.mkdir()
+    second.parent.mkdir()
+    first.write_text("video")
+    second.write_text("video")
+    dialog = StartupDialog(recent_video_paths=[str(first), str(second)])
+    try:
+        assert dialog.recent_video_buttons[0].text() == "song.mp4 — one"
+        assert dialog.recent_video_buttons[1].text() == "song.mp4 — two"
+    finally:
+        dialog.deleteLater()
+
+
+def test_startup_dialog_marks_missing_recent_video_instead_of_opening_it(tmp_path):
+    QApplication.instance() or QApplication([])
+    missing = tmp_path / "missing.mp4"
+    dialog = StartupDialog(recent_video_paths=[str(missing)])
+    try:
+        button = dialog.recent_video_buttons[0]
+        assert not button.isEnabled()
+        assert button.text() == "missing.mp4 (missing)"
+    finally:
+        dialog.deleteLater()
 
 
 def test_open_video_file_records_recent_only_after_success(monkeypatch, tmp_path):

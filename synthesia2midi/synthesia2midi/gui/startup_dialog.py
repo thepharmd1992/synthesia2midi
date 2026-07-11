@@ -1,5 +1,6 @@
 """Startup dialog for Synthesia2MIDI - Choose between local file or YouTube download"""
 import os
+from collections import Counter
 
 # Third-party imports
 from PySide6.QtCore import QCoreApplication, QSettings, Qt, Signal
@@ -82,6 +83,16 @@ class StartupDialog(QDialog):
         self.subtitle_label = QLabel(QCoreApplication.translate("StartupDialog", "How would you like to load a video?"))
         self.subtitle_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.subtitle_label)
+
+        self.input_cue_label = QLabel(
+            QCoreApplication.translate(
+                "StartupDialog",
+                "Choose a Synthesia-style piano video with visible keys and falling notes.",
+            )
+        )
+        self.input_cue_label.setAlignment(Qt.AlignCenter)
+        self.input_cue_label.setWordWrap(True)
+        layout.addWidget(self.input_cue_label)
         
         # Add some spacing
         layout.addSpacing(20)
@@ -120,8 +131,15 @@ class StartupDialog(QDialog):
 
             recent_layout = QVBoxLayout()
             recent_layout.setSpacing(4)
+            filename_counts = Counter(
+                (os.path.basename(path) or path).casefold()
+                for path in self.recent_video_paths
+            )
             for path in self.recent_video_paths:
-                recent_button = self._create_recent_video_button(path)
+                recent_button = self._create_recent_video_button(
+                    path,
+                    duplicate_name=filename_counts[(os.path.basename(path) or path).casefold()] > 1,
+                )
                 recent_layout.addWidget(recent_button)
                 self.recent_video_buttons.append(recent_button)
             layout.addLayout(recent_layout)
@@ -167,14 +185,28 @@ class StartupDialog(QDialog):
             QCoreApplication.translate("StartupDialog", "Restart Synthesia2MIDI to apply the selected language."),
         )
 
-    def _create_recent_video_button(self, path: str) -> QPushButton:
+    def _create_recent_video_button(self, path: str, *, duplicate_name: bool = False) -> QPushButton:
         filename = os.path.basename(path) or path
-        button = QPushButton(filename)
-        button.setMinimumHeight(28)
-        button.setMaximumHeight(28)
-        button.setStyleSheet("QPushButton { text-align: left; padding: 3px 8px; }")
+        exists = os.path.exists(path)
+        if not exists:
+            label = QCoreApplication.translate("StartupDialog", "{filename} (missing)").format(
+                filename=filename
+            )
+        elif duplicate_name:
+            parent_name = os.path.basename(os.path.dirname(path)) or os.path.dirname(path)
+            label = QCoreApplication.translate("StartupDialog", "{filename} — {folder}").format(
+                filename=filename,
+                folder=parent_name,
+            )
+        else:
+            label = filename
+        button = QPushButton(label)
+        button.setMinimumHeight(36)
+        button.setStyleSheet("QPushButton { text-align: left; padding: 5px 8px; }")
         button.setToolTip(path)
-        button.clicked.connect(lambda checked=False, selected_path=path: self._on_recent_file_clicked(selected_path))
+        button.setEnabled(exists)
+        if exists:
+            button.clicked.connect(lambda checked=False, selected_path=path: self._on_recent_file_clicked(selected_path))
         return button
 
     def _on_recent_file_clicked(self, path: str):

@@ -25,7 +25,7 @@ from typing import Optional
 
 from PySide6.QtCore import QCoreApplication, Qt, QTimer
 from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QApplication, QDialog, QHBoxLayout, QLabel, QMainWindow, QMessageBox, QSizePolicy, QSlider, QToolButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QApplication, QDialog, QHBoxLayout, QLabel, QMainWindow, QMessageBox, QSizePolicy, QSlider, QStackedLayout, QToolButton, QVBoxLayout, QWidget
 
 from .app_config import APP_NAME, FRAME_NAV_INTERVALS
 from synthesia2midi.config_manager import ConfigManager
@@ -49,6 +49,7 @@ from synthesia2midi.gui.settings_tool_window import SettingsToolWindow
 from synthesia2midi.gui.signal_manager import ControlSignalManager
 from synthesia2midi.gui.startup_dialog import StartupDialog
 from synthesia2midi.gui.ui_update_interface import UIUpdateInterface
+from synthesia2midi.gui.video_empty_state import VideoEmptyState
 from synthesia2midi.gui.video_session_ui_controller import VideoSessionUiController
 from synthesia2midi.gui.video_controls import VideoControls
 from synthesia2midi.gui.window_manager import WindowManager
@@ -282,8 +283,21 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
                                               )
         # Set up additional callbacks
         self.keyboard_canvas.on_spark_roi_callback = self.calibration_effects_controller.spark.update_spark_roi_from_canvas
-        # Give canvas stretch factor so it expands to fill available vertical space
-        left_layout.addWidget(self.keyboard_canvas, 1)  # Stretch factor 1
+        self.video_surface = QWidget()
+        self.video_surface_stack = QStackedLayout(self.video_surface)
+        self.video_surface_stack.setContentsMargins(0, 0, 0, 0)
+        self.video_surface_stack.addWidget(self.keyboard_canvas)
+        self.video_empty_state = VideoEmptyState()
+        self.video_empty_state.open_video_requested.connect(
+            self.video_session_ui_controller.open_video_file
+        )
+        self.video_empty_state.youtube_requested.connect(
+            self.video_session_ui_controller.show_youtube_download_dialog
+        )
+        self.video_empty_state.settings_requested.connect(self._show_settings_tool_window)
+        self.video_surface_stack.addWidget(self.video_empty_state)
+        self.video_surface_stack.setCurrentWidget(self.video_empty_state)
+        left_layout.addWidget(self.video_surface, 1)
 
         # Frame slider with time display
         slider_layout = QHBoxLayout()
@@ -382,6 +396,13 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
             self.settings_tool_window.show_near_parent()
             self._settings_tool_window_has_opened = True
         self._sync_settings_toggle_state(True)
+
+    def set_video_loaded_state(self, loaded: bool) -> None:
+        """Switch the main surface after the session coordinator confirms load state."""
+        if not hasattr(self, "video_surface_stack"):
+            return
+        target = self.keyboard_canvas if loaded else self.video_empty_state
+        self.video_surface_stack.setCurrentWidget(target)
 
     def _toggle_focus_video_mode(self, enabled: bool) -> None:
         """Hide or restore the settings pane so calibration can prioritize video."""

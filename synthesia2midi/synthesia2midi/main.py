@@ -342,7 +342,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         content_layout.addWidget(left_widget, 1)
 
         self.settings_tool_window = SettingsToolWindow(self)
-        self.settings_scroll_area = self.settings_tool_window.scroll_area
         self.settings_tool_window.visibility_changed.connect(self._sync_settings_toggle_state)
         self._settings_tool_window_has_opened = False
 

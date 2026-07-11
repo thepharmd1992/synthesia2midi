@@ -156,9 +156,8 @@ def test_main_window_prioritizes_video_with_settings_gear_and_tool_window(monkey
         assert app.video_empty_state.settings_button.text() == "Settings"
         assert app.settings_tool_window.windowFlags() & Qt.Tool
         assert not app.settings_tool_window.isVisible()
-        assert isinstance(app.settings_scroll_area, QScrollArea)
-        assert app.settings_scroll_area.widget() is app.control_panel
-        assert app.settings_scroll_area.widgetResizable()
+        assert not hasattr(app, "settings_scroll_area")
+        assert app.settings_tool_window.settings_widget is app.control_panel
         assert app.control_panel.minimumWidth() <= 320
         assert app.control_panel.maximumWidth() >= 700
         assert app.control_panel.tab_widget.maximumWidth() >= 700
@@ -245,7 +244,51 @@ def test_settings_gear_toggles_floating_tool_window(monkeypatch):
         app.close()
 
 
-def test_settings_lower_rail_holds_global_actions_and_status(monkeypatch):
+def test_settings_shell_has_fixed_rail_page_scroll_and_fixed_footer(monkeypatch):
+    app = _make_app(monkeypatch)
+    try:
+        app.show()
+        app.settings_toggle_button.click()
+        QApplication.processEvents()
+        panel = app.control_panel
+
+        assert not hasattr(app, "settings_scroll_area")
+        assert app.settings_tool_window.settings_widget is panel
+        assert app.settings_tool_window.layout().indexOf(panel) >= 0
+        assert len(panel.settings_page_scroll_areas) == panel.settings_section_rail.count()
+        assert all(
+            panel.tab_widget.widget(index) is panel.settings_page_scroll_areas[index]
+            for index in range(panel.tab_widget.count())
+        )
+        assert all(
+            scroll_area.widget() is panel.settings_page_widgets[index]
+            for index, scroll_area in enumerate(panel.settings_page_scroll_areas)
+        )
+        assert all(
+            scroll_area.findChildren(QScrollArea) == []
+            for scroll_area in panel.settings_page_scroll_areas
+        )
+        assert not any(
+            _has_ancestor(panel.settings_section_rail, scroll_area)
+            for scroll_area in panel.settings_page_scroll_areas
+        )
+        assert not any(
+            _has_ancestor(panel.settings_footer, scroll_area)
+            for scroll_area in panel.settings_page_scroll_areas
+        )
+
+        for label in ("Optional", "Language"):
+            _show_settings_section(panel, label)
+            QApplication.processEvents()
+            current_scroll = panel.settings_page_scroll_areas[
+                panel.tab_widget.currentIndex()
+            ]
+            assert current_scroll.verticalScrollBar().maximum() == 0
+    finally:
+        app.close()
+
+
+def test_settings_fixed_footer_holds_global_actions_and_status(monkeypatch):
     app = _make_app(monkeypatch)
     try:
         app.show()
@@ -261,17 +304,20 @@ def test_settings_lower_rail_holds_global_actions_and_status(monkeypatch):
             control_panel.selected_overlay_label,
         ]
 
-        assert hasattr(control_panel, "settings_rail_actions")
-        assert all(_has_ancestor(widget, control_panel.settings_rail_actions) for widget in action_widgets)
+        assert hasattr(control_panel, "settings_footer")
+        assert all(_has_ancestor(widget, control_panel.settings_footer) for widget in action_widgets)
         assert all(group.title() != "Main Actions" for group in control_panel.findChildren(QGroupBox))
 
-        rail_rect = _rect_in_control_panel(control_panel, control_panel.settings_section_rail)
-        actions_rect = _rect_in_control_panel(control_panel, control_panel.settings_rail_actions)
+        rail_rect = _rect_in_control_panel(
+            control_panel, control_panel.settings_section_rail_container
+        )
+        footer_rect = _rect_in_control_panel(control_panel, control_panel.settings_footer)
         stack_rect = _rect_in_control_panel(control_panel, control_panel.tab_widget)
 
-        assert actions_rect.top() > rail_rect.bottom()
-        assert actions_rect.left() < stack_rect.left()
-        assert actions_rect.width() <= control_panel.settings_section_rail.width()
+        assert footer_rect.top() > stack_rect.bottom()
+        assert footer_rect.left() >= stack_rect.left()
+        assert footer_rect.width() == stack_rect.width()
+        assert rail_rect.bottom() >= footer_rect.top()
 
         caption_rect = _rect_in_control_panel(control_panel, control_panel.selected_overlay_caption)
         value_rect = _rect_in_control_panel(control_panel, control_panel.selected_overlay_label)
@@ -743,17 +789,20 @@ def test_spark_roi_controls_stack_and_stay_inside_panel(monkeypatch):
         app.show()
         app.settings_toggle_button.click()
         _show_advanced_section(app.control_panel, "repeated_notes")
+        app.control_panel.open_repeated_notes_tool_button.click()
         QApplication.processEvents()
 
         control_panel = app.control_panel
-        select_rect = _rect_in_control_panel(control_panel, control_panel.spark_roi_select_button)
-        toggle_rect = _rect_in_control_panel(control_panel, control_panel.spark_roi_toggle_button)
+        tool = control_panel.repeated_notes_tool_window
+        select_rect = _rect_in_control_panel(tool, control_panel.spark_roi_select_button)
+        toggle_rect = _rect_in_control_panel(tool, control_panel.spark_roi_toggle_button)
 
         assert control_panel.spark_roi_select_button.text() == "Select Flash Area Above Keys"
         assert toggle_rect.top() > select_rect.bottom()
-        assert toggle_rect.right() <= control_panel.width()
-        assert select_rect.right() <= control_panel.width()
+        assert toggle_rect.right() <= tool.width()
+        assert select_rect.right() <= tool.width()
     finally:
+        app.control_panel.repeated_notes_tool_window.close()
         app.close()
 
 
@@ -763,18 +812,21 @@ def test_spark_auto_calibration_controls_stack_vertically(monkeypatch):
         app.show()
         app.settings_toggle_button.click()
         _show_advanced_section(app.control_panel, "repeated_notes")
+        app.control_panel.open_repeated_notes_tool_button.click()
         QApplication.processEvents()
 
         control_panel = app.control_panel
+        tool = control_panel.repeated_notes_tool_window
         button_rects = {
-            key_type: _rect_in_control_panel(control_panel, button)
+            key_type: _rect_in_control_panel(tool, button)
             for key_type, button in control_panel.auto_calib_buttons.items()
         }
 
         assert button_rects["LW"].y() < button_rects["LB"].y() < button_rects["RW"].y() < button_rects["RB"].y()
         for key_type in ["LW", "LB", "RW", "RB"]:
-            status_rect = _rect_in_control_panel(control_panel, control_panel.auto_calib_status_labels[key_type])
+            status_rect = _rect_in_control_panel(tool, control_panel.auto_calib_status_labels[key_type])
             assert status_rect.top() > button_rects[key_type].bottom()
-            assert status_rect.right() <= control_panel.width()
+            assert status_rect.right() <= tool.width()
     finally:
+        app.control_panel.repeated_notes_tool_window.close()
         app.close()

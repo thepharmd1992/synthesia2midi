@@ -4,16 +4,22 @@ from __future__ import annotations
 from PySide6.QtWidgets import QApplication, QWidget
 
 
+def screen_for_widget(parent: QWidget | None, dialog: QWidget | None = None):
+    """Resolve the active screen, preferring the window that launched the tool."""
+    screen = parent.screen() if parent is not None and hasattr(parent, "screen") else None
+    if screen is None and dialog is not None and hasattr(dialog, "screen"):
+        screen = dialog.screen()
+    if screen is None:
+        screen = QApplication.primaryScreen()
+    return screen
+
+
 def move_to_upper_left_safe_zone(dialog: QWidget, parent: QWidget | None = None) -> None:
     """Move a dialog near the upper-left screen area without covering title controls."""
     if not hasattr(dialog, "frameGeometry") or not hasattr(dialog, "move"):
         return
 
-    screen = parent.screen() if parent is not None and hasattr(parent, "screen") else None
-    if screen is None and hasattr(dialog, "screen"):
-        screen = dialog.screen()
-    if screen is None:
-        screen = QApplication.primaryScreen()
+    screen = screen_for_widget(parent, dialog)
     if screen is None:
         return
 
@@ -38,11 +44,7 @@ def move_to_top_center_safe_zone(dialog: QWidget, parent: QWidget | None = None)
     if not hasattr(dialog, "frameGeometry") or not hasattr(dialog, "move"):
         return
 
-    screen = parent.screen() if parent is not None and hasattr(parent, "screen") else None
-    if screen is None and hasattr(dialog, "screen"):
-        screen = dialog.screen()
-    if screen is None:
-        screen = QApplication.primaryScreen()
+    screen = screen_for_widget(parent, dialog)
     if screen is None:
         return
 

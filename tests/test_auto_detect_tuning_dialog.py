@@ -131,8 +131,19 @@ def test_auto_detect_tuning_dialog_uses_user_guidance_copy():
         assert dialog.expert_note.text() == (
             "Use these controls only when Basic edge alignment cannot line the overlays up with the keys."
         )
-        assert dialog.expert_sections
-        assert all(not section._content.isVisible() for section in dialog.expert_sections)
+        assert dialog.expert_category_list.count() >= 5
+        assert dialog.expert_category_stack.count() == dialog.expert_category_list.count()
+        assert dialog.expert_category_list.currentRow() == 0
+        assert dialog.expert_category_stack.currentIndex() == 0
+
+        last_index = dialog.expert_category_list.count() - 1
+        dialog.expert_category_list.setCurrentRow(last_index)
+        assert dialog.expert_category_stack.currentIndex() == last_index
+        assert all(
+            dialog.expert_category_stack.widget(index)
+            is dialog.expert_detail_scroll_areas[index]
+            for index in range(dialog.expert_category_stack.count())
+        )
     finally:
         dialog.close()
 

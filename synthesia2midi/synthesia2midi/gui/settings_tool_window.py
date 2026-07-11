@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 from PySide6.QtCore import QCoreApplication, Qt, Signal
-from PySide6.QtWidgets import QApplication, QDialog, QScrollArea, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QWidget
+
+from synthesia2midi.gui.dialog_positioning import screen_for_widget
 
 translate = QCoreApplication.translate
 
@@ -18,23 +20,21 @@ class SettingsToolWindow(QDialog):
         self.setModal(False)
         self.setMinimumSize(360, 420)
 
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-
-        self.scroll_area = QScrollArea(self)
-        self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        layout.addWidget(self.scroll_area)
+        self._content_layout = QVBoxLayout(self)
+        self._content_layout.setContentsMargins(0, 0, 0, 0)
+        self._content_layout.setSpacing(0)
+        self.settings_widget: QWidget | None = None
 
     def set_settings_widget(self, widget: QWidget) -> None:
-        """Install the settings widget into the scrollable tool window."""
-        self.scroll_area.setWidget(widget)
+        """Install the settings panel as the tool window's direct content."""
+        if self.settings_widget is not None:
+            self._content_layout.removeWidget(self.settings_widget)
+        self.settings_widget = widget
+        self._content_layout.addWidget(widget)
 
     def fit_to_available_screen(self) -> None:
         """Keep the pop-out usable on laptop-sized displays."""
-        screen = QApplication.primaryScreen()
+        screen = screen_for_widget(self.parentWidget(), self)
         if not screen:
             self.resize(760, 560)
             return
@@ -52,7 +52,7 @@ class SettingsToolWindow(QDialog):
             return
 
         self.fit_to_available_screen()
-        screen = QApplication.primaryScreen()
+        screen = screen_for_widget(self.parentWidget(), self)
         if screen is not None:
             rect = screen.availableGeometry()
             self.move(

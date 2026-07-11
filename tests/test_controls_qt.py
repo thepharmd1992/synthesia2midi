@@ -1,5 +1,5 @@
 from PySide6.QtCore import QSettings
-from PySide6.QtWidgets import QApplication, QGroupBox, QLabel
+from PySide6.QtWidgets import QApplication, QGroupBox, QLabel, QScrollArea
 
 from synthesia2midi.app_config import OverlayConfig
 from synthesia2midi.gui.controls_qt import ControlPanelQt
@@ -293,7 +293,12 @@ def test_advanced_settings_are_symptom_led_and_collapsed_by_default():
         assert panel.advanced_sections["histogram"]._content.isAncestorOf(panel.histogram_detection_cb)
         assert panel.advanced_sections["delta"]._content.isAncestorOf(panel.delta_detection_cb)
         assert panel.advanced_sections["black_keys"]._content.isAncestorOf(panel.black_key_filter_cb)
-        assert panel.advanced_sections["repeated_notes"]._content.isAncestorOf(panel.spark_detection_cb)
+        assert panel.advanced_sections["repeated_notes"]._content.isAncestorOf(
+            panel.open_repeated_notes_tool_button
+        )
+        assert not panel.advanced_sections["repeated_notes"]._content.isAncestorOf(
+            panel.spark_detection_cb
+        )
         assert panel.advanced_sections["trim"]._content.isAncestorOf(panel.trim_video_button)
 
         detection_index = rail_labels.index("Detection")
@@ -302,5 +307,36 @@ def test_advanced_settings_are_symptom_led_and_collapsed_by_default():
         assert not detection_page.isAncestorOf(panel.delta_detection_cb)
         assert not detection_page.isAncestorOf(panel.black_key_filter_cb)
     finally:
+        panel.close()
+        panel.deleteLater()
+
+
+def test_repeated_notes_uses_one_dedicated_tool_scroller():
+    QApplication.instance() or QApplication([])
+    panel = ControlPanelQt()
+    try:
+        panel.show()
+        panel.open_repeated_notes_tool_button.click()
+        QApplication.processEvents()
+
+        tool = panel.repeated_notes_tool_window
+        assert tool.isVisible()
+        assert tool.isAncestorOf(panel.spark_detection_cb)
+        scroll_areas = tool.findChildren(QScrollArea)
+        assert len(scroll_areas) == 1
+        assert not any(
+            outer is not inner and outer.isAncestorOf(inner)
+            for outer in scroll_areas
+            for inner in scroll_areas
+        )
+        advanced_index = [
+            panel.settings_section_rail.item(index).text()
+            for index in range(panel.settings_section_rail.count())
+        ].index("Advanced")
+        assert not panel.tab_widget.widget(advanced_index).isAncestorOf(
+            panel.spark_detection_cb
+        )
+    finally:
+        panel.repeated_notes_tool_window.close()
         panel.close()
         panel.deleteLater()

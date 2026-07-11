@@ -141,7 +141,8 @@ def test_control_panel_places_guide_first():
     panel = ControlPanelQt()
     try:
         assert panel.settings_section_rail.item(0).text() == "Guide"
-        assert panel.tab_widget.widget(0) is panel.guide_page
+        assert panel.settings_page_widgets[0] is panel.guide_page
+        assert panel.tab_widget.widget(0) is panel.settings_page_scroll_areas[0]
     finally:
         panel.close()
         panel.deleteLater()

@@ -11,13 +11,14 @@ from typing import Optional
 
 from PySide6.QtCore import QCoreApplication, QSettings, Qt, Signal
 from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QGridLayout, QGroupBox,
+    QAbstractScrollArea, QCheckBox, QComboBox, QFrame, QGridLayout, QGroupBox,
     QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QMessageBox, QPushButton, QScrollArea, QSizePolicy,
     QSlider, QSpinBox, QStackedWidget, QToolButton, QVBoxLayout, QWidget
 )
 
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.gui.calibration_guide import CalibrationGuideWidget, derive_guide_snapshot
+from synthesia2midi.gui.repeated_notes_tool_window import RepeatedNotesToolWindow
 from synthesia2midi.gui.ui_glossary import UiGlossary
 from synthesia2midi.localization import (
     load_preferred_locale,
@@ -177,9 +178,10 @@ class ControlPanelQt(QWidget):
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(10, 2, 10, 10)  # Reduced top margin from 10 to 2
         main_layout.setSpacing(5)  # Reduce spacing between elements
-        main_layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)  # Align content to left side
 
         self._create_global_action_widgets()
+        self.settings_page_widgets: list[QWidget] = []
+        self.settings_page_scroll_areas: list[QScrollArea] = []
         
         settings_layout = QHBoxLayout()
         settings_layout.setContentsMargins(0, 0, 0, 0)
@@ -220,10 +222,16 @@ class ControlPanelQt(QWidget):
         self._fit_settings_section_rail_to_items()
         settings_rail_layout.addWidget(self.settings_section_rail)
         settings_rail_layout.addStretch(1)
-        self._create_settings_rail_actions(settings_rail_layout)
-        
+
+        self.settings_content_container = QWidget()
+        settings_content_layout = QVBoxLayout(self.settings_content_container)
+        settings_content_layout.setContentsMargins(0, 0, 0, 0)
+        settings_content_layout.setSpacing(8)
+        settings_content_layout.addWidget(self.tab_widget, 1)
+        self._create_settings_footer(settings_content_layout)
+
         settings_layout.addWidget(self.settings_section_rail_container)
-        settings_layout.addWidget(self.tab_widget, 1)
+        settings_layout.addWidget(self.settings_content_container, 1)
         main_layout.addLayout(settings_layout, 1)
 
         self.settings_section_rail.setCurrentRow(0)
@@ -247,7 +255,17 @@ class ControlPanelQt(QWidget):
         item = QListWidgetItem(label)
         item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         self.settings_section_rail.addItem(item)
-        self.tab_widget.addWidget(widget)
+        scroll_area = QScrollArea()
+        scroll_area.setObjectName(f"settings_page_scroll_{len(self.settings_page_scroll_areas)}")
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll_area.setFrameShape(QFrame.NoFrame)
+        scroll_area.setSizeAdjustPolicy(QAbstractScrollArea.AdjustIgnored)
+        scroll_area.setWidget(widget)
+        self.settings_page_widgets.append(widget)
+        self.settings_page_scroll_areas.append(scroll_area)
+        self.tab_widget.addWidget(scroll_area)
 
     def _set_settings_section(self, index: int) -> None:
         if index >= 0:
@@ -265,9 +283,6 @@ class ControlPanelQt(QWidget):
         rail_width = max(98, widest_text + 28)
         self.settings_section_rail.setFixedWidth(rail_width)
         self.settings_section_rail_container.setFixedWidth(rail_width)
-        if hasattr(self, "settings_rail_actions"):
-            self.settings_rail_actions.setFixedWidth(rail_width)
-
         row_height = self.settings_section_rail.sizeHintForRow(0)
         if row_height <= 0:
             row_height = 30
@@ -301,29 +316,34 @@ class ControlPanelQt(QWidget):
         self.selected_overlay_label = QLabel(QCoreApplication.translate("ControlPanelQt", "None"))
         self.selected_overlay_label.setWordWrap(True)
 
-    def _create_settings_rail_actions(self, parent_layout):
-        self.settings_rail_actions = QWidget()
-        self.settings_rail_actions.setObjectName("settings_rail_actions")
-        self.settings_rail_actions.setFixedWidth(self.settings_section_rail.width())
-        self.settings_rail_actions.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+    def _create_settings_footer(self, parent_layout: QVBoxLayout) -> None:
+        self.settings_footer = QWidget()
+        self.settings_footer.setObjectName("settings_footer")
+        self.settings_footer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.settings_footer.setStyleSheet(
+            "QWidget#settings_footer { border-top: 1px solid #b8b8b8; }"
+        )
 
-        actions_layout = QVBoxLayout(self.settings_rail_actions)
-        actions_layout.setContentsMargins(0, 0, 0, 0)
-        actions_layout.setSpacing(6)
-        actions_layout.addWidget(self.convert_button)
-        actions_layout.addWidget(self.conversion_status)
-        actions_layout.addSpacing(4)
-        actions_layout.addWidget(self.midi_touchup_button)
-        actions_layout.addSpacing(4)
+        footer_layout = QGridLayout(self.settings_footer)
+        footer_layout.setContentsMargins(0, 8, 0, 0)
+        footer_layout.setHorizontalSpacing(8)
+        footer_layout.setVerticalSpacing(6)
+        footer_layout.addWidget(self.conversion_status, 0, 0, 1, 2)
         overlay_row = QHBoxLayout()
         overlay_row.setContentsMargins(0, 0, 0, 0)
         overlay_row.setSpacing(4)
         overlay_row.addWidget(self.selected_overlay_caption)
         overlay_row.addWidget(self.selected_overlay_label)
         overlay_row.addStretch()
-        actions_layout.addLayout(overlay_row)
-
-        parent_layout.addWidget(self.settings_rail_actions, alignment=Qt.AlignBottom)
+        footer_layout.addLayout(overlay_row, 1, 0)
+        action_row = QHBoxLayout()
+        action_row.setContentsMargins(0, 0, 0, 0)
+        action_row.setSpacing(8)
+        action_row.addWidget(self.midi_touchup_button)
+        action_row.addWidget(self.convert_button)
+        footer_layout.addLayout(action_row, 1, 1)
+        footer_layout.setColumnStretch(0, 1)
+        parent_layout.addWidget(self.settings_footer)
 
     def _create_language_settings_tab(self):
         """Language settings shown as a first-class settings section."""
@@ -1192,6 +1212,9 @@ class ControlPanelQt(QWidget):
         scroll_area.setWidget(content)
         tab_layout.addWidget(scroll_area)
         self.spark_settings_page = tab
+        self.repeated_notes_tool_window = RepeatedNotesToolWindow(
+            self, self.spark_settings_page
+        )
     
     def _create_midi_settings_tab(self):
         """Tab 5: MIDI Settings"""
@@ -1374,6 +1397,28 @@ class ControlPanelQt(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(6)
 
+        repeated_notes_launcher = QWidget()
+        repeated_notes_layout = QVBoxLayout(repeated_notes_launcher)
+        repeated_notes_layout.setContentsMargins(0, 0, 0, 0)
+        repeated_notes_layout.setSpacing(6)
+        repeated_notes_summary = QLabel(
+            translate(
+                "ControlPanelQt",
+                "Open the dedicated setup window when repeated presses merge into one long note.",
+            )
+        )
+        repeated_notes_summary.setWordWrap(True)
+        repeated_notes_layout.addWidget(repeated_notes_summary)
+        self.open_repeated_notes_tool_button = QPushButton(
+            translate("ControlPanelQt", "Open Repeated Notes Tool")
+        )
+        self.open_repeated_notes_tool_button.clicked.connect(
+            self.repeated_notes_tool_window.show_near_parent
+        )
+        repeated_notes_layout.addWidget(
+            self.open_repeated_notes_tool_button, alignment=Qt.AlignLeft
+        )
+
         section_specs = [
             (
                 "histogram",
@@ -1393,7 +1438,7 @@ class ControlPanelQt(QWidget):
             (
                 "repeated_notes",
                 translate("ControlPanelQt", "Repeated notes merge together"),
-                self.spark_settings_page,
+                repeated_notes_launcher,
             ),
             (
                 "trim",

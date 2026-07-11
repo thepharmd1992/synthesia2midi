@@ -92,6 +92,7 @@ def test_guide_widget_exposes_five_steps_and_routes_primary_actions():
     widget = CalibrationGuideWidget()
     emitted = []
     widget.open_video_requested.connect(lambda: emitted.append("video"))
+    widget.youtube_requested.connect(lambda: emitted.append("youtube"))
     widget.find_keyboard_requested.connect(lambda: emitted.append("keyboard"))
     widget.capture_unlit_requested.connect(lambda: emitted.append("unlit"))
     widget.assisted_scan_requested.connect(lambda: emitted.append("exemplars"))
@@ -107,7 +108,8 @@ def test_guide_widget_exposes_five_steps_and_routes_primary_actions():
         ]
         for row in widget.step_rows:
             row.primary_button.click()
-        assert emitted == ["video", "keyboard", "unlit", "exemplars", "convert"]
+        widget.youtube_button.click()
+        assert emitted == ["video", "keyboard", "unlit", "exemplars", "convert", "youtube"]
     finally:
         widget.close()
         widget.deleteLater()
@@ -162,6 +164,33 @@ def test_review_current_alignment_uses_manual_fit_for_manual_overlays():
 
     assert controller.review_current_alignment() is True
     assert calls == [{"start_setup": False}]
+
+
+def test_review_current_auto_alignment_opens_tuning_without_showing_wizard():
+    from synthesia2midi.gui.calibration_wizard_controller import CalibrationWizardController
+
+    wizard = SimpleNamespace()
+    open_calls = []
+    tuning = SimpleNamespace(
+        has_editable_context=lambda: True,
+        open=lambda current_wizard, **kwargs: open_calls.append((current_wizard, kwargs)) or True,
+    )
+    controller = CalibrationWizardController.__new__(CalibrationWizardController)
+    controller.app = SimpleNamespace(
+        app_state=SimpleNamespace(
+            calibration=SimpleNamespace(overlay_generation_source="auto"),
+            overlays=[object()],
+        ),
+        calibration_workflow=SimpleNamespace(run_calibration_wizard=lambda: wizard),
+    )
+    controller.auto_detect_tuning_controller = tuning
+    controller.calibration_wizard = None
+    controller._pending_assisted_calibration_context = None
+
+    assert controller.review_current_alignment() is True
+    assert controller.calibration_wizard is wizard
+    assert open_calls[0][0] is wizard
+    assert open_calls[0][1]["use_wizard_context"] is False
 
 
 def test_assisted_scan_from_current_frame_uses_visible_frame_as_baseline():

@@ -86,6 +86,9 @@ def _settings_surface(label: str) -> ControlPanelQt:
     index = source_labels.index(label)
     # Translation can change the displayed label, but page order remains stable.
     panel.settings_section_rail.setCurrentRow(index)
+    if label == "Advanced":
+        for section in panel.advanced_sections.values():
+            section._toggle.setChecked(True)
     panel.resize(max(820, panel.sizeHint().width()), 900)
     return panel
 

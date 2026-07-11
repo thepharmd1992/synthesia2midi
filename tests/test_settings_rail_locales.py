@@ -26,6 +26,15 @@ def test_settings_rail_fits_every_label_at_shipped_font_scales(locale_name, font
         assert panel.settings_section_rail.width() >= widest_text + 28
         assert panel.settings_section_rail_container.width() == panel.settings_section_rail.width()
         assert panel.settings_rail_actions.width() == panel.settings_section_rail.width()
+        if font_scale == 1.5:
+            for section in panel.advanced_sections.values():
+                section._toggle.setChecked(True)
+            panel.show()
+            app.processEvents()
+            assert all(
+                label.width() >= label.sizeHint().width()
+                for label in panel.advanced_slider_labels
+            )
     finally:
         panel.close()
         install_translator(app, "en")

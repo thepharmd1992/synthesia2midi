@@ -67,7 +67,14 @@ def test_required_dialogs_define_beginner_path_focus_order():
         assert _next(wizard.edit_current_calibration_button) is wizard.leftmost_note_combo
         assert _next(youtube.url_input) is youtube.fetch_info_btn
         assert _next(youtube.fetch_info_btn) is youtube.quality_combo
-        assert _next(panel.settings_section_rail) is panel.guide_page.step_rows[0].primary_button
+        guide_buttons = [row.primary_button for row in panel.guide_page.step_rows]
+        assert _next(panel.settings_section_rail) is guide_buttons[0]
+        assert _next(guide_buttons[0]) is panel.guide_page.youtube_button
+        assert _next(panel.guide_page.youtube_button) is guide_buttons[1]
+        assert _next(guide_buttons[1]) is guide_buttons[2]
+        assert _next(guide_buttons[2]) is guide_buttons[3]
+        assert _next(guide_buttons[3]) is guide_buttons[4]
+        assert _next(guide_buttons[4]) is panel.convert_button
     finally:
         startup.close()
         wizard.close()

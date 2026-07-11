@@ -3,7 +3,7 @@
     {
       "classification": "do_not_translate",
       "context": "QLabel",
-      "line": 925,
+      "line": 932,
       "origin": "static",
       "role": "arg0",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -12,7 +12,7 @@
     {
       "classification": "do_not_translate",
       "context": "QLabel",
-      "line": 909,
+      "line": 916,
       "origin": "static",
       "role": "arg0",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -21,7 +21,7 @@
     {
       "classification": "do_not_translate",
       "context": "QLabel",
-      "line": 951,
+      "line": 958,
       "origin": "static",
       "role": "arg0",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -30,7 +30,7 @@
     {
       "classification": "do_not_translate",
       "context": "QLabel",
-      "line": 884,
+      "line": 891,
       "origin": "static",
       "role": "arg0",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -57,7 +57,7 @@
     {
       "classification": "do_not_translate",
       "context": "QLabel",
-      "line": 828,
+      "line": 833,
       "origin": "static",
       "role": "arg0",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -84,7 +84,7 @@
     {
       "classification": "do_not_translate",
       "context": "translate",
-      "line": 1284,
+      "line": 1296,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -102,7 +102,7 @@
     {
       "classification": "dynamic_user_data",
       "context": "setText",
-      "line": 1516,
+      "line": 1527,
       "origin": "static",
       "role": "arg0",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -111,7 +111,7 @@
     {
       "classification": "dynamic_user_data",
       "context": "setText",
-      "line": 1504,
+      "line": 1515,
       "origin": "static",
       "role": "arg0",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -264,7 +264,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 363,
+      "line": 368,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -273,7 +273,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 987,
+      "line": 1001,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -291,7 +291,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 367,
+      "line": 372,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -300,7 +300,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 988,
+      "line": 1002,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -309,7 +309,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 371,
+      "line": 376,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -345,7 +345,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1628,
+      "line": 1639,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -426,7 +426,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1413,
+      "line": 1424,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -444,7 +444,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 576,
+      "line": 581,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -453,7 +453,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 573,
+      "line": 578,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -552,7 +552,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 431,
+      "line": 435,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -561,7 +561,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 296,
+      "line": 300,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -570,7 +570,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1206,
+      "line": 1218,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -579,7 +579,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1119,
+      "line": 1131,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -588,7 +588,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1135,
+      "line": 1147,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -741,7 +741,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 794,
+      "line": 799,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -795,7 +795,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 805,
+      "line": 810,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -804,7 +804,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 682,
+      "line": 687,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -822,7 +822,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 699,
+      "line": 704,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -948,7 +948,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1076,
+      "line": 1088,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -957,7 +957,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1091,
+      "line": 1103,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -966,7 +966,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1106,
+      "line": 1118,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -975,7 +975,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 2025,
+      "line": 2036,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -984,7 +984,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 558,
+      "line": 563,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1065,7 +1065,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 426,
+      "line": 430,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -1191,7 +1191,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 2083,
+      "line": 2094,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1200,7 +1200,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 2102,
+      "line": 2113,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1209,7 +1209,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 444,
+      "line": 449,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1218,7 +1218,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 456,
+      "line": 461,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1227,7 +1227,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 479,
+      "line": 484,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1245,7 +1245,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 523,
+      "line": 528,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1254,7 +1254,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 450,
+      "line": 455,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1263,7 +1263,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 2117,
+      "line": 2128,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1272,7 +1272,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 2123,
+      "line": 2134,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1362,7 +1362,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1028,
+      "line": 1042,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1371,7 +1371,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 949,
+      "line": 956,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1425,7 +1425,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 280,
+      "line": 285,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1434,7 +1434,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1226,
+      "line": 1238,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1461,7 +1461,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1466,
+      "line": 1477,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1488,7 +1488,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1464,
+      "line": 1475,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1578,7 +1578,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 2072,
+      "line": 2083,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1587,7 +1587,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 414,
+      "line": 419,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1596,7 +1596,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1220,
+      "line": 1232,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1605,7 +1605,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1783,
+      "line": 1794,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1614,7 +1614,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1776,
+      "line": 1787,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1623,7 +1623,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1757,
+      "line": 1768,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1632,7 +1632,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 616,
+      "line": 621,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1641,7 +1641,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 635,
+      "line": 640,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1650,7 +1650,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 801,
+      "line": 806,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1704,7 +1704,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 967,
+      "line": 981,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1722,7 +1722,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 814,
+      "line": 819,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1731,7 +1731,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 833,
+      "line": 838,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1740,7 +1740,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 795,
+      "line": 800,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1902,7 +1902,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 408,
+      "line": 413,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -1956,7 +1956,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 557,
+      "line": 561,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -1965,7 +1965,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 546,
+      "line": 550,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -1983,7 +1983,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 290,
+      "line": 295,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2010,7 +2010,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 933,
+      "line": 940,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2019,7 +2019,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 892,
+      "line": 899,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2028,7 +2028,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 866,
+      "line": 873,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2037,7 +2037,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1009,
+      "line": 1023,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2046,7 +2046,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1262,
+      "line": 1274,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2055,7 +2055,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1625,
+      "line": 1636,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2100,7 +2100,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1945,
+      "line": 1956,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2217,7 +2217,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 930,
+      "line": 937,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2235,7 +2235,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1379,
+      "line": 1390,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2289,7 +2289,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 421,
+      "line": 426,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2325,7 +2325,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 300,
+      "line": 304,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -2352,7 +2352,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1189,
+      "line": 1201,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2370,7 +2370,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1623,
+      "line": 1634,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2406,7 +2406,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1406,
+      "line": 1417,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2415,7 +2415,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1369,
+      "line": 1380,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2424,7 +2424,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 359,
+      "line": 364,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2442,7 +2442,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1057,
+      "line": 1070,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2451,7 +2451,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 797,
+      "line": 802,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2460,7 +2460,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 907,
+      "line": 914,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2469,7 +2469,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 923,
+      "line": 930,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2478,7 +2478,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 882,
+      "line": 889,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2496,7 +2496,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 375,
+      "line": 380,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2514,7 +2514,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 638,
+      "line": 643,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2532,7 +2532,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 362,
+      "line": 367,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2577,7 +2577,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1612,
+      "line": 1623,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2595,7 +2595,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 408,
+      "line": 412,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -2613,7 +2613,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 568,
+      "line": 573,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2667,7 +2667,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 330,
+      "line": 335,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2685,7 +2685,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 333,
+      "line": 338,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2703,7 +2703,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 291,
+      "line": 295,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -2730,7 +2730,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 716,
+      "line": 721,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2748,7 +2748,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 290,
+      "line": 294,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -2757,7 +2757,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 304,
+      "line": 308,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -2766,7 +2766,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 492,
+      "line": 497,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2802,7 +2802,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 504,
+      "line": 509,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2820,7 +2820,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 286,
+      "line": 291,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2829,7 +2829,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 825,
+      "line": 830,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2838,7 +2838,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1068,
+      "line": 1080,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2847,7 +2847,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1080,
+      "line": 1092,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2856,7 +2856,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1095,
+      "line": 1107,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2865,7 +2865,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1110,
+      "line": 1122,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2883,7 +2883,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 579,
+      "line": 584,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2937,7 +2937,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 796,
+      "line": 801,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -2946,7 +2946,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1298,
+      "line": 1310,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3081,7 +3081,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 459,
+      "line": 463,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -3243,7 +3243,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 296,
+      "line": 301,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3261,7 +3261,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 472,
+      "line": 477,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3297,7 +3297,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 428,
+      "line": 433,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3315,7 +3315,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 376,
+      "line": 381,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3333,7 +3333,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 544,
+      "line": 548,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -3351,7 +3351,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 552,
+      "line": 556,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -3405,7 +3405,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1448,
+      "line": 1459,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3414,7 +3414,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1422,
+      "line": 1433,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3441,7 +3441,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 295,
+      "line": 300,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3450,7 +3450,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 755,
+      "line": 760,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3459,7 +3459,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 760,
+      "line": 765,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3468,7 +3468,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 599,
+      "line": 604,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3486,7 +3486,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 781,
+      "line": 786,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3513,7 +3513,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 422,
+      "line": 427,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3531,7 +3531,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 484,
+      "line": 489,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3540,7 +3540,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 460,
+      "line": 465,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3549,7 +3549,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1293,
+      "line": 1305,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3594,7 +3594,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 535,
+      "line": 540,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3603,7 +3603,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1374,
+      "line": 1385,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3612,7 +3612,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1168,
+      "line": 1180,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3630,7 +3630,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1164,
+      "line": 1176,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3657,7 +3657,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1427,
+      "line": 1438,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3666,7 +3666,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 2128,
+      "line": 2139,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3702,7 +3702,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1142,
+      "line": 1154,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3711,7 +3711,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 937,
+      "line": 944,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3729,7 +3729,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 998,
+      "line": 1012,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3738,7 +3738,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1384,
+      "line": 1395,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3747,7 +3747,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1041,
+      "line": 1055,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3756,7 +3756,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 619,
+      "line": 624,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3774,7 +3774,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 960,
+      "line": 974,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3837,7 +3837,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1459,
+      "line": 1470,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3855,7 +3855,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 958,
+      "line": 972,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3864,7 +3864,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 293,
+      "line": 297,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -3891,7 +3891,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 733,
+      "line": 738,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3909,7 +3909,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 292,
+      "line": 296,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -3918,7 +3918,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 914,
+      "line": 921,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -3981,7 +3981,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 425,
+      "line": 429,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -4026,7 +4026,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1048,
+      "line": 1062,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4053,7 +4053,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1052,
+      "line": 1065,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4089,7 +4089,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1021,
+      "line": 1035,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4098,7 +4098,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1256,
+      "line": 1268,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4107,7 +4107,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 518,
+      "line": 523,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4188,7 +4188,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 437,
+      "line": 442,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4206,7 +4206,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1062,
+      "line": 1074,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4242,7 +4242,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1743,
+      "line": 1754,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4251,7 +4251,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 956,
+      "line": 963,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4287,7 +4287,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1162,
+      "line": 1174,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4323,7 +4323,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1613,
+      "line": 1624,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4332,7 +4332,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1245,
+      "line": 1257,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4359,7 +4359,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1073,
+      "line": 1085,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4377,7 +4377,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1088,
+      "line": 1100,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4395,7 +4395,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1103,
+      "line": 1115,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4413,7 +4413,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 889,
+      "line": 896,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4422,7 +4422,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1941,
+      "line": 1952,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4467,7 +4467,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1230,
+      "line": 1242,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4584,7 +4584,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1640,
+      "line": 1651,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4602,7 +4602,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 537,
+      "line": 542,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4638,7 +4638,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 407,
+      "line": 411,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -4656,7 +4656,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1898,
+      "line": 1909,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4692,7 +4692,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1013,
+      "line": 1027,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4701,7 +4701,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 986,
+      "line": 1000,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4728,7 +4728,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1003,
+      "line": 1017,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4737,7 +4737,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 1433,
+      "line": 1444,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4746,7 +4746,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 870,
+      "line": 877,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4755,7 +4755,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 896,
+      "line": 903,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4917,7 +4917,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 648,
+      "line": 653,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -4935,7 +4935,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 665,
+      "line": 670,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -5187,7 +5187,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 323,
+      "line": 327,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -5196,7 +5196,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 330,
+      "line": 334,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -5205,7 +5205,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 316,
+      "line": 320,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",

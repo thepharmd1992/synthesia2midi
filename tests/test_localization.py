@@ -137,6 +137,12 @@ def test_production_translators_load_known_source_texts():
 
             assert selected == locale_name
             assert translated != "File"
+            assert QCoreApplication.translate(
+                "AssistedCalibrationDialog", "Left White"
+            ) != "Left White"
+            assert QCoreApplication.translate(
+                "CalibrationGuideWidget", "Download from YouTube"
+            ) != "Download from YouTube"
     finally:
         install_translator(app, "en")
 

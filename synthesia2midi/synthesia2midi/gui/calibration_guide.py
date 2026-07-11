@@ -211,6 +211,10 @@ class CalibrationGuideWidget(QWidget):
             self.step_rows.append(row)
         self._review_existing_overlays = False
         self.step_rows[1].primary_button.clicked.connect(self._handle_overlay_action)
+        self.youtube_button = QPushButton(self.tr("Download from YouTube"))
+        self.youtube_button.setMinimumHeight(36)
+        self.youtube_button.clicked.connect(self.youtube_requested.emit)
+        self.step_rows[0].layout().addWidget(self.youtube_button, 0, Qt.AlignLeft)
         layout.addStretch(1)
 
     def _handle_overlay_action(self) -> None:

@@ -231,7 +231,12 @@ class ControlPanelQt(QWidget):
             self.settings_section_rail,
             self.guide_page.step_rows[0].primary_button,
         )
-        QWidget.setTabOrder(self.guide_page.step_rows[0].primary_button, self.convert_button)
+        guide_buttons = [row.primary_button for row in self.guide_page.step_rows]
+        QWidget.setTabOrder(guide_buttons[0], self.guide_page.youtube_button)
+        QWidget.setTabOrder(self.guide_page.youtube_button, guide_buttons[1])
+        for current_button, next_button in zip(guide_buttons[1:], guide_buttons[2:]):
+            QWidget.setTabOrder(current_button, next_button)
+        QWidget.setTabOrder(guide_buttons[-1], self.convert_button)
         QWidget.setTabOrder(self.convert_button, self.midi_touchup_button)
 
     def _create_guide_tab(self) -> None:
@@ -848,14 +853,16 @@ class ControlPanelQt(QWidget):
         black_key_layout = QVBoxLayout(self.black_key_advanced_widget)
         black_key_layout.setContentsMargins(0, 0, 0, 0)
         
-        slider_label_width = 62
+        self.advanced_slider_labels = []
+        advanced_slider_label_specs = []
 
         def add_slider_row(target_layout, label_text, slider, value_label, *, indent=0):
             row = QHBoxLayout()
             row.setContentsMargins(indent, 0, 0, 0)
             row.setSpacing(6)
             label = QLabel(label_text)
-            label.setFixedWidth(max(1, slider_label_width - indent))
+            self.advanced_slider_labels.append(label)
+            advanced_slider_label_specs.append((label, indent))
             row.addWidget(label)
             row.addWidget(slider)
             row.addWidget(value_label)
@@ -955,6 +962,13 @@ class ControlPanelQt(QWidget):
         )
         add_slider_row(black_key_layout, translate("ControlPanelQt", "Similarity:"), self.similarity_ratio_slider, self.similarity_ratio_label)
 
+        slider_label_width = max(
+            62,
+            *(label.sizeHint().width() + indent for label, indent in advanced_slider_label_specs),
+        )
+        for label, indent in advanced_slider_label_specs:
+            label.setFixedWidth(max(1, slider_label_width - indent))
+
         self.restore_detection_defaults_button = QPushButton(translate("ControlPanelQt", "Restore Defaults"))
         self.restore_detection_defaults_button.setToolTip(
             translate(
@@ -1046,7 +1060,6 @@ class ControlPanelQt(QWidget):
         roi_layout.setContentsMargins(0, 0, 0, 0)
         roi_layout.setSpacing(6)
         self.spark_roi_select_button = QPushButton(translate("ControlPanelQt", "Select Flash Area Above Keys"))
-        self.spark_roi_select_button.setMaximumWidth(264)
         self.spark_roi_select_button.clicked.connect(self.spark_roi_selection_requested.emit)
         self.spark_roi_select_button.setToolTip(
             translate("ControlPanelQt", "Select the area above the keys where spark bars and flashes appear.")
@@ -1055,7 +1068,6 @@ class ControlPanelQt(QWidget):
 
         # Add toggle button for showing/hiding spark overlays
         self.spark_roi_toggle_button = QPushButton(translate("ControlPanelQt", "Hide Spark Overlays"))
-        self.spark_roi_toggle_button.setMaximumWidth(264)
         self.spark_roi_toggle_button.setCheckable(True)
         self.spark_roi_toggle_button.clicked.connect(self._toggle_spark_roi_visibility)
         self.spark_roi_toggle_button.setToolTip(
@@ -1347,7 +1359,6 @@ class ControlPanelQt(QWidget):
         
         # Trim Video button
         self.trim_video_button = QPushButton(translate("ControlPanelQt", "Permanently Trim Project"))
-        self.trim_video_button.setMaximumWidth(200)
         self.trim_video_button.clicked.connect(self._handle_trim_video_request)
         trim_layout.addWidget(self.trim_video_button)
         

@@ -257,10 +257,14 @@ class CalibrationWizardController:
                 return False
             return manual_fit_controller.open(start_setup=False) is not False
 
-        if self.calibration_wizard is not None and self._open_auto_detect_tuning_dialog(
-            use_wizard_context=False
-        ):
-            return True
+        if self._has_editable_auto_detect_tuning_context():
+            if self.calibration_wizard is None and self.calibration_workflow is not None:
+                self._reset_wizard_lifecycle_flags()
+                self.calibration_wizard = self.calibration_workflow.run_calibration_wizard()
+            if self.calibration_wizard is not None:
+                if self._open_auto_detect_tuning_dialog(use_wizard_context=False):
+                    return True
+                self._clear_calibration_wizard()
 
         self.run_calibration_wizard()
         return self.calibration_wizard is not None
@@ -477,7 +481,7 @@ class CalibrationWizardController:
 
         apply_assisted_calibration_proposal(self.app_state, proposal)
         for slot, assignment in proposal.assignment_result.assignments.items():
-            if assignment.enabled and assignment.rgb is None:
+            if assignment.rgb is None:
                 self.app_state.detection.exemplar_key_type_enabled[slot] = calibration_snapshot[
                     "enabled"
                 ].get(slot, True)

@@ -65,10 +65,17 @@ class AssistedCalibrationDialog(QDialog):
         self.color_family_note.setWordWrap(True)
         layout.addWidget(self.color_family_note)
 
+        slot_labels = {
+            "LW": self.tr("Left White"),
+            "LB": self.tr("Left Black"),
+            "RW": self.tr("Right White"),
+            "RB": self.tr("Right Black"),
+        }
+
         for slot in ("LW", "LB", "RW", "RB"):
             assignment = self.proposal.assignment_result.assignments.get(slot)
             row_layout = QHBoxLayout()
-            name_label = QLabel(self.tr(self.SLOT_LABELS[slot]))
+            name_label = QLabel(slot_labels[slot])
             name_label.setMinimumWidth(110)
             row_layout.addWidget(name_label)
 

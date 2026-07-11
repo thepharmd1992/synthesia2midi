@@ -949,6 +949,43 @@ def test_assisted_calibration_retry_restores_complete_prior_calibration(monkeypa
     assert save_log == []
 
 
+def test_assisted_calibration_accept_preserves_prior_slots_not_found_by_scan(monkeypatch):
+    from synthesia2midi.gui.assisted_calibration_dialog import AssistedCalibrationDecision
+
+    QApplication.instance() or QApplication([])
+    save_log = []
+    controller = _make_assisted_calibration_controller(save_log=save_log)
+    state = controller.app_state
+    state.detection.exemplar_key_type_enabled["LB"] = True
+    state.detection.exemplar_lit_colors["LB"] = (4, 5, 6)
+    state.detection.exemplar_lit_histograms["LB"] = np.array([0.3, 0.7], dtype=np.float32)
+    proposal = _make_assisted_proposal(
+        candidate_count=1,
+        assignments={
+            "LW": _make_assigned_exemplar("LW", rgb=(100, 110, 120)),
+            "LB": _make_assigned_exemplar("LB", rgb=None, enabled=False),
+        },
+        family_count=1,
+    )
+    monkeypatch.setattr(
+        "synthesia2midi.gui.calibration_wizard_controller.build_assisted_calibration_proposal",
+        lambda *_args, **_kwargs: proposal,
+    )
+    _patch_assisted_dialog(monkeypatch, AssistedCalibrationDecision.USE)
+
+    assert controller._run_assisted_auto_calibration(
+        np.full((8, 8, 3), 245, dtype=np.uint8), 3
+    ) is True
+    assert state.detection.exemplar_lit_colors["LW"] == (100, 110, 120)
+    assert state.detection.exemplar_key_type_enabled["LB"] is True
+    assert state.detection.exemplar_lit_colors["LB"] == (4, 5, 6)
+    assert np.array_equal(
+        state.detection.exemplar_lit_histograms["LB"],
+        np.array([0.3, 0.7], dtype=np.float32),
+    )
+    assert save_log == ["save"]
+
+
 def test_main_action_controller_delegates_histogram_and_similarity_thresholds():
     calls = []
     detection_manager = SimpleNamespace(

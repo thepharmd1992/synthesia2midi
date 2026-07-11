@@ -135,29 +135,40 @@ class KeyboardExample(QWidget):
 class GuideStepRow(QWidget):
     def __init__(self, title: str, instruction: str, action_text: str, illustration=None, parent=None):
         super().__init__(parent)
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 8, 0, 8)
-        layout.setSpacing(5)
+        self._row_layout = QVBoxLayout(self)
+        self._row_layout.setContentsMargins(0, 8, 0, 8)
+        self._row_layout.setSpacing(5)
 
         heading = QHBoxLayout()
+        self.completion_icon_label = QLabel("✓")
+        self.completion_icon_label.setStyleSheet(
+            "color: #2e7d32; font-weight: 700; font-size: 16px;"
+        )
+        self.completion_icon_label.hide()
+        heading.addWidget(self.completion_icon_label)
         self.title_label = QLabel(title)
         self.title_label.setStyleSheet("font-weight: 600;")
         self.status_label = QLabel()
         self.status_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         heading.addWidget(self.title_label, 1)
         heading.addWidget(self.status_label)
-        layout.addLayout(heading)
+        self._row_layout.addLayout(heading)
 
+        self.detail_widget = QWidget()
+        self.detail_layout = QVBoxLayout(self.detail_widget)
+        self.detail_layout.setContentsMargins(0, 0, 0, 0)
+        self.detail_layout.setSpacing(5)
         self.instruction_label = QLabel(instruction)
         self.instruction_label.setWordWrap(True)
         self.instruction_label.setMinimumHeight(self.instruction_label.sizeHint().height())
-        layout.addWidget(self.instruction_label)
+        self.detail_layout.addWidget(self.instruction_label)
         if illustration is not None:
-            layout.addWidget(illustration)
+            self.detail_layout.addWidget(illustration)
 
         self.primary_button = QPushButton(action_text)
         self.primary_button.setMinimumHeight(36)
-        layout.addWidget(self.primary_button, 0, Qt.AlignLeft)
+        self.detail_layout.addWidget(self.primary_button, 0, Qt.AlignLeft)
+        self._row_layout.addWidget(self.detail_widget)
 
     def set_status(self, status: GuideStatus) -> None:
         labels = {
@@ -168,6 +179,19 @@ class GuideStepRow(QWidget):
         }
         self.status_label.setText(labels[status])
         self.status_label.setProperty("guideStatus", status.value)
+        is_done = status is GuideStatus.DONE
+        is_expanded = status in {GuideStatus.NEXT, GuideStatus.NEEDS_REVIEW}
+        self.completion_icon_label.setVisible(is_done)
+        self.detail_widget.setVisible(is_expanded)
+        self.primary_button.setEnabled(is_expanded)
+        if is_done:
+            self.status_label.setStyleSheet("color: #2e7d32; font-weight: 600;")
+        elif status is GuideStatus.NEEDS_REVIEW:
+            self.status_label.setStyleSheet("color: #9a5a00; font-weight: 600;")
+        else:
+            self.status_label.setStyleSheet("color: #595959;")
+        vertical_margin = 4 if not is_expanded else 8
+        self._row_layout.setContentsMargins(0, vertical_margin, 0, vertical_margin)
 
 
 class CalibrationGuideWidget(QWidget):
@@ -215,7 +239,7 @@ class CalibrationGuideWidget(QWidget):
         self.youtube_button = QPushButton(self.tr("Download from YouTube"))
         self.youtube_button.setMinimumHeight(36)
         self.youtube_button.clicked.connect(self.youtube_requested.emit)
-        self.step_rows[0].layout().addWidget(self.youtube_button, 0, Qt.AlignLeft)
+        self.step_rows[0].detail_layout.addWidget(self.youtube_button, 0, Qt.AlignLeft)
         layout.addStretch(1)
 
     def _handle_overlay_action(self) -> None:
@@ -227,7 +251,6 @@ class CalibrationGuideWidget(QWidget):
     def update_snapshot(self, snapshot: GuideSnapshot) -> None:
         for row, step in zip(self.step_rows, snapshot.steps):
             row.set_status(step.status)
-            row.primary_button.setEnabled(step.status is not GuideStatus.NOT_READY)
         self._review_existing_overlays = snapshot.overlays.status is GuideStatus.NEEDS_REVIEW
         self.step_rows[1].primary_button.setText(
             self.tr("Review Alignment")

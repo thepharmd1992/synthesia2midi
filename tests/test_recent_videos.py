@@ -114,6 +114,22 @@ def test_startup_dialog_disambiguates_duplicate_filenames(tmp_path):
         dialog.deleteLater()
 
 
+def test_startup_dialog_middle_elides_long_recent_name_but_keeps_extension(tmp_path):
+    QApplication.instance() or QApplication([])
+    recent_path = tmp_path / (("a-very-long-piano-arrangement-title-" * 5) + ".mp4")
+    recent_path.write_text("video")
+    dialog = StartupDialog(recent_video_paths=[str(recent_path)])
+    try:
+        button = dialog.recent_video_buttons[0]
+        assert "…" in button.text()
+        assert button.text().endswith(".mp4")
+        assert button.toolTip() == str(recent_path)
+        assert button.accessibleDescription() == str(recent_path)
+        assert button.fontMetrics().horizontalAdvance(button.text()) <= 430
+    finally:
+        dialog.deleteLater()
+
+
 def test_startup_dialog_marks_missing_recent_video_instead_of_opening_it(tmp_path):
     QApplication.instance() or QApplication([])
     missing = tmp_path / "missing.mp4"
@@ -133,7 +149,7 @@ def test_open_video_file_records_recent_only_after_success(monkeypatch, tmp_path
     (tmp_path / "picked.mp4").write_text("video")
 
     class FakeFileDialog:
-        AnyFile = object()
+        ExistingFile = object()
         DontUseNativeDialog = object()
 
         def __init__(self, parent):
@@ -183,7 +199,7 @@ def test_failed_file_picker_load_does_not_record_recent(monkeypatch, tmp_path):
     selected_path = str(tmp_path / "failed.mp4")
 
     class FakeFileDialog:
-        AnyFile = object()
+        ExistingFile = object()
         DontUseNativeDialog = object()
 
         def __init__(self, parent):
@@ -245,3 +261,35 @@ def test_recent_click_records_promotion_but_youtube_download_does_not(tmp_path):
 
     assert loaded_paths == [recent_path, youtube_path]
     assert recent_store.paths == [recent_path]
+
+
+def test_image_sequence_uses_a_directory_picker(monkeypatch, tmp_path):
+    from synthesia2midi.gui import video_session_ui_controller as module
+
+    selected_dir = tmp_path / "frames"
+    selected_dir.mkdir()
+    picker_calls = []
+    monkeypatch.setattr(
+        module.QFileDialog,
+        "getExistingDirectory",
+        lambda parent, title, directory: picker_calls.append((title, directory))
+        or str(selected_dir),
+    )
+    loaded = []
+    recent_store = RecordingRecentStore()
+    app = SimpleNamespace(
+        video_session_coordinator=SimpleNamespace(
+            load_path=lambda filepath, *, log_prefix, update_fps_display: loaded.append(
+                (filepath, log_prefix, update_fps_display)
+            )
+            or True
+        ),
+        recent_video_store=recent_store,
+    )
+
+    VideoSessionUiController(app).open_image_sequence_folder()
+
+    assert picker_calls
+    assert picker_calls[0][0] == "Open Image Sequence Folder"
+    assert loaded == [(str(selected_dir), "_open_image_sequence_folder", True)]
+    assert recent_store.paths == [str(selected_dir)]

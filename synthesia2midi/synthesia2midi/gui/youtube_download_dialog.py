@@ -17,6 +17,7 @@ from ..youtube_downloader import (
     SUPPORTED_COOKIE_BROWSERS,
     YouTubeDownloader,
     YouTubeDownloaderThread,
+    should_retry_with_browser_cookies,
 )
 
 
@@ -169,6 +170,7 @@ class YouTubeDownloadDialog(QDialog):
 
         self.fallback_group.setLayout(fallback_layout)
         layout.addWidget(self.fallback_group)
+        self.fallback_group.hide()
 
         # Fetch info button
         self.fetch_info_btn = QPushButton(QCoreApplication.translate("YouTubeDownloadDialog", "Refresh Info"))
@@ -347,6 +349,7 @@ class YouTubeDownloadDialog(QDialog):
         self._reset_quality_options()
         self.quality_combo.setEnabled(False)
         self.download_btn.setEnabled(False)
+        self._show_fallback_if_needed(error)
         if self._show_info_error_dialog:
             QMessageBox.warning(
                 self,
@@ -452,6 +455,7 @@ class YouTubeDownloadDialog(QDialog):
         """Update status label"""
         self._restart_download_stall_timer()
         self.status_label.setText(status)
+        self._show_fallback_if_needed(status)
 
     def _restart_download_stall_timer(self):
         if self.download_thread and self._download_thread_is_running():
@@ -495,6 +499,7 @@ class YouTubeDownloadDialog(QDialog):
         self.download_stall_timer.stop()
         self.reset_ui()
         self.status_label.setText(QCoreApplication.translate("YouTubeDownloadDialog", "Download failed"))
+        self._show_fallback_if_needed(error)
         QMessageBox.critical(
             self,
             QCoreApplication.translate("YouTubeDownloadDialog", "Download Error"),
@@ -618,6 +623,16 @@ class YouTubeDownloadDialog(QDialog):
     def preferred_browser(self):
         current = self.browser_combo.currentData() if hasattr(self, "browser_combo") else self._preferred_browser
         return current if current in SUPPORTED_COOKIE_BROWSERS else DEFAULT_COOKIE_BROWSER
+
+    def _show_fallback_if_needed(self, message) -> None:
+        text = str(message or "")
+        if not text:
+            return
+        if "browser cookies" not in text.lower() and not should_retry_with_browser_cookies(text):
+            return
+        self.fallback_group.show()
+        self.fallback_group.updateGeometry()
+        self.adjustSize()
 
     def auto_cookie_retry_enabled(self):
         if hasattr(self, "auto_retry_checkbox"):

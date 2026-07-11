@@ -204,9 +204,24 @@ class StartupDialog(QDialog):
         else:
             label = filename
         button = QPushButton(label)
+        if button.fontMetrics().horizontalAdvance(label) > 430:
+            extension = os.path.splitext(filename)[1]
+            stem = filename[: -len(extension)] if extension else filename
+            label_suffix = label[len(filename):] if label.startswith(filename) else ""
+            preserved_suffix = extension + label_suffix
+            stem_width = max(
+                24,
+                430 - button.fontMetrics().horizontalAdvance(preserved_suffix),
+            )
+            visible_stem = button.fontMetrics().elidedText(
+                stem, Qt.ElideMiddle, stem_width
+            )
+            button.setText(visible_stem + preserved_suffix)
         button.setMinimumHeight(36)
         button.setStyleSheet("QPushButton { text-align: left; padding: 5px 8px; }")
         button.setToolTip(path)
+        button.setAccessibleName(label)
+        button.setAccessibleDescription(path)
         button.setEnabled(exists)
         if exists:
             button.clicked.connect(lambda checked=False, selected_path=path: self._on_recent_file_clicked(selected_path))

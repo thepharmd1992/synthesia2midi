@@ -24,7 +24,7 @@ import sys
 from typing import Optional
 
 from PySide6.QtCore import QCoreApplication, Qt, QTimer
-from PySide6.QtGui import QAction
+from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import QApplication, QDialog, QHBoxLayout, QLabel, QMainWindow, QMessageBox, QSizePolicy, QSlider, QStackedLayout, QToolButton, QVBoxLayout, QWidget
 
 from .app_config import APP_NAME, FRAME_NAV_INTERVALS
@@ -144,17 +144,18 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         menubar = self.menuBar()
 
         # File menu
-        filemenu = menubar.addMenu(QCoreApplication.translate("Video2MidiApp", "File"))
-        open_action = QAction(QCoreApplication.translate("Video2MidiApp", "Open Video (MP4)..."), self)
+        self.file_menu = menubar.addMenu(QCoreApplication.translate("Video2MidiApp", "File"))
+        filemenu = self.file_menu
+        open_action = QAction(QCoreApplication.translate("Video2MidiApp", "Open Video File..."), self)
         open_action.triggered.connect(self.video_session_ui_controller.open_video_file)
         filemenu.addAction(open_action)
 
-        youtube_action = QAction(QCoreApplication.translate("Video2MidiApp", "Download Youtube Video..."), self)
+        youtube_action = QAction(QCoreApplication.translate("Video2MidiApp", "Download YouTube Video..."), self)
         youtube_action.triggered.connect(self.video_session_ui_controller.show_youtube_download_dialog)
         filemenu.addAction(youtube_action)
 
-        save_action = QAction(QCoreApplication.translate("Video2MidiApp", "Save Settings (Ctrl+S)"), self)
-        save_action.setShortcut("Ctrl+S")
+        save_action = QAction(QCoreApplication.translate("Video2MidiApp", "Save Settings"), self)
+        save_action.setShortcut(QKeySequence.StandardKey.Save)
         save_action.triggered.connect(self._save_settings)
         filemenu.addAction(save_action)
 
@@ -209,11 +210,30 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
             frame_nav_menu.addAction(action)
             self.frame_nav_actions[interval] = action
 
-        # Visual Threshold Monitor menu
-        debug_menu = menubar.addMenu(QCoreApplication.translate("Video2MidiApp", "Visual Threshold Monitor"))
+        self.advanced_menu = menubar.addMenu(
+            QCoreApplication.translate("Video2MidiApp", "Advanced")
+        )
+        advanced_menu = self.advanced_menu
+        image_sequence_action = QAction(
+            QCoreApplication.translate("Video2MidiApp", "Open Image Sequence Folder..."),
+            self,
+        )
+        image_sequence_action.triggered.connect(
+            self.video_session_ui_controller.open_image_sequence_folder
+        )
+        advanced_menu.addAction(image_sequence_action)
+        advanced_menu.addSeparator()
+
+        self.diagnostics_menu = advanced_menu.addMenu(
+            QCoreApplication.translate("Video2MidiApp", "Diagnostics")
+        )
+        debug_menu = self.diagnostics_menu
 
         # Visual Threshold Monitor toggle
-        self.visual_threshold_monitor_action = QAction(QCoreApplication.translate("Video2MidiApp", "Enable"), self)
+        self.visual_threshold_monitor_action = QAction(
+            QCoreApplication.translate("Video2MidiApp", "Enable Visual Threshold Monitor"),
+            self,
+        )
         self.visual_threshold_monitor_action.setCheckable(True)
         self.visual_threshold_monitor_action.setChecked(self.app_state.ui.visual_threshold_monitor_enabled)
         self.visual_threshold_monitor_action.triggered.connect(self.display_manager.set_visual_threshold_monitor_enabled)

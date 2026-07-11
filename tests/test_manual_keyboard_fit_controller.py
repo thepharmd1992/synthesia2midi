@@ -10,6 +10,7 @@ from synthesia2midi.app_config import OverlayConfig
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.gui.canvas.coordinates import CoordinateManager
 from synthesia2midi.gui.canvas.interaction import CanvasInteraction
+from synthesia2midi.gui.manual_keyboard_fit_dialog import ManualKeyboardFitDialog
 from synthesia2midi.gui.manual_keyboard_fit_controller import ManualKeyboardFitController
 
 
@@ -453,6 +454,47 @@ def test_manual_fit_dialog_modes_show_only_relevant_controls():
             controller.active_dialog.reject()
         app.close()
         app.deleteLater()
+        _flush_qt_deletes()
+
+
+def test_manual_fit_reflows_modes_and_contracts_single_overlay_mode():
+    QApplication.instance() or QApplication([])
+    dialog = ManualKeyboardFitDialog()
+    try:
+        dialog.show()
+        dialog.resize(560, 560)
+        QApplication.processEvents()
+        mode_buttons = [
+            dialog.group_fit_radio,
+            dialog.all_white_radio,
+            dialog.all_black_radio,
+            dialog.local_fit_radio,
+            dialog.single_overlay_radio,
+        ]
+        assert len({button.geometry().y() for button in mode_buttons}) == 3
+
+        dialog.resize(900, 560)
+        QApplication.processEvents()
+        assert len({button.geometry().y() for button in mode_buttons}) == 2
+
+        dialog.single_overlay_radio.click()
+        QApplication.processEvents()
+
+        assert dialog.octave_widget.isHidden()
+        assert dialog.controls_group.isHidden()
+        assert dialog.local_controls_group.isHidden()
+        visible_secondary = [
+            button.text()
+            for button in dialog.secondary_action_buttons
+            if not button.isHidden()
+        ]
+        assert visible_secondary == ["Clear Selected Override"]
+        assert dialog.apply_button.isVisible()
+        assert dialog.cancel_button.isVisible()
+        assert dialog.height() <= 360
+    finally:
+        dialog.close()
+        dialog.deleteLater()
         _flush_qt_deletes()
 
 

@@ -187,6 +187,38 @@ def test_main_window_has_no_conversion_shortcut_that_bypasses_readiness(monkeypa
         app.close()
 
 
+def test_main_menu_separates_primary_files_from_advanced_diagnostics(monkeypatch):
+    app = _make_app(monkeypatch)
+    try:
+        menu_titles = [
+            action.text().replace("&", "") for action in app.menuBar().actions()
+        ]
+        assert "Visual Threshold Monitor" not in menu_titles
+        assert "Advanced" in menu_titles
+
+        file_labels = [action.text() for action in app.file_menu.actions()]
+        assert "Open Video File..." in file_labels
+        assert "Open Video (MP4)..." not in file_labels
+        assert "Save Settings" in file_labels
+        assert all("Ctrl+S" not in label for label in file_labels)
+
+        advanced_actions = app.advanced_menu.actions()
+        assert "Open Image Sequence Folder..." in [
+            action.text() for action in advanced_actions
+        ]
+        diagnostics_menu = next(
+            action.menu()
+            for action in advanced_actions
+            if action.menu() is not None and action.text() == "Diagnostics"
+        )
+        assert [action.text() for action in diagnostics_menu.actions() if not action.isSeparator()] == [
+            "Enable Visual Threshold Monitor",
+            "Capture Window Screenshot",
+        ]
+    finally:
+        app.close()
+
+
 def test_permanent_trim_fields_fit_their_supported_maximum(monkeypatch):
     app = _make_app(monkeypatch)
     try:

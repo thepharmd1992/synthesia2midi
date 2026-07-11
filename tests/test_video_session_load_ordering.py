@@ -137,7 +137,7 @@ class FakeWindowManager:
 
 
 class FakeAcceptedFileDialog:
-    AnyFile = object()
+    ExistingFile = object()
     DontUseNativeDialog = object()
     selected_path = ""
 

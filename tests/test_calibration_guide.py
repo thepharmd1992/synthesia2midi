@@ -115,6 +115,45 @@ def test_guide_widget_exposes_five_steps_and_routes_primary_actions():
         widget.deleteLater()
 
 
+def test_guide_expands_only_current_step_and_compacts_completed_steps():
+    QApplication.instance() or QApplication([])
+    state = AppState()
+    widget = CalibrationGuideWidget()
+    try:
+        widget.update_snapshot(derive_guide_snapshot(state, False))
+
+        assert [not row.detail_widget.isHidden() for row in widget.step_rows] == [
+            True,
+            False,
+            False,
+            False,
+            False,
+        ]
+
+        state.video.filepath = "/tmp/video.mp4"
+        state.overlays = [_overlay(unlit=True)]
+        for key_type in state.detection.get_required_base_exemplar_types():
+            state.detection.exemplar_lit_colors[key_type] = (255, 0, 0)
+        widget.update_snapshot(derive_guide_snapshot(state, True))
+
+        assert [not row.detail_widget.isHidden() for row in widget.step_rows] == [
+            False,
+            False,
+            False,
+            False,
+            True,
+        ]
+        for row in widget.step_rows[:4]:
+            assert row.completion_icon_label.text() == "✓"
+            assert not row.completion_icon_label.isHidden()
+            assert row.status_label.text() == "Done"
+            assert "#2e7d32" in row.status_label.styleSheet()
+        assert widget.step_rows[4].completion_icon_label.isHidden()
+    finally:
+        widget.close()
+        widget.deleteLater()
+
+
 def test_overlay_step_routes_to_review_when_existing_overlays_need_review():
     QApplication.instance() or QApplication([])
     state = AppState()

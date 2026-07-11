@@ -29,7 +29,7 @@ Implement every required Phase A-D change from the internal 2026-07-11 structura
 - [x] #3 Conversion shortcuts obey the same readiness state as Convert, normal canvas mode cannot accidentally move overlays, selection modes expose persistent instructions/cancel/Escape/retry feedback, trim extrema fit, and Auto-Detect Return activates Save.
 - [x] #4 Settings uses fixed navigation and fixed global actions with one page-owned scroll viewport; short pages do not scroll and no active nested scroll areas remain.
 - [x] #5 Repeated Notes has a dedicated tool, Auto-Detect Expert shows one category at a time, and floating windows use the parent window screen.
-- [ ] #6 Guide completion/current/future states compress appropriately, Manual Fit reflows and contracts by mode, YouTube fallback is progressive, file/menu hierarchy is simplified, and the Rust editor responsive/status issues are addressed.
+- [x] #6 Guide completion/current/future states compress appropriately, Manual Fit reflows and contracts by mode, YouTube fallback is progressive, file/menu hierarchy is simplified, and the Rust editor responsive/status issues are addressed.
 - [ ] #7 Real-window, scroll-ownership, wheel-propagation, numeric-extrema, transactional-dialog, keyboard/default, populated-metadata, and large-text window-bound regression gates pass.
 - [ ] #8 All changed GUI strings are audited and translated in every production locale; compileall, complete pytest, localization, visual matrix, git diff, and relevant Rust/package gates pass.
 <!-- AC:END -->
@@ -48,4 +48,6 @@ Authoritative internal audit: logs/ux-audit/2026-07-11-structural-ui-audit/struc
 Phase A completed with focused regression coverage for transactional tuning, wheel routing, keyboard defaults, canvas selection/edit boundaries, cancellation lifecycle, and numeric-extrema sizing.
 
 Phase B completed with a fixed Settings rail/footer, page-owned scrolling, a dedicated Repeated Notes tool, master-detail Auto-Detect Expert controls, and parent-screen placement.
+
+Phase C completed with a compact state-aware Guide, responsive Manual Fit modes, progressive YouTube recovery controls, separate file/folder pickers, nested diagnostics, bounded touch-up failures, recent-name elision, and Rust editor input/layout/status hardening.
 <!-- SECTION:NOTES:END -->

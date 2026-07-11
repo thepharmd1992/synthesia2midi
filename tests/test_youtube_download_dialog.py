@@ -147,9 +147,26 @@ def test_dialog_uses_refresh_info_label_and_default_1080p_quality(tmp_path):
     assert dialog.browser_combo.currentData() == "chrome"
     assert dialog.auto_retry_checkbox.isChecked()
     assert dialog.fallback_group.title() == "If YouTube blocks the download"
+    assert dialog.fallback_group.isHidden()
     assert dialog.fallback_hint_label.text() == (
         "Synthesia2MIDI can retry using saved browser cookies only if YouTube blocks the normal download."
     )
+
+
+def test_cookie_fallback_appears_only_when_downloader_reports_cookie_retry(tmp_path):
+    QApplication.instance() or QApplication([])
+    dialog = YouTubeDownloadDialog(default_output_dir=str(tmp_path))
+    dialog.show()
+    QApplication.processEvents()
+
+    assert dialog.fallback_group.isHidden()
+
+    dialog.update_status(
+        "Video info request failed. Retrying with Safari browser cookies..."
+    )
+    QApplication.processEvents()
+
+    assert dialog.fallback_group.isVisible()
 
 
 def test_dialog_restores_saved_cookie_retry_preferences(tmp_path):

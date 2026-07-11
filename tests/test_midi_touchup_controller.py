@@ -172,6 +172,8 @@ def test_conversion_complete_dialog_has_editor_and_show_folder(monkeypatch, tmp_
             self.parent = parent
             self.buttons = []
             self._clicked = None
+            self.button_by_text = {}
+            FakeMessageBox.latest = self
 
         def setIcon(self, icon):
             self.icon = icon
@@ -188,6 +190,7 @@ def test_conversion_complete_dialog_has_editor_and_show_folder(monkeypatch, tmp_
         def addButton(self, text, role):
             self.buttons.append((text, role))
             button = object()
+            self.button_by_text[text] = button
             if text == "Show MIDI in Folder":
                 self._clicked = button
             return button
@@ -209,6 +212,7 @@ def test_conversion_complete_dialog_has_editor_and_show_folder(monkeypatch, tmp_
     assert "Open Touch-Up Editor" in shown_actions
     assert "Show MIDI in Folder" in shown_actions
     assert "Done" not in shown_actions
+    assert FakeMessageBox.latest.default_button is FakeMessageBox.latest.button_by_text["Show MIDI in Folder"]
     assert ("revealed", str(midi_path)) in shown_actions
 
 

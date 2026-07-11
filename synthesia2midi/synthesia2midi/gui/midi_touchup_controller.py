@@ -56,7 +56,7 @@ class MidiTouchupController(QObject):
             translate("MidiTouchupController", "Show MIDI in Folder"),
             QMessageBox.AcceptRole,
         )
-        msg_box.setDefaultButton(open_btn)
+        msg_box.setDefaultButton(show_folder_btn)
         msg_box.exec()
 
         clicked_button = msg_box.clickedButton()

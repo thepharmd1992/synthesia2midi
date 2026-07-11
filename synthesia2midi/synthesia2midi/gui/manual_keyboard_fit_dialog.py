@@ -128,9 +128,14 @@ class ManualKeyboardFitDialog(QDialog):
         fine_tune_layout.setSpacing(10)
 
         self.mode_group = QGroupBox(QCoreApplication.translate("ManualKeyboardFitDialog", "Edit Mode"))
-        mode_layout = QHBoxLayout(self.mode_group)
-        self.mode_status_label = QLabel(QCoreApplication.translate("ManualKeyboardFitDialog", "Editing: Whole Keyboard"))
-        self.mode_status_label.hide()
+        mode_layout = QVBoxLayout(self.mode_group)
+        mode_choice_layout = QHBoxLayout()
+        self.mode_status_label = QLabel(
+            QCoreApplication.translate(
+                "ManualKeyboardFitDialog", "Move and resize every overlay together."
+            )
+        )
+        self.mode_status_label.setWordWrap(True)
         self.group_fit_radio = QRadioButton(QCoreApplication.translate("ManualKeyboardFitDialog", "All Overlays"))
         self.all_white_radio = QRadioButton(QCoreApplication.translate("ManualKeyboardFitDialog", "All Whites"))
         self.all_black_radio = QRadioButton(QCoreApplication.translate("ManualKeyboardFitDialog", "All Blacks"))
@@ -148,12 +153,14 @@ class ManualKeyboardFitDialog(QDialog):
         self.all_black_radio.toggled.connect(self._handle_mode_toggled)
         self.local_fit_radio.toggled.connect(self._handle_mode_toggled)
         self.single_overlay_radio.toggled.connect(self._handle_mode_toggled)
-        mode_layout.addWidget(self.group_fit_radio)
-        mode_layout.addWidget(self.all_white_radio)
-        mode_layout.addWidget(self.all_black_radio)
-        mode_layout.addWidget(self.local_fit_radio)
-        mode_layout.addWidget(self.single_overlay_radio)
-        mode_layout.addStretch()
+        mode_choice_layout.addWidget(self.group_fit_radio)
+        mode_choice_layout.addWidget(self.all_white_radio)
+        mode_choice_layout.addWidget(self.all_black_radio)
+        mode_choice_layout.addWidget(self.local_fit_radio)
+        mode_choice_layout.addWidget(self.single_overlay_radio)
+        mode_choice_layout.addStretch()
+        mode_layout.addLayout(mode_choice_layout)
+        mode_layout.addWidget(self.mode_status_label)
         fine_tune_layout.addWidget(self.mode_group)
 
         octave_row = QHBoxLayout()
@@ -462,23 +469,38 @@ class ManualKeyboardFitDialog(QDialog):
     def _handle_mode_toggled(self) -> None:
         if self.group_fit_radio.isChecked():
             self.mode_status_label.setText(
-                QCoreApplication.translate("ManualKeyboardFitDialog", "Editing: Whole Keyboard")
+                QCoreApplication.translate(
+                    "ManualKeyboardFitDialog", "Move and resize every overlay together."
+                )
             )
             self.mode_changed.emit("manual_fit_group")
         elif self.all_white_radio.isChecked():
-            self.mode_status_label.setText(QCoreApplication.translate("ManualKeyboardFitDialog", "Editing: All Whites"))
+            self.mode_status_label.setText(
+                QCoreApplication.translate(
+                    "ManualKeyboardFitDialog", "Adjust all white-key overlays together."
+                )
+            )
             self.mode_changed.emit("manual_fit_all_white")
         elif self.all_black_radio.isChecked():
-            self.mode_status_label.setText(QCoreApplication.translate("ManualKeyboardFitDialog", "Editing: All Blacks"))
+            self.mode_status_label.setText(
+                QCoreApplication.translate(
+                    "ManualKeyboardFitDialog", "Adjust all black-key overlays together."
+                )
+            )
             self.mode_changed.emit("manual_fit_all_black")
         elif self.local_fit_radio.isChecked():
             self.mode_status_label.setText(
-                QCoreApplication.translate("ManualKeyboardFitDialog", "Editing: Local Cluster")
+                QCoreApplication.translate(
+                    "ManualKeyboardFitDialog",
+                    "Draw around the problem keys, then adjust that selected group.",
+                )
             )
             self.mode_changed.emit("manual_fit_local_select")
         elif self.single_overlay_radio.isChecked():
             self.mode_status_label.setText(
-                QCoreApplication.translate("ManualKeyboardFitDialog", "Editing: Single Overlay")
+                QCoreApplication.translate(
+                    "ManualKeyboardFitDialog", "Click one problem key, then adjust only that overlay."
+                )
             )
             self.mode_changed.emit("manual_fit_single")
         self._sync_mode_control_visibility()

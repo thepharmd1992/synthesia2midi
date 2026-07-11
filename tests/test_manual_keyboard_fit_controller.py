@@ -390,7 +390,8 @@ def test_manual_fit_dialog_modes_show_only_relevant_controls():
         assert dialog.local_fit_radio.text() == "Select Overlays"
         assert dialog.controls_group.isVisible()
         assert not dialog.local_controls_group.isVisible()
-        assert not dialog.mode_status_label.isVisible()
+        assert dialog.mode_status_label.isVisible()
+        assert dialog.mode_status_label.text() == "Move and resize every overlay together."
         assert dialog.controls_group.title() == ""
         assert dialog.local_controls_group.title() == ""
         assert dialog.current_local_filter() == "black"
@@ -414,9 +415,17 @@ def test_manual_fit_dialog_modes_show_only_relevant_controls():
         dialog.local_fit_radio.click()
 
         assert app.keyboard_canvas.mode == "manual_fit_local_select"
+        assert dialog.mode_status_label.text() == (
+            "Draw around the problem keys, then adjust that selected group."
+        )
         assert not dialog.controls_group.isVisible()
         assert dialog.local_controls_group.isVisible()
         assert not dialog.local_param_spinboxes["x_delta"].isEnabled()
+
+        dialog.single_overlay_radio.click()
+        assert dialog.mode_status_label.text() == (
+            "Click one problem key, then adjust only that overlay."
+        )
 
         dialog.all_white_radio.click()
 

@@ -244,6 +244,30 @@ class CalibrationWizardController:
                 ),
             )
 
+    def review_current_alignment(self) -> bool:
+        """Open the existing alignment editor appropriate for the loaded calibration."""
+        if self._current_overlay_generation_source() == "manual":
+            manual_fit_controller = getattr(self.app, "manual_keyboard_fit_controller", None)
+            if manual_fit_controller is None:
+                return False
+            return manual_fit_controller.open(start_setup=False) is not False
+
+        if self.calibration_wizard is not None and self._open_auto_detect_tuning_dialog(
+            use_wizard_context=False
+        ):
+            return True
+
+        self.run_calibration_wizard()
+        return self.calibration_wizard is not None
+
+    def run_assisted_calibration_from_current_frame(self) -> bool:
+        """Use the currently displayed frame as the assisted scan baseline."""
+        frame_index = int(getattr(self.app_state.video, "current_frame_index", 0) or 0)
+        frame_rgb = self._frame_provider_rgb(frame_index)
+        if frame_rgb is None or not isinstance(frame_rgb, np.ndarray) or frame_rgb.size == 0:
+            return False
+        return self._run_assisted_auto_calibration(frame_rgb, frame_index)
+
     def _cache_auto_detect_tuning_context(self, context: Dict[str, Any]) -> None:
         """Wizard callback adapter that keeps tuning state owned by the tuning controller."""
         self.auto_detect_tuning_controller.cache_context(context)

@@ -1,4 +1,5 @@
 import numpy as np
+from types import SimpleNamespace
 from PySide6.QtWidgets import QApplication
 
 from synthesia2midi.app_config import OverlayConfig
@@ -112,6 +113,25 @@ def test_guide_widget_exposes_five_steps_and_routes_primary_actions():
         widget.deleteLater()
 
 
+def test_overlay_step_routes_to_review_when_existing_overlays_need_review():
+    QApplication.instance() or QApplication([])
+    state = AppState()
+    state.video.filepath = "/tmp/video.mp4"
+    state.overlays = [_overlay()]
+    widget = CalibrationGuideWidget()
+    emitted = []
+    widget.find_keyboard_requested.connect(lambda: emitted.append("find"))
+    widget.review_alignment_requested.connect(lambda: emitted.append("review"))
+    try:
+        widget.update_snapshot(derive_guide_snapshot(state, False))
+        assert widget.step_rows[1].primary_button.text() == "Review Alignment"
+        widget.step_rows[1].primary_button.click()
+        assert emitted == ["review"]
+    finally:
+        widget.close()
+        widget.deleteLater()
+
+
 def test_control_panel_places_guide_first():
     from synthesia2midi.gui.controls_qt import ControlPanelQt
 
@@ -123,3 +143,41 @@ def test_control_panel_places_guide_first():
     finally:
         panel.close()
         panel.deleteLater()
+
+
+def test_review_current_alignment_uses_manual_fit_for_manual_overlays():
+    from synthesia2midi.gui.calibration_wizard_controller import CalibrationWizardController
+
+    calls = []
+    controller = CalibrationWizardController.__new__(CalibrationWizardController)
+    controller.app = SimpleNamespace(
+        app_state=SimpleNamespace(
+            calibration=SimpleNamespace(overlay_generation_source="manual"),
+            overlays=[object()],
+        ),
+        manual_keyboard_fit_controller=SimpleNamespace(
+            open=lambda **kwargs: calls.append(kwargs) or True
+        ),
+    )
+
+    assert controller.review_current_alignment() is True
+    assert calls == [{"start_setup": False}]
+
+
+def test_assisted_scan_from_current_frame_uses_visible_frame_as_baseline():
+    from synthesia2midi.gui.calibration_wizard_controller import CalibrationWizardController
+
+    frame = np.ones((4, 5, 3), dtype=np.uint8)
+    calls = []
+    controller = CalibrationWizardController.__new__(CalibrationWizardController)
+    controller.app = SimpleNamespace(
+        app_state=SimpleNamespace(video=SimpleNamespace(current_frame_index=23))
+    )
+    controller._frame_provider_rgb = lambda index: frame if index == 23 else None
+    controller._run_assisted_auto_calibration = (
+        lambda baseline, index: calls.append((baseline.copy(), index)) or True
+    )
+
+    assert controller.run_assisted_calibration_from_current_frame() is True
+    assert calls[0][1] == 23
+    assert np.array_equal(calls[0][0], frame)

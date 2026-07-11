@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
 )
 
 from synthesia2midi.core.app_state import AppState
+from synthesia2midi.gui.calibration_guide import CalibrationGuideWidget, derive_guide_snapshot
 from synthesia2midi.localization import (
     load_preferred_locale,
     locale_display_name,
@@ -204,6 +205,7 @@ class ControlPanelQt(QWidget):
         self.tab_widget.currentChanged.connect(self.settings_section_rail.setCurrentRow)
         
         # Create all tabs
+        self._create_guide_tab()
         self._create_mandatory_calibration_tab()
         self._create_overlay_settings_tab()
         self._create_basic_detection_tab()
@@ -223,6 +225,10 @@ class ControlPanelQt(QWidget):
         main_layout.addLayout(settings_layout, 1)
 
         self.settings_section_rail.setCurrentRow(0)
+
+    def _create_guide_tab(self) -> None:
+        self.guide_page = CalibrationGuideWidget()
+        self._add_settings_section(self.guide_page, self.tr("Guide"))
 
     def _add_settings_section(self, widget: QWidget, label: str) -> None:
         item = QListWidgetItem(label)
@@ -2067,6 +2073,8 @@ class ControlPanelQt(QWidget):
         readiness = self._conversion_readiness()
         self.convert_button.setEnabled(readiness.can_convert)
         self.conversion_status.setText(readiness.status_text)
+        if hasattr(self, "guide_page"):
+            self.guide_page.update_snapshot(derive_guide_snapshot(self.app_state, readiness.can_convert))
 
     def _can_convert(self) -> bool:
         """Return True if MIDI conversion prerequisites are satisfied."""

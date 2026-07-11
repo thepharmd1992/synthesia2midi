@@ -134,13 +134,18 @@ def _detect_clipping(widget: QWidget) -> list[str]:
         if button.text().strip() in {"+", "-", "0"}:
             continue
         required = button.sizeHint().width()
-        if button.width() < required:
+        if button.width() < required or button.height() < button.sizeHint().height():
             findings.append(f"{button.metaObject().className()}:{button.text()}")
     for label in widget.findChildren(QLabel):
-        if not label.isVisible() or label.wordWrap() or not label.text().strip() or "\n" in label.text():
+        if not label.isVisible() or not label.text().strip() or "\n" in label.text():
             continue
-        required = label.sizeHint().width()
-        if label.width() + 2 < required:
+        required = 0 if label.wordWrap() else label.sizeHint().width()
+        required_height = (
+            label.heightForWidth(label.width())
+            if label.wordWrap() and label.hasHeightForWidth()
+            else label.sizeHint().height()
+        )
+        if label.width() + 2 < required or label.height() + 2 < required_height:
             findings.append(f"QLabel:{label.text()}")
     return sorted(set(findings))
 

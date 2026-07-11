@@ -413,7 +413,7 @@ class ControlPanelQt(QWidget):
             translate("ControlPanelQt", "Draw Keyboard Box and Find Keys")
         )
         self.calibration_wizard_button.setMinimumWidth(180)
-        self.calibration_wizard_button.setFixedHeight(34)
+        self.calibration_wizard_button.setMinimumHeight(36)
         self.calibration_wizard_button.clicked.connect(self.calibration_wizard_requested.emit)
         self.calibration_wizard_button.setToolTip(
             translate(
@@ -449,7 +449,7 @@ class ControlPanelQt(QWidget):
             translate("ControlPanelQt", "Capture No-Key Frame")
         )
         self.calibrate_unlit_button.setMinimumWidth(180)
-        self.calibrate_unlit_button.setFixedHeight(28)
+        self.calibrate_unlit_button.setMinimumHeight(36)
         self.calibrate_unlit_button.clicked.connect(self.calibrate_unlit_requested.emit)
         self.calibrate_unlit_button.setToolTip(
             translate(
@@ -1148,7 +1148,6 @@ class ControlPanelQt(QWidget):
                     key_type_label=KEY_TYPE_LABELS[key_type]
                 )
             )
-            button.setMaximumWidth(210)
             button.clicked.connect(lambda checked=False, kt=key_type: self.auto_spark_calibration_requested.emit(kt))
             button.setToolTip(
                 translate(
@@ -1323,7 +1322,6 @@ class ControlPanelQt(QWidget):
         
         # Start frame
         start_label = QLabel(translate("ControlPanelQt", "Start Frame:"))
-        start_label.setFixedWidth(144)  # Scaled for 14pt font
         frame_grid.addWidget(start_label, 0, 0)
         
         self.start_frame_spin = QSpinBox()
@@ -1334,13 +1332,11 @@ class ControlPanelQt(QWidget):
         frame_grid.addWidget(self.start_frame_spin, 0, 1)
         
         self.trim_start_set_button = QPushButton(translate("ControlPanelQt", "Set to Current"))
-        self.trim_start_set_button.setMaximumWidth(200)
         self.trim_start_set_button.clicked.connect(self._set_trim_start_to_current)
         frame_grid.addWidget(self.trim_start_set_button, 0, 2)
         
         # End frame
         end_label = QLabel(translate("ControlPanelQt", "End Frame:"))
-        end_label.setFixedWidth(144)  # Scaled for 14pt font
         frame_grid.addWidget(end_label, 1, 0)
         
         self.end_frame_spin = QSpinBox()
@@ -1351,7 +1347,6 @@ class ControlPanelQt(QWidget):
         frame_grid.addWidget(self.end_frame_spin, 1, 1)
         
         self.trim_end_set_button = QPushButton(translate("ControlPanelQt", "Set to Current"))
-        self.trim_end_set_button.setMaximumWidth(200)
         self.trim_end_set_button.clicked.connect(self._set_trim_end_to_current)
         frame_grid.addWidget(self.trim_end_set_button, 1, 2)
         
@@ -1363,6 +1358,7 @@ class ControlPanelQt(QWidget):
         trim_layout.addWidget(self.trim_video_button)
         
         layout.addWidget(trim_group)
+        self.trim_settings_group = trim_group
         
         layout.addStretch()
         self.trim_settings_page = tab
@@ -1398,7 +1394,7 @@ class ControlPanelQt(QWidget):
             (
                 "trim",
                 translate("ControlPanelQt", "Permanently Trim Project"),
-                self.trim_settings_page,
+                self.trim_settings_group,
             ),
         ]
         self.advanced_sections = {}

@@ -190,6 +190,10 @@ class CalibrationGuideWidget(QWidget):
         intro = QLabel(self.tr("Follow the next highlighted step. Your existing calibration is detected automatically."))
         intro.setWordWrap(True)
         layout.addWidget(intro)
+        self.assisted_status_label = QLabel()
+        self.assisted_status_label.setWordWrap(True)
+        self.assisted_status_label.hide()
+        layout.addWidget(self.assisted_status_label)
 
         definitions = [
             (self.tr("1. Open or download a video"), self.tr("Use a clear Synthesia-style piano video with visible keys and falling notes."), self.tr("Open Video"), None, self.open_video_requested),
@@ -225,3 +229,15 @@ class CalibrationGuideWidget(QWidget):
             if self._review_existing_overlays
             else self.tr("Find Keyboard")
         )
+
+    def set_assisted_state(self, state: str) -> None:
+        messages = {
+            "scanning": self.tr("Scanning the video for pressed-key colors..."),
+            "applied": self.tr("Pressed-key colors updated."),
+            "none_found": self.tr("No pressed-key colors were found. Move to another no-key frame and try again."),
+            "retry": self.tr("Move to another no-key frame, then run the scan again."),
+            "kept": self.tr("Your current pressed-key colors were kept."),
+        }
+        message = messages.get(state, "")
+        self.assisted_status_label.setText(message)
+        self.assisted_status_label.setVisible(bool(message))

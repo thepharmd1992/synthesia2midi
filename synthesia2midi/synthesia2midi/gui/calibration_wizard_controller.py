@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import cv2
+import copy
 import logging
 from typing import Any, Dict, Optional
 
@@ -18,6 +19,10 @@ from synthesia2midi.detection.assisted_calibration import (
 )
 
 from synthesia2midi.gui.auto_detect_tuning_controller import AutoDetectTuningController
+from synthesia2midi.gui.assisted_calibration_dialog import (
+    AssistedCalibrationDecision,
+    AssistedCalibrationDialog,
+)
 from synthesia2midi.gui.dialog_positioning import move_to_upper_left_safe_zone
 
 translate = QCoreApplication.translate
@@ -337,20 +342,47 @@ class CalibrationWizardController:
             for assignment in proposal.assignment_result.assignments.values()
         )
 
-    def _snapshot_overlay_unlit_state(self):
-        return [
-            (
-                overlay,
-                overlay.unlit_reference_color,
-                overlay.unlit_hist.copy() if overlay.unlit_hist is not None else None,
-            )
-            for overlay in self.app_state.overlays
-        ]
+    def _snapshot_calibration_state(self):
+        return {
+            "overlays": [
+                (
+                    overlay,
+                    overlay.unlit_reference_color,
+                    overlay.unlit_hist.copy() if overlay.unlit_hist is not None else None,
+                )
+                for overlay in self.app_state.overlays
+            ],
+            "enabled": dict(self.app_state.detection.exemplar_key_type_enabled),
+            "colors": copy.deepcopy(self.app_state.detection.exemplar_lit_colors),
+            "histograms": {
+                key: value.copy() if value is not None else None
+                for key, value in self.app_state.detection.exemplar_lit_histograms.items()
+            },
+            "unsaved_changes": self.app_state.unsaved_changes,
+        }
 
-    def _restore_overlay_unlit_state(self, overlay_unlit_state) -> None:
-        for overlay, unlit_reference_color, unlit_hist in overlay_unlit_state:
+    def _restore_calibration_state(self, snapshot) -> None:
+        for overlay, unlit_reference_color, unlit_hist in snapshot["overlays"]:
             overlay.unlit_reference_color = unlit_reference_color
             overlay.unlit_hist = unlit_hist.copy() if unlit_hist is not None else None
+        self.app_state.detection.exemplar_key_type_enabled.clear()
+        self.app_state.detection.exemplar_key_type_enabled.update(snapshot["enabled"])
+        self.app_state.detection.exemplar_lit_colors.clear()
+        self.app_state.detection.exemplar_lit_colors.update(copy.deepcopy(snapshot["colors"]))
+        self.app_state.detection.exemplar_lit_histograms.clear()
+        self.app_state.detection.exemplar_lit_histograms.update(
+            {
+                key: value.copy() if value is not None else None
+                for key, value in snapshot["histograms"].items()
+            }
+        )
+        self.app_state.unsaved_changes = snapshot["unsaved_changes"]
+
+    def _set_assisted_calibration_guide_state(self, state: str) -> None:
+        panel = getattr(self.app, "control_panel", None)
+        guide = getattr(panel, "guide_page", None) if panel is not None else None
+        if guide is not None and hasattr(guide, "set_assisted_state"):
+            guide.set_assisted_state(state)
 
     def _run_assisted_auto_calibration(
         self,
@@ -365,7 +397,8 @@ class CalibrationWizardController:
         ):
             return False
 
-        overlay_unlit_state = self._snapshot_overlay_unlit_state()
+        calibration_snapshot = self._snapshot_calibration_state()
+        self._set_assisted_calibration_guide_state("scanning")
         assessment = assess_unlit_frame(baseline_frame_rgb, self.app_state.overlays)
         if assessment.should_warn:
             note_list = ", ".join(item.note_label for item in assessment.likely_lit)
@@ -380,6 +413,7 @@ class CalibrationWizardController:
                 QMessageBox.StandardButton.Cancel,
             )
             if response == QMessageBox.StandardButton.Cancel:
+                self._set_assisted_calibration_guide_state("kept")
                 return False
         capture_unlit_references_from_frame(baseline_frame_rgb, self.app_state.overlays)
 
@@ -413,10 +447,12 @@ class CalibrationWizardController:
         )
         progress.close()
         if proposal.canceled:
-            self._restore_overlay_unlit_state(overlay_unlit_state)
+            self._restore_calibration_state(calibration_snapshot)
+            self._set_assisted_calibration_guide_state("kept")
             return False
         if not self._proposal_has_usable_assignments(proposal):
-            self._restore_overlay_unlit_state(overlay_unlit_state)
+            self._restore_calibration_state(calibration_snapshot)
+            self._set_assisted_calibration_guide_state("none_found")
             QMessageBox.information(
                 self.app if isinstance(self.app, QWidget) else None,
                 translate("CalibrationWizardController", "Assisted Calibration"),
@@ -427,22 +463,34 @@ class CalibrationWizardController:
             )
             return False
 
-        response = QMessageBox.question(
+        dialog = AssistedCalibrationDialog(
+            proposal,
             self.app if isinstance(self.app, QWidget) else None,
-            translate("CalibrationWizardController", "Assisted Calibration"),
-            self._proposal_summary_text(proposal)
-            + "\n\n"
-            + translate("CalibrationWizardController", "Apply these calibration updates?"),
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.Yes,
         )
-        if response != QMessageBox.StandardButton.Yes:
-            self._restore_overlay_unlit_state(overlay_unlit_state)
+        dialog.exec()
+        if dialog.decision is not AssistedCalibrationDecision.USE:
+            self._restore_calibration_state(calibration_snapshot)
+            self._set_assisted_calibration_guide_state(
+                "retry" if dialog.decision is AssistedCalibrationDecision.RETRY else "kept"
+            )
             return False
 
         apply_assisted_calibration_proposal(self.app_state, proposal)
+        for slot, assignment in proposal.assignment_result.assignments.items():
+            if assignment.enabled and assignment.rgb is None:
+                self.app_state.detection.exemplar_key_type_enabled[slot] = calibration_snapshot[
+                    "enabled"
+                ].get(slot, True)
+                self.app_state.detection.exemplar_lit_colors[slot] = copy.deepcopy(
+                    calibration_snapshot["colors"].get(slot)
+                )
+                old_histogram = calibration_snapshot["histograms"].get(slot)
+                self.app_state.detection.exemplar_lit_histograms[slot] = (
+                    old_histogram.copy() if old_histogram is not None else None
+                )
         if self.video_loading_workflow:
             self.video_loading_workflow.save_current_config()
+        self._set_assisted_calibration_guide_state("applied")
         return True
 
     def _queue_assisted_auto_calibration(

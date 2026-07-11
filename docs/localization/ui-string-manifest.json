@@ -129,7 +129,7 @@
     {
       "classification": "dynamic_user_data",
       "context": "setText",
-      "line": 570,
+      "line": 574,
       "origin": "static",
       "role": "arg0",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -543,7 +543,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 580,
+      "line": 584,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -750,7 +750,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 591,
+      "line": 595,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -759,7 +759,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 594,
+      "line": 598,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -768,7 +768,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 588,
+      "line": 592,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -777,7 +777,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 595,
+      "line": 599,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -786,7 +786,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 575,
+      "line": 579,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -840,7 +840,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 597,
+      "line": 601,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -849,7 +849,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 596,
+      "line": 600,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -858,7 +858,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 620,
+      "line": 624,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -867,7 +867,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 618,
+      "line": 622,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -876,7 +876,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 619,
+      "line": 623,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -885,7 +885,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 623,
+      "line": 627,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -894,7 +894,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 590,
+      "line": 594,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -903,7 +903,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 589,
+      "line": 593,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -912,7 +912,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 587,
+      "line": 591,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -1929,7 +1929,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 574,
+      "line": 578,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -2397,7 +2397,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 581,
+      "line": 585,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -3504,7 +3504,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 624,
+      "line": 628,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -4593,7 +4593,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 617,
+      "line": 621,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -4881,7 +4881,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 598,
+      "line": 602,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -4890,7 +4890,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 625,
+      "line": 629,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -4899,7 +4899,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 628,
+      "line": 632,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -4908,7 +4908,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 599,
+      "line": 603,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -4953,7 +4953,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 612,
+      "line": 616,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -4962,7 +4962,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 611,
+      "line": 615,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -4971,7 +4971,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 616,
+      "line": 620,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -4980,7 +4980,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 615,
+      "line": 619,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -4989,7 +4989,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 610,
+      "line": 614,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -4998,7 +4998,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 577,
+      "line": 581,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -5007,7 +5007,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 607,
+      "line": 611,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -5016,7 +5016,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 603,
+      "line": 607,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -5025,7 +5025,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 600,
+      "line": 604,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -5034,7 +5034,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 606,
+      "line": 610,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
@@ -5043,7 +5043,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 576,
+      "line": 580,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",

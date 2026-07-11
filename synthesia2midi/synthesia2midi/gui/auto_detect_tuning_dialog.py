@@ -317,6 +317,10 @@ class AutoDetectTuningDialog(QDialog):
 
         sections_layout.addStretch(1)
         scroll_area.setWidget(sections_container)
+        if not expert:
+            self.basic_scroll_area = scroll_area
+            content_height = sections_container.sizeHint().height()
+            scroll_area.setMinimumHeight(content_height + (2 * scroll_area.frameWidth()))
         tab_layout.addWidget(scroll_area)
         return tab
 

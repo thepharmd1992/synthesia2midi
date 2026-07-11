@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 
 from PySide6.QtCore import QSignalBlocker, QRect, Qt, QTimer
+from PySide6.QtGui import QKeySequence
 from PySide6.QtWidgets import QApplication, QGroupBox, QScrollArea, QTabWidget, QToolButton
 
 from synthesia2midi.app_config import OverlayConfig
@@ -174,6 +175,39 @@ def test_main_window_prioritizes_video_with_settings_gear_and_tool_window(monkey
             "Optional",
             "Language",
         ]
+    finally:
+        app.close()
+
+
+def test_main_window_has_no_conversion_shortcut_that_bypasses_readiness(monkeypatch):
+    app = _make_app(monkeypatch)
+    try:
+        space = QKeySequence(Qt.Key_Space)
+        assert all(action.shortcut() != space for action in app.actions())
+    finally:
+        app.close()
+
+
+def test_permanent_trim_fields_fit_their_supported_maximum(monkeypatch):
+    app = _make_app(monkeypatch)
+    try:
+        app.show()
+        app.settings_toggle_button.click()
+        _show_advanced_section(app.control_panel, "trim")
+        QApplication.processEvents()
+
+        for spinbox in (
+            app.control_panel.start_frame_spin,
+            app.control_panel.end_frame_spin,
+        ):
+            blocker = QSignalBlocker(spinbox)
+            spinbox.setValue(spinbox.maximum())
+            QApplication.processEvents()
+            required = spinbox.lineEdit().fontMetrics().horizontalAdvance(
+                str(spinbox.maximum())
+            )
+            assert spinbox.lineEdit().contentsRect().width() >= required
+            del blocker
     finally:
         app.close()
 

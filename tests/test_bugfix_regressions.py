@@ -387,8 +387,10 @@ def test_calibration_wizard_controller_keeps_wizard_for_keyboard_region_selectio
     wizard = DummyWizardForController("keyboard_region_selection_requested")
     workflow = DummyCalibrationWorkflowForController(wizard)
     selected_signal = RecordingSignal()
+    cancelled_signal = RecordingSignal()
     interaction = SimpleNamespace(
         keyboard_region_selected=selected_signal,
+        selection_cancelled=cancelled_signal,
         enter_keyboard_region_selection_mode=lambda: setattr(interaction, "entered", True),
         entered=False,
     )
@@ -416,6 +418,14 @@ def test_calibration_wizard_controller_keeps_wizard_for_keyboard_region_selectio
     assert interaction.entered is True
     assert selected_signal.connected == [controller._handle_keyboard_region_selected]
     assert cursor_changes == [Qt.CrossCursor]
+    assert cancelled_signal.connected == [controller._handle_canvas_selection_cancelled]
+
+    cancelled_signal.emit("keyboard_region")
+
+    assert controller.calibration_wizard is None
+    assert controller._keyboard_region_requested is False
+    assert selected_signal.connected == []
+    assert cursor_changes == [Qt.CrossCursor, Qt.ArrowCursor]
 
 
 def test_calibration_wizard_controller_places_wizard_in_upper_left_safe_zone():

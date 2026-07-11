@@ -2,6 +2,7 @@ from types import SimpleNamespace
 
 import numpy as np
 from PySide6.QtCore import QRect
+from PySide6.QtWidgets import QDialog
 
 from synthesia2midi.gui.auto_detect_tuning_controller import AutoDetectTuningController
 from synthesia2midi.gui.calibration_wizard_controller import CalibrationWizardController
@@ -85,12 +86,22 @@ class FakeWizard:
     def __init__(self, context=None):
         self.context = context
         self.applied_results = []
+        self.auto_detect_latest_detection_result = (
+            context.get("detection_results") if context is not None else None
+        )
+        self.detected_overlays = ["initial-overlay"]
 
     def get_auto_detect_tuning_context(self):
-        return self.context
+        if self.context is None:
+            return None
+        context = dict(self.context)
+        context["detection_results"] = self.auto_detect_latest_detection_result
+        return context
 
     def apply_auto_detect_results(self, detection_results):
         self.applied_results.append(detection_results)
+        self.auto_detect_latest_detection_result = detection_results
+        self.detected_overlays = ["preview-overlay"]
         if self.context is not None:
             self.context["detection_results"] = detection_results
         return True
@@ -178,7 +189,10 @@ def make_app(*, current_frame_index=4, unsaved_changes=True):
         app_state=SimpleNamespace(
             ui=SimpleNamespace(show_overlays=False),
             video=SimpleNamespace(current_frame_index=current_frame_index),
-            calibration=SimpleNamespace(auto_detect_params={}),
+            calibration=SimpleNamespace(
+                auto_detect_params={},
+                overlay_generation_source="manual",
+            ),
             midi=SimpleNamespace(total_keys=88, leftmost_note_name="A", leftmost_note_octave=0),
             overlays=[SimpleNamespace(x=0, y=0, width=3, height=2)],
             unsaved_changes=unsaved_changes,
@@ -224,11 +238,76 @@ def test_controller_retains_modeless_dialog_until_finished(monkeypatch):
     assert dialog.raised is True
     assert dialog.activated is True
 
-    dialog.finished.emit(0)
+    dialog.finished.emit(QDialog.Accepted)
 
     assert controller.active_dialog is None
     assert app.video_loading_workflow.save_count == 1
-    assert finished == [0]
+    assert finished == [QDialog.Accepted]
+
+
+def test_rejected_tuning_restores_pre_dialog_state_without_saving(monkeypatch):
+    FakeDialog.instances.clear()
+    monkeypatch.setattr(
+        "synthesia2midi.gui.auto_detect_tuning_controller.AutoDetectTuningDialog",
+        FakeDialog,
+    )
+    app = make_app(current_frame_index=12, unsaved_changes=False)
+    app.app_state.calibration.auto_detect_params = {"separator_threshold": 11}
+    app.app_state.overlays = [SimpleNamespace(x=2, y=3, width=4, height=5)]
+    initial_detection = {
+        "total_keys": 88,
+        "leftmost_note": "A",
+        "leftmost_octave": 0,
+        "detected_keys": [{"x": 2}],
+    }
+    wizard = FakeWizard(
+        {
+            "frame_rgb": np.zeros((2, 3, 3), dtype=np.uint8),
+            "keyboard_roi": (0, 0, 3, 2),
+            "fallback_used": False,
+            "detection_results": initial_detection,
+        }
+    )
+    controller = AutoDetectTuningController(app)
+
+    assert controller.open(wizard, use_wizard_context=True) is True
+    preview_detection = {
+        "total_keys": 76,
+        "leftmost_note": "C",
+        "leftmost_octave": 2,
+        "detected_keys": [{"x": 20}],
+    }
+    assert controller.apply_preview_result(preview_detection) is True
+    app.app_state.calibration.auto_detect_params = {"separator_threshold": 37}
+    app.app_state.calibration.overlay_generation_source = "auto"
+    app.app_state.overlays = [SimpleNamespace(x=20, y=30, width=40, height=50)]
+    app.app_state.midi.total_keys = 76
+    app.app_state.midi.leftmost_note_name = "C"
+    app.app_state.midi.leftmost_note_octave = 2
+    app.app_state.unsaved_changes = True
+
+    FakeDialog.instances[-1].finished.emit(QDialog.Rejected)
+
+    assert app.video_loading_workflow.save_count == 0
+    assert app.app_state.calibration.auto_detect_params == {"separator_threshold": 11}
+    assert app.app_state.calibration.overlay_generation_source == "manual"
+    assert [(item.x, item.y, item.width, item.height) for item in app.app_state.overlays] == [
+        (2, 3, 4, 5)
+    ]
+    assert (
+        app.app_state.midi.total_keys,
+        app.app_state.midi.leftmost_note_name,
+        app.app_state.midi.leftmost_note_octave,
+    ) == (88, "A", 0)
+    assert app.app_state.ui.show_overlays is False
+    assert app.app_state.unsaved_changes is False
+    assert app.show_overlays_action.checked_values[-1] is False
+    assert wizard.auto_detect_latest_detection_result == initial_detection
+    assert wizard.detected_overlays == ["initial-overlay"]
+    assert controller.cached_context["detection_results"] == initial_detection
+    assert app.keyboard_canvas.displayed_frames[-1] == 12
+    assert app.control_panel.controls_updates == 2
+    assert app.control_panel.selected_overlay_updates == 2
 
 
 def test_controller_hides_visible_settings_tool_window_until_tuning_closes(monkeypatch):
@@ -333,7 +412,7 @@ def test_preview_result_applies_to_wizard_and_refreshes_existing_ui_flow():
         }
     )
     assert controller.open(wizard, dialog_factory=lambda *args, **kwargs: FakeDialog(*args, **kwargs)) is True
-    detection_results = {"total_keys": 76, "detected_keys": [object()]}
+    detection_results = {"total_keys": 76, "detected_keys": [{"x": 1}]}
 
     applied = controller.apply_preview_result(detection_results)
 

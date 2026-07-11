@@ -1329,8 +1329,8 @@ class ControlPanelQt(QWidget):
         frame_grid.addWidget(start_label, 0, 0)
         
         self.start_frame_spin = QSpinBox()
-        self.start_frame_spin.setMaximumWidth(60)  # 1/10 of default width
         self.start_frame_spin.setRange(0, 999999)
+        self.start_frame_spin.setMinimumWidth(self.start_frame_spin.sizeHint().width())
         self.start_frame_spin.setValue(0)
         self.start_frame_spin.valueChanged.connect(self.start_frame_changed.emit)
         frame_grid.addWidget(self.start_frame_spin, 0, 1)
@@ -1344,8 +1344,8 @@ class ControlPanelQt(QWidget):
         frame_grid.addWidget(end_label, 1, 0)
         
         self.end_frame_spin = QSpinBox()
-        self.end_frame_spin.setMaximumWidth(60)  # 1/10 of default width
         self.end_frame_spin.setRange(-1, 999999)
+        self.end_frame_spin.setMinimumWidth(self.end_frame_spin.sizeHint().width())
         self.end_frame_spin.setValue(-1)
         self.end_frame_spin.valueChanged.connect(self.end_frame_changed.emit)
         frame_grid.addWidget(self.end_frame_spin, 1, 1)

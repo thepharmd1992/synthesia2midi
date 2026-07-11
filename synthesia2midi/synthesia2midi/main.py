@@ -53,6 +53,7 @@ from synthesia2midi.gui.video_empty_state import VideoEmptyState
 from synthesia2midi.gui.video_session_ui_controller import VideoSessionUiController
 from synthesia2midi.gui.video_controls import VideoControls
 from synthesia2midi.gui.window_manager import WindowManager
+from synthesia2midi.gui.wheel_safe_controls import install_wheel_safe_controls
 from synthesia2midi.runtime_paths import detect_runtime_paths
 from synthesia2midi.video_loader import VideoSession
 from synthesia2midi.workflows.detection_manager import DetectionManager
@@ -76,6 +77,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
 
     def __init__(self):
         super().__init__()
+        install_wheel_safe_controls(QApplication.instance())
         self.setWindowTitle(APP_NAME)
         # Set initial size from the available display; the window manager adjusts
         # splitter defaults after the UI is built.
@@ -435,12 +437,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
 
     def _bind_hotkeys(self):
         # Control+S is already handled by the menu action
-        # Space key for conversion
-        space_action = QAction(self)
-        space_action.setShortcut(Qt.Key_Space)
-        space_action.triggered.connect(self.midi_conversion_controller.start_conversion_process)
-        self.addAction(space_action)
-
         # Page Up/Down and Left/Right for navigation
         pgup_action = QAction(self)
         pgup_action.setShortcut(Qt.Key_PageUp)

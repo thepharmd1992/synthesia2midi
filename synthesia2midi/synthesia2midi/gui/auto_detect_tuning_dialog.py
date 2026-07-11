@@ -114,6 +114,7 @@ class AutoDetectTuningDialog(QDialog):
         self.reset_all_button = QPushButton(
             QCoreApplication.translate("AutoDetectTuningDialog", "Reset to Recommended Settings")
         )
+        self.reset_all_button.setAutoDefault(False)
         self.reset_all_button.clicked.connect(self._reset_all_to_defaults)
         controls_row.addWidget(self.reset_all_button)
         controls_row.addStretch()
@@ -198,6 +199,7 @@ class AutoDetectTuningDialog(QDialog):
         save_btn.clicked.connect(self.accept)
         cancel_btn = buttons.addButton(QDialogButtonBox.Cancel)
         if cancel_btn:
+            cancel_btn.setAutoDefault(False)
             cancel_btn.clicked.connect(self.reject)
         layout.addWidget(buttons)
 
@@ -299,6 +301,7 @@ class AutoDetectTuningDialog(QDialog):
                 content_layout.addLayout(grid)
 
             reset_section_btn = QPushButton(QCoreApplication.translate("AutoDetectTuningDialog", "Reset Section"))
+            reset_section_btn.setAutoDefault(False)
             reset_section_btn.clicked.connect(
                 lambda _checked=False, keys=tuple(category_keys): self._reset_keys_to_defaults(keys)
             )

@@ -42,6 +42,7 @@ class CalibrationWizardController:
         self._edit_current_calibration_requested = False
         self._manual_edit_current_calibration_requested = False
         self._pending_assisted_calibration_context: Optional[tuple[np.ndarray, int]] = None
+        self._canvas_selection_cancel_connected = False
 
     @property
     def app_state(self):
@@ -203,6 +204,14 @@ class CalibrationWizardController:
             self.keyboard_canvas.interaction.keyboard_region_selected.connect(
                 self._handle_keyboard_region_selected
             )
+            if (
+                hasattr(self.keyboard_canvas.interaction, "selection_cancelled")
+                and not self._canvas_selection_cancel_connected
+            ):
+                self.keyboard_canvas.interaction.selection_cancelled.connect(
+                    self._handle_canvas_selection_cancelled
+                )
+                self._canvas_selection_cancel_connected = True
             logging.info("Signal connected successfully")
 
             # Enter selection mode
@@ -217,6 +226,21 @@ class CalibrationWizardController:
                 translate("CalibrationWizardController", "Canvas interaction system not available."),
             )
             logging.error("Canvas interaction system not available")
+
+    def _handle_canvas_selection_cancelled(self, selection_type: str) -> None:
+        if selection_type != "keyboard_region" or not self._keyboard_region_requested:
+            return
+        try:
+            self.keyboard_canvas.interaction.keyboard_region_selected.disconnect(
+                self._handle_keyboard_region_selected
+            )
+        except TypeError:
+            self.keyboard_canvas.interaction.keyboard_region_selected.disconnect()
+        except RuntimeError:
+            pass
+        self.keyboard_canvas.setCursor(Qt.ArrowCursor)
+        self._clear_calibration_wizard()
+        logging.info("Keyboard region selection cancelled; calibration wizard cleaned up")
 
     def _handle_edit_current_calibration_request(self):
         """Open tuning dialog for the currently loaded calibration without redrawing ROI."""

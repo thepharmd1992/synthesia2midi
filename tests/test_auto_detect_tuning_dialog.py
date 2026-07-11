@@ -1,7 +1,9 @@
 import numpy as np
 from PySide6.QtCore import QCoreApplication
 from PySide6.QtGui import QFont
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QTabWidget
+from PySide6.QtCore import Qt
 
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.detection.auto_detect_param_specs import (
@@ -133,3 +135,19 @@ def test_auto_detect_tuning_dialog_uses_user_guidance_copy():
         assert all(not section._content.isVisible() for section in dialog.expert_sections)
     finally:
         dialog.close()
+
+
+def test_return_activates_save_instead_of_reset():
+    QApplication.instance() or QApplication([])
+    dialog = _make_dialog()
+    accepted = []
+    dialog.accepted.connect(lambda: accepted.append(True))
+    dialog.show()
+    QApplication.processEvents()
+    slider = dialog._control_widgets["white_edge_left_shift_ticks"]["slider"]
+    slider.setFocus()
+
+    QTest.keyClick(slider, Qt.Key_Return)
+    QApplication.processEvents()
+
+    assert accepted == [True]

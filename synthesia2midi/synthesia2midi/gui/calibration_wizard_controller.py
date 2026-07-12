@@ -576,9 +576,6 @@ class CalibrationWizardController:
                             else None
                         )
                 else:
-                    self.app_state.detection.exemplar_key_type_enabled[slot] = calibration_snapshot[
-                        "enabled"
-                    ].get(slot, True)
                     self.app_state.detection.exemplar_lit_colors[slot] = copy.deepcopy(
                         old_color
                     )

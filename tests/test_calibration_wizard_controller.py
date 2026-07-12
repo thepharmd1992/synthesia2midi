@@ -150,6 +150,38 @@ def _partial_family_proposal(family_number=3) -> AssistedCalibrationProposal:
     )
 
 
+def _one_family_proposal() -> AssistedCalibrationProposal:
+    family_one_colors = {
+        "LW": (220, 40, 80),
+        "LB": (180, 20, 60),
+    }
+    assignments = {
+        slot: AssignedExemplar(
+            slot=slot,
+            rgb=family_one_colors.get(slot),
+            hist=np.array([1.0], dtype=np.float32) if slot in family_one_colors else None,
+            source=None,
+            enabled=slot in family_one_colors,
+        )
+        for slot in SUPPORTED_EXEMPLAR_SLOTS
+    }
+    return AssistedCalibrationProposal(
+        baseline_frame_index=0,
+        unlit_assessment=UnlitFrameAssessment(status="clean"),
+        assignment_result=ExemplarAssignmentResult(
+            assignments=assignments,
+            missing_slots=(),
+            disabled_slots=tuple(
+                slot for slot in SUPPORTED_EXEMPLAR_SLOTS if slot not in family_one_colors
+            ),
+            family_count=1,
+            confidence=0.9,
+        ),
+        scanned_frame_count=4,
+        candidate_count=2,
+    )
+
+
 def _state_signature(state: AppState):
     return {
         "enabled": dict(state.detection.exemplar_key_type_enabled),
@@ -325,6 +357,39 @@ def test_accepting_higher_color_family_enables_separate_assignment(monkeypatch, 
     selected_slot = slots_for_family(family_number)[0]
     assert state.detection.exemplar_lit_colors[selected_slot] == (220, 40, 80)
     assert state.detection.hand_assignment_enabled is True
+
+
+def test_accepting_one_family_keeps_absent_legacy_family_disabled_and_conversion_ready(monkeypatch):
+    controller, state = _controller_with_seeded_state()
+    state.video.filepath = "/tmp/source.mp4"
+    state.midi.tempo = 120
+    state.detection.detection_threshold = 0.8
+    state.detection.use_histogram_detection = False
+    state.detection.hand_assignment_enabled = False
+    for slot in SUPPORTED_EXEMPLAR_SLOTS:
+        state.detection.exemplar_key_type_enabled[slot] = slot in {"LW", "LB", "RW", "RB"}
+        state.detection.exemplar_lit_colors[slot] = None
+        state.detection.exemplar_lit_histograms[slot] = None
+    panel = ControlPanelQt(app_state=state)
+    controller.app.control_panel = panel
+    _patch_assisted_dependencies(
+        monkeypatch,
+        state,
+        _one_family_proposal(),
+        decision=AssistedCalibrationDecision.USE,
+    )
+
+    try:
+        assert controller._run_assisted_auto_calibration(
+            np.zeros((4, 4, 3), dtype=np.uint8), 0
+        ) is True
+
+        assert state.detection.exemplar_key_type_enabled["RW"] is False
+        assert state.detection.exemplar_key_type_enabled["RB"] is False
+        assert panel.convert_button.isEnabled()
+    finally:
+        panel.close()
+        panel.deleteLater()
 
 
 def test_accepting_partial_new_family_keeps_missing_morphology_required(monkeypatch):

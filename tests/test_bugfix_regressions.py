@@ -977,7 +977,7 @@ def test_assisted_calibration_retry_restores_complete_prior_calibration(monkeypa
     assert save_log == []
 
 
-def test_assisted_calibration_accept_preserves_prior_slots_not_found_by_scan(monkeypatch):
+def test_assisted_calibration_accept_preserves_prior_missing_family_morphology(monkeypatch):
     from synthesia2midi.gui.assisted_calibration_dialog import AssistedCalibrationDecision
 
     QApplication.instance() or QApplication([])
@@ -995,7 +995,7 @@ def test_assisted_calibration_accept_preserves_prior_slots_not_found_by_scan(mon
         candidate_count=1,
         assignments={
             "LW": _make_assigned_exemplar("LW", rgb=(100, 110, 120)),
-            "LB": _make_assigned_exemplar("LB", rgb=None, enabled=False),
+            "LB": _make_assigned_exemplar("LB", rgb=None, enabled=True),
         },
         family_count=1,
     )

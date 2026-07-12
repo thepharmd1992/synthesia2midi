@@ -2262,7 +2262,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 670,
+      "line": 667,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -2271,7 +2271,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 659,
+      "line": 656,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -3828,7 +3828,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 657,
+      "line": 654,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -3855,7 +3855,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 665,
+      "line": 662,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",

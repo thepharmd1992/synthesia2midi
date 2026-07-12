@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from dataclasses import dataclass, field, replace
+from itertools import permutations
 from typing import TYPE_CHECKING, Callable, Dict, Literal, Optional, Sequence, Tuple
 
 import cv2
@@ -272,6 +273,13 @@ class _DiscoveryEvidenceStore:
 class _RefinedSlotState:
     candidate: ExemplarCandidate
     score: float
+
+
+@dataclass(frozen=True)
+class _FamilyEarlyStopEvidence:
+    hue: float
+    white_events: frozenset[tuple[int, int]]
+    black_events: frozenset[tuple[int, int]]
 
 
 class _BoundedFrameCache:
@@ -916,6 +924,83 @@ def _refine_new_stable_slots(
     )
 
 
+def _complete_four_family_evidence(
+    assignments,
+    event_by_evidence_id: dict[int, _DiscoveryEvent],
+    evidence_store: _DiscoveryEvidenceStore,
+    settings: ExemplarScanSettings,
+    stride: int,
+) -> Optional[tuple[_FamilyEarlyStopEvidence, ...]]:
+    if len(assignments) != 4 or not all(assignment.complete for assignment in assignments):
+        return None
+
+    required_events = max(1, settings.early_stop_min_slot_events)
+    required_span = stride * max(0, settings.early_stop_min_slot_span_steps)
+    evidence: list[_FamilyEarlyStopEvidence] = []
+    for assignment in assignments:
+        events_by_color: dict[KeyColor, frozenset[tuple[int, int]]] = {}
+        family_hue: Optional[float] = None
+        for key_color, item in (("W", assignment.natural), ("B", assignment.accidental)):
+            assert item is not None
+            event = event_by_evidence_id[id(item)]
+            cluster = evidence_store.cluster_for(event.candidate)
+            if cluster is None:
+                return None
+            family_hue = cluster.hue()
+            supporting_events = [
+                supporting_event
+                for supporting_event in cluster.events_by_color[key_color]
+                if supporting_event.candidate.confidence
+                >= settings.early_stop_min_confidence
+            ]
+            supporting_frames = sorted(
+                {supporting_event.candidate.frame_index for supporting_event in supporting_events}
+            )
+            if len(supporting_frames) < required_events:
+                return None
+            if supporting_frames[-1] - supporting_frames[0] < required_span:
+                return None
+            events_by_color[key_color] = frozenset(
+                (supporting_event.candidate.key_id, supporting_event.candidate.frame_index)
+                for supporting_event in supporting_events
+            )
+        assert family_hue is not None
+        evidence.append(
+            _FamilyEarlyStopEvidence(
+                hue=family_hue,
+                white_events=events_by_color["W"],
+                black_events=events_by_color["B"],
+            )
+        )
+    return tuple(sorted(evidence, key=lambda item: item.hue))
+
+
+def _match_four_family_evidence(
+    current: tuple[_FamilyEarlyStopEvidence, ...],
+    initial: tuple[_FamilyEarlyStopEvidence, ...],
+    family_hue_threshold: float = 22.0,
+) -> Optional[tuple[tuple[_FamilyEarlyStopEvidence, _FamilyEarlyStopEvidence], ...]]:
+    if len(current) != 4 or len(initial) != 4:
+        return None
+    matched = min(
+        (
+            tuple(zip(permutation, initial))
+            for permutation in permutations(current)
+        ),
+        key=lambda pairs: sum(
+            _circular_hue_distance(current_family.hue, initial_family.hue)
+            for current_family, initial_family in pairs
+        ),
+    )
+    if any(
+        _circular_hue_distance(current_family.hue, initial_family.hue)
+        > family_hue_threshold
+        for current_family, initial_family in matched
+    ):
+        return None
+    return matched
+
+
 def _scan_candidates_with_diagnostics(
     frame_provider: FrameProvider,
     overlays: Sequence[OverlayConfig],
@@ -933,6 +1018,8 @@ def _scan_candidates_with_diagnostics(
     end_frame = max(start_frame, end_frame)
     stride = max(1, settings.coarse_stride)
     frame_cache = _BoundedFrameCache(stride + (2 * settings.refine_radius) + 1)
+    complete_since_frame: Optional[int] = None
+    confirmation_evidence: Optional[tuple[_FamilyEarlyStopEvidence, ...]] = None
 
     for frame_index in range(start_frame, end_frame + 1, stride):
         if progress_callback is not None and not progress_callback(frame_index, end_frame):
@@ -991,7 +1078,7 @@ def _scan_candidates_with_diagnostics(
                 stride,
                 diagnostics,
             )
-            if _refine_new_stable_slots(
+            _refine_new_stable_slots(
                 assignments,
                 event_by_evidence_id,
                 overlays_by_key,
@@ -1002,8 +1089,43 @@ def _scan_candidates_with_diagnostics(
                 settings,
                 diagnostics,
                 refined_slots,
-            ):
-                break
+            )
+            complete_evidence = _complete_four_family_evidence(
+                assignments,
+                event_by_evidence_id,
+                evidence_store,
+                settings,
+                stride,
+            )
+            if complete_evidence is None:
+                complete_since_frame = None
+                confirmation_evidence = None
+            elif complete_since_frame is None:
+                complete_since_frame = frame_index
+                confirmation_evidence = complete_evidence
+            elif confirmation_evidence is not None:
+                matched_evidence = _match_four_family_evidence(
+                    complete_evidence,
+                    confirmation_evidence,
+                )
+                if matched_evidence is None:
+                    complete_since_frame = frame_index
+                    confirmation_evidence = complete_evidence
+                    continue
+                confirmation_span = stride * max(
+                    0,
+                    settings.early_stop_confirmation_steps,
+                )
+                has_fresh_slot_evidence = all(
+                    current_family.white_events - initial_family.white_events
+                    and current_family.black_events - initial_family.black_events
+                    for current_family, initial_family in matched_evidence
+                )
+                if (
+                    frame_index - complete_since_frame >= confirmation_span
+                    and has_fresh_slot_evidence
+                ):
+                    break
 
     if active_events_by_key:
         for active_event in active_events_by_key.values():

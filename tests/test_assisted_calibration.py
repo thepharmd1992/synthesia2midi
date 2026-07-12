@@ -116,8 +116,15 @@ _SCANNER_FAMILY_COLORS = (
     ((45, 210, 70), (25, 160, 50)),
 )
 
+_WEAK_SCANNER_FAMILY_COLORS = (
+    ((245, 210, 210), (60, 50, 50)),
+    ((210, 245, 210), (50, 60, 50)),
+    ((210, 210, 245), (50, 50, 60)),
+    ((245, 210, 245), (60, 50, 60)),
+)
 
-def _four_family_scanner_fixture(events):
+
+def _four_family_scanner_fixture(events, *, colors=_SCANNER_FAMILY_COLORS):
     overlays = []
     for family_index in range(4):
         for morphology_index, key_color in enumerate(("W", "B")):
@@ -151,9 +158,7 @@ def _four_family_scanner_fixture(events):
                     overlay = overlays[overlay_index]
                     x1 = int(overlay.x)
                     x2 = x1 + int(overlay.width)
-                    frame[0:4, x1:x2] = _SCANNER_FAMILY_COLORS[family_index][
-                        morphology_index
-                    ]
+                    frame[0:4, x1:x2] = colors[family_index][morphology_index]
         return frame
 
     return overlays, frame_provider
@@ -163,6 +168,14 @@ def _two_bursts(family_index, first_frame):
     return (
         (family_index, first_frame, first_frame + 10),
         (family_index, first_frame + 30, first_frame + 40),
+    )
+
+
+def _four_family_bursts(first_frame):
+    return tuple(
+        event
+        for family_index in range(4)
+        for event in _two_bursts(family_index, first_frame)
     )
 
 
@@ -331,12 +344,41 @@ def test_scanner_reactivates_refinement_for_late_third_family():
     assert diagnostics.refined_events == 6
 
 
-def test_scanner_stop_before_requested_end_after_four_complete_families():
+def test_scanner_does_not_early_stop_for_weak_four_family_evidence():
+    overlays, frame_provider = _four_family_scanner_fixture(
+        _four_family_bursts(100),
+        colors=_WEAK_SCANNER_FAMILY_COLORS,
+    )
+
+    _candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        0,
+        1000,
+    )
+
+    assert canceled is False
+    assert scanned == 101
+
+
+def test_scanner_waits_for_confirmation_after_repeated_four_family_animation_pulses():
+    overlays, frame_provider = _four_family_scanner_fixture(_four_family_bursts(100))
+
+    _candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        0,
+        1000,
+    )
+
+    assert canceled is False
+    assert scanned == 101
+
+
+def test_scanner_stops_early_after_four_family_guards_pass():
     events = (
-        *_two_bursts(0, 100),
-        *_two_bursts(1, 200),
-        *_two_bursts(2, 900),
-        *_two_bursts(3, 1100),
+        *_four_family_bursts(100),
+        *((family_index, 220, 230) for family_index in range(4)),
     )
     overlays, frame_provider = _four_family_scanner_fixture(events)
     diagnostics = ExemplarScanDiagnostics()
@@ -345,7 +387,7 @@ def test_scanner_stop_before_requested_end_after_four_complete_families():
         frame_provider,
         overlays,
         0,
-        5000,
+        1000,
         diagnostics=diagnostics,
     )
 
@@ -365,7 +407,8 @@ def test_scanner_stop_before_requested_end_after_four_complete_families():
             "COLOR_4_B",
         )
     )
-    assert scanned == diagnostics.discovery_frames < 501
+    assert scanned == diagnostics.discovery_frames < 101
+    assert scanned >= 25
 
 
 def test_scanner_rejects_one_frame_intro_flash_as_unstable():

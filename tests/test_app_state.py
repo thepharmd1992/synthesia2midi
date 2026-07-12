@@ -31,3 +31,34 @@ def test_effective_exemplar_maps_preserve_unknown_existing_entries():
     assert config.get_effective_exemplar_lit_histograms()["LEGACY_DYNAMIC"] == "histogram"
     assert config.get_effective_exemplar_lit_colors()["COLOR_4_B"] is None
     assert config.get_effective_exemplar_lit_histograms()["COLOR_4_B"] is None
+
+
+def test_absent_legacy_enabled_flags_remain_effective_in_partial_map():
+    slots = (
+        "LW",
+        "LB",
+        "RW",
+        "RB",
+        "COLOR_3_W",
+        "COLOR_3_B",
+        "COLOR_4_W",
+        "COLOR_4_B",
+    )
+    config = DetectionConfig(
+        exemplar_lit_colors={slot: (1, 2, 3) for slot in slots},
+        exemplar_lit_histograms={slot: "histogram" for slot in slots},
+        exemplar_key_type_enabled={"LW": False},
+    )
+
+    assert config.get_required_exemplar_types() == ["LB", "RW", "RB"]
+
+    effective_colors = config.get_effective_exemplar_lit_colors()
+    effective_histograms = config.get_effective_exemplar_lit_histograms()
+    for slot in ("LB", "RW", "RB"):
+        assert effective_colors[slot] == (1, 2, 3)
+        assert effective_histograms[slot] == "histogram"
+    assert effective_colors["LW"] is None
+    assert effective_histograms["LW"] is None
+    for slot in ("COLOR_3_W", "COLOR_3_B", "COLOR_4_W", "COLOR_4_B"):
+        assert effective_colors[slot] is None
+        assert effective_histograms[slot] is None

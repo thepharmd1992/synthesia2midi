@@ -26,9 +26,14 @@ def _default_exemplar_lit_colors() -> Dict[str, Optional[Tuple[int, int, int]]]:
     return {slot: None for slot in SUPPORTED_EXEMPLAR_SLOTS}
 
 
+def _default_exemplar_key_type_enabled_for_slot(slot: str) -> bool:
+    family = family_for_slot(slot)
+    return family is not None and family.number <= 2
+
+
 def _default_exemplar_key_type_enabled() -> Dict[str, bool]:
     return {
-        slot: family_for_slot(slot).number <= 2
+        slot: _default_exemplar_key_type_enabled_for_slot(slot)
         for slot in SUPPORTED_EXEMPLAR_SLOTS
     }
 
@@ -121,7 +126,9 @@ class DetectionConfig:
         return [
             slot
             for slot in SUPPORTED_EXEMPLAR_SLOTS
-            if self.exemplar_key_type_enabled.get(slot, False)
+            if self.exemplar_key_type_enabled.get(
+                slot, _default_exemplar_key_type_enabled_for_slot(slot)
+            )
         ]
 
     def get_required_base_exemplar_types(self) -> List[str]:
@@ -134,7 +141,9 @@ class DetectionConfig:
         for slot in SUPPORTED_EXEMPLAR_SLOTS:
             effective_colors[slot] = (
                 self.exemplar_lit_colors.get(slot)
-                if self.exemplar_key_type_enabled.get(slot, False)
+                if self.exemplar_key_type_enabled.get(
+                    slot, _default_exemplar_key_type_enabled_for_slot(slot)
+                )
                 else None
             )
         return effective_colors
@@ -145,7 +154,9 @@ class DetectionConfig:
         for slot in SUPPORTED_EXEMPLAR_SLOTS:
             effective_histograms[slot] = (
                 self.exemplar_lit_histograms.get(slot)
-                if self.exemplar_key_type_enabled.get(slot, False)
+                if self.exemplar_key_type_enabled.get(
+                    slot, _default_exemplar_key_type_enabled_for_slot(slot)
+                )
                 else None
             )
         return effective_histograms

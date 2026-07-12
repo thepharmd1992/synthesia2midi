@@ -2,8 +2,10 @@ import pytest
 
 import synthesia2midi.detection.color_family_assignment as assignment_module
 from synthesia2midi.detection.color_family_assignment import (
+    ANCHOR_CONFLICT_WARNING,
     FamilyAssignment,
     FamilyEvidence,
+    TOO_MANY_FAMILIES_WARNING,
     assign_family_slots,
     cluster_family_evidence,
 )
@@ -85,6 +87,11 @@ def test_single_flash_is_not_a_stable_family():
     assert assign_family_slots(evidence) == ([], ())
 
 
+def test_scanner_warning_constants_are_stable_codes():
+    assert TOO_MANY_FAMILIES_WARNING == "too_many_families"
+    assert ANCHOR_CONFLICT_WARNING == "anchor_conflict"
+
+
 def test_single_multi_frame_flash_is_not_a_stable_family():
     evidence = [
         FamilyEvidence(10, 1, "natural", FAMILY_COLORS[0][0], 1.0),
@@ -111,6 +118,20 @@ def test_nearby_hues_merge_into_one_stable_family():
     assert warnings == ()
 
 
+def test_reference_orange_and_yellow_stay_distinct_while_shades_merge():
+    evidence = [
+        FamilyEvidence(10, 1, "natural", (255, 128, 0), 0.95),
+        FamilyEvidence(30, 2, "natural", (255, 145, 0), 0.8),
+        FamilyEvidence(20, 3, "natural", (255, 255, 0), 0.95),
+        FamilyEvidence(40, 4, "natural", (250, 245, 10), 0.8),
+    ]
+
+    clusters = cluster_family_evidence(evidence)
+
+    assert len(clusters) == 2
+    assert sorted(len(cluster) for cluster in clusters) == [2, 2]
+
+
 def test_five_stable_families_keep_four_strongest_and_warn():
     evidence: list[FamilyEvidence] = []
     scores = (0.95, 0.9, 0.85, 0.8, 0.25)
@@ -129,7 +150,7 @@ def test_five_stable_families_keep_four_strongest_and_warn():
     assert {assignment.natural.rgb for assignment in assignments} == {
         colors[0] for colors in FAMILY_COLORS[:4]
     }
-    assert warnings == ("More than four stable color families were found.",)
+    assert warnings == (TOO_MANY_FAMILIES_WARNING,)
 
 
 def test_low_saturation_and_dark_evidence_do_not_form_families():
@@ -170,7 +191,7 @@ def test_conflicting_morphology_anchors_warn_without_reusing_either_identity():
     assignments, warnings = assign_family_slots(evidence, saved_anchors=saved_anchors)
 
     assert assignments[0].family_number == 3
-    assert warnings == ("Evidence conflicts with two saved color family identities.",)
+    assert warnings == (ANCHOR_CONFLICT_WARNING,)
 
 
 def test_agglomerative_clustering_keeps_distance_work_bounded(monkeypatch):

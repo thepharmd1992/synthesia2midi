@@ -7,10 +7,15 @@ from synthesia2midi.detection.assisted_calibration import (
     ExemplarAssignmentResult,
     UnlitFrameAssessment,
 )
+from synthesia2midi.detection.color_family_assignment import (
+    ANCHOR_CONFLICT_WARNING,
+    TOO_MANY_FAMILIES_WARNING,
+)
 from synthesia2midi.gui.assisted_calibration_dialog import (
     AssistedCalibrationDecision,
     AssistedCalibrationDialog,
 )
+from synthesia2midi.localization import install_translator
 
 
 def _assignment(slot, rgb=None, *, enabled=True):
@@ -23,7 +28,7 @@ def _assignment(slot, rgb=None, *, enabled=True):
     )
 
 
-def _proposal():
+def _proposal(*, warnings=(TOO_MANY_FAMILIES_WARNING,)):
     assignments = {
         "LW": _assignment("LW", (220, 40, 30)),
         "LB": _assignment("LB", (150, 25, 20)),
@@ -42,7 +47,7 @@ def _proposal():
         ),
         scanned_frame_count=70,
         candidate_count=12,
-        warnings=("More than four stable color families were found.",),
+        warnings=warnings,
     )
 
 
@@ -87,6 +92,26 @@ def test_assisted_dialog_defaults_to_use_and_close_keeps_current_examples():
     finally:
         dialog.close()
         dialog.deleteLater()
+
+
+def test_assisted_dialog_translates_scanner_warning_codes():
+    app = QApplication.instance() or QApplication([])
+    assert install_translator(app, "es") == "es"
+    dialog = AssistedCalibrationDialog(
+        _proposal(warnings=(TOO_MANY_FAMILIES_WARNING, ANCHOR_CONFLICT_WARNING))
+    )
+    try:
+        assert dialog.warning_banner.text() == (
+            "Se encontraron más de cuatro familias de colores estables.\n"
+            "La evidencia entra en conflicto con dos identidades de familias "
+            "de colores guardadas."
+        )
+        assert TOO_MANY_FAMILIES_WARNING not in dialog.warning_banner.text()
+        assert ANCHOR_CONFLICT_WARNING not in dialog.warning_banner.text()
+    finally:
+        dialog.close()
+        dialog.deleteLater()
+        install_translator(app, "en")
 
 
 def test_assisted_dialog_stacks_actions_for_long_translations():

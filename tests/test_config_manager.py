@@ -163,6 +163,16 @@ def test_old_ini_without_dynamic_enabled_section_preserves_legacy_defaults(tmp_p
         encoding="utf-8",
     )
     app_state = AppState()
+    for index, slot in enumerate(("COLOR_3_W", "COLOR_3_B", "COLOR_4_W", "COLOR_4_B")):
+        app_state.detection.exemplar_key_type_enabled[slot] = True
+        app_state.detection.exemplar_lit_colors[slot] = (
+            10 + index,
+            20 + index,
+            30 + index,
+        )
+        app_state.detection.exemplar_lit_histograms[slot] = np.array(
+            [index, index + 0.5], dtype=np.float32
+        )
     manager = ConfigManager(app_state, runtime_paths=_runtime_paths(tmp_path))
 
     assert manager.load_config(str(old_ini)) is True
@@ -176,6 +186,9 @@ def test_old_ini_without_dynamic_enabled_section_preserves_legacy_defaults(tmp_p
         "COLOR_4_W": False,
         "COLOR_4_B": False,
     }
+    for slot in ("COLOR_3_W", "COLOR_3_B", "COLOR_4_W", "COLOR_4_B"):
+        assert app_state.detection.exemplar_lit_colors[slot] is None
+        assert app_state.detection.exemplar_lit_histograms[slot] is None
 
 
 def test_four_family_enabled_flags_colors_and_histograms_round_trip(tmp_path):

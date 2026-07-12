@@ -76,6 +76,35 @@ def test_add_color_family_enables_first_unused_family_and_stops_at_four():
     assert control_panel.updated == 1
 
 
+def test_manual_add_color_three_and_four_enables_separate_channel_assignment():
+    app_state = FakeAppState()
+    app_state.detection.exemplar_key_type_enabled.update(
+        {"RW": True, "RB": True}
+    )
+    control_panel = SimpleNamespace(
+        updated=0,
+        update_controls_from_state=lambda: setattr(
+            control_panel, "updated", control_panel.updated + 1
+        ),
+    )
+    app = SimpleNamespace(app_state=app_state, control_panel=control_panel)
+    controller = MainActionController(app)
+
+    controller.handle_add_additional_color()
+
+    assert app_state.detection.exemplar_key_type_enabled["COLOR_3_W"] is True
+    assert app_state.detection.exemplar_key_type_enabled["COLOR_3_B"] is True
+    assert app_state.detection.hand_assignment_enabled is True
+
+    app_state.detection.hand_assignment_enabled = False
+    controller.handle_add_additional_color()
+
+    assert app_state.detection.exemplar_key_type_enabled["COLOR_4_W"] is True
+    assert app_state.detection.exemplar_key_type_enabled["COLOR_4_B"] is True
+    assert app_state.detection.hand_assignment_enabled is True
+    assert control_panel.updated == 2
+
+
 def test_remove_calibrated_color_family_no_response_preserves_all_data(monkeypatch):
     app_state = FakeAppState()
     slots = ("COLOR_3_W", "COLOR_3_B")

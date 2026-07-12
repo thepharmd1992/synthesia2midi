@@ -13,14 +13,15 @@ Morphology = Literal["natural", "accidental"]
 RGB = tuple[int, int, int]
 SavedFamilyAnchors = Mapping[int, Mapping[Morphology, RGB | None]]
 
-DEFAULT_FAMILY_HUE_THRESHOLD = 22.0
+# HSV hue values use OpenCV's 0-180 scale, so 11 units represent 22 degrees.
+DEFAULT_FAMILY_HUE_THRESHOLD = 11.0
 DEFAULT_MIN_TEMPORAL_SEPARATION = 2
 DEFAULT_MIN_SATURATION = 35.0
 DEFAULT_MIN_VALUE = 20.0
 MAX_COLOR_FAMILIES = 4
 
-TOO_MANY_FAMILIES_WARNING = "More than four stable color families were found."
-ANCHOR_CONFLICT_WARNING = "Evidence conflicts with two saved color family identities."
+TOO_MANY_FAMILIES_WARNING = "too_many_families"
+ANCHOR_CONFLICT_WARNING = "anchor_conflict"
 
 
 @dataclass(frozen=True)

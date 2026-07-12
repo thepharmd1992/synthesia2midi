@@ -54,7 +54,31 @@
       "locations": [
         {
           "filename": "../gui/assisted_calibration_dialog.py",
-          "line": 29
+          "line": 33
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AssistedCalibrationDialog",
+      "source": "More than four stable color families were found.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/assisted_calibration_dialog.py",
+          "line": 40
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AssistedCalibrationDialog",
+      "source": "Evidence conflicts with two saved color family identities.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/assisted_calibration_dialog.py",
+          "line": 43
         }
       ],
       "notes": ""
@@ -69,7 +93,7 @@
       "locations": [
         {
           "filename": "../gui/assisted_calibration_dialog.py",
-          "line": 40
+          "line": 53
         }
       ],
       "notes": ""
@@ -81,7 +105,7 @@
       "locations": [
         {
           "filename": "../gui/assisted_calibration_dialog.py",
-          "line": 74
+          "line": 93
         }
       ],
       "notes": ""
@@ -93,7 +117,7 @@
       "locations": [
         {
           "filename": "../gui/assisted_calibration_dialog.py",
-          "line": 78
+          "line": 97
         }
       ],
       "notes": ""
@@ -105,7 +129,7 @@
       "locations": [
         {
           "filename": "../gui/assisted_calibration_dialog.py",
-          "line": 82
+          "line": 101
         }
       ],
       "notes": ""
@@ -1971,7 +1995,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 638
+          "line": 652
         }
       ],
       "notes": ""
@@ -1983,7 +2007,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 640
+          "line": 654
         }
       ],
       "notes": ""
@@ -1995,7 +2019,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 646
+          "line": 660
         }
       ],
       "notes": ""
@@ -2007,7 +2031,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 651
+          "line": 665
         }
       ],
       "notes": ""
@@ -4561,7 +4585,7 @@
       "locations": [
         {
           "filename": "../gui/main_action_controller.py",
-          "line": 170
+          "line": 172
         }
       ],
       "notes": ""
@@ -4575,7 +4599,7 @@
       "locations": [
         {
           "filename": "../gui/main_action_controller.py",
-          "line": 173
+          "line": 175
         }
       ],
       "notes": ""

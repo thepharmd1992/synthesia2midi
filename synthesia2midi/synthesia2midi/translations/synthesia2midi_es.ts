@@ -4,12 +4,22 @@
 <context>
     <name>AssistedCalibrationDialog</name>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="29"/>
+        <location filename="../gui/assisted_calibration_dialog.py" line="33"/>
         <source>Assisted Calibration</source>
         <translation>Calibración asistida</translation>
     </message>
     <message>
         <location filename="../gui/assisted_calibration_dialog.py" line="40"/>
+        <source>More than four stable color families were found.</source>
+        <translation>Se encontraron más de cuatro familias de colores estables.</translation>
+    </message>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="43"/>
+        <source>Evidence conflicts with two saved color family identities.</source>
+        <translation>La evidencia entra en conflicto con dos identidades de familias de colores guardadas.</translation>
+    </message>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="53"/>
         <source>{count} samples found across {families} Synthesia note color families.</source>
         <translation>Se encontraron {count} muestras en {families} familias de colores de notas de Synthesia.</translation>
     </message>
@@ -50,17 +60,17 @@
         <translation type="vanished">No encontrado</translation>
     </message>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="74"/>
+        <location filename="../gui/assisted_calibration_dialog.py" line="93"/>
         <source>Keep Current Examples</source>
         <translation>Conservar ejemplos actuales</translation>
     </message>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="78"/>
+        <location filename="../gui/assisted_calibration_dialog.py" line="97"/>
         <source>Try Another Frame</source>
         <translation>Probar otro fotograma</translation>
     </message>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="82"/>
+        <location filename="../gui/assisted_calibration_dialog.py" line="101"/>
         <source>Use These Examples</source>
         <translation>Usar estos ejemplos</translation>
     </message>
@@ -903,22 +913,22 @@ Ve a un fotograma donde no haya teclas iluminadas, o continúa si esto es espera
         <translation type="vanished">¿Aplicar estas actualizaciones de calibración?</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="638"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="652"/>
         <source>Open Manual Fit for the current manual calibration.</source>
         <translation>Abrir Ajuste manual para la calibración manual actual.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="640"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="654"/>
         <source>Edit Current Calibration becomes available after manual overlays exist.</source>
         <translation>Editar calibración actual estará disponible cuando existan superposiciones manuales.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="646"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="660"/>
         <source>Open the auto-detect tuning panel for the current calibration.</source>
         <translation>Abrir el panel de ajuste de detección automática para la calibración actual.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="651"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="665"/>
         <source>Edit Current Calibration becomes available after an auto-detect run.</source>
         <translation>Editar calibración actual estará disponible después de ejecutar la detección automática.</translation>
     </message>
@@ -2107,12 +2117,12 @@ Esto recortará permanentemente la sesión de video a los fotogramas {start_fram
 <context>
     <name>MainActionController</name>
     <message>
-        <location filename="../gui/main_action_controller.py" line="170"/>
+        <location filename="../gui/main_action_controller.py" line="172"/>
         <source>Remove Color {number}</source>
         <translation>Eliminar color {number}</translation>
     </message>
     <message>
-        <location filename="../gui/main_action_controller.py" line="173"/>
+        <location filename="../gui/main_action_controller.py" line="175"/>
         <source>Remove Color {number} and delete its saved calibration data?</source>
         <translation>¿Eliminar Color {number} y borrar sus datos de calibración guardados?</translation>
     </message>

@@ -1453,7 +1453,7 @@ def test_spark_exposes_standard_winner_only_for_returned_keys_and_clears_on_rese
     assert detector.standard_detector.get_last_exemplar_match(1) is None
 
 
-def test_standard_detection_hand_assignment_restricts_color_exemplars_by_detected_hand():
+def test_standard_detection_hand_assignment_keeps_color_family_candidates():
     frame_bgr = np.full((4, 4, 3), (0, 255, 0), dtype=np.uint8)  # green, HSV hue near left hand
     overlay = OverlayConfig(
         key_id=1,
@@ -1482,7 +1482,8 @@ def test_standard_detection_hand_assignment_restricts_color_exemplars_by_detecte
         right_hand_hue_mean=0.0,
     )
 
-    assert pressed == set()
+    assert pressed == {overlay.key_id}
+    assert detector.get_last_exemplar_match(overlay.key_id) == "RW"
 
 
 def test_canvas_interaction_exposes_shadow_roi_selection_modes():

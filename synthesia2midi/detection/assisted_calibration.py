@@ -17,6 +17,7 @@ from synthesia2midi.core.color_families import (
     slots_for_family,
 )
 from synthesia2midi.detection.color_family_assignment import (
+    DEFAULT_FAMILY_HUE_THRESHOLD,
     FamilyEvidence,
     SavedFamilyAnchors,
     assign_family_slots,
@@ -161,15 +162,63 @@ class _DiscoveryCluster:
         key_color = event.candidate.slot_color
         bucket = self.events_by_color[key_color]
         bucket.append(event)
-        bucket.sort(
-            key=lambda item: (
+
+        def strength_key(item: _DiscoveryEvent) -> tuple[float, float, int, int]:
+            return (
                 -item.candidate.delta_from_unlit,
                 -item.candidate.confidence,
                 item.candidate.frame_index,
                 item.candidate.key_id,
             )
-        )
-        del bucket[representative_limit:]
+
+        if representative_limit <= 0:
+            bucket.clear()
+        elif len(bucket) > representative_limit:
+            selected: list[_DiscoveryEvent] = []
+            selected_ids: set[int] = set()
+
+            def select(candidate: _DiscoveryEvent) -> None:
+                if len(selected) >= representative_limit:
+                    return
+                if id(candidate) in selected_ids:
+                    return
+                selected.append(candidate)
+                selected_ids.add(id(candidate))
+
+            earliest_frame = min(
+                item.candidate.frame_index for item in bucket
+            )
+            latest_frame = max(item.candidate.frame_index for item in bucket)
+            if representative_limit == 1:
+                select(min(bucket, key=strength_key))
+            else:
+                select(
+                    min(
+                        (
+                            item
+                            for item in bucket
+                            if item.candidate.frame_index == earliest_frame
+                        ),
+                        key=strength_key,
+                    )
+                )
+                select(
+                    min(
+                        (
+                            item
+                            for item in bucket
+                            if item.candidate.frame_index == latest_frame
+                        ),
+                        key=strength_key,
+                    )
+                )
+                if representative_limit >= 3:
+                    select(min(bucket, key=strength_key))
+            for candidate in sorted(bucket, key=strength_key):
+                select(candidate)
+            bucket[:] = sorted(selected, key=strength_key)
+        else:
+            bucket.sort(key=strength_key)
 
         frame_index = event.candidate.frame_index
         self.event_count_by_color[key_color] += 1
@@ -223,7 +272,7 @@ class _DiscoveryEvidenceStore:
                 nearest = cluster
                 nearest_distance = distance
 
-        if nearest is None or nearest_distance > 22.0:
+        if nearest is None or nearest_distance > DEFAULT_FAMILY_HUE_THRESHOLD:
             if len(self._clusters) < self._MAX_PROVISIONAL_CLUSTERS:
                 nearest = _DiscoveryCluster()
                 self._clusters.append(nearest)
@@ -266,7 +315,7 @@ class _DiscoveryEvidenceStore:
             ),
             key=lambda item: item[0],
         )
-        return cluster if distance <= 22.0 else None
+        return cluster if distance <= DEFAULT_FAMILY_HUE_THRESHOLD else None
 
 
 @dataclass(frozen=True)
@@ -543,7 +592,7 @@ def _family_hue(candidate: ExemplarCandidate) -> float:
 def _assign_exemplar_slots_with_warnings(
     candidates: Sequence[ExemplarCandidate],
     *,
-    family_hue_threshold: float = 22.0,
+    family_hue_threshold: float = DEFAULT_FAMILY_HUE_THRESHOLD,
     saved_anchors: SavedFamilyAnchors | None = None,
 ) -> tuple[ExemplarAssignmentResult, Tuple[str, ...]]:
     evidence_sources: dict[FamilyEvidence, list[ExemplarCandidate]] = {}
@@ -647,7 +696,7 @@ def _assign_exemplar_slots_with_warnings(
 def assign_exemplar_slots(
     candidates: Sequence[ExemplarCandidate],
     *,
-    family_hue_threshold: float = 22.0,
+    family_hue_threshold: float = DEFAULT_FAMILY_HUE_THRESHOLD,
     saved_anchors: SavedFamilyAnchors | None = None,
 ) -> ExemplarAssignmentResult:
     result, _warnings = _assign_exemplar_slots_with_warnings(
@@ -978,7 +1027,7 @@ def _complete_four_family_evidence(
 def _match_four_family_evidence(
     current: tuple[_FamilyEarlyStopEvidence, ...],
     initial: tuple[_FamilyEarlyStopEvidence, ...],
-    family_hue_threshold: float = 22.0,
+    family_hue_threshold: float = DEFAULT_FAMILY_HUE_THRESHOLD,
 ) -> Optional[tuple[tuple[_FamilyEarlyStopEvidence, _FamilyEarlyStopEvidence], ...]]:
     if len(current) != 4 or len(initial) != 4:
         return None
@@ -1064,7 +1113,7 @@ def _scan_candidates_with_diagnostics(
                     _family_hue(current),
                     _family_hue(active_event.candidate),
                 )
-                > 22.0
+                > DEFAULT_FAMILY_HUE_THRESHOLD
             ):
                 evidence_store.add(active_event)
                 active_events_by_key[key_id] = _DiscoveryEvent(current)

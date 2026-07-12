@@ -4,12 +4,22 @@
 <context>
     <name>AssistedCalibrationDialog</name>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="29"/>
+        <location filename="../gui/assisted_calibration_dialog.py" line="33"/>
         <source>Assisted Calibration</source>
         <translation>アシスト付きキャリブレーション</translation>
     </message>
     <message>
         <location filename="../gui/assisted_calibration_dialog.py" line="40"/>
+        <source>More than four stable color families were found.</source>
+        <translation>4つを超える安定したカラーファミリーが見つかりました。</translation>
+    </message>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="43"/>
+        <source>Evidence conflicts with two saved color family identities.</source>
+        <translation>検出結果が、保存されている2つのカラーファミリー識別情報と競合しています。</translation>
+    </message>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="53"/>
         <source>{count} samples found across {families} Synthesia note color families.</source>
         <translation>{families} 個の Synthesia ノート色グループで {count} 件のサンプルが見つかりました。</translation>
     </message>
@@ -50,17 +60,17 @@
         <translation type="vanished">未検出</translation>
     </message>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="74"/>
+        <location filename="../gui/assisted_calibration_dialog.py" line="93"/>
         <source>Keep Current Examples</source>
         <translation>現在のサンプルを保持</translation>
     </message>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="78"/>
+        <location filename="../gui/assisted_calibration_dialog.py" line="97"/>
         <source>Try Another Frame</source>
         <translation>別のフレームを試す</translation>
     </message>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="82"/>
+        <location filename="../gui/assisted_calibration_dialog.py" line="101"/>
         <source>Use These Examples</source>
         <translation>このサンプルを使用</translation>
     </message>
@@ -903,22 +913,22 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">これらのキャリブレーション更新を適用しますか？</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="638"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="652"/>
         <source>Open Manual Fit for the current manual calibration.</source>
         <translation>現在の手動キャリブレーションで手動フィットを開きます。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="640"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="654"/>
         <source>Edit Current Calibration becomes available after manual overlays exist.</source>
         <translation>手動オーバーレイが存在すると、現在のキャリブレーションを編集できます。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="646"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="660"/>
         <source>Open the auto-detect tuning panel for the current calibration.</source>
         <translation>現在のキャリブレーションの自動検出チューニングパネルを開きます。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="651"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="665"/>
         <source>Edit Current Calibration becomes available after an auto-detect run.</source>
         <translation>自動検出の実行後に、現在のキャリブレーションを編集できます。</translation>
     </message>
@@ -2109,12 +2119,12 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
 <context>
     <name>MainActionController</name>
     <message>
-        <location filename="../gui/main_action_controller.py" line="170"/>
+        <location filename="../gui/main_action_controller.py" line="172"/>
         <source>Remove Color {number}</source>
         <translation>カラー {number}を削除</translation>
     </message>
     <message>
-        <location filename="../gui/main_action_controller.py" line="173"/>
+        <location filename="../gui/main_action_controller.py" line="175"/>
         <source>Remove Color {number} and delete its saved calibration data?</source>
         <translation>カラー {number}を削除し、保存済みのキャリブレーションデータも削除しますか？</translation>
     </message>

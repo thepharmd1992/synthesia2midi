@@ -146,6 +146,8 @@ class MainActionController:
 
         for slot in slots_for_family(family_number):
             detection.exemplar_key_type_enabled[slot] = True
+        if family_number >= 3:
+            detection.hand_assignment_enabled = True
         self.app.app_state.unsaved_changes = True
         if self.app.control_panel:
             self.app.control_panel.update_controls_from_state()

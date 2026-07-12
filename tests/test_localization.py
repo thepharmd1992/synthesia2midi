@@ -60,6 +60,11 @@ TASK_6_PRODUCTION_LOCALE_STRINGS = [
     "Up to {preset} ({actual_height}p source) - {note}",
 ]
 
+SCANNER_WARNING_PRODUCTION_LOCALE_STRINGS = [
+    "More than four stable color families were found.",
+    "Evidence conflicts with two saved color family identities.",
+]
+
 TASK_10_PRODUCTION_LOCALE_STRINGS = [
     "Color {number}",
     "Natural",
@@ -78,6 +83,7 @@ TASK_10_PRODUCTION_LOCALE_STRINGS = [
     ),
     "Found {count} Synthesia note color families.",
     "Scanning for lit key examples...",
+    *SCANNER_WARNING_PRODUCTION_LOCALE_STRINGS,
 ]
 
 
@@ -173,6 +179,10 @@ def test_production_translators_load_known_source_texts():
             assert QCoreApplication.translate(
                 "CalibrationGuideWidget", "Download from YouTube"
             ) != "Download from YouTube"
+            for source in SCANNER_WARNING_PRODUCTION_LOCALE_STRINGS:
+                assert QCoreApplication.translate(
+                    "AssistedCalibrationDialog", source
+                ) != source
     finally:
         install_translator(app, "en")
 

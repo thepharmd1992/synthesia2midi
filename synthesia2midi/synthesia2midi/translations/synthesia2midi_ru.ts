@@ -4,12 +4,22 @@
 <context>
     <name>AssistedCalibrationDialog</name>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="29"/>
+        <location filename="../gui/assisted_calibration_dialog.py" line="33"/>
         <source>Assisted Calibration</source>
         <translation>Помощник калибровки</translation>
     </message>
     <message>
         <location filename="../gui/assisted_calibration_dialog.py" line="40"/>
+        <source>More than four stable color families were found.</source>
+        <translation>Обнаружено более четырёх стабильных цветовых групп.</translation>
+    </message>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="43"/>
+        <source>Evidence conflicts with two saved color family identities.</source>
+        <translation>Полученные данные конфликтуют с двумя сохранёнными идентификаторами цветовых групп.</translation>
+    </message>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="53"/>
         <source>{count} samples found across {families} Synthesia note color families.</source>
         <translation>Найдено образцов: {count}; цветовых групп нот Synthesia: {families}.</translation>
     </message>
@@ -50,17 +60,17 @@
         <translation type="vanished">Не найдено</translation>
     </message>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="74"/>
+        <location filename="../gui/assisted_calibration_dialog.py" line="93"/>
         <source>Keep Current Examples</source>
         <translation>Оставить текущие примеры</translation>
     </message>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="78"/>
+        <location filename="../gui/assisted_calibration_dialog.py" line="97"/>
         <source>Try Another Frame</source>
         <translation>Попробовать другой кадр</translation>
     </message>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="82"/>
+        <location filename="../gui/assisted_calibration_dialog.py" line="101"/>
         <source>Use These Examples</source>
         <translation>Использовать эти примеры</translation>
     </message>
@@ -903,22 +913,22 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">Применить эти обновления калибровки?</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="638"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="652"/>
         <source>Open Manual Fit for the current manual calibration.</source>
         <translation>Открыть ручную подгонку для текущей ручной калибровки.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="640"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="654"/>
         <source>Edit Current Calibration becomes available after manual overlays exist.</source>
         <translation>Изменение текущей калибровки станет доступно после создания ручных оверлеев.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="646"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="660"/>
         <source>Open the auto-detect tuning panel for the current calibration.</source>
         <translation>Открыть панель настройки автоопределения для текущей калибровки.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="651"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="665"/>
         <source>Edit Current Calibration becomes available after an auto-detect run.</source>
         <translation>Изменение текущей калибровки станет доступно после запуска автоопределения.</translation>
     </message>
@@ -2109,12 +2119,12 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
 <context>
     <name>MainActionController</name>
     <message>
-        <location filename="../gui/main_action_controller.py" line="170"/>
+        <location filename="../gui/main_action_controller.py" line="172"/>
         <source>Remove Color {number}</source>
         <translation>Удалить цвет {number}</translation>
     </message>
     <message>
-        <location filename="../gui/main_action_controller.py" line="173"/>
+        <location filename="../gui/main_action_controller.py" line="175"/>
         <source>Remove Color {number} and delete its saved calibration data?</source>
         <translation>Удалить цвет {number} и стереть сохраненные данные калибровки?</translation>
     </message>

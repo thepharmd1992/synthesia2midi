@@ -3,6 +3,7 @@ import numpy as np
 from synthesia2midi.app_config import OverlayConfig
 from synthesia2midi.detection.roi_utils import get_hist_feature
 from synthesia2midi.detection.standard import StandardDetection
+from synthesia2midi.workflows.conversion import _midi_channel_for_exemplar
 
 
 def _overlay(
@@ -72,6 +73,55 @@ def test_strongest_natural_exemplar_slot_is_retained_for_pressed_key():
 
     assert pressed == {overlay.key_id}
     assert detector.get_last_exemplar_match(overlay.key_id) == "COLOR_4_W"
+
+
+def test_exact_yellow_uses_closest_color_three_identity_and_channel():
+    detector = StandardDetection()
+    overlay = _overlay()
+
+    pressed = detector.detect_frame(
+        frame_bgr=_solid_rgb((255, 255, 0)),
+        overlays=[overlay],
+        exemplar_lit_colors=_color_exemplars(
+            LW=(255, 128, 0),
+            COLOR_3_W=(255, 255, 0),
+        ),
+        exemplar_lit_histograms=_histogram_exemplars(),
+        detection_threshold=0.8,
+        use_delta_detection=False,
+        apply_black_filter=False,
+    )
+
+    winning_slot = detector.get_last_exemplar_match(overlay.key_id)
+    assert pressed == {overlay.key_id}
+    assert overlay.last_progression_ratio > 1.2
+    assert winning_slot == "COLOR_3_W"
+    assert _midi_channel_for_exemplar(winning_slot) == 2
+
+
+def test_legacy_hand_hue_classification_does_not_hide_color_two_family():
+    detector = StandardDetection()
+    overlay = _overlay()
+
+    pressed = detector.detect_frame(
+        frame_bgr=_solid_rgb((0, 0, 255)),
+        overlays=[overlay],
+        exemplar_lit_colors=_color_exemplars(
+            LW=(255, 0, 0),
+            RW=(0, 0, 255),
+        ),
+        exemplar_lit_histograms=_histogram_exemplars(),
+        detection_threshold=0.8,
+        use_delta_detection=False,
+        apply_black_filter=False,
+        hand_assignment_enabled=True,
+        hand_detection_calibrated=True,
+        left_hand_hue_mean=120.0,
+        right_hand_hue_mean=0.0,
+    )
+
+    assert pressed == {overlay.key_id}
+    assert detector.get_last_exemplar_match(overlay.key_id) == "RW"
 
 
 def test_accidental_overlay_never_matches_natural_slot_when_hand_hues_are_close():

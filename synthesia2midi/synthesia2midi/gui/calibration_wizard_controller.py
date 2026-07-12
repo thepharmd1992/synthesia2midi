@@ -560,14 +560,28 @@ class CalibrationWizardController:
             ):
                 self.app_state.detection.hand_assignment_enabled = True
             for slot, assignment in assignments.items():
-                if assignment.rgb is None:
+                if assignment.rgb is not None:
+                    continue
+
+                old_color = calibration_snapshot["colors"].get(slot)
+                old_histogram = calibration_snapshot["histograms"].get(slot)
+                if assignment.enabled:
+                    if old_color is not None or old_histogram is not None:
+                        self.app_state.detection.exemplar_lit_colors[slot] = copy.deepcopy(
+                            old_color
+                        )
+                        self.app_state.detection.exemplar_lit_histograms[slot] = (
+                            old_histogram.copy()
+                            if old_histogram is not None
+                            else None
+                        )
+                else:
                     self.app_state.detection.exemplar_key_type_enabled[slot] = calibration_snapshot[
                         "enabled"
                     ].get(slot, True)
                     self.app_state.detection.exemplar_lit_colors[slot] = copy.deepcopy(
-                        calibration_snapshot["colors"].get(slot)
+                        old_color
                     )
-                    old_histogram = calibration_snapshot["histograms"].get(slot)
                     self.app_state.detection.exemplar_lit_histograms[slot] = (
                         old_histogram.copy() if old_histogram is not None else None
                     )

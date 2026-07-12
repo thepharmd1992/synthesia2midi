@@ -24,7 +24,11 @@ import numpy as np
 
 from synthesia2midi.app_config import NOTE_NAMES_SHARP, OverlayConfig
 from synthesia2midi.core.app_state import AppState
-from synthesia2midi.core.color_families import SUPPORTED_EXEMPLAR_SLOTS
+from synthesia2midi.core.color_families import (
+    COLOR_FAMILIES,
+    SUPPORTED_EXEMPLAR_SLOTS,
+    slots_for_family,
+)
 from synthesia2midi.detection.auto_detect_param_specs import (
     ACTIVE_AUTO_DETECT_PARAM_KEYS,
     coerce_auto_detect_params,
@@ -70,6 +74,17 @@ class ConfigManager:
             # or an error. Handle gracefully or let load_config manage it.
             return "" # Return empty, load_config will handle non-existence or use direct path
         return str(self.runtime_paths.project_ini_path(video_filepath))
+
+    def _reset_dynamic_exemplar_state(self) -> None:
+        """Clear Color 3/4 state before loading a different video's config."""
+        detection = self.app_state.detection
+        for family in COLOR_FAMILIES:
+            if family.number < 3:
+                continue
+            for slot in slots_for_family(family.number):
+                detection.exemplar_key_type_enabled[slot] = False
+                detection.exemplar_lit_colors[slot] = None
+                detection.exemplar_lit_histograms[slot] = None
     
     def _get_overlay_json_path(self, video_filepath: str) -> str:
         """Generates the overlay JSON filepath based on the video filepath."""
@@ -267,6 +282,7 @@ class ConfigManager:
         try:
             config = configparser.ConfigParser()
             config.read(ini_path, encoding='utf-8')
+            self._reset_dynamic_exemplar_state()
             
             logging.debug(f"Overlays before loading {len(self.app_state.overlays)}: {self.app_state.overlays}")
             # Clear existing overlays

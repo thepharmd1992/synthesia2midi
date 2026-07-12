@@ -615,7 +615,7 @@
     {
       "classification": "translate",
       "context": "tr",
-      "line": 29,
+      "line": 33,
       "origin": "static",
       "role": "arg0",
       "source": "synthesia2midi/synthesia2midi/gui/assisted_calibration_dialog.py",
@@ -2226,7 +2226,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 651,
+      "line": 665,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -2235,7 +2235,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 640,
+      "line": 654,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -2384,6 +2384,15 @@
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/keyboard_canvas.py",
       "text": "Esc cancels"
+    },
+    {
+      "classification": "translate",
+      "context": "tr",
+      "line": 42,
+      "origin": "static",
+      "role": "arg0",
+      "source": "synthesia2midi/synthesia2midi/gui/assisted_calibration_dialog.py",
+      "text": "Evidence conflicts with two saved color family identities."
     },
     {
       "classification": "translate",
@@ -2955,7 +2964,7 @@
     {
       "classification": "translate",
       "context": "tr",
-      "line": 74,
+      "line": 93,
       "origin": "static",
       "role": "arg0",
       "source": "synthesia2midi/synthesia2midi/gui/assisted_calibration_dialog.py",
@@ -3284,6 +3293,15 @@
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
       "text": "Missing notes? Lower it. Extra notes? Raise it."
+    },
+    {
+      "classification": "translate",
+      "context": "tr",
+      "line": 40,
+      "origin": "static",
+      "role": "arg0",
+      "source": "synthesia2midi/synthesia2midi/gui/assisted_calibration_dialog.py",
+      "text": "More than four stable color families were found."
     },
     {
       "classification": "translate",
@@ -3756,7 +3774,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 638,
+      "line": 652,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -3783,7 +3801,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 646,
+      "line": 660,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -4233,7 +4251,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 170,
+      "line": 172,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/main_action_controller.py",
@@ -4242,7 +4260,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 173,
+      "line": 175,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/main_action_controller.py",
@@ -5304,7 +5322,7 @@
     {
       "classification": "translate",
       "context": "tr",
-      "line": 78,
+      "line": 97,
       "origin": "static",
       "role": "arg0",
       "source": "synthesia2midi/synthesia2midi/gui/assisted_calibration_dialog.py",
@@ -5448,7 +5466,7 @@
     {
       "classification": "translate",
       "context": "tr",
-      "line": 82,
+      "line": 101,
       "origin": "static",
       "role": "arg0",
       "source": "synthesia2midi/synthesia2midi/gui/assisted_calibration_dialog.py",
@@ -5880,7 +5898,7 @@
     {
       "classification": "translate",
       "context": "tr",
-      "line": 40,
+      "line": 53,
       "origin": "static",
       "role": "arg0",
       "source": "synthesia2midi/synthesia2midi/gui/assisted_calibration_dialog.py",
@@ -5991,7 +6009,7 @@
     "dynamic_user_data": 4,
     "path_or_url": 2,
     "technical_id": 6,
-    "translate": 642
+    "translate": 644
   },
   "schema_version": 1
 }

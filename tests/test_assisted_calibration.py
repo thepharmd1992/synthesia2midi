@@ -25,6 +25,10 @@ from synthesia2midi.detection.assisted_calibration import (
     sample_overlay_rgb,
     scan_lit_exemplar_candidates,
 )
+from synthesia2midi.detection.color_family_assignment import (
+    ANCHOR_CONFLICT_WARNING,
+    TOO_MANY_FAMILIES_WARNING,
+)
 from synthesia2midi.tools.probe_assisted_calibration import _load_exemplar_lit_color_targets
 
 
@@ -70,6 +74,47 @@ def _stable_candidates(
             confidence=confidence,
         ),
     ]
+
+
+def test_bounded_discovery_retention_preserves_weaker_later_evidence():
+    settings = ExemplarScanSettings()
+    diagnostics = ExemplarScanDiagnostics()
+    store = assisted_calibration._DiscoveryEvidenceStore(settings, diagnostics)
+
+    for key_id in (1, 2, 3):
+        store.add(
+            assisted_calibration._DiscoveryEvent(
+                _candidate(
+                    "W",
+                    (255, 128, 0),
+                    frame_index=10,
+                    key_id=key_id,
+                    confidence=0.95,
+                )
+            )
+        )
+    store.add(
+        assisted_calibration._DiscoveryEvent(
+            _candidate(
+                "W",
+                (250, 125, 0),
+                frame_index=30,
+                key_id=4,
+                confidence=0.4,
+            )
+        )
+    )
+
+    assignments, _events = assisted_calibration._stable_family_assignments(
+        store,
+        settings,
+        stride=10,
+        diagnostics=diagnostics,
+    )
+
+    assert len(assignments) == 1
+    assert assignments[0].natural is not None
+    assert {event.candidate.frame_index for event in store.events()} == {10, 30}
 
 
 def _overlay(
@@ -794,7 +839,7 @@ def test_scanner_collapses_overlapping_hits_into_one_event_per_lit_burst():
     assert by_frame[25].rgb == (175, 195, 215)
 
 
-def test_scanner_bounds_completed_candidates_while_scanning(monkeypatch):
+def test_scanner_bounds_completed_candidates_while_preserving_temporal_span(monkeypatch):
     overlay = _overlay(key_id=1, note="C", x=0, y=0, width=4, height=4, key_type="LW")
     overlay.unlit_reference_color = (245, 245, 235)
 
@@ -841,7 +886,7 @@ def test_scanner_bounds_completed_candidates_while_scanning(monkeypatch):
     assert canceled is False
     assert scanned == 31
     assert largest_completed_bucket <= 3
-    assert [candidate.frame_index for candidate in candidates] == [1, 3, 5]
+    assert [candidate.frame_index for candidate in candidates] == [1, 3, 29]
 
 
 def test_scanner_does_not_refine_single_completed_burst():
@@ -1544,7 +1589,7 @@ def test_build_assisted_calibration_proposal_carries_over_cap_warning(monkeypatc
 
     proposal = _build_proposal_from_candidates(monkeypatch, candidates)
 
-    assert proposal.warnings == ("More than four stable color families were found.",)
+    assert proposal.warnings == (TOO_MANY_FAMILIES_WARNING,)
 
 
 def test_build_assisted_calibration_proposal_carries_anchor_conflict_warning(monkeypatch):
@@ -1564,9 +1609,7 @@ def test_build_assisted_calibration_proposal_carries_anchor_conflict_warning(mon
         },
     )
 
-    assert proposal.warnings == (
-        "Evidence conflicts with two saved color family identities.",
-    )
+    assert proposal.warnings == (ANCHOR_CONFLICT_WARNING,)
 
 
 def test_load_exemplar_lit_color_targets_reads_configured_slots(tmp_path):

@@ -118,6 +118,37 @@ def _proposal(*, family_number=3, canceled=False) -> AssistedCalibrationProposal
     )
 
 
+def _partial_family_proposal(family_number=3) -> AssistedCalibrationProposal:
+    natural_slot, accidental_slot = slots_for_family(family_number)
+    assignments = {
+        slot: AssignedExemplar(
+            slot=slot,
+            rgb=(220, 40, 80) if slot == natural_slot else None,
+            hist=np.array([1.0], dtype=np.float32) if slot == natural_slot else None,
+            source=None,
+            enabled=slot in {natural_slot, accidental_slot},
+        )
+        for slot in SUPPORTED_EXEMPLAR_SLOTS
+    }
+    return AssistedCalibrationProposal(
+        baseline_frame_index=0,
+        unlit_assessment=UnlitFrameAssessment(status="clean"),
+        assignment_result=ExemplarAssignmentResult(
+            assignments=assignments,
+            missing_slots=(accidental_slot,),
+            disabled_slots=tuple(
+                slot
+                for slot in SUPPORTED_EXEMPLAR_SLOTS
+                if slot not in {natural_slot, accidental_slot}
+            ),
+            family_count=1,
+            confidence=0.9,
+        ),
+        scanned_frame_count=4,
+        candidate_count=1,
+    )
+
+
 def _state_signature(state: AppState):
     return {
         "enabled": dict(state.detection.exemplar_key_type_enabled),
@@ -293,6 +324,33 @@ def test_accepting_higher_color_family_enables_separate_assignment(monkeypatch, 
     selected_slot = slots_for_family(family_number)[0]
     assert state.detection.exemplar_lit_colors[selected_slot] == (220, 40, 80)
     assert state.detection.hand_assignment_enabled is True
+
+
+def test_accepting_partial_new_family_keeps_missing_morphology_required(monkeypatch):
+    controller, state = _controller_with_seeded_state()
+    natural_slot, accidental_slot = slots_for_family(3)
+    for slot in (natural_slot, accidental_slot):
+        state.detection.exemplar_key_type_enabled[slot] = False
+        state.detection.exemplar_lit_colors[slot] = None
+        state.detection.exemplar_lit_histograms[slot] = None
+    state.detection.hand_assignment_enabled = False
+    proposal = _partial_family_proposal(3)
+    _patch_assisted_dependencies(
+        monkeypatch,
+        state,
+        proposal,
+        decision=AssistedCalibrationDecision.USE,
+    )
+
+    assert controller._run_assisted_auto_calibration(
+        np.zeros((4, 4, 3), dtype=np.uint8), 0
+    ) is True
+
+    assert state.detection.exemplar_lit_colors[natural_slot] == (220, 40, 80)
+    assert state.detection.exemplar_key_type_enabled[accidental_slot] is True
+    assert state.detection.exemplar_lit_colors[accidental_slot] is None
+    assert state.detection.exemplar_lit_histograms[accidental_slot] is None
+    assert accidental_slot in state.detection.get_required_exemplar_types()
 
 
 def test_proposal_summary_uses_dynamic_color_family_labels():

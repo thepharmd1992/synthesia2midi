@@ -11,6 +11,10 @@ from PySide6.QtWidgets import (
 )
 
 from synthesia2midi.core.color_families import active_family_numbers
+from synthesia2midi.detection.color_family_assignment import (
+    ANCHOR_CONFLICT_WARNING,
+    TOO_MANY_FAMILIES_WARNING,
+)
 from synthesia2midi.gui.color_family_grid import ColorFamilyGrid
 
 
@@ -31,6 +35,15 @@ class AssistedCalibrationDialog(QDialog):
         self.setMinimumWidth(480)
         self._setup_ui()
 
+    def _translated_scanner_warning(self, warning_code: str) -> str | None:
+        if warning_code == TOO_MANY_FAMILIES_WARNING:
+            return self.tr("More than four stable color families were found.")
+        if warning_code == ANCHOR_CONFLICT_WARNING:
+            return self.tr(
+                "Evidence conflicts with two saved color family identities."
+            )
+        return None
+
     def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 20, 20, 20)
@@ -45,12 +58,18 @@ class AssistedCalibrationDialog(QDialog):
         self.summary_label.setWordWrap(True)
         layout.addWidget(self.summary_label)
 
-        self.warning_banner = QLabel("\n".join(self.proposal.warnings))
+        translated_warnings = [
+            translated
+            for warning_code in self.proposal.warnings
+            if (translated := self._translated_scanner_warning(warning_code))
+            is not None
+        ]
+        self.warning_banner = QLabel("\n".join(translated_warnings))
         self.warning_banner.setWordWrap(True)
         self.warning_banner.setStyleSheet(
             "background-color: #fff4ce; border: 1px solid #d9a400; color: #5c3b00; padding: 6px;"
         )
-        self.warning_banner.setVisible(bool(self.proposal.warnings))
+        self.warning_banner.setVisible(bool(translated_warnings))
         layout.addWidget(self.warning_banner)
 
         assignments = self.proposal.assignment_result.assignments

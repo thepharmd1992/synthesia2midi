@@ -11,6 +11,7 @@ import cv2
 import numpy as np
 
 from synthesia2midi.app_config import OverlayConfig
+from synthesia2midi.core.color_families import morphology_for_slot
 
 from .base import DetectionMethod
 from .roi_cache import ROICache
@@ -306,38 +307,22 @@ class StandardDetection(DetectionMethod):
         exemplar_values: Mapping[str, object | None],
         kwargs: dict,
     ) -> List[str]:
-        """Return exemplar slots filtered by detected hand and key morphology."""
+        """Return calibrated family slots compatible with the key morphology.
+
+        The legacy hand-hue fields remain accepted for configuration compatibility,
+        but Color 1 and Color 2 are family identities rather than hand filters.
+        """
         base_color_type = overlay.key_type[-1]  # "W" or "B"
         if base_color_type not in {"W", "B"}:
             self.logger.warning(f"Overlay {overlay.key_id} has unexpected key_type: {overlay.key_type}")
             return []
 
-        hand_assignment_enabled = kwargs.get('hand_assignment_enabled', False)
-        hand_detection_calibrated = kwargs.get('hand_detection_calibrated', False)
-        left_hand_hue_mean = kwargs.get('left_hand_hue_mean', 0.0)
-        right_hand_hue_mean = kwargs.get('right_hand_hue_mean', 0.0)
-        exemplar_types_to_check: List[str] = []
-
-        if hand_assignment_enabled and hand_detection_calibrated:
-            hue_diff = abs(left_hand_hue_mean - right_hand_hue_mean)
-            if hue_diff >= 5.0:
-                hand_type = self._determine_hand_from_hue(
-                    overlay, frame_bgr, left_hand_hue_mean, right_hand_hue_mean
-                )
-                if hand_type in {"L", "R"}:
-                    exemplar_types_to_check.append(hand_type + base_color_type)
-                else:
-                    exemplar_types_to_check.extend(["L" + base_color_type, "R" + base_color_type])
-            else:
-                exemplar_types_to_check.extend(["L" + base_color_type, "R" + base_color_type])
-        else:
-            exemplar_types_to_check.extend(["L" + base_color_type, "R" + base_color_type])
-
-        for key_type, value in exemplar_values.items():
-            if key_type.startswith("COLOR_") and value is not None and key_type.endswith(f"_{base_color_type}"):
-                exemplar_types_to_check.append(key_type)
-
-        return exemplar_types_to_check
+        morphology = "natural" if base_color_type == "W" else "accidental"
+        return [
+            slot
+            for slot, value in exemplar_values.items()
+            if value is not None and morphology_for_slot(slot) == morphology
+        ]
     
     def _calculate_color_progression(
         self,
@@ -347,10 +332,11 @@ class StandardDetection(DetectionMethod):
         detection_threshold: float,
         exemplar_types_to_check: List[str],
     ) -> Tuple[bool, float, Optional[str]]:
-        """Return the color result, strongest ratio, and strongest valid slot."""
+        """Return progression detection and the closest valid family identity."""
         is_key_lit_by_color = False
         current_max_progression_ratio = 0.0
         winning_exemplar_slot = None
+        closest_lit_distance = float("inf")
 
         for exemplar_key_type in exemplar_types_to_check:
             lit_ref_color = exemplar_lit_colors.get(exemplar_key_type)
@@ -369,6 +355,12 @@ class StandardDetection(DetectionMethod):
 
                 if progression_ratio > current_max_progression_ratio:
                     current_max_progression_ratio = progression_ratio
+
+                current_to_lit_distance = euclidean_distance(
+                    current_color, lit_ref_color
+                )
+                if current_to_lit_distance < closest_lit_distance:
+                    closest_lit_distance = current_to_lit_distance
                     winning_exemplar_slot = exemplar_key_type
 
                 if progression_ratio >= detection_threshold:

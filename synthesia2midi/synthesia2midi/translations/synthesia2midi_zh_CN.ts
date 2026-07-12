@@ -1389,7 +1389,7 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
     <message>
         <location filename="../gui/controls_qt.py" line="2179"/>
         <source>Capture a pressed-key example for {label}.</source>
-        <translation>为 {label} 捕获一个按键示例。</translation>
+        <translation>为{label}捕获一个按键示例。</translation>
     </message>
     <message>
         <location filename="../gui/controls_qt.py" line="2189"/>

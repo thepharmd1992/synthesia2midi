@@ -20,10 +20,24 @@ from synthesia2midi.detection.factory import DetectionFactory
 from synthesia2midi.video_loader import VideoSession
 from synthesia2midi.app_config import DEBUG_FRAMES_DIR
 from synthesia2midi.core.app_state import AppState
+from synthesia2midi.core.color_families import exemplar_display_parts
 from synthesia2midi.detection.roi_utils import extract_roi_bgr, get_average_color_from_roi, euclidean_distance
 from synthesia2midi.runtime_paths import RuntimePaths, detect_runtime_paths
 
 translate = QCoreApplication.translate
+
+
+def _exemplar_display_label(slot: str) -> str:
+    family_number, morphology = exemplar_display_parts(slot)
+    family_label = translate("ConversionWorkflow", "Color {number}").format(
+        number=family_number
+    )
+    morphology_label = (
+        translate("ConversionWorkflow", "Natural")
+        if morphology == "Natural"
+        else translate("ConversionWorkflow", "Sharp / Flat")
+    )
+    return f"{family_label} {morphology_label}"
 
 
 class ConversionWorkflow:
@@ -191,7 +205,7 @@ class ConversionWorkflow:
                         + ". Please calibrate unlit keys before conversion."
                     )
         
-        required_exemplars = self.app_state.detection.get_required_base_exemplar_types()
+        required_exemplars = self.app_state.detection.get_required_exemplar_types()
         if not required_exemplars:
             errors.append(
                 "No exemplar key types are enabled. Enable at least one 'Present in Video' key type "
@@ -205,9 +219,7 @@ class ConversionWorkflow:
                 missing_exemplars.append(exemplar)
         
         if missing_exemplars:
-            exemplar_names = {"LW": "Left White", "LB": "Left Black", 
-                            "RW": "Right White", "RB": "Right Black"}
-            missing_names = [exemplar_names[e] for e in missing_exemplars]
+            missing_names = [_exemplar_display_label(exemplar) for exemplar in missing_exemplars]
             errors.append(f"Missing exemplar colors: {', '.join(missing_names)}. "
                         f"Calibrate those key types or disable them with 'Present in Video' before conversion.")
         

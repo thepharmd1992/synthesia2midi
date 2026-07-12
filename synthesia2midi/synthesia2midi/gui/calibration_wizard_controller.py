@@ -10,7 +10,12 @@ import numpy as np
 from PySide6.QtCore import QCoreApplication, Qt
 from PySide6.QtWidgets import QApplication, QDialog, QMessageBox, QProgressDialog, QWidget
 
-from synthesia2midi.core.color_families import COLOR_FAMILIES, slots_for_family
+from synthesia2midi.core.color_families import (
+    COLOR_FAMILIES,
+    SUPPORTED_EXEMPLAR_SLOTS,
+    exemplar_display_parts,
+    slots_for_family,
+)
 from synthesia2midi.detection.assisted_calibration import (
     assess_unlit_frame,
     ExemplarScanSettings,
@@ -32,6 +37,19 @@ from synthesia2midi.gui.assisted_calibration_dialog import (
 from synthesia2midi.gui.dialog_positioning import move_to_upper_left_safe_zone
 
 translate = QCoreApplication.translate
+
+
+def _exemplar_display_label(slot: str) -> str:
+    family_number, morphology = exemplar_display_parts(slot)
+    family_label = translate(
+        "CalibrationWizardController", "Color {number}"
+    ).format(number=family_number)
+    morphology_label = (
+        translate("CalibrationWizardController", "Natural")
+        if morphology == "Natural"
+        else translate("CalibrationWizardController", "Sharp / Flat")
+    )
+    return f"{family_label} {morphology_label}"
 
 
 class CalibrationWizardController:
@@ -320,12 +338,6 @@ class CalibrationWizardController:
         return cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
 
     def _proposal_summary_text(self, proposal) -> str:
-        slot_labels = {
-            "LW": translate("CalibrationWizardController", "Left White"),
-            "LB": translate("CalibrationWizardController", "Left Black"),
-            "RW": translate("CalibrationWizardController", "Right White"),
-            "RB": translate("CalibrationWizardController", "Right Black"),
-        }
         lines = [
             translate(
                 "CalibrationWizardController",
@@ -335,16 +347,12 @@ class CalibrationWizardController:
                 "CalibrationWizardController",
                 "Found {count} Synthesia note color families.",
             ).format(count=proposal.assignment_result.family_count),
-            translate(
-                "CalibrationWizardController",
-                "Left/Right refer to Synthesia note colors, not the physical side of the keyboard.",
-            ),
         ]
-        for slot in ("LW", "LB", "RW", "RB"):
+        for slot in SUPPORTED_EXEMPLAR_SLOTS:
             assignment = proposal.assignment_result.assignments.get(slot)
             if assignment is None:
                 continue
-            label = slot_labels[slot]
+            label = _exemplar_display_label(slot)
             if not assignment.enabled:
                 lines.append(
                     translate(
@@ -392,6 +400,7 @@ class CalibrationWizardController:
                 key: value.copy() if value is not None else None
                 for key, value in self.app_state.detection.exemplar_lit_histograms.items()
             },
+            "hand_assignment_enabled": self.app_state.detection.hand_assignment_enabled,
             "unsaved_changes": self.app_state.unsaved_changes,
         }
 
@@ -410,6 +419,9 @@ class CalibrationWizardController:
                 for key, value in snapshot["histograms"].items()
             }
         )
+        self.app_state.detection.hand_assignment_enabled = snapshot[
+            "hand_assignment_enabled"
+        ]
         self.app_state.unsaved_changes = snapshot["unsaved_changes"]
 
     def _saved_family_anchors(self) -> SavedFamilyAnchors:
@@ -461,23 +473,29 @@ class CalibrationWizardController:
                 QMessageBox.StandardButton.Cancel,
             )
             if response == QMessageBox.StandardButton.Cancel:
+                self._restore_calibration_state(calibration_snapshot)
                 self._set_assisted_calibration_guide_state("kept")
                 return False
-        capture_unlit_references_from_frame(baseline_frame_rgb, self.app_state.overlays)
+        try:
+            capture_unlit_references_from_frame(baseline_frame_rgb, self.app_state.overlays)
 
-        total_frames = getattr(self.video_session, "total_frames", baseline_frame_index + 1)
-        total_frames = total_frames or (baseline_frame_index + 1)
-        end_frame = max(baseline_frame_index, total_frames - 1)
-        progress_parent = self.app if isinstance(self.app, QWidget) else None
-        progress = QProgressDialog(
-            translate("CalibrationWizardController", "Scanning for lit key examples..."),
-            translate("CalibrationWizardController", "Cancel"),
-            baseline_frame_index,
-            end_frame,
-            progress_parent,
-        )
-        progress.setWindowTitle(translate("CalibrationWizardController", "Assisted Calibration"))
-        progress.setMinimumDuration(0)
+            total_frames = getattr(self.video_session, "total_frames", baseline_frame_index + 1)
+            total_frames = total_frames or (baseline_frame_index + 1)
+            end_frame = max(baseline_frame_index, total_frames - 1)
+            progress_parent = self.app if isinstance(self.app, QWidget) else None
+            progress = QProgressDialog(
+                translate("CalibrationWizardController", "Scanning for lit key examples..."),
+                translate("CalibrationWizardController", "Cancel"),
+                baseline_frame_index,
+                end_frame,
+                progress_parent,
+            )
+            progress.setWindowTitle(translate("CalibrationWizardController", "Assisted Calibration"))
+            progress.setMinimumDuration(0)
+        except Exception:
+            self._restore_calibration_state(calibration_snapshot)
+            self._set_assisted_calibration_guide_state("kept")
+            raise
 
         def progress_callback(current_frame: int, final_frame: int) -> bool:
             progress.setMaximum(final_frame)
@@ -485,15 +503,21 @@ class CalibrationWizardController:
             QApplication.processEvents()
             return not progress.wasCanceled()
 
-        proposal = build_assisted_calibration_proposal(
-            self._frame_provider_rgb,
-            self.app_state.overlays,
-            baseline_frame_index=baseline_frame_index,
-            end_frame=end_frame,
-            settings=ExemplarScanSettings(),
-            progress_callback=progress_callback,
-            saved_anchors=self._saved_family_anchors(),
-        )
+        try:
+            proposal = build_assisted_calibration_proposal(
+                self._frame_provider_rgb,
+                self.app_state.overlays,
+                baseline_frame_index=baseline_frame_index,
+                end_frame=end_frame,
+                settings=ExemplarScanSettings(),
+                progress_callback=progress_callback,
+                saved_anchors=self._saved_family_anchors(),
+            )
+        except Exception:
+            progress.close()
+            self._restore_calibration_state(calibration_snapshot)
+            self._set_assisted_calibration_guide_state("kept")
+            raise
         progress.close()
         if proposal.canceled:
             self._restore_calibration_state(calibration_snapshot)
@@ -512,42 +536,56 @@ class CalibrationWizardController:
             )
             return False
 
-        dialog = AssistedCalibrationDialog(
-            proposal,
-            self.app if isinstance(self.app, QWidget) else None,
-        )
-        dialog.exec()
-        if dialog.decision is not AssistedCalibrationDecision.USE:
-            self._restore_calibration_state(calibration_snapshot)
-            self._set_assisted_calibration_guide_state(
-                "retry" if dialog.decision is AssistedCalibrationDecision.RETRY else "kept"
+        try:
+            dialog = AssistedCalibrationDialog(
+                proposal,
+                self.app if isinstance(self.app, QWidget) else None,
             )
-            return False
+            dialog.exec()
+            if dialog.decision is not AssistedCalibrationDecision.USE:
+                self._restore_calibration_state(calibration_snapshot)
+                self._set_assisted_calibration_guide_state(
+                    "retry" if dialog.decision is AssistedCalibrationDecision.RETRY else "kept"
+                )
+                return False
 
-        apply_assisted_calibration_proposal(self.app_state, proposal)
-        for slot, assignment in proposal.assignment_result.assignments.items():
-            if assignment.rgb is None:
-                self.app_state.detection.exemplar_key_type_enabled[slot] = calibration_snapshot[
-                    "enabled"
-                ].get(slot, True)
-                self.app_state.detection.exemplar_lit_colors[slot] = copy.deepcopy(
-                    calibration_snapshot["colors"].get(slot)
-                )
-                old_histogram = calibration_snapshot["histograms"].get(slot)
-                self.app_state.detection.exemplar_lit_histograms[slot] = (
-                    old_histogram.copy() if old_histogram is not None else None
-                )
-        if self.video_loading_workflow:
-            self.video_loading_workflow.save_current_config()
-        self._set_assisted_calibration_guide_state("applied")
-        refresh_readiness = getattr(
-            getattr(self.app, "control_panel", None),
-            "_update_conversion_readiness_display",
-            None,
-        )
-        if callable(refresh_readiness):
-            refresh_readiness()
-        return True
+            apply_assisted_calibration_proposal(self.app_state, proposal)
+            assignments = proposal.assignment_result.assignments
+            if any(
+                assignments[slot].enabled
+                for family in COLOR_FAMILIES
+                if family.number >= 3
+                for slot in slots_for_family(family.number)
+                if slot in assignments
+            ):
+                self.app_state.detection.hand_assignment_enabled = True
+            for slot, assignment in assignments.items():
+                if assignment.rgb is None:
+                    self.app_state.detection.exemplar_key_type_enabled[slot] = calibration_snapshot[
+                        "enabled"
+                    ].get(slot, True)
+                    self.app_state.detection.exemplar_lit_colors[slot] = copy.deepcopy(
+                        calibration_snapshot["colors"].get(slot)
+                    )
+                    old_histogram = calibration_snapshot["histograms"].get(slot)
+                    self.app_state.detection.exemplar_lit_histograms[slot] = (
+                        old_histogram.copy() if old_histogram is not None else None
+                    )
+            if self.video_loading_workflow:
+                self.video_loading_workflow.save_current_config()
+            self._set_assisted_calibration_guide_state("applied")
+            refresh_readiness = getattr(
+                getattr(self.app, "control_panel", None),
+                "_update_conversion_readiness_display",
+                None,
+            )
+            if callable(refresh_readiness):
+                refresh_readiness()
+            return True
+        except Exception:
+            self._restore_calibration_state(calibration_snapshot)
+            self._set_assisted_calibration_guide_state("kept")
+            raise
 
     def _queue_assisted_auto_calibration(
         self,

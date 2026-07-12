@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
 )
 
 from synthesia2midi.core.app_state import AppState
-from synthesia2midi.core.color_families import active_family_numbers
+from synthesia2midi.core.color_families import active_family_numbers, exemplar_display_parts
 from synthesia2midi.gui.calibration_guide import CalibrationGuideWidget, derive_guide_snapshot
 from synthesia2midi.gui.color_family_grid import ColorFamilyGrid
 from synthesia2midi.gui.repeated_notes_tool_window import RepeatedNotesToolWindow
@@ -39,6 +39,19 @@ KEY_TYPE_LABELS = {
 }
 
 translate = QCoreApplication.translate
+
+
+def _exemplar_display_label(slot: str) -> str:
+    family_number, morphology = exemplar_display_parts(slot)
+    family_label = translate("ControlPanelQt", "Color {number}").format(
+        number=family_number
+    )
+    morphology_label = (
+        translate("ControlPanelQt", "Natural")
+        if morphology == "Natural"
+        else translate("ControlPanelQt", "Sharp / Flat")
+    )
+    return f"{family_label} {morphology_label}"
 
 
 @dataclass(frozen=True)
@@ -2150,7 +2163,7 @@ class ControlPanelQt(QWidget):
                     translate("ControlPanelQt", "Capture a no-key frame."),
                 )
 
-        required_exemplars = self.app_state.detection.get_required_base_exemplar_types()
+        required_exemplars = self.app_state.detection.get_required_exemplar_types()
         if not required_exemplars:
             return ConversionReadiness(
                 False,
@@ -2160,9 +2173,13 @@ class ControlPanelQt(QWidget):
         exemplar_colors = self.app_state.detection.get_effective_exemplar_lit_colors()
         for exemplar in required_exemplars:
             if exemplar_colors.get(exemplar) is None:
+                exemplar_label = _exemplar_display_label(exemplar)
                 return ConversionReadiness(
                     False,
-                    translate("ControlPanelQt", "Capture at least one pressed-key example."),
+                    translate(
+                        "ControlPanelQt",
+                        "Capture a pressed-key example for {label}.",
+                    ).format(label=exemplar_label),
                 )
 
         detection_threshold = getattr(self.app_state.detection, "detection_threshold", 0.0)

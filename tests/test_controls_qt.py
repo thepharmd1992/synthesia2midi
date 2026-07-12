@@ -137,7 +137,9 @@ def test_conversion_readiness_explains_first_missing_prerequisite():
         state.overlays = [_basic_overlay(unlit=True)]
         panel.update_controls_from_state()
         assert not panel.convert_button.isEnabled()
-        assert panel.conversion_status.text() == "Capture at least one pressed-key example."
+        assert panel.conversion_status.text() == (
+            "Capture a pressed-key example for Color 1 Natural."
+        )
 
         _calibrate_all_exemplars(state)
         panel.update_controls_from_state()
@@ -188,6 +190,42 @@ def test_conversion_readiness_rejects_non_positive_midi_tempo():
 
         assert not panel.convert_button.isEnabled()
         assert panel.conversion_status.text() == "Check MIDI tempo."
+    finally:
+        panel.close()
+        panel.deleteLater()
+
+
+def test_conversion_readiness_names_enabled_higher_family_missing_color():
+    state = AppState()
+    panel = _panel_with_state(state)
+    try:
+        _prepare_conversion_ready_state(state)
+        state.detection.exemplar_key_type_enabled["COLOR_4_B"] = True
+        state.detection.exemplar_lit_colors["COLOR_4_B"] = None
+
+        panel.update_controls_from_state()
+
+        assert not panel.convert_button.isEnabled()
+        assert panel.conversion_status.text() == (
+            "Capture a pressed-key example for Color 4 Sharp / Flat."
+        )
+    finally:
+        panel.close()
+        panel.deleteLater()
+
+
+def test_conversion_readiness_ignores_unchecked_higher_family_slot():
+    state = AppState()
+    panel = _panel_with_state(state)
+    try:
+        _prepare_conversion_ready_state(state)
+        state.detection.exemplar_key_type_enabled["COLOR_4_B"] = False
+        state.detection.exemplar_lit_colors["COLOR_4_B"] = None
+
+        panel.update_controls_from_state()
+
+        assert panel.convert_button.isEnabled()
+        assert panel.conversion_status.text() == "Ready to create MIDI."
     finally:
         panel.close()
         panel.deleteLater()

@@ -1,10 +1,11 @@
 import json
 
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtGui import QFont, QImage, QPixmap
 from PySide6.QtWidgets import QApplication, QGroupBox, QLabel, QPushButton, QWidget
 
 from synthesia2midi.gui.settings_tool_window import SettingsToolWindow
+from synthesia2midi.localization import install_translator
 from synthesia2midi.tools import render_ui_matrix
 
 
@@ -109,6 +110,47 @@ def test_ui_matrix_handles_wide_platform_font_metrics(tmp_path):
 
         assert exit_code == 0, failures
     finally:
+        app.setFont(original_font)
+
+
+def test_calibration_matrix_grid_reflows_without_horizontal_overflow():
+    app = QApplication.instance() or QApplication([])
+    original_font = QFont(app.font())
+    wide_font = QFont(original_font)
+    wide_font.setStretch(145)
+    base_size = original_font.pointSizeF() if original_font.pointSizeF() > 0 else 13.0
+    wide_font.setPointSizeF(base_size * 1.5)
+    install_translator(app, "qps")
+    app.setFont(wide_font)
+    window = render_ui_matrix._settings_surface("Calibration")
+    try:
+        window.show()
+        app.processEvents()
+        panel = window.settings_widget
+        scroll_area = panel.settings_page_scroll_areas[1]
+        grid = panel.color_family_grid
+        sharp_flat_row = grid.rows["LB"]
+
+        assert scroll_area.horizontalScrollBar().maximum() == 0
+        for widget in (
+            sharp_flat_row.label,
+            sharp_flat_row.set_button,
+            sharp_flat_row.present,
+        ):
+            assert widget.width() + 2 >= widget.sizeHint().width()
+        assert render_ui_matrix._detect_clipping(window) == []
+
+        grid.resize(500, grid.height())
+        grid.resize(500, grid.sizeHint().height())
+        assert sharp_flat_row.set_button.y() > sharp_flat_row.label.geometry().bottom()
+        assert all(
+            grid.rect().contains(child.geometry())
+            for child in grid.findChildren(QWidget, options=Qt.FindDirectChildrenOnly)
+            if not child.isHidden()
+        )
+    finally:
+        window.close()
+        install_translator(app, "en")
         app.setFont(original_font)
 
 

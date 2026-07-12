@@ -63,6 +63,8 @@ def _signal_manager_window(connections):
             "handle_calibrate_unlit_all_keys",
             "handle_calibrate_lit_exemplar_key_start",
             "handle_exemplar_key_type_enabled_change",
+            "handle_add_additional_color",
+            "handle_remove_additional_color",
             "handle_refresh_selected_overlay_display",
             "handle_align_white_keys_to_selected",
             "handle_align_black_keys_to_selected",

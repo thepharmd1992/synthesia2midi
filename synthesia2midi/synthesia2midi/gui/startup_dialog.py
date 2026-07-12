@@ -56,6 +56,7 @@ class StartupDialog(QDialog):
         title_font.setBold(True)
         self.title_label.setFont(title_font)
         self.title_label.setAlignment(Qt.AlignCenter)
+        self.title_label.setWordWrap(True)
         layout.addWidget(self.title_label)
 
         self.language_widget = QWidget()
@@ -63,7 +64,9 @@ class StartupDialog(QDialog):
         language_layout = QHBoxLayout(self.language_widget)
         language_layout.setContentsMargins(0, 0, 0, 0)
         language_layout.addStretch()
-        language_layout.addWidget(QLabel(QCoreApplication.translate("StartupDialog", "Language:")))
+        self.language_label = QLabel(QCoreApplication.translate("StartupDialog", "Language:"))
+        self.language_label.setMinimumWidth(self.language_label.sizeHint().width())
+        language_layout.addWidget(self.language_label)
         self.language_combo = QComboBox()
         self.language_combo.setObjectName("language_combo")
         current_locale = load_preferred_locale(self.settings)
@@ -82,6 +85,7 @@ class StartupDialog(QDialog):
         # Subtitle
         self.subtitle_label = QLabel(QCoreApplication.translate("StartupDialog", "How would you like to load a video?"))
         self.subtitle_label.setAlignment(Qt.AlignCenter)
+        self.subtitle_label.setWordWrap(True)
         layout.addWidget(self.subtitle_label)
 
         self.input_cue_label = QLabel(
@@ -165,6 +169,8 @@ class StartupDialog(QDialog):
         QWidget.setTabOrder(self.local_file_btn, self.youtube_btn)
         if self.recent_video_buttons:
             QWidget.setTabOrder(self.youtube_btn, self.recent_video_buttons[0])
+        layout.activate()
+        self.adjustSize()
         
     def _on_local_file_clicked(self):
         """Handle local file button click"""

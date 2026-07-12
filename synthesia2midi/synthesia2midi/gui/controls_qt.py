@@ -198,6 +198,7 @@ class ControlPanelQt(QWidget):
         self.settings_section_rail = QListWidget()
         self.settings_section_rail.setObjectName("settings_section_rail")
         self.settings_section_rail.setFixedWidth(98)
+        self.settings_section_rail.setWordWrap(True)
         self.settings_section_rail.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.settings_section_rail.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.settings_section_rail.currentRowChanged.connect(self._set_settings_section)
@@ -280,15 +281,17 @@ class ControlPanelQt(QWidget):
             metrics.horizontalAdvance(self.settings_section_rail.item(index).text())
             for index in range(self.settings_section_rail.count())
         )
-        rail_width = max(98, widest_text + 28)
+        rail_width = min(144, max(98, widest_text + 28))
         self.settings_section_rail.setFixedWidth(rail_width)
         self.settings_section_rail_container.setFixedWidth(rail_width)
-        row_height = self.settings_section_rail.sizeHintForRow(0)
-        if row_height <= 0:
-            row_height = 30
         frame = self.settings_section_rail.frameWidth() * 2
         self.settings_section_rail.setFixedHeight(
-            (row_height * self.settings_section_rail.count()) + frame + 4
+            sum(
+                max(30, self.settings_section_rail.sizeHintForRow(index))
+                for index in range(self.settings_section_rail.count())
+            )
+            + frame
+            + 4
         )
 
     def fit_settings_section_rail(self) -> None:
@@ -345,6 +348,7 @@ class ControlPanelQt(QWidget):
         footer_layout.addLayout(action_row, 2, 0)
         footer_layout.setColumnStretch(0, 1)
         parent_layout.addWidget(self.settings_footer)
+        self.settings_footer.setMinimumHeight(self.settings_footer.sizeHint().height())
 
     def _create_language_settings_tab(self):
         """Language settings shown as a first-class settings section."""
@@ -434,7 +438,9 @@ class ControlPanelQt(QWidget):
             translate("ControlPanelQt", "Draw Keyboard Box and Find Keys")
         )
         self.calibration_wizard_button.setMinimumWidth(180)
-        self.calibration_wizard_button.setMinimumHeight(36)
+        self.calibration_wizard_button.setMinimumHeight(
+            max(36, self.calibration_wizard_button.sizeHint().height())
+        )
         self.calibration_wizard_button.clicked.connect(self.calibration_wizard_requested.emit)
         self.calibration_wizard_button.setToolTip(
             translate(
@@ -566,15 +572,14 @@ class ControlPanelQt(QWidget):
             )
             self.exemplar_presence_checkboxes[key_type] = presence_cb
             
-            # Add to right column
-            button_layout = QHBoxLayout()
+            button_layout = QGridLayout()
             button_layout.setContentsMargins(0, 0, 0, 0)
-            button_layout.addWidget(button, 1)
-            button_layout.addSpacing(4)
-            button_layout.addWidget(color_swatch)
-            button_layout.addSpacing(4)
-            button_layout.addWidget(presence_cb)
-            button_layout.addStretch()
+            button_layout.setHorizontalSpacing(8)
+            button_layout.setVerticalSpacing(4)
+            button_layout.addWidget(button, 0, 0, 1, 3)
+            button_layout.addWidget(color_swatch, 1, 0)
+            button_layout.addWidget(presence_cb, 1, 1)
+            button_layout.setColumnStretch(2, 1)
             exemplar_container.addLayout(button_layout)
         
         layout.addLayout(exemplar_container)
@@ -595,28 +600,21 @@ class ControlPanelQt(QWidget):
         alignment_group.setObjectName("first_in_tab")  # For CSS styling
         alignment_layout = QVBoxLayout(alignment_group)
         
-        align_layout = QHBoxLayout()
+        align_layout = QVBoxLayout()
+        align_layout.setSpacing(6)
         self.align_white_button = QPushButton(translate("ControlPanelQt", "Align White Keys"))
-        self.align_white_button.setMaximumWidth(432)  # Increased by 20% from 360
+        self.align_white_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.align_white_button.clicked.connect(self.align_white_keys_requested.emit)
         self.align_black_button = QPushButton(translate("ControlPanelQt", "Align Black Keys"))
-        self.align_black_button.setMaximumWidth(432)  # Increased by 20% from 360
+        self.align_black_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.align_black_button.clicked.connect(self.align_black_keys_requested.emit)
         self.manual_fit_button = QPushButton(translate("ControlPanelQt", "Manual Fit"))
-        self.manual_fit_button.setMaximumWidth(432)
+        self.manual_fit_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.manual_fit_button.clicked.connect(self.manual_fit_requested.emit)
-        
-        # Place buttons side by side
-        button_row = QHBoxLayout()
-        button_row.addWidget(self.align_white_button)
-        button_row.addSpacing(15)  # Move align black keys button to the right
-        button_row.addWidget(self.align_black_button)
-        button_row.addStretch()
-        align_layout.addLayout(button_row)
-        fit_row = QHBoxLayout()
-        fit_row.addWidget(self.manual_fit_button)
-        fit_row.addStretch()
-        align_layout.addLayout(fit_row)
+
+        align_layout.addWidget(self.align_white_button)
+        align_layout.addWidget(self.align_black_button)
+        align_layout.addWidget(self.manual_fit_button)
         alignment_layout.addLayout(align_layout)
         
         layout.addWidget(alignment_group)
@@ -1233,17 +1231,17 @@ class ControlPanelQt(QWidget):
         fps_button_layout.setSpacing(5)  # Minimal spacing between buttons
         
         self.fps_30_button = QPushButton("30 FPS")
-        self.fps_30_button.setMaximumWidth(132)
+        self.fps_30_button.setMinimumWidth(self.fps_30_button.sizeHint().width())
         self.fps_30_button.setCheckable(True)
         self.fps_30_button.clicked.connect(lambda: self._set_fps_override(30))
         
         self.fps_60_button = QPushButton("60 FPS")
-        self.fps_60_button.setMaximumWidth(132)
+        self.fps_60_button.setMinimumWidth(self.fps_60_button.sizeHint().width())
         self.fps_60_button.setCheckable(True)
         self.fps_60_button.clicked.connect(lambda: self._set_fps_override(60))
         
         self.fps_auto_button = QPushButton(translate("ControlPanelQt", "Auto"))
-        self.fps_auto_button.setMaximumWidth(132)
+        self.fps_auto_button.setMinimumWidth(self.fps_auto_button.sizeHint().width())
         self.fps_auto_button.setCheckable(True)
         self.fps_auto_button.setChecked(True)
         self.fps_auto_button.clicked.connect(lambda: self._set_fps_override(None))
@@ -1283,6 +1281,7 @@ class ControlPanelQt(QWidget):
         # Processing start frame
         processing_start_label = QLabel(translate("ControlPanelQt", "Start Frame:"))
         processing_start_label.setFixedWidth(144)
+        processing_start_label.setWordWrap(True)
         processing_grid.addWidget(processing_start_label, 0, 0)
         
         self.processing_start_frame_spin = QSpinBox()
@@ -1293,13 +1292,16 @@ class ControlPanelQt(QWidget):
         processing_grid.addWidget(self.processing_start_frame_spin, 0, 1)
         
         self.processing_start_set_button = QPushButton(translate("ControlPanelQt", "Set to Current"))
-        self.processing_start_set_button.setMaximumWidth(240)  # Increased by 20% from 200
+        self.processing_start_set_button.setMinimumWidth(
+            self.processing_start_set_button.sizeHint().width()
+        )
         self.processing_start_set_button.clicked.connect(self._set_processing_start_to_current)
         processing_grid.addWidget(self.processing_start_set_button, 0, 2)
         
         # Processing end frame
         processing_end_label = QLabel(translate("ControlPanelQt", "End Frame:"))
         processing_end_label.setFixedWidth(144)
+        processing_end_label.setWordWrap(True)
         processing_grid.addWidget(processing_end_label, 1, 0)
         
         self.processing_end_frame_spin = QSpinBox()
@@ -1310,7 +1312,9 @@ class ControlPanelQt(QWidget):
         processing_grid.addWidget(self.processing_end_frame_spin, 1, 1)
         
         self.processing_end_set_button = QPushButton(translate("ControlPanelQt", "Set to Current"))
-        self.processing_end_set_button.setMaximumWidth(240)  # Increased by 20% from 200
+        self.processing_end_set_button.setMinimumWidth(
+            self.processing_end_set_button.sizeHint().width()
+        )
         self.processing_end_set_button.clicked.connect(self._set_processing_end_to_current)
         processing_grid.addWidget(self.processing_end_set_button, 1, 2)
         
@@ -1350,6 +1354,8 @@ class ControlPanelQt(QWidget):
         
         # Start frame
         start_label = QLabel(translate("ControlPanelQt", "Start Frame:"))
+        start_label.setWordWrap(True)
+        start_label.setMinimumWidth(120)
         frame_grid.addWidget(start_label, 0, 0)
         
         self.start_frame_spin = QSpinBox()
@@ -1360,11 +1366,16 @@ class ControlPanelQt(QWidget):
         frame_grid.addWidget(self.start_frame_spin, 0, 1)
         
         self.trim_start_set_button = QPushButton(translate("ControlPanelQt", "Set to Current"))
+        self.trim_start_set_button.setMinimumWidth(
+            self.trim_start_set_button.sizeHint().width()
+        )
         self.trim_start_set_button.clicked.connect(self._set_trim_start_to_current)
         frame_grid.addWidget(self.trim_start_set_button, 0, 2)
         
         # End frame
         end_label = QLabel(translate("ControlPanelQt", "End Frame:"))
+        end_label.setWordWrap(True)
+        end_label.setMinimumWidth(120)
         frame_grid.addWidget(end_label, 1, 0)
         
         self.end_frame_spin = QSpinBox()
@@ -1375,6 +1386,9 @@ class ControlPanelQt(QWidget):
         frame_grid.addWidget(self.end_frame_spin, 1, 1)
         
         self.trim_end_set_button = QPushButton(translate("ControlPanelQt", "Set to Current"))
+        self.trim_end_set_button.setMinimumWidth(
+            self.trim_end_set_button.sizeHint().width()
+        )
         self.trim_end_set_button.clicked.connect(self._set_trim_end_to_current)
         frame_grid.addWidget(self.trim_end_set_button, 1, 2)
         

@@ -264,7 +264,7 @@ def test_settings_gear_toggles_floating_tool_window(monkeypatch):
         settings_rect = app.settings_tool_window.frameGeometry()
         assert settings_rect.right() >= screen_rect.right() - 80
         assert settings_rect.top() <= screen_rect.top() + 80
-        assert app.settings_tool_window.height() <= 620
+        assert app.settings_tool_window.height() <= 700
 
         app.settings_toggle_button.click()
         QApplication.processEvents()

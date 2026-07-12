@@ -88,14 +88,13 @@ class CalibrationWizard(QDialog):
         layout.addWidget(self.auto_selection_button, 1, 0, 1, 3)
 
         self.edit_current_calibration_button = QPushButton(QCoreApplication.translate("CalibrationWizard", "Edit Current Calibration"))
-        self.edit_current_calibration_button.setMinimumWidth(270)
-        self.edit_current_calibration_button.setMaximumWidth(270)
+        self.edit_current_calibration_button.setMinimumHeight(36)
         self.edit_current_calibration_button.setToolTip(
             QCoreApplication.translate("CalibrationWizard", "Open the auto-detect tuning panel using your current calibration.")
         )
         self.edit_current_calibration_button.setEnabled(False)
         self.edit_current_calibration_button.clicked.connect(self._handle_edit_current_calibration)
-        layout.addWidget(self.edit_current_calibration_button, 2, 0)
+        layout.addWidget(self.edit_current_calibration_button, 2, 0, 1, 3)
 
         self.edit_current_reason_label = QLabel(
             QCoreApplication.translate(
@@ -110,10 +109,12 @@ class CalibrationWizard(QDialog):
         # Manual calibration section
         manual_label = QLabel(QCoreApplication.translate("CalibrationWizard", "Or use manual calibration:"))
         manual_label.setStyleSheet("font-weight: bold; margin-top: 10px;")
+        manual_label.setWordWrap(True)
         layout.addWidget(manual_label, 4, 0, 1, 3)
 
         # Leftmost key selection
         leftmost_label = QLabel(QCoreApplication.translate("CalibrationWizard", "Leftmost Key:"))
+        leftmost_label.setWordWrap(True)
         layout.addWidget(leftmost_label, 5, 0)
         
         self.leftmost_note_combo = QComboBox()
@@ -129,6 +130,7 @@ class CalibrationWizard(QDialog):
 
         # Total keys selection
         total_keys_label = QLabel(QCoreApplication.translate("CalibrationWizard", "Total Keys:"))
+        total_keys_label.setWordWrap(True)
         layout.addWidget(total_keys_label, 6, 0)
         
         self.total_keys_spin = QSpinBox()
@@ -140,6 +142,7 @@ class CalibrationWizard(QDialog):
 
         # Manual submit button
         self.manual_submit_button = QPushButton(QCoreApplication.translate("CalibrationWizard", "Generate Manual Overlays"))
+        self.manual_submit_button.setMinimumHeight(36)
         self.manual_submit_button.clicked.connect(self._submit_manual)
         layout.addWidget(self.manual_submit_button, 7, 0, 1, 3)
 
@@ -159,6 +162,8 @@ class CalibrationWizard(QDialog):
         QWidget.setTabOrder(self.leftmost_octave_spin, self.total_keys_spin)
         QWidget.setTabOrder(self.total_keys_spin, self.manual_submit_button)
         QWidget.setTabOrder(self.manual_submit_button, self.cancel_button)
+        layout.activate()
+        self.adjustSize()
 
     def set_edit_current_calibration_enabled(self, enabled: bool, tooltip: Optional[str] = None) -> None:
         self.edit_current_calibration_button.setEnabled(enabled)

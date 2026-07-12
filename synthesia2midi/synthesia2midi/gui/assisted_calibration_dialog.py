@@ -64,7 +64,6 @@ class AssistedCalibrationDialog(QDialog):
             self.tr("Left/Right refer to Synthesia note colors, not the physical side of the keyboard.")
         )
         self.color_family_note.setWordWrap(True)
-        self.color_family_note.setMinimumHeight(self.color_family_note.sizeHint().height())
         layout.addWidget(self.color_family_note)
 
         slot_labels = {
@@ -78,7 +77,7 @@ class AssistedCalibrationDialog(QDialog):
             assignment = self.proposal.assignment_result.assignments.get(slot)
             row_layout = QHBoxLayout()
             name_label = QLabel(slot_labels[slot])
-            name_label.setMinimumWidth(110)
+            name_label.setMinimumWidth(max(110, name_label.sizeHint().width()))
             row_layout.addWidget(name_label)
 
             swatch = QWidget()
@@ -99,6 +98,7 @@ class AssistedCalibrationDialog(QDialog):
             row_layout.addWidget(swatch)
 
             status_label = QLabel(status)
+            status_label.setMinimumWidth(status_label.sizeHint().width())
             row_layout.addWidget(status_label, 1)
             layout.addLayout(row_layout)
             self.rows[slot] = AssistedCalibrationRow(name_label, swatch, status_label)
@@ -111,13 +111,15 @@ class AssistedCalibrationDialog(QDialog):
         self.try_another_button = QPushButton(self.tr("Try Another Frame"))
         self.try_another_button.setMinimumHeight(36)
         self.try_another_button.clicked.connect(self._retry)
-        button_layout.addWidget(self.try_another_button, 0, 1)
+        button_layout.addWidget(self.try_another_button, 1, 0)
         self.use_button = QPushButton(self.tr("Use These Examples"))
         self.use_button.setMinimumHeight(36)
         self.use_button.setDefault(True)
         self.use_button.clicked.connect(self._use)
-        button_layout.addWidget(self.use_button, 1, 0, 1, 2)
+        button_layout.addWidget(self.use_button, 2, 0)
         layout.addLayout(button_layout)
+        layout.activate()
+        self.adjustSize()
 
     def _use(self) -> None:
         self.decision = AssistedCalibrationDecision.USE

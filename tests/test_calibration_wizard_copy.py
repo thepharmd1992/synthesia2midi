@@ -46,3 +46,17 @@ def test_edit_current_reason_label_keeps_base_copy_when_controller_sets_tooltip(
     finally:
         dialog.close()
         dialog.deleteLater()
+
+
+def test_edit_current_calibration_action_uses_the_full_dialog_width():
+    QApplication.instance() or QApplication([])
+    dialog = CalibrationWizard(None, AppState())
+    try:
+        layout = dialog.layout()
+        index = layout.indexOf(dialog.edit_current_calibration_button)
+
+        assert layout.getItemPosition(index) == (2, 0, 1, 3)
+        assert dialog.edit_current_calibration_button.maximumWidth() > 1000
+    finally:
+        dialog.close()
+        dialog.deleteLater()

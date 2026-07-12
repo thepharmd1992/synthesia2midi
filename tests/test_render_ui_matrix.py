@@ -2,7 +2,7 @@ import json
 
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QImage, QPixmap
-from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QWidget
+from PySide6.QtWidgets import QApplication, QGroupBox, QLabel, QPushButton, QWidget
 
 from synthesia2midi.gui.settings_tool_window import SettingsToolWindow
 from synthesia2midi.tools import render_ui_matrix
@@ -44,7 +44,7 @@ def test_settings_matrix_surface_uses_real_production_window():
     window = render_ui_matrix._settings_surface("Language")
     try:
         assert isinstance(window, SettingsToolWindow)
-        assert window.size() == QSize(780, 600)
+        assert window.size() == QSize(800, 680)
         panel = window.settings_widget
         assert panel is not None
         assert panel.settings_section_rail.currentRow() == 7
@@ -82,6 +82,30 @@ def test_ui_matrix_returns_nonzero_when_clipping_is_reported(monkeypatch, tmp_pa
     assert render_ui_matrix.render_matrix(tmp_path, locale_name="en", font_scale=1.0) == 1
 
 
+def test_ui_matrix_handles_wide_platform_font_metrics(tmp_path):
+    app = QApplication.instance() or QApplication([])
+    original_font = app.font()
+    wide_font = app.font()
+    wide_font.setStretch(135)
+    app.setFont(wide_font)
+    try:
+        exit_code = render_ui_matrix.render_matrix(
+            tmp_path,
+            locale_name="qps",
+            font_scale=1.5,
+        )
+        report = json.loads((tmp_path / "report.json").read_text())
+        failures = {
+            entry["surface"]: entry["clipping"]
+            for entry in report["surfaces"]
+            if not entry["nonblank"] or entry["clipping"]
+        }
+
+        assert exit_code == 0, failures
+    finally:
+        app.setFont(original_font)
+
+
 def test_ui_matrix_preserves_surface_opening_geometry(monkeypatch, tmp_path):
     QApplication.instance() or QApplication([])
 
@@ -107,6 +131,23 @@ def test_ui_matrix_preserves_surface_opening_geometry(monkeypatch, tmp_path):
     assert QImage(str(tmp_path / "opening.png")).size() == QSize(321, 123)
 
 
+def test_ui_matrix_destroys_rendered_widgets(monkeypatch, tmp_path):
+    QApplication.instance() or QApplication([])
+    widget = QWidget()
+    widget.resize(120, 80)
+    destroyed = []
+    widget.destroyed.connect(lambda: destroyed.append(True))
+    monkeypatch.setattr(
+        render_ui_matrix,
+        "_surface_factories",
+        lambda: [("cleanup", lambda: widget)],
+    )
+
+    render_ui_matrix.render_matrix(tmp_path, locale_name="en", font_scale=1.0)
+
+    assert destroyed == [True]
+
+
 def test_ui_matrix_reports_overlapping_sibling_controls():
     QApplication.instance() or QApplication([])
     parent = QWidget()
@@ -121,6 +162,27 @@ def test_ui_matrix_reports_overlapping_sibling_controls():
         assert any(
             finding.startswith("overlap:")
             for finding in render_ui_matrix._detect_clipping(parent)
+        )
+    finally:
+        parent.close()
+
+
+def test_ui_matrix_reports_a_group_box_overlapping_a_sibling_control():
+    QApplication.instance() or QApplication([])
+    parent = QWidget()
+    parent.resize(300, 200)
+    group = QGroupBox("Video Information", parent)
+    group.setGeometry(10, 10, 200, 100)
+    button = QPushButton("Refresh Info", parent)
+    button.setGeometry(10, 80, 200, 30)
+    parent.show()
+    QApplication.processEvents()
+    try:
+        findings = render_ui_matrix._detect_clipping(parent)
+
+        assert any(
+            "Video Information" in finding and "Refresh Info" in finding
+            for finding in findings
         )
     finally:
         parent.close()

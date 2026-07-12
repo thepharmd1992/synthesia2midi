@@ -8,7 +8,7 @@ from pathlib import Path
 from PySide6.QtCore import QCoreApplication, Qt, Signal, QTimer, QThread, QSettings
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
-    QComboBox, QDialog, QDialogButtonBox, QGroupBox, QHBoxLayout,
+    QComboBox, QDialog, QDialogButtonBox, QGroupBox,
     QCheckBox, QLabel, QLineEdit, QMessageBox, QProgressBar,
     QPushButton, QSizePolicy, QTextEdit, QVBoxLayout, QWidget
 )
@@ -122,8 +122,10 @@ class YouTubeDownloadDialog(QDialog):
         self.title_label.setWordWrap(True)
         self.title_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.duration_label = QLabel()
+        self.duration_label.setWordWrap(True)
         self.duration_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.uploader_label = QLabel()
+        self.uploader_label.setWordWrap(True)
         self.uploader_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         
         info_layout.addWidget(self.title_label)
@@ -194,23 +196,23 @@ class YouTubeDownloadDialog(QDialog):
         layout.addWidget(progress_group)
         
         # Buttons
-        button_layout = QHBoxLayout()
+        self.action_layout = QVBoxLayout()
         
         self.download_btn = QPushButton(QCoreApplication.translate("YouTubeDownloadDialog", "Download Video"))
         self.download_btn.clicked.connect(self.start_download)
         self.download_btn.setEnabled(False)
-        button_layout.addWidget(self.download_btn)
+        self.action_layout.addWidget(self.download_btn)
         
         self.cancel_btn = QPushButton(QCoreApplication.translate("YouTubeDownloadDialog", "Cancel"))
         self.cancel_btn.clicked.connect(self.cancel_download)
         self.cancel_btn.setEnabled(False)
-        button_layout.addWidget(self.cancel_btn)
+        self.action_layout.addWidget(self.cancel_btn)
         
         self.close_btn = QPushButton(QCoreApplication.translate("YouTubeDownloadDialog", "Close"))
         self.close_btn.clicked.connect(self.reject)
-        button_layout.addWidget(self.close_btn)
+        self.action_layout.addWidget(self.close_btn)
         
-        layout.addLayout(button_layout)
+        layout.addLayout(self.action_layout)
         QWidget.setTabOrder(self.url_input, self.fetch_info_btn)
         QWidget.setTabOrder(self.fetch_info_btn, self.quality_combo)
         QWidget.setTabOrder(self.quality_combo, self.browser_combo)
@@ -337,7 +339,17 @@ class YouTubeDownloadDialog(QDialog):
             max(self.MIN_VIDEO_INFO_HEIGHT, self.info_widget.sizeHint().height())
         )
         self.info_widget.updateGeometry()
-        self.adjustSize()
+        dialog_layout = self.layout()
+        if dialog_layout is not None:
+            dialog_layout.invalidate()
+            dialog_layout.activate()
+        opening_hint = self.sizeHint()
+        self.resize(
+            max(self.width(), opening_hint.width()),
+            max(self.height(), opening_hint.height()),
+        )
+        if dialog_layout is not None:
+            dialog_layout.activate()
 
     def _on_video_info_error(self, url, error):
         if url != self.url_input.text().strip():

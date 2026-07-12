@@ -74,3 +74,16 @@ def test_assisted_dialog_defaults_to_use_and_close_keeps_current_examples():
     finally:
         dialog.close()
         dialog.deleteLater()
+
+
+def test_assisted_dialog_stacks_actions_for_long_translations():
+    QApplication.instance() or QApplication([])
+    dialog = AssistedCalibrationDialog(_proposal())
+    try:
+        button_layout = dialog.layout().itemAt(dialog.layout().count() - 1).layout()
+
+        assert button_layout.rowCount() == 3
+        assert button_layout.columnCount() == 1
+    finally:
+        dialog.close()
+        dialog.deleteLater()

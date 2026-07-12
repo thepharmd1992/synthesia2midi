@@ -38,7 +38,8 @@ def test_settings_rail_fits_every_label_at_shipped_font_scales(locale_name, font
             metrics.horizontalAdvance(panel.settings_section_rail.item(index).text())
             for index in range(panel.settings_section_rail.count())
         )
-        assert panel.settings_section_rail.width() >= widest_text + 28
+        assert panel.settings_section_rail.width() == min(144, max(98, widest_text + 28))
+        assert panel.settings_section_rail.horizontalScrollBar().maximum() == 0
         assert panel.settings_section_rail_container.width() == panel.settings_section_rail.width()
         assert panel.settings_footer.width() == panel.tab_widget.width()
         if font_scale == 1.5:

@@ -11,7 +11,7 @@ from typing import Callable, Sequence
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import numpy as np
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QCoreApplication, QEvent, Qt
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QAbstractButton,
@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
     QAbstractSpinBox,
     QApplication,
     QComboBox,
+    QGroupBox,
     QLabel,
     QLineEdit,
     QSlider,
@@ -123,7 +124,7 @@ def _settings_surface(
     panel.settings_section_rail.setCurrentRow(index)
     if advanced_section is not None:
         panel.advanced_sections[advanced_section]._toggle.setChecked(True)
-    window.resize(780, 600)
+    window.resize(800, 680)
     return window
 
 
@@ -228,6 +229,13 @@ def _surface_factories() -> list[tuple[str, Callable[[], QWidget]]]:
 
 
 def _detect_clipping(widget: QWidget) -> list[str]:
+    def control_text(control: QWidget) -> str:
+        if isinstance(control, QGroupBox):
+            return control.title()
+        if hasattr(control, "text"):
+            return control.text()
+        return control.metaObject().className()
+
     findings = []
     for button in widget.findChildren(QAbstractButton):
         if not button.isVisible() or not button.text().strip():
@@ -249,7 +257,15 @@ def _detect_clipping(widget: QWidget) -> list[str]:
         if label.width() + 2 < required or label.height() + 2 < required_height:
             findings.append(f"QLabel:{label.text()}")
 
-    overlap_types = (QAbstractButton, QAbstractSpinBox, QComboBox, QLabel, QLineEdit, QSlider)
+    overlap_types = (
+        QAbstractButton,
+        QAbstractSpinBox,
+        QComboBox,
+        QGroupBox,
+        QLabel,
+        QLineEdit,
+        QSlider,
+    )
     candidates = [
         child
         for child in widget.findChildren(QWidget)
@@ -279,10 +295,7 @@ def _detect_clipping(widget: QWidget) -> list[str]:
                 and scroll_area.verticalScrollBar().maximum() == 0
             )
         if width_clipped or height_clipped:
-            child_text = (
-                child.text() if hasattr(child, "text") else child.metaObject().className()
-            )
-            findings.append(f"ancestor-clip:{child_text}")
+            findings.append(f"ancestor-clip:{control_text(child)}")
 
     parents = {child.parentWidget() for child in candidates}
     for parent in parents:
@@ -291,9 +304,9 @@ def _detect_clipping(widget: QWidget) -> list[str]:
             for other in siblings[index + 1 :]:
                 if not child.geometry().intersects(other.geometry()):
                     continue
-                child_text = child.text() if hasattr(child, "text") else child.metaObject().className()
-                other_text = other.text() if hasattr(other, "text") else other.metaObject().className()
-                findings.append(f"overlap:{child_text}<>{other_text}")
+                findings.append(
+                    f"overlap:{control_text(child)}<>{control_text(other)}"
+                )
     return sorted(set(findings))
 
 
@@ -353,6 +366,7 @@ def render_matrix(output: Path, *, locale_name: str, font_scale: float) -> int:
             )
             widget.close()
             widget.deleteLater()
+            QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
             app.processEvents()
     finally:
         install_translator(app, "en")

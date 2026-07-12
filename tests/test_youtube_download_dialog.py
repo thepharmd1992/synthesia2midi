@@ -1,6 +1,6 @@
-from PySide6.QtGui import QCloseEvent
+from PySide6.QtGui import QCloseEvent, QFont
 from PySide6.QtTest import QTest
-from PySide6.QtWidgets import QApplication, QDialog, QMessageBox
+from PySide6.QtWidgets import QApplication, QBoxLayout, QDialog, QMessageBox
 
 from synthesia2midi.gui import youtube_download_dialog
 from synthesia2midi.gui.youtube_download_dialog import YouTubeDownloadDialog
@@ -26,6 +26,19 @@ def _wait_until(predicate, *, timeout_ms=500):
         QTest.qWait(10)
         deadline -= 10
     return predicate()
+
+
+def test_download_dialog_stacks_actions_and_wraps_metadata():
+    QApplication.instance() or QApplication([])
+    dialog = YouTubeDownloadDialog(default_output_dir="/tmp")
+    try:
+        assert dialog.action_layout.direction() == QBoxLayout.TopToBottom
+        assert dialog.title_label.wordWrap()
+        assert dialog.duration_label.wordWrap()
+        assert dialog.uploader_label.wordWrap()
+    finally:
+        dialog.close()
+        dialog.deleteLater()
 
 
 def test_dialog_preserves_default_download_dir(tmp_path):
@@ -227,6 +240,35 @@ def test_video_info_group_expands_to_fit_metadata_labels(tmp_path):
     QApplication.processEvents()
 
     assert dialog.info_widget.height() >= dialog.info_widget.sizeHint().height()
+
+
+def test_video_info_group_does_not_overlap_quality_selector_with_wide_font(tmp_path):
+    app = QApplication.instance() or QApplication([])
+    original_font = QFont(app.font())
+    wide_font = QFont(original_font)
+    wide_font.setPointSizeF(original_font.pointSizeF() * 1.5)
+    wide_font.setStretch(135)
+    app.setFont(wide_font)
+    dialog = YouTubeDownloadDialog(default_output_dir=str(tmp_path))
+    try:
+        dialog.show()
+        dialog.url_input.setText("https://www.youtube.com/watch?v=SFFSZQCnU_M")
+        dialog.auto_fetch_timer.stop()
+        dialog._on_video_info_fetched(
+            "https://www.youtube.com/watch?v=SFFSZQCnU_M",
+            {
+                "title": "A Long but Fully Visible Synthesia Piano Tutorial Title",
+                "duration": 754,
+                "uploader": "Example Piano Channel",
+            },
+        )
+        QApplication.processEvents()
+
+        assert dialog.info_widget.geometry().bottom() < dialog.quality_combo.geometry().top()
+    finally:
+        dialog.close()
+        dialog.deleteLater()
+        app.setFont(original_font)
 
 
 def test_video_info_success_uses_real_available_quality_options(tmp_path):

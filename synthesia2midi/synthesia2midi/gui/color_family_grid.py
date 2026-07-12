@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from synthesia2midi.core.color_families import exemplar_display_parts, slots_for_family
+from synthesia2midi.core.color_families import morphology_for_slot, slots_for_family
 
 
 @dataclass
@@ -129,8 +129,12 @@ class ColorFamilyGrid(QWidget):
         enabled: Mapping[str, bool],
         assignments: Mapping[str, object],
     ) -> ExemplarRowWidgets:
-        _family_number, display_label = exemplar_display_parts(slot)
-        label = QLabel(self.tr(display_label))
+        label_text = (
+            self.tr("Natural")
+            if morphology_for_slot(slot) == "natural"
+            else self.tr("Sharp / Flat")
+        )
+        label = QLabel(label_text)
         label.setMinimumWidth(96)
         swatch = QLabel()
         swatch.setFixedSize(22, 20)

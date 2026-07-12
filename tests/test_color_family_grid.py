@@ -1,3 +1,6 @@
+import ast
+import inspect
+import textwrap
 from types import SimpleNamespace
 
 from PySide6.QtCore import Qt
@@ -5,6 +8,25 @@ from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QApplication, QWidget
 
 from synthesia2midi.gui.color_family_grid import ColorFamilyGrid
+
+
+def test_exemplar_labels_use_literal_extractable_translation_sources():
+    source = textwrap.dedent(inspect.getsource(ColorFamilyGrid._add_exemplar_row))
+    tree = ast.parse(source)
+    translated_strings = {
+        node.args[0].value
+        for node in ast.walk(tree)
+        if (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "tr"
+            and node.args
+            and isinstance(node.args[0], ast.Constant)
+            and isinstance(node.args[0].value, str)
+        )
+    }
+
+    assert {"Natural", "Sharp / Flat"} <= translated_strings
 
 
 def _family_data():

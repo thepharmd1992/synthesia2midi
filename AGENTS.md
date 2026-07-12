@@ -23,6 +23,9 @@ Canonical agent operating model for this repo. Keep this file short: it is the o
 ## Operating Rules
 
 - Start every task with `git status --short --branch` and protect unrelated user/agent changes.
+- Do not create a worktree unless Jeff explicitly authorizes it.
+- Before starting a new feature branch or task, audit existing branches and worktrees. Any completed feature must be verified and merged into `main` first; if merge approval is required, stop and ask rather than stacking new work on an unmerged branch.
+- After a feature is merged, remove its worktree and delete its merged local branch unless Jeff explicitly asks to retain it. Treat remote branch deletion as a push operation and wait for authorization.
 - Keep changes bounded to the assigned task; do not opportunistically refactor neighboring systems.
 - Add or update tests before behavior changes and before risky refactors.
 - Do not commit generated media, logs, extracted frames, MIDI files, `.venv`, or Rust `target/` output.

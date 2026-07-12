@@ -1995,7 +1995,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 657
+          "line": 654
         }
       ],
       "notes": ""
@@ -2007,7 +2007,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 659
+          "line": 656
         }
       ],
       "notes": ""
@@ -2019,7 +2019,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 665
+          "line": 662
         }
       ],
       "notes": ""
@@ -2031,7 +2031,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 670
+          "line": 667
         }
       ],
       "notes": ""
@@ -3166,21 +3166,13 @@
     },
     {
       "context": "ControlPanelQt",
-      "source": "Draw Keyboard Box and Find Keys",
+      "source": "Find the keyboard",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
           "line": 447
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Find the keyboard",
-      "placeholders": [],
-      "locations": [
+        },
         {
           "filename": "../gui/controls_qt.py",
           "line": 464

@@ -2207,15 +2207,6 @@
     },
     {
       "classification": "translate",
-      "context": "translate",
-      "line": 447,
-      "origin": "static",
-      "role": "arg1",
-      "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "Draw Keyboard Box and Find Keys"
-    },
-    {
-      "classification": "translate",
       "context": "QCoreApplication.translate",
       "line": 66,
       "origin": "static",
@@ -2649,7 +2640,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 464,
+      "line": 447,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
@@ -6081,7 +6072,7 @@
     "dynamic_user_data": 4,
     "path_or_url": 2,
     "technical_id": 6,
-    "translate": 652
+    "translate": 651
   },
   "schema_version": 1
 }

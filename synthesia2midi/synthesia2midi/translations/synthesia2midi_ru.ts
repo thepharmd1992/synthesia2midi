@@ -917,22 +917,22 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">Применить эти обновления калибровки?</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="657"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="654"/>
         <source>Open Manual Fit for the current manual calibration.</source>
         <translation>Открыть ручную подгонку для текущей ручной калибровки.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="659"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="656"/>
         <source>Edit Current Calibration becomes available after manual overlays exist.</source>
         <translation>Изменение текущей калибровки станет доступно после создания ручных оверлеев.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="665"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="662"/>
         <source>Open the auto-detect tuning panel for the current calibration.</source>
         <translation>Открыть панель настройки автоопределения для текущей калибровки.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="670"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="667"/>
         <source>Edit Current Calibration becomes available after an auto-detect run.</source>
         <translation>Изменение текущей калибровки станет доступно после запуска автоопределения.</translation>
     </message>
@@ -1467,11 +1467,11 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">3) Захватить примеры нажатых клавиш: для каждой нужной кнопки (Left/Right x White/Black) остановитесь на кадре, где такой оверлей светится, нажмите кнопку, затем щёлкните этот оверлей в видео. Left/Right относятся к цветам нот Synthesia, а не к физической стороне клавиатуры.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="447"/>
         <source>Draw Keyboard Box and Find Keys</source>
-        <translation>Нарисуйте рамку клавиатуры и найдите клавиши.</translation>
+        <translation type="vanished">Нарисуйте рамку клавиатуры и найдите клавиши.</translation>
     </message>
     <message>
+        <location filename="../gui/controls_qt.py" line="447"/>
         <location filename="../gui/controls_qt.py" line="464"/>
         <source>Find the keyboard</source>
         <translation>Найдите клавиатуру</translation>

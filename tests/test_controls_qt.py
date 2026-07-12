@@ -315,7 +315,7 @@ def test_calibration_section_shows_visible_step_instructions():
     QApplication.instance() or QApplication([])
     panel = ControlPanelQt()
     try:
-        assert panel.calibration_wizard_button.text() == "Draw Keyboard Box and Find Keys"
+        assert panel.calibration_wizard_button.text() == "Find the keyboard"
         assert (
             panel.calibration_wizard_button.minimumWidth()
             >= panel.calibration_wizard_button.sizeHint().width()

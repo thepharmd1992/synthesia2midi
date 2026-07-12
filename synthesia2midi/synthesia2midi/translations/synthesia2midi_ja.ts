@@ -917,22 +917,22 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">これらのキャリブレーション更新を適用しますか？</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="657"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="654"/>
         <source>Open Manual Fit for the current manual calibration.</source>
         <translation>現在の手動キャリブレーションで手動フィットを開きます。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="659"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="656"/>
         <source>Edit Current Calibration becomes available after manual overlays exist.</source>
         <translation>手動オーバーレイが存在すると、現在のキャリブレーションを編集できます。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="665"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="662"/>
         <source>Open the auto-detect tuning panel for the current calibration.</source>
         <translation>現在のキャリブレーションの自動検出チューニングパネルを開きます。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="670"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="667"/>
         <source>Edit Current Calibration becomes available after an auto-detect run.</source>
         <translation>自動検出の実行後に、現在のキャリブレーションを編集できます。</translation>
     </message>
@@ -1467,11 +1467,11 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">3) 押下キーの例を取得: 必要な各ボタン（左/右 x 白/黒）について、その種類のオーバーレイが光っているフレームで一時停止し、ボタンをクリックしてから動画内のそのオーバーレイをクリックします。左/右はキーボードの物理的な左右ではなく、Synthesia のノート色を指します。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="447"/>
         <source>Draw Keyboard Box and Find Keys</source>
-        <translation>キーボード枠を描いてキーを検出</translation>
+        <translation type="vanished">キーボード枠を描いてキーを検出</translation>
     </message>
     <message>
+        <location filename="../gui/controls_qt.py" line="447"/>
         <location filename="../gui/controls_qt.py" line="464"/>
         <source>Find the keyboard</source>
         <translation>キーボードを見つける</translation>

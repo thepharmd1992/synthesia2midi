@@ -917,22 +917,22 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">이 보정 업데이트를 적용할까요?</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="657"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="654"/>
         <source>Open Manual Fit for the current manual calibration.</source>
         <translation>현재 수동 보정에 대한 수동 맞춤을 엽니다.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="659"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="656"/>
         <source>Edit Current Calibration becomes available after manual overlays exist.</source>
         <translation>수동 오버레이가 있으면 현재 보정 편집을 사용할 수 있습니다.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="665"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="662"/>
         <source>Open the auto-detect tuning panel for the current calibration.</source>
         <translation>현재 보정에 대한 자동 감지 튜닝 패널을 엽니다.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="670"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="667"/>
         <source>Edit Current Calibration becomes available after an auto-detect run.</source>
         <translation>자동 감지를 실행하면 현재 보정 편집을 사용할 수 있습니다.</translation>
     </message>
@@ -1467,11 +1467,11 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">3) 눌린 키 예시 캡처: 필요한 각 버튼(왼쪽/오른쪽 x 흰색/검은색)에 대해 해당 오버레이가 빛나는 프레임에서 일시정지하고 버튼을 클릭한 뒤, 영상에서 그 오버레이를 클릭합니다. 왼쪽/오른쪽은 키보드의 물리적 좌우가 아니라 Synthesia 노트 색을 뜻합니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="447"/>
         <source>Draw Keyboard Box and Find Keys</source>
-        <translation>키보드 상자를 그려 키 찾기</translation>
+        <translation type="vanished">키보드 상자를 그려 키 찾기</translation>
     </message>
     <message>
+        <location filename="../gui/controls_qt.py" line="447"/>
         <location filename="../gui/controls_qt.py" line="464"/>
         <source>Find the keyboard</source>
         <translation>키보드를 찾기</translation>

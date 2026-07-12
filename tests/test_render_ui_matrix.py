@@ -117,7 +117,9 @@ def test_calibration_matrix_grid_reflows_without_horizontal_overflow():
     app = QApplication.instance() or QApplication([])
     original_font = QFont(app.font())
     wide_font = QFont(original_font)
-    wide_font.setStretch(145)
+    # Windows' default Qt font is materially wider than the macOS/Linux fonts.
+    # Use a stronger local stretch so this reproduces the Windows CI geometry.
+    wide_font.setStretch(160)
     base_size = original_font.pointSizeF() if original_font.pointSizeF() > 0 else 13.0
     wide_font.setPointSizeF(base_size * 1.5)
     install_translator(app, "qps")

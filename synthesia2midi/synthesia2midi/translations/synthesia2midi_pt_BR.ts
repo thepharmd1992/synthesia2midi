@@ -917,22 +917,22 @@ Vá para um quadro em que nenhuma tecla esteja iluminada ou continue se isso for
         <translation type="vanished">Aplicar estas atualizações de calibração?</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="657"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="654"/>
         <source>Open Manual Fit for the current manual calibration.</source>
         <translation>Abrir Ajuste Manual para a calibração manual atual.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="659"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="656"/>
         <source>Edit Current Calibration becomes available after manual overlays exist.</source>
         <translation>Editar calibração atual fica disponível depois que existirem sobreposições manuais.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="665"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="662"/>
         <source>Open the auto-detect tuning panel for the current calibration.</source>
         <translation>Abrir o painel de ajuste da detecção automática para a calibração atual.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="670"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="667"/>
         <source>Edit Current Calibration becomes available after an auto-detect run.</source>
         <translation>Editar calibração atual fica disponível depois de uma execução da detecção automática.</translation>
     </message>
@@ -1467,11 +1467,11 @@ Vá para um quadro em que nenhuma tecla esteja iluminada ou continue se isso for
         <translation type="vanished">3) Capturar exemplos de teclas pressionadas: para cada botão necessário (Esquerda/Direita x Branca/Preta), pause onde esse tipo de sobreposição estiver acesa, clique no botão e depois clique nessa sobreposição no vídeo. Esquerda/Direita se referem às cores das notas do Synthesia, não ao lado físico do teclado.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="447"/>
         <source>Draw Keyboard Box and Find Keys</source>
-        <translation>Desenhe a caixa do teclado e encontre as teclas.</translation>
+        <translation type="vanished">Desenhe a caixa do teclado e encontre as teclas.</translation>
     </message>
     <message>
+        <location filename="../gui/controls_qt.py" line="447"/>
         <location filename="../gui/controls_qt.py" line="464"/>
         <source>Find the keyboard</source>
         <translation>Encontre o teclado</translation>

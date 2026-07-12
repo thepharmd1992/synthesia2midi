@@ -917,22 +917,22 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">应用这些校准更新吗？</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="657"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="654"/>
         <source>Open Manual Fit for the current manual calibration.</source>
         <translation>为当前手动校准打开手动贴合。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="659"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="656"/>
         <source>Edit Current Calibration becomes available after manual overlays exist.</source>
         <translation>手动覆盖层存在后，才可使用编辑当前校准。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="665"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="662"/>
         <source>Open the auto-detect tuning panel for the current calibration.</source>
         <translation>为当前校准打开自动检测调校面板。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="670"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="667"/>
         <source>Edit Current Calibration becomes available after an auto-detect run.</source>
         <translation>自动检测运行后，才可使用编辑当前校准。</translation>
     </message>
@@ -1467,11 +1467,11 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">3) 捕获按键示例：对于你需要的每个按钮（左/右 x 白/黑），在对应覆盖层发亮的画面上暂停，单击按钮，然后在视频中单击该覆盖层。左/右指的是 Synthesia 音符颜色，不是键盘的物理左右侧。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="447"/>
         <source>Draw Keyboard Box and Find Keys</source>
-        <translation>绘制键盘框并找出按键</translation>
+        <translation type="vanished">绘制键盘框并找出按键</translation>
     </message>
     <message>
+        <location filename="../gui/controls_qt.py" line="447"/>
         <location filename="../gui/controls_qt.py" line="464"/>
         <source>Find the keyboard</source>
         <translation>找到键盘</translation>

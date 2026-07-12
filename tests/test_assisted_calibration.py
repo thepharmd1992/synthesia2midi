@@ -411,6 +411,26 @@ def test_scanner_stops_early_after_four_family_guards_pass():
     assert scanned >= 25
 
 
+def test_scanner_confirms_pending_four_family_evidence_without_later_burst():
+    events = (
+        *_four_family_bursts(100),
+        *((family_index, 180, 190) for family_index in range(4)),
+    )
+    overlays, frame_provider = _four_family_scanner_fixture(events)
+    diagnostics = ExemplarScanDiagnostics()
+
+    _candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        0,
+        1000,
+        diagnostics=diagnostics,
+    )
+
+    assert canceled is False
+    assert scanned == diagnostics.discovery_frames == 22
+
+
 def test_scanner_rejects_one_frame_intro_flash_as_unstable():
     overlays, frame_provider = _four_family_scanner_fixture(
         tuple((family_index, 0, 0) for family_index in range(4))

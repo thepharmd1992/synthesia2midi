@@ -1020,6 +1020,7 @@ def _scan_candidates_with_diagnostics(
     frame_cache = _BoundedFrameCache(stride + (2 * settings.refine_radius) + 1)
     complete_since_frame: Optional[int] = None
     confirmation_evidence: Optional[tuple[_FamilyEarlyStopEvidence, ...]] = None
+    latest_complete_evidence: Optional[tuple[_FamilyEarlyStopEvidence, ...]] = None
 
     for frame_index in range(start_frame, end_frame + 1, stride):
         if progress_callback is not None and not progress_callback(frame_index, end_frame):
@@ -1090,28 +1091,32 @@ def _scan_candidates_with_diagnostics(
                 diagnostics,
                 refined_slots,
             )
-            complete_evidence = _complete_four_family_evidence(
+            latest_complete_evidence = _complete_four_family_evidence(
                 assignments,
                 event_by_evidence_id,
                 evidence_store,
                 settings,
                 stride,
             )
-            if complete_evidence is None:
+            if latest_complete_evidence is None:
                 complete_since_frame = None
                 confirmation_evidence = None
             elif complete_since_frame is None:
                 complete_since_frame = frame_index
-                confirmation_evidence = complete_evidence
-            elif confirmation_evidence is not None:
-                matched_evidence = _match_four_family_evidence(
-                    complete_evidence,
-                    confirmation_evidence,
-                )
-                if matched_evidence is None:
-                    complete_since_frame = frame_index
-                    confirmation_evidence = complete_evidence
-                    continue
+                confirmation_evidence = latest_complete_evidence
+
+        if (
+            confirmation_evidence is not None
+            and latest_complete_evidence is not None
+        ):
+            matched_evidence = _match_four_family_evidence(
+                latest_complete_evidence,
+                confirmation_evidence,
+            )
+            if matched_evidence is None:
+                complete_since_frame = frame_index
+                confirmation_evidence = latest_complete_evidence
+            else:
                 confirmation_span = stride * max(
                     0,
                     settings.early_stop_confirmation_steps,
@@ -1122,7 +1127,8 @@ def _scan_candidates_with_diagnostics(
                     for current_family, initial_family in matched_evidence
                 )
                 if (
-                    frame_index - complete_since_frame >= confirmation_span
+                    complete_since_frame is not None
+                    and frame_index - complete_since_frame >= confirmation_span
                     and has_fresh_slot_evidence
                 ):
                     break

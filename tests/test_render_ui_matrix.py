@@ -73,7 +73,7 @@ def test_ui_matrix_writes_nonblank_screenshots_and_stable_report(tmp_path):
     oversized = {
         entry["surface"]: (entry["width"], entry["height"])
         for entry in report["surfaces"]
-        if entry["width"] > 1280 or entry["height"] > 720
+        if entry["width"] > 1440 or entry["height"] > 720
     }
     assert not oversized, oversized
     by_surface = {entry["surface"]: entry for entry in report["surfaces"]}

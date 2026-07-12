@@ -5,7 +5,7 @@ This detector compares each key ROI to calibrated unlit/lit exemplars and return
 the set of pressed key IDs for the current frame.
 """
 import logging
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Mapping, Optional, Set, Tuple
 
 import cv2
 import numpy as np
@@ -40,6 +40,7 @@ class StandardDetection(DetectionMethod):
     def __init__(self):
         super().__init__("Standard Detection")
         self.roi_cache = ROICache()
+        self.last_exemplar_matches: Dict[int, str] = {}
         self._warned_missing_unlit_calibration = False
         
     def detect_frame(self, 
@@ -81,6 +82,8 @@ class StandardDetection(DetectionMethod):
             Black key filtering is applied before delta detection to prevent
             adjacent black keys from lighting up when main keys are released.
         """
+        self.last_exemplar_matches = {}
+
         # Clear ROI cache for new frame
         self.roi_cache.clear()
         
@@ -149,11 +152,19 @@ class StandardDetection(DetectionMethod):
                 allow_delta_override_sanity=use_delta_detection,
                 exemplar_types_to_check=exemplar_types_to_check
             )
+            _, _, color_winning_slot = self._calculate_color_progression(
+                current_avg_rgb_color,
+                unlit_ref_color,
+                exemplar_lit_colors,
+                detection_threshold,
+                exemplar_types_to_check,
+            )
             
             # Optional histogram detection with early exit
             hist_rule_hit = False
+            hist_winning_slot = None
             if use_histogram_detection and self._should_check_histogram(detection_params['current_max_progression_ratio']):
-                hist_rule_hit = self._apply_histogram_detection(
+                hist_rule_hit, hist_winning_slot = self._apply_histogram_detection(
                     overlay, frame_bgr, hist_ratio_threshold, exemplar_lit_histograms, kwargs
                 )
                 
@@ -177,6 +188,9 @@ class StandardDetection(DetectionMethod):
             min_sanity_threshold = detection_params['min_sanity_threshold']
             progression_passes_sanity = detection_params['progression_passes_sanity']
             base_lit = detection_params['base_lit']
+            winning_exemplar_slot = (
+                color_winning_slot if is_key_lit_by_color else hist_winning_slot
+            )
             
             # TARGETED DEBUG: Log any activity on problematic overlays
             if overlay.key_id in [36, 43, 48] and self.logger.isEnabledFor(logging.DEBUG):
@@ -198,7 +212,8 @@ class StandardDetection(DetectionMethod):
                 'is_key_lit_by_color': is_key_lit_by_color,
                 'hist_rule_hit': hist_rule_hit,
                 'current_max_progression_ratio': current_max_progression_ratio,
-                'base_lit': base_lit
+                'base_lit': base_lit,
+                'winning_exemplar_slot': winning_exemplar_slot,
             }
 
 
@@ -276,16 +291,22 @@ class StandardDetection(DetectionMethod):
             if lit_now:
                 pressed_key_ids.add(overlay.key_id)
 
+        self.last_exemplar_matches = {
+            key_id: overlay_detection_data[key_id]["winning_exemplar_slot"]
+            for key_id in pressed_key_ids
+            if overlay_detection_data[key_id]["winning_exemplar_slot"] is not None
+        }
+
         return pressed_key_ids
 
     def _get_exemplar_types_to_check(
         self,
         overlay: OverlayConfig,
         frame_bgr: np.ndarray,
-        exemplar_lit_colors: Dict[str, Optional[Tuple[int, int, int]]],
+        exemplar_values: Mapping[str, object | None],
         kwargs: dict,
     ) -> List[str]:
-        """Return color exemplar keys, filtered by detected hand when available."""
+        """Return exemplar slots filtered by detected hand and key morphology."""
         base_color_type = overlay.key_type[-1]  # "W" or "B"
         if base_color_type not in {"W", "B"}:
             self.logger.warning(f"Overlay {overlay.key_id} has unexpected key_type: {overlay.key_type}")
@@ -312,83 +333,24 @@ class StandardDetection(DetectionMethod):
         else:
             exemplar_types_to_check.extend(["L" + base_color_type, "R" + base_color_type])
 
-        for key_type, color in exemplar_lit_colors.items():
-            if key_type.startswith("COLOR_") and color is not None and key_type.endswith(f"_{base_color_type}"):
+        for key_type, value in exemplar_values.items():
+            if key_type.startswith("COLOR_") and value is not None and key_type.endswith(f"_{base_color_type}"):
                 exemplar_types_to_check.append(key_type)
 
         return exemplar_types_to_check
     
-    def _calculate_color_progression(self, overlay: OverlayConfig, 
-                                   current_color: Tuple[int, int, int],
-                                   unlit_ref_color: Tuple[int, int, int],
-                                   exemplar_lit_colors: Dict[str, Optional[Tuple[int, int, int]]],
-                                   detection_threshold: float,
-                                   frame_bgr: np.ndarray,
-                                   kwargs: dict) -> Tuple[bool, float]:
-        """Calculate color progression ratio and check threshold.
-        
-        Now uses hand detection to determine which exemplar to compare against,
-        preventing false positives from cross-hand comparisons.
-        """
-        
-        base_color_type = overlay.key_type[-1]  # "W" or "B"
-        
-        # Determine which hand is playing this key if hand detection is available
-        hand_assignment_enabled = kwargs.get('hand_assignment_enabled', False)
-        hand_detection_calibrated = kwargs.get('hand_detection_calibrated', False)
-        left_hand_hue_mean = kwargs.get('left_hand_hue_mean', 0.0)
-        right_hand_hue_mean = kwargs.get('right_hand_hue_mean', 0.0)
-        
-        # Determine which exemplar to use
-        exemplar_types_to_check = []
-        
-        if hand_assignment_enabled and hand_detection_calibrated:
-            # Check if hue values are different enough for reliable hand detection
-            hue_diff = abs(left_hand_hue_mean - right_hand_hue_mean)
-            
-            if hue_diff >= 5.0:  # Reliable hand detection threshold
-                # Use hue-based hand detection to select appropriate exemplar
-                hand_type = self._determine_hand_from_hue(
-                    overlay, frame_bgr, left_hand_hue_mean, right_hand_hue_mean
-                )
-                
-                if hand_type == 'L':
-                    # Left hand - only check left exemplars
-                    exemplar_types_to_check.append('L' + base_color_type)
-                elif hand_type == 'R':
-                    # Right hand - only check right exemplars
-                    exemplar_types_to_check.append('R' + base_color_type)
-                else:
-                    # Could not determine - fall back to checking both
-                    if base_color_type == "W":
-                        exemplar_types_to_check.extend(["LW", "RW"])
-                    elif base_color_type == "B":
-                        exemplar_types_to_check.extend(["LB", "RB"])
-            else:
-                # Hue values too similar - fall back to checking all exemplars
-                # Any key can be lit by hands of any color, so check all combinations
-                exemplar_types_to_check.extend(["LW", "LB", "RW", "RB"])
-        else:
-            # Hand detection not available - check all exemplars
-            if base_color_type == "W":
-                exemplar_types_to_check.extend(["LW", "RW"])
-            elif base_color_type == "B":
-                exemplar_types_to_check.extend(["LB", "RB"])
-            else:
-                self.logger.warning(f"Overlay {overlay.key_id} has unexpected key_type: {overlay.key_type}")
-                return False, 0.0
-        
-        # Also check any additional COLOR_N exemplars that are calibrated
-        # Match based on white/black key type
-        for key_type, color in exemplar_lit_colors.items():
-            if key_type.startswith("COLOR_") and color is not None:
-                # Check if this additional color matches the current key type (W or B)
-                if key_type.endswith(f"_{base_color_type}"):
-                    exemplar_types_to_check.append(key_type)
-
-        
+    def _calculate_color_progression(
+        self,
+        current_color: Tuple[int, int, int],
+        unlit_ref_color: Tuple[int, int, int],
+        exemplar_lit_colors: Dict[str, Optional[Tuple[int, int, int]]],
+        detection_threshold: float,
+        exemplar_types_to_check: List[str],
+    ) -> Tuple[bool, float, Optional[str]]:
+        """Return the color result, strongest ratio, and strongest valid slot."""
         is_key_lit_by_color = False
         current_max_progression_ratio = 0.0
+        winning_exemplar_slot = None
 
         for exemplar_key_type in exemplar_types_to_check:
             lit_ref_color = exemplar_lit_colors.get(exemplar_key_type)
@@ -405,16 +367,18 @@ class StandardDetection(DetectionMethod):
                 elif d_unlit_to_current < 1e-6:
                     progression_ratio = 1.0
 
-                current_max_progression_ratio = max(current_max_progression_ratio, progression_ratio)
+                if progression_ratio > current_max_progression_ratio:
+                    current_max_progression_ratio = progression_ratio
+                    winning_exemplar_slot = exemplar_key_type
 
                 if progression_ratio >= detection_threshold:
                     is_key_lit_by_color = True
 
             except Exception as e:
-                self.logger.error(f"Error processing overlay {overlay.key_id} against exemplar {exemplar_key_type}: {e}")
+                self.logger.error(f"Error processing exemplar {exemplar_key_type}: {e}")
                 continue
 
-        return is_key_lit_by_color, current_max_progression_ratio
+        return is_key_lit_by_color, current_max_progression_ratio, winning_exemplar_slot
     
     def _determine_hand_from_hue(self, overlay: OverlayConfig, frame_bgr: np.ndarray,
                                 left_hand_hue_mean: float, right_hand_hue_mean: float) -> str:
@@ -453,83 +417,33 @@ class StandardDetection(DetectionMethod):
     def _apply_histogram_detection(self, overlay: OverlayConfig, frame_bgr: np.ndarray, 
                                  hist_ratio_threshold: float, 
                                  exemplar_lit_histograms: Dict[str, Optional[np.ndarray]],
-                                 kwargs: dict) -> bool:
+                                 kwargs: dict) -> Tuple[bool, Optional[str]]:
         """Apply histogram comparison detection using exemplar histograms.
         
         Now uses hand detection to select appropriate exemplar, consistent with
         color progression detection.
         """
         if overlay.unlit_hist is None:
-            return False
-            
-        # Determine which exemplar histograms to check based on key color
-        base_color_type = overlay.key_type[-1]  # "W" or "B"
-        
-        # Get hand detection parameters
-        hand_assignment_enabled = kwargs.get('hand_assignment_enabled', False)
-        hand_detection_calibrated = kwargs.get('hand_detection_calibrated', False)
-        left_hand_hue_mean = kwargs.get('left_hand_hue_mean', 0.0)
-        right_hand_hue_mean = kwargs.get('right_hand_hue_mean', 0.0)
-        
-        exemplar_types_to_check = []
-        
-        if hand_assignment_enabled and hand_detection_calibrated:
-            # Check if hue values are different enough for reliable hand detection
-            hue_diff = abs(left_hand_hue_mean - right_hand_hue_mean)
-            
-            if hue_diff >= 5.0:  # Reliable hand detection threshold
-                # Use hue-based hand detection to select appropriate exemplar
-                hand_type = self._determine_hand_from_hue(
-                    overlay, frame_bgr, left_hand_hue_mean, right_hand_hue_mean
-                )
-                
-                if hand_type == 'L':
-                    # Left hand - only check left exemplars
-                    exemplar_types_to_check.append('L' + base_color_type)
-                elif hand_type == 'R':
-                    # Right hand - only check right exemplars
-                    exemplar_types_to_check.append('R' + base_color_type)
-                else:
-                    # Could not determine - fall back to checking both
-                    if base_color_type == "W":
-                        exemplar_types_to_check.extend(["LW", "RW"])
-                    elif base_color_type == "B":
-                        exemplar_types_to_check.extend(["LB", "RB"])
-            else:
-                # Hue values too similar - fall back to checking all exemplars
-                # Any key can be lit by hands of any color, so check all combinations
-                exemplar_types_to_check.extend(["LW", "LB", "RW", "RB"])
-        else:
-            # Hand detection not available - check all exemplars
-            if base_color_type == "W":
-                exemplar_types_to_check.extend(["LW", "RW"])
-            elif base_color_type == "B":
-                exemplar_types_to_check.extend(["LB", "RB"])
-            else:
-                self.logger.warning(f"Overlay {overlay.key_id} has unexpected key_type: {overlay.key_type}")
-                return False
-        
-        # Also check any additional COLOR_N exemplars that are calibrated
-        # Match based on white/black key type
-        for key_type, hist in exemplar_lit_histograms.items():
-            if key_type.startswith("COLOR_") and hist is not None:
-                # Check if this additional color matches the current key type (W or B)
-                if key_type.endswith(f"_{base_color_type}"):
-                    exemplar_types_to_check.append(key_type)
+            return False, None
+
+        exemplar_types_to_check = self._get_exemplar_types_to_check(
+            overlay, frame_bgr, exemplar_lit_histograms, kwargs
+        )
             
         try:
             # Get HSV ROI using cache (optimal for sparse detection)
             roi_hsv = self.roi_cache.get_roi_hsv(frame_bgr, overlay)
             if roi_hsv is None:
-                return False
+                return False, None
                 
             # Get histogram from the cached HSV ROI (avoids redundant conversion)
             current_hist = get_hist_feature_from_hsv(roi_hsv)
             if current_hist is None:
-                return False
+                return False, None
 
             # Check against both left and right exemplars (similar to color detection)
             max_hist_progression_ratio = 0.0
+            winning_exemplar_slot = None
             
             for exemplar_key_type in exemplar_types_to_check:
                 exemplar_lit_hist = exemplar_lit_histograms.get(exemplar_key_type)
@@ -543,13 +457,16 @@ class StandardDetection(DetectionMethod):
                 if d_unlit_to_lit_hist > 1e-6:
                     hist_progression_ratio = d_unlit_to_current_hist / d_unlit_to_lit_hist
                     
-                max_hist_progression_ratio = max(max_hist_progression_ratio, hist_progression_ratio)
+                if hist_progression_ratio > max_hist_progression_ratio:
+                    max_hist_progression_ratio = hist_progression_ratio
+                    winning_exemplar_slot = exemplar_key_type
 
-            return max_hist_progression_ratio >= hist_ratio_threshold
+            passed = max_hist_progression_ratio >= hist_ratio_threshold
+            return passed, winning_exemplar_slot if passed else None
 
         except Exception as e:
             self.logger.error(f"Histogram detection error for overlay {overlay.key_id}: {e}")
-            return False
+            return False, None
     
     def _apply_delta_detection(self, overlay: OverlayConfig, current_progression_ratio: float,
                              rise_delta_threshold: float, fall_delta_threshold: float, 
@@ -763,7 +680,12 @@ class StandardDetection(DetectionMethod):
     
     def reset_state(self):
         """Reset state for standard detection (overlay state is managed externally)."""
+        self.last_exemplar_matches = {}
         self.logger.debug("Standard detection state reset")
+
+    def get_last_exemplar_match(self, key_id: int) -> str | None:
+        """Return the winning exemplar slot for a pressed key in the last frame."""
+        return self.last_exemplar_matches.get(key_id)
     
     def get_method_info(self) -> Dict[str, any]:
         """Get information about standard detection method."""

@@ -30,6 +30,10 @@ class DetectionMethod(ABC):
     def get_name(self) -> str:
         """Get the human-readable name of this detection method."""
         return self.name
+
+    def get_last_exemplar_match(self, key_id: int) -> str | None:
+        """Return the winning exemplar slot for a key from the last frame."""
+        return None
     
     @abstractmethod
     def detect_frame(self, 

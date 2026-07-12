@@ -1436,6 +1436,23 @@ def test_spark_integrated_ready_with_universal_manual_calibration():
     assert detector._is_spark_detection_ready()
 
 
+def test_spark_exposes_standard_winner_only_for_returned_keys_and_clears_on_reset():
+    detector = SparkIntegratedDetection(AppState())
+    detector.standard_detector.last_exemplar_matches = {
+        1: "COLOR_4_W",
+        2: "COLOR_3_B",
+    }
+    detector.previous_detected_keys = {1}
+
+    assert detector.get_last_exemplar_match(1) == "COLOR_4_W"
+    assert detector.get_last_exemplar_match(2) is None
+
+    detector.reset_state()
+
+    assert detector.get_last_exemplar_match(1) is None
+    assert detector.standard_detector.get_last_exemplar_match(1) is None
+
+
 def test_standard_detection_hand_assignment_restricts_color_exemplars_by_detected_hand():
     frame_bgr = np.full((4, 4, 3), (0, 255, 0), dtype=np.uint8)  # green, HSV hue near left hand
     overlay = OverlayConfig(

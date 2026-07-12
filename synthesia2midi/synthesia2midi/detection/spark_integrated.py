@@ -358,6 +358,12 @@ class SparkIntegratedDetection(DetectionMethod):
         self.previous_saturations.clear()
         self.spark_off_events.clear()
         self.logger.debug("Spark-integrated detection state reset")
+
+    def get_last_exemplar_match(self, key_id: int) -> str | None:
+        """Return Standard's winner only when Spark retained the key."""
+        if key_id not in self.previous_detected_keys:
+            return None
+        return self.standard_detector.get_last_exemplar_match(key_id)
     
     def get_method_info(self) -> Dict[str, Any]:
         """Get information about spark-integrated detection method."""

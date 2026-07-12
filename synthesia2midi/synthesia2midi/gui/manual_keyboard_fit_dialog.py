@@ -62,6 +62,10 @@ def _translate_param_label(label: str) -> str:
     return translated.get(label, label)
 
 
+def _fit_spinbox_to_range(spinbox: QSpinBox) -> None:
+    spinbox.setMinimumWidth(max(78, spinbox.sizeHint().width()))
+
+
 class ManualKeyboardFitDialog(QDialog):
     """Modeless controls for manual overlay keyboard fitting."""
 
@@ -177,7 +181,7 @@ class ManualKeyboardFitDialog(QDialog):
         self.octave_spinbox = QSpinBox()
         self.octave_spinbox.setRange(-5, 5)
         self.octave_spinbox.setValue(self._initial_octave)
-        self.octave_spinbox.setFixedWidth(78)
+        _fit_spinbox_to_range(self.octave_spinbox)
         self.octave_spinbox.valueChanged.connect(self.octave_changed.emit)
         octave_row.addWidget(octave_label)
         octave_row.addWidget(self.octave_spinbox)
@@ -197,7 +201,7 @@ class ManualKeyboardFitDialog(QDialog):
             spinbox = QSpinBox()
             spinbox.setRange(minimum, maximum)
             spinbox.setValue(0)
-            spinbox.setFixedWidth(78)
+            _fit_spinbox_to_range(spinbox)
             reset_button = QPushButton("0")
             reset_button.setFixedSize(36, 36)
             reset_text = QCoreApplication.translate(
@@ -253,7 +257,7 @@ class ManualKeyboardFitDialog(QDialog):
             spinbox = QSpinBox()
             spinbox.setRange(minimum, maximum)
             spinbox.setValue(0)
-            spinbox.setFixedWidth(78)
+            _fit_spinbox_to_range(spinbox)
             reset_button = QPushButton("0")
             reset_button.setFixedSize(36, 36)
             reset_text = QCoreApplication.translate(

@@ -1,4 +1,4 @@
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import json
 
 
@@ -55,6 +55,17 @@ def test_static_extractor_includes_qcoreapplication_translate_calls(tmp_path):
     assert [candidate.text for candidate in candidates] == ["File"]
     assert candidates[0].context == "QCoreApplication.translate"
     assert candidates[0].classification == "translate"
+
+
+def test_static_extractor_normalizes_windows_source_paths():
+    from synthesia2midi.tools.audit_ui_strings import _manifest_source
+
+    root = PureWindowsPath("C:/repo")
+    source = root / "synthesia2midi" / "synthesia2midi" / "gui" / "controls_qt.py"
+
+    assert _manifest_source(source, root) == (
+        "synthesia2midi/synthesia2midi/gui/controls_qt.py"
+    )
 
 
 def test_runtime_widget_crawler_collects_visible_text(tmp_path):

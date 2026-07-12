@@ -7,7 +7,7 @@ import json
 import os
 import re
 from dataclasses import asdict, dataclass
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import Any, Iterable, Sequence
 
 from PySide6.QtGui import QAction
@@ -193,12 +193,17 @@ def _candidate(
     )
 
 
+def _manifest_source(path: PurePath, root: PurePath) -> str:
+    """Return a repository-relative source path with stable separators."""
+    return path.relative_to(root).as_posix()
+
+
 def collect_static_candidates(paths: Iterable[Path], *, root: Path) -> list[UiStringCandidate]:
     """Collect likely Qt-visible string literals from Python source files."""
     candidates: list[UiStringCandidate] = []
     for path in sorted(paths):
         tree = ast.parse(path.read_text(encoding="utf-8"))
-        source = str(path.relative_to(root))
+        source = _manifest_source(path, root)
         for node in ast.walk(tree):
             if not isinstance(node, ast.Call):
                 continue

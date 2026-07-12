@@ -70,3 +70,32 @@ def test_all_numeric_fields_fit_minimum_and_maximum(locale_name, font_scale):
             surface.deleteLater()
         install_translator(app, "en")
         app.setFont(original_font)
+
+
+def test_manual_fit_numeric_fields_expand_for_large_font_metrics():
+    app = QApplication.instance() or QApplication([])
+    original_font = QFont(app.font())
+    large_font = QFont(original_font)
+    large_font.setPointSizeF(24.0)
+    app.setFont(large_font)
+    dialog = ManualKeyboardFitDialog()
+    try:
+        dialog.show()
+        app.processEvents()
+        spinboxes = [
+            dialog.octave_spinbox,
+            *dialog.param_spinboxes.values(),
+            *dialog.local_param_spinboxes.values(),
+        ]
+        for spinbox in spinboxes:
+            for value in (spinbox.minimum(), spinbox.maximum()):
+                spinbox.setValue(value)
+                app.processEvents()
+                required = spinbox.lineEdit().fontMetrics().horizontalAdvance(spinbox.text())
+                available = spinbox.lineEdit().contentsRect().width()
+                assert available >= required
+    finally:
+        dialog.close()
+        dialog.deleteLater()
+        app.setFont(original_font)
+        app.processEvents()

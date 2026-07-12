@@ -6,6 +6,19 @@ from synthesia2midi.gui.controls_qt import ControlPanelQt
 from synthesia2midi.localization import install_translator, supported_user_locales
 
 
+def test_settings_footer_uses_single_column_rows():
+    app = QApplication.instance() or QApplication([])
+    panel = ControlPanelQt()
+    try:
+        footer_layout = panel.settings_footer.layout()
+
+        assert footer_layout.rowCount() == 3
+        assert footer_layout.columnCount() == 1
+    finally:
+        panel.close()
+        app.processEvents()
+
+
 @pytest.mark.parametrize("locale_name", [*supported_user_locales(), "qps"])
 @pytest.mark.parametrize("font_scale", [1.0, 1.25, 1.5])
 def test_settings_rail_fits_every_label_at_shipped_font_scales(locale_name, font_scale):

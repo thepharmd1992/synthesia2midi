@@ -58,7 +58,12 @@ def test_ui_matrix_writes_nonblank_screenshots_and_stable_report(tmp_path):
     exit_code = render_ui_matrix.render_matrix(tmp_path, locale_name="qps", font_scale=1.5)
     report = json.loads((tmp_path / "report.json").read_text())
 
-    assert exit_code == 0
+    failures = {
+        entry["surface"]: entry["clipping"]
+        for entry in report["surfaces"]
+        if not entry["nonblank"] or entry["clipping"]
+    }
+    assert exit_code == 0, failures
     assert [entry["surface"] for entry in report["surfaces"]] == render_ui_matrix.surface_names()
     assert all(entry["nonblank"] for entry in report["surfaces"])
     assert all(entry["clipping"] == [] for entry in report["surfaces"])

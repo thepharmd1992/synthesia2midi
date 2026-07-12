@@ -25,9 +25,9 @@ def test_assisted_calibration_summary_explains_color_families_without_rgb_first(
 
     assert "Assisted calibration found 12 possible pressed-key samples." in text
     assert "Found 2 Synthesia note color families." in text
-    assert "Left/Right refer to Synthesia note colors, not the physical side of the keyboard." in text
-    assert "Left White: found" in text
-    assert "Left Black: not found" in text
-    assert "Right Black: not present in this video" in text
+    assert "Left/Right refer to Synthesia note colors" not in text
+    assert "Color 1 Natural: found" in text
+    assert "Color 1 Sharp / Flat: not found" in text
+    assert "Color 2 Sharp / Flat: not present in this video" in text
     assert "{label}" not in text
     assert "(255, 0, 0)" not in text

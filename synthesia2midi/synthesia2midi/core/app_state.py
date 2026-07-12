@@ -3,11 +3,15 @@ Organized application state with validation and clear ownership.
 """
 import logging
 from dataclasses import dataclass, field
-from typing import Any, ClassVar, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
 from synthesia2midi.app_config import DEFAULT_MIDI_TEMPO, FRAME_NAV_INTERVALS, OverlayConfig
+from synthesia2midi.core.color_families import (
+    SUPPORTED_EXEMPLAR_SLOTS,
+    family_for_slot,
+)
 
 
 def _default_auto_detect_params() -> Dict[str, Any]:
@@ -18,10 +22,24 @@ def _default_auto_detect_params() -> Dict[str, Any]:
     return get_active_auto_detect_defaults()
 
 
+def _default_exemplar_lit_colors() -> Dict[str, Optional[Tuple[int, int, int]]]:
+    return {slot: None for slot in SUPPORTED_EXEMPLAR_SLOTS}
+
+
+def _default_exemplar_key_type_enabled() -> Dict[str, bool]:
+    return {
+        slot: family_for_slot(slot).number <= 2
+        for slot in SUPPORTED_EXEMPLAR_SLOTS
+    }
+
+
+def _default_exemplar_lit_histograms() -> Dict[str, Optional[Any]]:
+    return {slot: None for slot in SUPPORTED_EXEMPLAR_SLOTS}
+
+
 @dataclass
 class DetectionConfig:
     """All detection-related settings grouped together."""
-    BASE_EXEMPLAR_KEY_TYPES: ClassVar[Tuple[str, ...]] = ("LW", "LB", "RW", "RB")
     
     # Core detection parameters
     detection_threshold: float = 0.8
@@ -42,19 +60,17 @@ class DetectionConfig:
     
     
     
-    # Exemplar colors for lit state detection
-    # Supports unlimited exemplars - keys are "LW", "LB", "RW", "RB" for the first 4,
-    # then "COLOR_3", "COLOR_4", etc. for additional colors
+    # Exemplar colors for lit state detection.
     exemplar_lit_colors: Dict[str, Optional[Tuple[int, int, int]]] = field(
-        default_factory=lambda: {"LW": None, "LB": None, "RW": None, "RB": None}
+        default_factory=_default_exemplar_lit_colors
     )
     exemplar_key_type_enabled: Dict[str, bool] = field(
-        default_factory=lambda: {"LW": True, "LB": True, "RW": True, "RB": True}
+        default_factory=_default_exemplar_key_type_enabled
     )
     
     # Exemplar histograms for lit state detection
     exemplar_lit_histograms: Dict[str, Optional[Any]] = field(  # Using Any for numpy arrays
-        default_factory=lambda: {"LW": None, "LB": None, "RW": None, "RB": None}
+        default_factory=_default_exemplar_lit_histograms
     )
     
     # Hand detection hue calibration
@@ -100,28 +116,38 @@ class DetectionConfig:
     spark_detection_sensitivity: float = 0.5  # Sensitivity for spark-off detection (0.0=conservative, 1.0=aggressive)
     spark_detection_confidence: float = 0.0  # Quality metric for calibration data
     
+    def get_required_exemplar_types(self) -> List[str]:
+        """Return enabled supported exemplar types required for conversion."""
+        return [
+            slot
+            for slot in SUPPORTED_EXEMPLAR_SLOTS
+            if self.exemplar_key_type_enabled.get(slot, False)
+        ]
+
     def get_required_base_exemplar_types(self) -> List[str]:
-        """Return enabled base exemplar key types required for conversion."""
-        required = []
-        for key_type in self.BASE_EXEMPLAR_KEY_TYPES:
-            if self.exemplar_key_type_enabled.get(key_type, True):
-                required.append(key_type)
-        return required
+        """Compatibility alias for the required exemplar types."""
+        return self.get_required_exemplar_types()
 
     def get_effective_exemplar_lit_colors(self) -> Dict[str, Optional[Tuple[int, int, int]]]:
-        """Return lit colors map with disabled base key types masked to None."""
+        """Return lit colors map with disabled supported key types masked to None."""
         effective_colors = dict(self.exemplar_lit_colors)
-        for key_type in self.BASE_EXEMPLAR_KEY_TYPES:
-            if not self.exemplar_key_type_enabled.get(key_type, True):
-                effective_colors[key_type] = None
+        for slot in SUPPORTED_EXEMPLAR_SLOTS:
+            effective_colors[slot] = (
+                self.exemplar_lit_colors.get(slot)
+                if self.exemplar_key_type_enabled.get(slot, False)
+                else None
+            )
         return effective_colors
 
     def get_effective_exemplar_lit_histograms(self) -> Dict[str, Optional[Any]]:
-        """Return lit histogram map with disabled base key types masked to None."""
+        """Return lit histogram map with disabled supported key types masked to None."""
         effective_histograms = dict(self.exemplar_lit_histograms)
-        for key_type in self.BASE_EXEMPLAR_KEY_TYPES:
-            if not self.exemplar_key_type_enabled.get(key_type, True):
-                effective_histograms[key_type] = None
+        for slot in SUPPORTED_EXEMPLAR_SLOTS:
+            effective_histograms[slot] = (
+                self.exemplar_lit_histograms.get(slot)
+                if self.exemplar_key_type_enabled.get(slot, False)
+                else None
+            )
         return effective_histograms
 
     def has_enabled_left_and_right_for_hand_detection(self) -> bool:

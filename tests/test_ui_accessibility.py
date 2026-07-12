@@ -1,8 +1,11 @@
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QPushButton
+
+import numpy as np
 
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.gui.controls_qt import ControlPanelQt
+from synthesia2midi.gui.auto_detect_tuning_dialog import AutoDetectTuningDialog
 from synthesia2midi.gui.manual_keyboard_fit_dialog import ManualKeyboardFitDialog
 from synthesia2midi.gui.startup_dialog import StartupDialog
 from synthesia2midi.gui.wizard import CalibrationWizard
@@ -77,6 +80,42 @@ def test_manual_fit_reset_targets_are_accessible_and_at_least_36_pixels():
             assert button.accessibleDescription()
     finally:
         dialog.close()
+
+
+def test_tool_workflow_actions_use_36_pixel_targets():
+    QApplication.instance() or QApplication([])
+    manual_fit = ManualKeyboardFitDialog()
+    auto_detect = AutoDetectTuningDialog(
+        None,
+        AppState(),
+        np.zeros((8, 8, 3), dtype=np.uint8),
+        (0, 0, 8, 8),
+        initial_detection_results={"total_keys": 88},
+        fallback_used=False,
+        apply_detection_callback=lambda _result: True,
+    )
+    try:
+        manual_buttons = [
+            *manual_fit.secondary_action_buttons,
+            manual_fit.cancel_button,
+            manual_fit.apply_button,
+        ]
+        auto_buttons = [
+            button
+            for button in auto_detect.findChildren(QPushButton)
+            if button.text() in {
+                "Reset to Recommended Settings",
+                "Reset Section",
+                "Save",
+                "Cancel",
+            }
+        ]
+        assert manual_buttons and auto_buttons
+        assert all(button.minimumHeight() >= 36 for button in manual_buttons)
+        assert all(button.minimumHeight() >= 36 for button in auto_buttons)
+    finally:
+        manual_fit.close()
+        auto_detect.close()
 
 
 def test_required_dialogs_define_beginner_path_focus_order():

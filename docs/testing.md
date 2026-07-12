@@ -142,7 +142,7 @@ PY
 Render the core UI surfaces in the expanded pseudo-locale and fail on blank images or detected text clipping:
 
 ```bash
-.venv/bin/python -m synthesia2midi.tools.render_ui_matrix \
+QT_QPA_PLATFORM=offscreen .venv/bin/python -m synthesia2midi.tools.render_ui_matrix \
   --locale qps \
   --font-scale 1.5 \
   --output logs/ux-audit/phase-4-qps

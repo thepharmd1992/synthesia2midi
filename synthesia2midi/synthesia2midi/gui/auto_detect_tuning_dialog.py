@@ -117,6 +117,7 @@ class AutoDetectTuningDialog(QDialog):
             QCoreApplication.translate("AutoDetectTuningDialog", "Reset to Recommended Settings")
         )
         self.reset_all_button.setAutoDefault(False)
+        self.reset_all_button.setMinimumHeight(36)
         self.reset_all_button.clicked.connect(self._reset_all_to_defaults)
         controls_row.addWidget(self.reset_all_button)
         controls_row.addStretch()
@@ -138,6 +139,7 @@ class AutoDetectTuningDialog(QDialog):
             QCoreApplication.translate("AutoDetectTuningDialog", "Advanced (Expert)"),
         )
         self.tabs.setCurrentIndex(0)
+        self.tabs.setMinimumHeight(self.tabs.minimumSizeHint().height())
         layout.addWidget(self.tabs, 1)
 
         status_group = QGroupBox(QCoreApplication.translate("AutoDetectTuningDialog", "Preview Status"))
@@ -190,6 +192,7 @@ class AutoDetectTuningDialog(QDialog):
         save_btn.setIcon(self.style().standardIcon(QStyle.SP_DialogApplyButton))
         save_btn.setAutoDefault(True)
         save_btn.setDefault(True)
+        save_btn.setMinimumHeight(36)
         save_btn.setStyleSheet(
             "QPushButton {"
             "background-color: #2e7d32;"
@@ -205,6 +208,7 @@ class AutoDetectTuningDialog(QDialog):
         cancel_btn = buttons.addButton(QDialogButtonBox.Cancel)
         if cancel_btn:
             cancel_btn.setAutoDefault(False)
+            cancel_btn.setMinimumHeight(36)
             cancel_btn.clicked.connect(self.reject)
         layout.addWidget(buttons)
 
@@ -310,6 +314,7 @@ class AutoDetectTuningDialog(QDialog):
 
             reset_section_btn = QPushButton(QCoreApplication.translate("AutoDetectTuningDialog", "Reset Section"))
             reset_section_btn.setAutoDefault(False)
+            reset_section_btn.setMinimumHeight(36)
             reset_section_btn.clicked.connect(
                 lambda _checked=False, keys=tuple(category_keys): self._reset_keys_to_defaults(keys)
             )
@@ -396,6 +401,7 @@ class AutoDetectTuningDialog(QDialog):
                 QCoreApplication.translate("AutoDetectTuningDialog", "Reset Section")
             )
             reset_button.setAutoDefault(False)
+            reset_button.setMinimumHeight(36)
             reset_button.clicked.connect(
                 lambda _checked=False, keys=tuple(category_keys): self._reset_keys_to_defaults(keys)
             )

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Dict, Optional
 
-from PySide6.QtCore import QCoreApplication, QSignalBlocker, Qt, Signal
+from PySide6.QtCore import QCoreApplication, QSignalBlocker, Qt, QTimer, Signal
 from PySide6.QtWidgets import (
     QButtonGroup,
     QComboBox,
@@ -309,6 +309,12 @@ class ManualKeyboardFitDialog(QDialog):
             self.edit_keyboard_box_button,
             self.clear_selected_override_button,
         ]
+        for button in [
+            *self.secondary_action_buttons,
+            self.cancel_button,
+            self.apply_button,
+        ]:
+            button.setMinimumHeight(36)
         self.secondary_actions_widget = QWidget()
         self.secondary_actions_layout = QGridLayout(self.secondary_actions_widget)
         self.secondary_actions_layout.setContentsMargins(0, 0, 0, 0)
@@ -555,9 +561,12 @@ class ManualKeyboardFitDialog(QDialog):
         )
         self._set_param_row_visible("white_width_delta", not self.all_black_radio.isChecked())
         self._set_param_row_visible("black_width_delta", not self.all_white_radio.isChecked())
+        self.setMinimumSize(0, 0)
+        self.fine_tune_widget.layout().invalidate()
+        self.layout().invalidate()
         self.layout().activate()
         if single_overlay_mode:
-            self.resize(min(self.width(), 680), 300)
+            QTimer.singleShot(0, self._apply_single_overlay_size)
         elif self.fine_tune_widget.isVisible():
             self.resize(max(self.width(), 760), 560)
 
@@ -587,3 +596,18 @@ class ManualKeyboardFitDialog(QDialog):
                 self.secondary_action_buttons,
                 columns,
             )
+
+    def showEvent(self, event) -> None:
+        super().showEvent(event)
+        if self.single_overlay_radio.isChecked():
+            QTimer.singleShot(0, self._apply_single_overlay_size)
+
+    def _apply_single_overlay_size(self) -> None:
+        if not self.single_overlay_radio.isChecked():
+            return
+        self.fine_tune_widget.layout().invalidate()
+        self.layout().invalidate()
+        self.layout().activate()
+        minimum_hint = self.minimumSizeHint()
+        self.setMinimumSize(minimum_hint)
+        self.resize(680, max(300, minimum_hint.height()))

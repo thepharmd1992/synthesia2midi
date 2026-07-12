@@ -38,6 +38,9 @@ def _assert_basic_edge_controls_fit(dialog):
 
     assert dialog.basic_scroll_area.verticalScrollBar().maximum() == 0
     assert reset_button.isVisible()
+    visible_button_rect = reset_button.visibleRegion().boundingRect()
+    assert visible_button_rect.width() + 2 >= reset_button.width()
+    assert visible_button_rect.height() + 2 >= reset_button.height()
 
 
 def test_basic_edge_controls_fit_without_scrolling_at_default_font():
@@ -162,3 +165,17 @@ def test_return_activates_save_instead_of_reset():
     QApplication.processEvents()
 
     assert accepted == [True]
+
+
+def test_escape_rejects_tuning_dialog():
+    QApplication.instance() or QApplication([])
+    dialog = _make_dialog()
+    rejected = []
+    dialog.rejected.connect(lambda: rejected.append(True))
+    dialog.show()
+    QApplication.processEvents()
+
+    QTest.keyClick(dialog, Qt.Key_Escape)
+    QApplication.processEvents()
+
+    assert rejected == [True]

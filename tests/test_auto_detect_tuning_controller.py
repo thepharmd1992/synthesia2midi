@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 
 import numpy as np
+import pytest
 from PySide6.QtCore import QRect
 from PySide6.QtWidgets import QDialog
 
@@ -245,13 +246,19 @@ def test_controller_retains_modeless_dialog_until_finished(monkeypatch):
     assert finished == [QDialog.Accepted]
 
 
-def test_rejected_tuning_restores_pre_dialog_state_without_saving(monkeypatch):
+@pytest.mark.parametrize(
+    ("initial_dirty", "preview_dirty"),
+    [(False, True), (True, False)],
+)
+def test_rejected_tuning_restores_pre_dialog_state_without_saving(
+    monkeypatch, initial_dirty, preview_dirty
+):
     FakeDialog.instances.clear()
     monkeypatch.setattr(
         "synthesia2midi.gui.auto_detect_tuning_controller.AutoDetectTuningDialog",
         FakeDialog,
     )
-    app = make_app(current_frame_index=12, unsaved_changes=False)
+    app = make_app(current_frame_index=12, unsaved_changes=initial_dirty)
     app.app_state.calibration.auto_detect_params = {"separator_threshold": 11}
     app.app_state.overlays = [SimpleNamespace(x=2, y=3, width=4, height=5)]
     initial_detection = {
@@ -284,7 +291,7 @@ def test_rejected_tuning_restores_pre_dialog_state_without_saving(monkeypatch):
     app.app_state.midi.total_keys = 76
     app.app_state.midi.leftmost_note_name = "C"
     app.app_state.midi.leftmost_note_octave = 2
-    app.app_state.unsaved_changes = True
+    app.app_state.unsaved_changes = preview_dirty
 
     FakeDialog.instances[-1].finished.emit(QDialog.Rejected)
 
@@ -300,7 +307,7 @@ def test_rejected_tuning_restores_pre_dialog_state_without_saving(monkeypatch):
         app.app_state.midi.leftmost_note_octave,
     ) == (88, "A", 0)
     assert app.app_state.ui.show_overlays is False
-    assert app.app_state.unsaved_changes is False
+    assert app.app_state.unsaved_changes is initial_dirty
     assert app.show_overlays_action.checked_values[-1] is False
     assert wizard.auto_detect_latest_detection_result == initial_detection
     assert wizard.detected_overlays == ["initial-overlay"]

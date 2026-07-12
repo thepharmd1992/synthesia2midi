@@ -131,9 +131,9 @@ class YouTubeDownloadDialog(QDialog):
         info_layout.addWidget(self.uploader_label)
         self.info_widget.setLayout(info_layout)
         
-        url_layout.addWidget(self.info_widget)
         url_group.setLayout(url_layout)
         layout.addWidget(url_group)
+        layout.addWidget(self.info_widget)
         
         self.quality_combo = QComboBox()
         self._reset_quality_options()

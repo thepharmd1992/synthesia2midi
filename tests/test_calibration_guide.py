@@ -144,7 +144,8 @@ def test_guide_expands_only_current_step_and_compacts_completed_steps():
             True,
         ]
         for row in widget.step_rows[:4]:
-            assert row.completion_icon_label.text() == "✓"
+            assert not row.completion_icon_label.pixmap().isNull()
+            assert row.completion_icon_label.accessibleName() == "Done"
             assert not row.completion_icon_label.isHidden()
             assert row.status_label.text() == "Done"
             assert "#2e7d32" in row.status_label.styleSheet()

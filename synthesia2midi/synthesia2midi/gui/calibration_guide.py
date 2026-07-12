@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QPushButton,
     QSizePolicy,
+    QStyle,
     QVBoxLayout,
     QWidget,
 )
@@ -140,10 +141,14 @@ class GuideStepRow(QWidget):
         self._row_layout.setSpacing(5)
 
         heading = QHBoxLayout()
-        self.completion_icon_label = QLabel("✓")
-        self.completion_icon_label.setStyleSheet(
-            "color: #2e7d32; font-weight: 700; font-size: 16px;"
+        self.completion_icon_label = QLabel()
+        self.completion_icon_label.setPixmap(
+            self.style().standardIcon(QStyle.SP_DialogApplyButton).pixmap(16, 16)
         )
+        self.completion_icon_label.setAccessibleName(
+            translate("CalibrationGuideWidget", "Done")
+        )
+        self.completion_icon_label.setFixedSize(20, 20)
         self.completion_icon_label.hide()
         heading.addWidget(self.completion_icon_label)
         self.title_label = QLabel(title)

@@ -1,9 +1,10 @@
 ---
 id: TASK-19
 title: Implement structural UX audit phases A-D
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-07-11 22:01'
+updated_date: '2026-07-12 00:14'
 labels:
   - ui
   - ux
@@ -30,8 +31,8 @@ Implement every required Phase A-D change from the internal 2026-07-11 structura
 - [x] #4 Settings uses fixed navigation and fixed global actions with one page-owned scroll viewport; short pages do not scroll and no active nested scroll areas remain.
 - [x] #5 Repeated Notes has a dedicated tool, Auto-Detect Expert shows one category at a time, and floating windows use the parent window screen.
 - [x] #6 Guide completion/current/future states compress appropriately, Manual Fit reflows and contracts by mode, YouTube fallback is progressive, file/menu hierarchy is simplified, and the Rust editor responsive/status issues are addressed.
-- [ ] #7 Real-window, scroll-ownership, wheel-propagation, numeric-extrema, transactional-dialog, keyboard/default, populated-metadata, and large-text window-bound regression gates pass.
-- [ ] #8 All changed GUI strings are audited and translated in every production locale; compileall, complete pytest, localization, visual matrix, git diff, and relevant Rust/package gates pass.
+- [x] #7 Real-window, scroll-ownership, wheel-propagation, numeric-extrema, transactional-dialog, keyboard/default, populated-metadata, and large-text window-bound regression gates pass.
+- [x] #8 All changed GUI strings are audited and translated in every production locale; compileall, complete pytest, localization, visual matrix, git diff, and relevant Rust/package gates pass.
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -50,4 +51,14 @@ Phase A completed with focused regression coverage for transactional tuning, whe
 Phase B completed with a fixed Settings rail/footer, page-owned scrolling, a dedicated Repeated Notes tool, master-detail Auto-Detect Expert controls, and parent-screen placement.
 
 Phase C completed with a compact state-aware Guide, responsive Manual Fit modes, progressive YouTube recovery controls, separate file/folder pickers, nested diagnostics, bounded touch-up failures, recent-name elision, and Rust editor input/layout/status hardening.
+
+Phase D completed with a deterministic 25-surface real-window matrix, zero-range ancestor-clipping detection, logical-pixel high-DPI capture normalization, full-range numeric fit checks, transactional dirty-state coverage, keyboard default/cancel checks, populated YouTube metadata coverage, and large-text/pseudo-locale bounds.
+
+Final verification: 401 Python tests passed; Qt extracted 642 strings and all six production catalogs compiled with 642 finished translations; the 150% pseudo-locale matrix produced 25 nonblank surfaces with zero clipping at a maximum 780 x 701 logical pixels; Ruff E9/F63/F7/F82, compileall, package-focused tests, git diff checks, cargo check, and 2 Rust tests passed. Independent review found no remaining actionable issues after two reported gaps were fixed.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Implemented and verified all four structural UX phases: safe transactional interactions, wheel-proof value controls and explicit canvas modes; fixed Settings navigation/footer with single-owner scrolling and dedicated specialist tools; compressed responsive workflows across Guide, Manual Fit, YouTube, file/menu flows, and the Rust editor; and deterministic localization, accessibility, numeric-fit, visual, package, and interaction regression gates.
+<!-- SECTION:FINAL_SUMMARY:END -->

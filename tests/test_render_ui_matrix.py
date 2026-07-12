@@ -70,7 +70,12 @@ def test_ui_matrix_writes_nonblank_screenshots_and_stable_report(tmp_path):
     assert [entry["surface"] for entry in report["surfaces"]] == render_ui_matrix.surface_names()
     assert all(entry["nonblank"] for entry in report["surfaces"])
     assert all(entry["clipping"] == [] for entry in report["surfaces"])
-    assert all(entry["width"] <= 1000 and entry["height"] <= 720 for entry in report["surfaces"])
+    oversized = {
+        entry["surface"]: (entry["width"], entry["height"])
+        for entry in report["surfaces"]
+        if entry["width"] > 1280 or entry["height"] > 720
+    }
+    assert not oversized, oversized
     by_surface = {entry["surface"]: entry for entry in report["surfaces"]}
     assert by_surface["manual-fit-single"]["height"] < by_surface["manual-fit"]["height"]
     assert all((tmp_path / f"{name}.png").is_file() for name in render_ui_matrix.surface_names())

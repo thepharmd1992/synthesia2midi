@@ -232,7 +232,7 @@ class CalibrationGuideWidget(QWidget):
             (self.tr("1. Open or download a video"), self.tr("Use a clear Synthesia-style piano video with visible keys and falling notes."), self.tr("Open Video"), None, self.open_video_requested),
             (self.tr("2. Find and check the keyboard overlays"), self.tr("Draw around the full keyboard, then check that the boxes line up with the keys."), self.tr("Find Keyboard"), KeyboardExample(boxed=True), None),
             (self.tr("3. Capture a no-key frame"), self.tr("Pause where the keyboard is visible and no keys are glowing."), self.tr("Capture No-Key Frame"), KeyboardExample(), self.capture_unlit_requested),
-            (self.tr("4. Find pressed-key colors"), self.tr("Start from the no-key frame. The scan looks ahead for each enabled Left/Right color family."), self.tr("Find Pressed-Key Colors"), KeyboardExample(glowing_key=True), self.assisted_scan_requested),
+            (self.tr("4. Find pressed-key colors"), self.tr("Start from the no-key frame. The scan looks ahead for Natural and Sharp / Flat examples in every enabled Color family."), self.tr("Find Pressed-Key Colors"), KeyboardExample(glowing_key=True), self.assisted_scan_requested),
             (self.tr("5. Create MIDI"), self.tr("When every required step is done, create the MIDI file."), self.tr("Create MIDI"), None, self.convert_requested),
         ]
         self.step_rows = []

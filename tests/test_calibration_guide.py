@@ -106,6 +106,10 @@ def test_guide_widget_exposes_five_steps_and_routes_primary_actions():
             "4. Find pressed-key colors",
             "5. Create MIDI",
         ]
+        assert widget.step_rows[3].instruction_label.text() == (
+            "Start from the no-key frame. The scan looks ahead for Natural and "
+            "Sharp / Flat examples in every enabled Color family."
+        )
         for row in widget.step_rows:
             row.primary_button.click()
         widget.youtube_button.click()

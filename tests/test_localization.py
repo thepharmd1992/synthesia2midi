@@ -37,8 +37,8 @@ TASK_5_PRODUCTION_LOCALE_STRINGS = [
     "This affects MIDI creation only. It does not trim or change the video session.",
     "Permanently Trim Project",
     "Most users should use MIDI range instead. Trim changes the working video session, not the original video file.",
-    "Put each hand/color on a separate MIDI channel",
-    "Use this only if the video uses different colors for left and right hand notes.",
+    "Put each Color family on a separate MIDI channel",
+    "Use this when the video contains more than one Color family.",
     (
         "<b>This will permanently trim the working video session.</b><br><br>"
         "Frames outside {start_frame} to {end_text} will be unavailable in this project session.<br><br>"
@@ -83,7 +83,63 @@ TASK_10_PRODUCTION_LOCALE_STRINGS = [
     ),
     "Found {count} Synthesia note color families.",
     "Scanning for lit key examples...",
+    (
+        "Start from the no-key frame. The scan looks ahead for Natural and "
+        "Sharp / Flat examples in every enabled Color family."
+    ),
+    (
+        "Color family: one Synthesia note color, with separate Natural and "
+        "Sharp / Flat examples."
+    ),
+    (
+        "Click a glowing key that matches {label}. The application will sample "
+        "the color and histogram for {label}."
+    ),
     *SCANNER_WARNING_PRODUCTION_LOCALE_STRINGS,
+]
+
+FINAL_REVIEW_RUNTIME_STRINGS = [
+    (
+        "CalibrationGuideWidget",
+        "Start from the no-key frame. The scan looks ahead for Natural and "
+        "Sharp / Flat examples in every enabled Color family.",
+    ),
+    (
+        "ControlPanelQt",
+        "Put each Color family on a separate MIDI channel",
+    ),
+    (
+        "ControlPanelQt",
+        "Use this when the video contains more than one Color family.",
+    ),
+    (
+        "UiGlossary",
+        "Color family: one Synthesia note color, with separate Natural and "
+        "Sharp / Flat examples.",
+    ),
+    (
+        "CalibrationWorkflow",
+        "Click a glowing key that matches {label}. The application will sample "
+        "the color and histogram for {label}.",
+    ),
+]
+
+FINAL_REVIEW_COPY_FILES = [
+    Path("synthesia2midi/synthesia2midi/workflows/calibration.py"),
+    Path("synthesia2midi/synthesia2midi/gui/controls_qt.py"),
+    Path("synthesia2midi/synthesia2midi/gui/calibration_guide.py"),
+    Path("synthesia2midi/synthesia2midi/gui/ui_glossary.py"),
+]
+
+OBSOLETE_FAMILY_COPY = [
+    "Left Hand White",
+    "Left Hand Black",
+    "Right Hand White",
+    "Right Hand Black",
+    "Left/Right color family",
+    "the two Synthesia note colors",
+    "different colors for left and right hand notes",
+    "Put each hand/color",
 ]
 
 
@@ -183,8 +239,22 @@ def test_production_translators_load_known_source_texts():
                 assert QCoreApplication.translate(
                     "AssistedCalibrationDialog", source
                 ) != source
+            for context, source in FINAL_REVIEW_RUNTIME_STRINGS:
+                assert QCoreApplication.translate(context, source) != source
     finally:
         install_translator(app, "en")
+
+
+def test_final_review_copy_removes_obsolete_family_guidance_but_keeps_slants():
+    source_text = "\n".join(
+        path.read_text(encoding="utf-8") for path in FINAL_REVIEW_COPY_FILES
+    )
+
+    for obsolete_text in OBSOLETE_FAMILY_COPY:
+        assert obsolete_text not in source_text
+
+    assert 'translate("ControlPanelQt", "Left Slant")' in source_text
+    assert 'translate("ControlPanelQt", "Right Slant")' in source_text
 
 
 def test_supported_user_locales_hide_pseudo_locale():

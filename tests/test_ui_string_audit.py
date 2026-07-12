@@ -18,6 +18,18 @@ TASK_10_MANIFEST_STRINGS = {
         "3) Capture Pressed-Key Examples: for each Color family, capture a "
         "Natural and Sharp / Flat example that appears in the video."
     ),
+    (
+        "Start from the no-key frame. The scan looks ahead for Natural and "
+        "Sharp / Flat examples in every enabled Color family."
+    ),
+    (
+        "Color family: one Synthesia note color, with separate Natural and "
+        "Sharp / Flat examples."
+    ),
+    (
+        "Click a glowing key that matches {label}. The application will sample "
+        "the color and histogram for {label}."
+    ),
 }
 
 

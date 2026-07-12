@@ -356,8 +356,12 @@ def test_spark_midi_trim_optional_sections_use_plain_recovery_copy():
             "Most users should use MIDI range instead. Trim changes the working video session, not the original video file."
         ) in texts
         assert panel.trim_video_button.text() == "Permanently Trim Project"
-        assert panel.hand_assignment_cb.text() == "Put each hand/color on a separate MIDI channel"
-        assert "Use this only if the video uses different colors for left and right hand notes." in texts
+        assert panel.hand_assignment_cb.text() == (
+            "Put each Color family on a separate MIDI channel"
+        )
+        assert "Use this when the video contains more than one Color family." in texts
+        assert panel.left_slant_label.text() == "Left Slant"
+        assert panel.right_slant_label.text() == "Right Slant"
     finally:
         panel.close()
         panel.deleteLater()

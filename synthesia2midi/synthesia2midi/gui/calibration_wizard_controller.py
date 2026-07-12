@@ -588,13 +588,18 @@ class CalibrationWizardController:
             if self.video_loading_workflow:
                 self.video_loading_workflow.save_current_config()
             self._set_assisted_calibration_guide_state("applied")
-            refresh_readiness = getattr(
-                getattr(self.app, "control_panel", None),
-                "_update_conversion_readiness_display",
-                None,
+            control_panel = getattr(self.app, "control_panel", None)
+            refresh_controls = getattr(
+                control_panel, "update_controls_from_state", None
             )
-            if callable(refresh_readiness):
-                refresh_readiness()
+            if callable(refresh_controls):
+                refresh_controls()
+            else:
+                refresh_readiness = getattr(
+                    control_panel, "_update_conversion_readiness_display", None
+                )
+                if callable(refresh_readiness):
+                    refresh_readiness()
             return True
         except Exception:
             self._restore_calibration_state(calibration_snapshot)

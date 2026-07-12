@@ -467,14 +467,18 @@
         <translation>4. 押されたキーの色を検出</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="235"/>
         <source>Start from the no-key frame. The scan looks ahead for each enabled Left/Right color family.</source>
-        <translation>キーが光っていないフレームから開始します。スキャンは有効な各 Left/Right 色グループを先のフレームで探します。</translation>
+        <translation type="vanished">キーが光っていないフレームから開始します。スキャンは有効な各 Left/Right 色グループを先のフレームで探します。</translation>
     </message>
     <message>
         <location filename="../gui/calibration_guide.py" line="235"/>
         <source>Find Pressed-Key Colors</source>
         <translation>押されたキーの色を検出</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="235"/>
+        <source>Start from the no-key frame. The scan looks ahead for Natural and Sharp / Flat examples in every enabled Color family.</source>
+        <translation>キーが光っていないフレームから開始します。スキャンは、有効な各カラーファミリーのナチュラルとシャープ / フラットの例を先のフレームから探します。</translation>
     </message>
     <message>
         <location filename="../gui/calibration_guide.py" line="236"/>
@@ -913,22 +917,22 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">これらのキャリブレーション更新を適用しますか？</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="652"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="657"/>
         <source>Open Manual Fit for the current manual calibration.</source>
         <translation>現在の手動キャリブレーションで手動フィットを開きます。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="654"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="659"/>
         <source>Edit Current Calibration becomes available after manual overlays exist.</source>
         <translation>手動オーバーレイが存在すると、現在のキャリブレーションを編集できます。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="660"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="665"/>
         <source>Open the auto-detect tuning panel for the current calibration.</source>
         <translation>現在のキャリブレーションの自動検出チューニングパネルを開きます。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="665"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="670"/>
         <source>Edit Current Calibration becomes available after an auto-detect run.</source>
         <translation>自動検出の実行後に、現在のキャリブレーションを編集できます。</translation>
     </message>
@@ -936,18 +940,43 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
 <context>
     <name>CalibrationWorkflow</name>
     <message>
-        <location filename="../workflows/calibration.py" line="202"/>
+        <location filename="../workflows/calibration.py" line="36"/>
+        <source>Color {number}</source>
+        <translation>カラー {number}</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="40"/>
+        <source>Natural</source>
+        <translation>ナチュラル</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="42"/>
+        <source>Sharp / Flat</source>
+        <translation>シャープ / フラット</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="216"/>
         <source>Unlit Frame May Contain Lit Keys</source>
         <translation>未点灯フレームに点灯したキーが含まれている可能性があります</translation>
     </message>
     <message>
-        <location filename="../workflows/calibration.py" line="203"/>
+        <location filename="../workflows/calibration.py" line="217"/>
         <source>It looks like these keys may be lit: {notes}.
 
 Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation>これらのキーが点灯している可能性があります: {notes}。
 
 点灯しているキーがないフレームに移動するか、これが想定どおりなら続行してください。</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="307"/>
+        <source>Lit Exemplar Calibration</source>
+        <translation>点灯キーの見本キャリブレーション</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="308"/>
+        <source>Click a glowing key that matches {label}. The application will sample the color and histogram for {label}.</source>
+        <translation>{label} に一致する光っているキーをクリックしてください。アプリケーションは {label} の色とヒストグラムをサンプリングします。</translation>
     </message>
 </context>
 <context>
@@ -1361,14 +1390,12 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation>詳細</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1477"/>
         <source>Put each hand/color on a separate MIDI channel</source>
-        <translation>各手/色を別々のMIDIチャンネルに入れる</translation>
+        <translation type="vanished">各手/色を別々のMIDIチャンネルに入れる</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1483"/>
         <source>Use this only if the video uses different colors for left and right hand notes.</source>
-        <translation>動画で左手と右手のノートに異なる色が使われている場合のみ使用してください。</translation>
+        <translation type="vanished">動画で左手と右手のノートに異なる色が使われている場合のみ使用してください。</translation>
     </message>
     <message>
         <location filename="../gui/controls_qt.py" line="1703"/>
@@ -1596,6 +1623,16 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <location filename="../gui/controls_qt.py" line="1064"/>
         <source>Select Flash Area Above Keys</source>
         <translation>キー上部のフラッシュ範囲を選択</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1477"/>
+        <source>Put each Color family on a separate MIDI channel</source>
+        <translation>各カラーファミリーを別々の MIDI チャンネルに割り当てる</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1483"/>
+        <source>Use this when the video contains more than one Color family.</source>
+        <translation>動画に複数のカラーファミリーが含まれる場合に使用します。</translation>
     </message>
     <message>
         <source>Before tuning detection: run Unlit Key Calibration + at least one Lit Key Exemplar.</source>
@@ -3283,8 +3320,12 @@ SparkはROI内でかろうじて目立つ明るい閃光として見える状態
     </message>
     <message>
         <location filename="../gui/ui_glossary.py" line="14"/>
+        <source>Color family: one Synthesia note color, with separate Natural and Sharp / Flat examples.</source>
+        <translation>カラーファミリー: Synthesia の 1 つのノート色。ナチュラルとシャープ / フラットの見本を個別に設定します。</translation>
+    </message>
+    <message>
         <source>Left/Right color family: the two Synthesia note colors, not keyboard position.</source>
-        <translation>Left/Right 色グループ: 鍵盤位置ではなく、Synthesia の 2 種類のノート色。</translation>
+        <translation type="vanished">Left/Right 色グループ: 鍵盤位置ではなく、Synthesia の 2 種類のノート色。</translation>
     </message>
     <message>
         <location filename="../gui/ui_glossary.py" line="15"/>

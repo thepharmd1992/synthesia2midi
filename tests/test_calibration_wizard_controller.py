@@ -16,6 +16,7 @@ from synthesia2midi.detection.assisted_calibration import (
 from synthesia2midi.gui import calibration_wizard_controller as controller_module
 from synthesia2midi.gui.assisted_calibration_dialog import AssistedCalibrationDecision
 from synthesia2midi.gui.calibration_wizard_controller import CalibrationWizardController
+from synthesia2midi.gui.controls_qt import ControlPanelQt
 
 
 class _FakeTuningController:
@@ -351,6 +352,47 @@ def test_accepting_partial_new_family_keeps_missing_morphology_required(monkeypa
     assert state.detection.exemplar_lit_colors[accidental_slot] is None
     assert state.detection.exemplar_lit_histograms[accidental_slot] is None
     assert accidental_slot in state.detection.get_required_exemplar_types()
+
+
+def test_accepting_partial_new_family_refreshes_panel_and_shows_missing_row(monkeypatch):
+    controller, state = _controller_with_seeded_state()
+    natural_slot, accidental_slot = slots_for_family(3)
+    for slot in (natural_slot, accidental_slot):
+        state.detection.exemplar_key_type_enabled[slot] = False
+        state.detection.exemplar_lit_colors[slot] = None
+        state.detection.exemplar_lit_histograms[slot] = None
+
+    panel = ControlPanelQt(app_state=state)
+    controller.app.control_panel = panel
+    refresh_calls = []
+    original_refresh = panel.update_controls_from_state
+
+    def record_refresh():
+        refresh_calls.append(True)
+        original_refresh()
+
+    monkeypatch.setattr(panel, "update_controls_from_state", record_refresh)
+    _patch_assisted_dependencies(
+        monkeypatch,
+        state,
+        _partial_family_proposal(3),
+        decision=AssistedCalibrationDecision.USE,
+    )
+
+    try:
+        assert accidental_slot not in panel.color_family_grid.rows
+
+        assert controller._run_assisted_auto_calibration(
+            np.zeros((4, 4, 3), dtype=np.uint8), 0
+        ) is True
+
+        assert refresh_calls == [True]
+        assert accidental_slot in panel.color_family_grid.rows
+        assert panel.exemplar_buttons[accidental_slot].text() == "Set"
+        assert panel.exemplar_presence_checkboxes[accidental_slot].text() == "Present"
+    finally:
+        panel.close()
+        panel.deleteLater()
 
 
 def test_proposal_summary_uses_dynamic_color_family_labels():

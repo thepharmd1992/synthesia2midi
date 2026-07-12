@@ -11,7 +11,7 @@ class UiGlossary(QWidget):
         entries = [
             self.tr("Keyboard box: the rectangle around the full visible keyboard."),
             self.tr("Overlay: a small box that follows one piano key."),
-            self.tr("Left/Right color family: the two Synthesia note colors, not keyboard position."),
+            self.tr("Color family: one Synthesia note color, with separate Natural and Sharp / Flat examples."),
             self.tr("Detection sensitivity: how easily a key counts as pressed."),
             self.tr("Repeated-notes flashes: brief flashes above a key that separate repeated notes."),
         ]

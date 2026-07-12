@@ -17,6 +17,7 @@ from synthesia2midi.gui.wizard import CalibrationWizard
 from synthesia2midi.detection.factory import DetectionFactory
 from synthesia2midi.detection.roi_utils import get_hist_feature
 from synthesia2midi.detection.assisted_calibration import assess_unlit_frame
+from synthesia2midi.core.color_families import exemplar_display_parts
 from synthesia2midi.gui.controls_qt import KEY_TYPES
 from synthesia2midi.config_manager import ConfigManager
 from synthesia2midi.runtime_paths import detect_runtime_paths
@@ -28,6 +29,19 @@ from synthesia2midi.app_config import (
 )
 
 translate = QCoreApplication.translate
+
+
+def _exemplar_display_label(slot: str) -> str:
+    family_number, morphology = exemplar_display_parts(slot)
+    family_label = translate("CalibrationWorkflow", "Color {number}").format(
+        number=family_number
+    )
+    morphology_label = (
+        translate("CalibrationWorkflow", "Natural")
+        if morphology == "Natural"
+        else translate("CalibrationWorkflow", "Sharp / Flat")
+    )
+    return f"{family_label} {morphology_label}"
 
 
 class CalibrationWorkflow:
@@ -287,30 +301,16 @@ class CalibrationWorkflow:
         self.app_state.calibration.calibration_mode = "lit_exemplar"
         self.app_state.calibration.current_calibration_key_type = key_type
         
-        # Generate human-readable key type name
-        if key_type.startswith("COLOR_"):
-            parts = key_type.split("_")
-            if len(parts) == 3:
-                color_num = parts[1]
-                key_color = "White" if parts[2] == "W" else "Black"
-                key_type_display = f"Color {color_num} {key_color}"
-            else:
-                key_type_display = key_type
-        else:
-            # Standard key types
-            key_type_map = {
-                "LW": "Left Hand White",
-                "LB": "Left Hand Black", 
-                "RW": "Right Hand White",
-                "RB": "Right Hand Black",
-                "W": "White Keys",
-                "B": "Black Keys"
-            }
-            key_type_display = key_type_map.get(key_type, key_type)
-        
-        self._show_info("Lit Exemplar Calibration", 
-                       f"Click on a lit {key_type_display} key in the video frame to calibrate. "
-                       f"The application will sample the color and histogram for {key_type_display}.")
+        key_type_display = _exemplar_display_label(key_type)
+
+        self._show_info(
+            translate("CalibrationWorkflow", "Lit Exemplar Calibration"),
+            translate(
+                "CalibrationWorkflow",
+                "Click a glowing key that matches {label}. The application will sample "
+                "the color and histogram for {label}.",
+            ).format(label=key_type_display),
+        )
         logging.info(f"Starting lit exemplar calibration for key type: {key_type}")
         self.logger.debug(f"[HUE-CALIBRATION] Calibration mode set to 'lit_exemplar' for {key_type}")
 

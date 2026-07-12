@@ -1474,7 +1474,7 @@ class ControlPanelQt(QWidget):
         
         # Hand assignment
         self.hand_assignment_cb = QCheckBox(
-            translate("ControlPanelQt", "Put each hand/color on a separate MIDI channel")
+            translate("ControlPanelQt", "Put each Color family on a separate MIDI channel")
         )
         self.hand_assignment_cb.toggled.connect(self.hand_assignment_toggled.emit)
         optional_layout.addWidget(self.hand_assignment_cb)
@@ -1482,7 +1482,7 @@ class ControlPanelQt(QWidget):
         hand_assignment_hint = QLabel(
             translate(
                 "ControlPanelQt",
-                "Use this only if the video uses different colors for left and right hand notes.",
+                "Use this when the video contains more than one Color family.",
             )
         )
         hand_assignment_hint.setWordWrap(True)

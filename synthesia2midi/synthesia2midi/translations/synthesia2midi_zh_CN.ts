@@ -467,14 +467,18 @@
         <translation>4. 查找按下琴键颜色</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="235"/>
         <source>Start from the no-key frame. The scan looks ahead for each enabled Left/Right color family.</source>
-        <translation>从无按键帧开始。扫描会向后查找每个已启用的 Left/Right 颜色系列。</translation>
+        <translation type="vanished">从无按键帧开始。扫描会向后查找每个已启用的 Left/Right 颜色系列。</translation>
     </message>
     <message>
         <location filename="../gui/calibration_guide.py" line="235"/>
         <source>Find Pressed-Key Colors</source>
         <translation>查找按下琴键颜色</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="235"/>
+        <source>Start from the no-key frame. The scan looks ahead for Natural and Sharp / Flat examples in every enabled Color family.</source>
+        <translation>从无按键发光的帧开始。扫描会在后续帧中查找每个已启用颜色系列的自然音和升号 / 降号示例。</translation>
     </message>
     <message>
         <location filename="../gui/calibration_guide.py" line="236"/>
@@ -913,22 +917,22 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">应用这些校准更新吗？</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="652"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="657"/>
         <source>Open Manual Fit for the current manual calibration.</source>
         <translation>为当前手动校准打开手动贴合。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="654"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="659"/>
         <source>Edit Current Calibration becomes available after manual overlays exist.</source>
         <translation>手动覆盖层存在后，才可使用编辑当前校准。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="660"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="665"/>
         <source>Open the auto-detect tuning panel for the current calibration.</source>
         <translation>为当前校准打开自动检测调校面板。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="665"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="670"/>
         <source>Edit Current Calibration becomes available after an auto-detect run.</source>
         <translation>自动检测运行后，才可使用编辑当前校准。</translation>
     </message>
@@ -936,18 +940,43 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
 <context>
     <name>CalibrationWorkflow</name>
     <message>
-        <location filename="../workflows/calibration.py" line="202"/>
+        <location filename="../workflows/calibration.py" line="36"/>
+        <source>Color {number}</source>
+        <translation>颜色 {number}</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="40"/>
+        <source>Natural</source>
+        <translation>自然音</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="42"/>
+        <source>Sharp / Flat</source>
+        <translation>升号 / 降号</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="216"/>
         <source>Unlit Frame May Contain Lit Keys</source>
         <translation>未点亮帧可能包含已点亮的琴键</translation>
     </message>
     <message>
-        <location filename="../workflows/calibration.py" line="203"/>
+        <location filename="../workflows/calibration.py" line="217"/>
         <source>It looks like these keys may be lit: {notes}.
 
 Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation>以下琴键可能已点亮：{notes}。
 
 请移到没有琴键点亮的帧，或者如果这是预期情况则继续。</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="307"/>
+        <source>Lit Exemplar Calibration</source>
+        <translation>发光按键示例校准</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="308"/>
+        <source>Click a glowing key that matches {label}. The application will sample the color and histogram for {label}.</source>
+        <translation>点击与 {label} 匹配的发光按键。应用会采样 {label} 的颜色和直方图。</translation>
     </message>
 </context>
 <context>
@@ -1361,14 +1390,12 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation>高级</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1477"/>
         <source>Put each hand/color on a separate MIDI channel</source>
-        <translation>将每只手/每种颜色放到单独的 MIDI 通道</translation>
+        <translation type="vanished">将每只手/每种颜色放到单独的 MIDI 通道</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1483"/>
         <source>Use this only if the video uses different colors for left and right hand notes.</source>
-        <translation>仅当视频使用不同颜色表示左手和右手音符时使用此项。</translation>
+        <translation type="vanished">仅当视频使用不同颜色表示左手和右手音符时使用此项。</translation>
     </message>
     <message>
         <location filename="../gui/controls_qt.py" line="1703"/>
@@ -1596,6 +1623,16 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <location filename="../gui/controls_qt.py" line="1064"/>
         <source>Select Flash Area Above Keys</source>
         <translation>选择琴键上方闪光区域</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1477"/>
+        <source>Put each Color family on a separate MIDI channel</source>
+        <translation>将每个颜色系列放入单独的 MIDI 通道</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1483"/>
+        <source>Use this when the video contains more than one Color family.</source>
+        <translation>当视频包含多个颜色系列时使用此选项。</translation>
     </message>
     <message>
         <source>Before tuning detection: run Unlit Key Calibration + at least one Lit Key Exemplar.</source>
@@ -3283,8 +3320,12 @@ Sparks should be just barely noticeable as bright flashes in the ROI.</source>
     </message>
     <message>
         <location filename="../gui/ui_glossary.py" line="14"/>
+        <source>Color family: one Synthesia note color, with separate Natural and Sharp / Flat examples.</source>
+        <translation>颜色系列：一种 Synthesia 音符颜色，分别包含自然音和升号 / 降号示例。</translation>
+    </message>
+    <message>
         <source>Left/Right color family: the two Synthesia note colors, not keyboard position.</source>
-        <translation>Left/Right 颜色系列：两种 Synthesia 音符颜色，不是键盘位置。</translation>
+        <translation type="vanished">Left/Right 颜色系列：两种 Synthesia 音符颜色，不是键盘位置。</translation>
     </message>
     <message>
         <location filename="../gui/ui_glossary.py" line="15"/>

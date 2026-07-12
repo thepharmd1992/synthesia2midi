@@ -1407,6 +1407,15 @@
     {
       "classification": "translate",
       "context": "translate",
+      "line": 308,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/workflows/calibration.py",
+      "text": "Click a glowing key that matches {label}. The application will sample the color and histogram for {label}."
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
       "line": 92,
       "origin": "static",
       "role": "arg1",
@@ -1478,6 +1487,15 @@
     },
     {
       "classification": "translate",
+      "context": "tr",
+      "line": 14,
+      "origin": "static",
+      "role": "arg0",
+      "source": "synthesia2midi/synthesia2midi/gui/ui_glossary.py",
+      "text": "Color family: one Synthesia note color, with separate Natural and Sharp / Flat examples."
+    },
+    {
+      "classification": "translate",
       "context": "translate",
       "line": 44,
       "origin": "static",
@@ -1501,6 +1519,15 @@
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Color {number}"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 36,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/workflows/calibration.py",
       "text": "Color {number}"
     },
     {
@@ -2226,7 +2253,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 665,
+      "line": 670,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -2235,7 +2262,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 654,
+      "line": 659,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -2955,7 +2982,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 203,
+      "line": 217,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/calibration.py",
@@ -3107,15 +3134,6 @@
     },
     {
       "classification": "translate",
-      "context": "tr",
-      "line": 14,
-      "origin": "static",
-      "role": "arg0",
-      "source": "synthesia2midi/synthesia2midi/gui/ui_glossary.py",
-      "text": "Left/Right color family: the two Synthesia note colors, not keyboard position."
-    },
-    {
-      "classification": "translate",
       "context": "QCoreApplication.translate",
       "line": 116,
       "origin": "static",
@@ -3131,6 +3149,15 @@
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/auto_detect_tuning_dialog.py",
       "text": "Leftmost Note/Octave:"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 307,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/workflows/calibration.py",
+      "text": "Lit Exemplar Calibration"
     },
     {
       "classification": "translate",
@@ -3373,6 +3400,15 @@
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
+      "text": "Natural"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
+      "line": 40,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/workflows/calibration.py",
       "text": "Natural"
     },
     {
@@ -3774,7 +3810,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 652,
+      "line": 657,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -3801,7 +3837,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 660,
+      "line": 665,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py",
@@ -4174,7 +4210,7 @@
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "Put each hand/color on a separate MIDI channel"
+      "text": "Put each Color family on a separate MIDI channel"
     },
     {
       "classification": "translate",
@@ -4863,6 +4899,15 @@
     {
       "classification": "translate",
       "context": "translate",
+      "line": 42,
+      "origin": "static",
+      "role": "arg1",
+      "source": "synthesia2midi/synthesia2midi/workflows/calibration.py",
+      "text": "Sharp / Flat"
+    },
+    {
+      "classification": "translate",
+      "context": "translate",
       "line": 43,
       "origin": "static",
       "role": "arg1",
@@ -5038,7 +5083,7 @@
       "origin": "static",
       "role": "arg0",
       "source": "synthesia2midi/synthesia2midi/gui/calibration_guide.py",
-      "text": "Start from the no-key frame. The scan looks ahead for each enabled Left/Right color family."
+      "text": "Start from the no-key frame. The scan looks ahead for Natural and Sharp / Flat examples in every enabled Color family."
     },
     {
       "classification": "translate",
@@ -5376,7 +5421,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 202,
+      "line": 216,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/workflows/calibration.py",
@@ -5488,7 +5533,7 @@
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/controls_qt.py",
-      "text": "Use this only if the video uses different colors for left and right hand notes."
+      "text": "Use this when the video contains more than one Color family."
     },
     {
       "classification": "translate",
@@ -6009,7 +6054,7 @@
     "dynamic_user_data": 4,
     "path_or_url": 2,
     "technical_id": 6,
-    "translate": 644
+    "translate": 649
   },
   "schema_version": 1
 }

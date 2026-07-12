@@ -2,7 +2,9 @@ from types import SimpleNamespace
 
 from PySide6.QtWidgets import QApplication
 
+from synthesia2midi.core.app_state import AppState
 from synthesia2midi.gui.calibration_wizard_controller import CalibrationWizardController
+from synthesia2midi.workflows.calibration import CalibrationWorkflow
 
 
 def test_assisted_calibration_summary_explains_color_families_without_rgb_first():
@@ -31,3 +33,19 @@ def test_assisted_calibration_summary_explains_color_families_without_rgb_first(
     assert "Color 2 Sharp / Flat: not present in this video" in text
     assert "{label}" not in text
     assert "(255, 0, 0)" not in text
+
+
+def test_manual_exemplar_prompt_uses_canonical_color_family_label():
+    workflow = CalibrationWorkflow(AppState(), SimpleNamespace())
+    messages = []
+    workflow._show_info = lambda title, message: messages.append((title, message))
+
+    workflow.handle_calibrate_lit_exemplar_key_start("LB")
+
+    assert messages == [
+        (
+            "Lit Exemplar Calibration",
+            "Click a glowing key that matches Color 1 Sharp / Flat. The application "
+            "will sample the color and histogram for Color 1 Sharp / Flat.",
+        )
+    ]

@@ -467,14 +467,18 @@
         <translation>4. Busca colores de teclas presionadas</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="235"/>
         <source>Start from the no-key frame. The scan looks ahead for each enabled Left/Right color family.</source>
-        <translation>Empieza desde el fotograma sin teclas iluminadas. El escaneo avanza por cada familia de color Izquierda/Derecha activada.</translation>
+        <translation type="vanished">Empieza desde el fotograma sin teclas iluminadas. El escaneo avanza por cada familia de color Izquierda/Derecha activada.</translation>
     </message>
     <message>
         <location filename="../gui/calibration_guide.py" line="235"/>
         <source>Find Pressed-Key Colors</source>
         <translation>Buscar colores de teclas presionadas</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="235"/>
+        <source>Start from the no-key frame. The scan looks ahead for Natural and Sharp / Flat examples in every enabled Color family.</source>
+        <translation>Empieza desde el fotograma sin teclas iluminadas. El escaneo busca ejemplos Naturales y de Sostenido / bemol en cada familia de color activada.</translation>
     </message>
     <message>
         <location filename="../gui/calibration_guide.py" line="236"/>
@@ -913,22 +917,22 @@ Ve a un fotograma donde no haya teclas iluminadas, o continúa si esto es espera
         <translation type="vanished">¿Aplicar estas actualizaciones de calibración?</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="652"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="657"/>
         <source>Open Manual Fit for the current manual calibration.</source>
         <translation>Abrir Ajuste manual para la calibración manual actual.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="654"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="659"/>
         <source>Edit Current Calibration becomes available after manual overlays exist.</source>
         <translation>Editar calibración actual estará disponible cuando existan superposiciones manuales.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="660"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="665"/>
         <source>Open the auto-detect tuning panel for the current calibration.</source>
         <translation>Abrir el panel de ajuste de detección automática para la calibración actual.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="665"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="670"/>
         <source>Edit Current Calibration becomes available after an auto-detect run.</source>
         <translation>Editar calibración actual estará disponible después de ejecutar la detección automática.</translation>
     </message>
@@ -936,18 +940,43 @@ Ve a un fotograma donde no haya teclas iluminadas, o continúa si esto es espera
 <context>
     <name>CalibrationWorkflow</name>
     <message>
-        <location filename="../workflows/calibration.py" line="202"/>
+        <location filename="../workflows/calibration.py" line="36"/>
+        <source>Color {number}</source>
+        <translation>Color {number}</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="40"/>
+        <source>Natural</source>
+        <translation>Natural</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="42"/>
+        <source>Sharp / Flat</source>
+        <translation>Sostenido / bemol</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="216"/>
         <source>Unlit Frame May Contain Lit Keys</source>
         <translation>El fotograma sin iluminar puede contener teclas iluminadas</translation>
     </message>
     <message>
-        <location filename="../workflows/calibration.py" line="203"/>
+        <location filename="../workflows/calibration.py" line="217"/>
         <source>It looks like these keys may be lit: {notes}.
 
 Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation>Parece que estas teclas pueden estar iluminadas: {notes}.
 
 Ve a un fotograma donde no haya teclas iluminadas, o continúa si esto es esperado.</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="307"/>
+        <source>Lit Exemplar Calibration</source>
+        <translation>Calibración de ejemplo de tecla iluminada</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="308"/>
+        <source>Click a glowing key that matches {label}. The application will sample the color and histogram for {label}.</source>
+        <translation>Haz clic en una tecla iluminada que coincida con {label}. La aplicación tomará una muestra del color y el histograma para {label}.</translation>
     </message>
 </context>
 <context>
@@ -1329,14 +1358,12 @@ Ve a un fotograma donde no haya teclas iluminadas, o continúa si esto es espera
         <translation>Avanzado</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1477"/>
         <source>Put each hand/color on a separate MIDI channel</source>
-        <translation>Poner cada mano/color en un canal MIDI separado</translation>
+        <translation type="vanished">Poner cada mano/color en un canal MIDI separado</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1483"/>
         <source>Use this only if the video uses different colors for left and right hand notes.</source>
-        <translation>Usa esto solo si el video usa colores diferentes para las notas de la mano izquierda y derecha.</translation>
+        <translation type="vanished">Usa esto solo si el video usa colores diferentes para las notas de la mano izquierda y derecha.</translation>
     </message>
     <message>
         <location filename="../gui/controls_qt.py" line="1703"/>
@@ -1949,6 +1976,16 @@ Ve a un fotograma donde no haya teclas iluminadas, o continúa si esto es espera
         <location filename="../gui/controls_qt.py" line="1064"/>
         <source>Select Flash Area Above Keys</source>
         <translation>Seleccionar área de destellos sobre las teclas</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1477"/>
+        <source>Put each Color family on a separate MIDI channel</source>
+        <translation>Colocar cada familia de color en un canal MIDI separado</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1483"/>
+        <source>Use this when the video contains more than one Color family.</source>
+        <translation>Usa esta opción cuando el video contenga más de una familia de color.</translation>
     </message>
     <message>
         <location filename="../gui/controls_qt.py" line="1509"/>
@@ -3281,8 +3318,12 @@ Las chispas deben apenas notarse como destellos brillantes en el ROI.</translati
     </message>
     <message>
         <location filename="../gui/ui_glossary.py" line="14"/>
+        <source>Color family: one Synthesia note color, with separate Natural and Sharp / Flat examples.</source>
+        <translation>Familia de color: un color de nota de Synthesia, con ejemplos separados de Natural y Sostenido / bemol.</translation>
+    </message>
+    <message>
         <source>Left/Right color family: the two Synthesia note colors, not keyboard position.</source>
-        <translation>Familia de color Izquierda/Derecha: los dos colores de notas de Synthesia, no la posición en el teclado.</translation>
+        <translation type="vanished">Familia de color Izquierda/Derecha: los dos colores de notas de Synthesia, no la posición en el teclado.</translation>
     </message>
     <message>
         <location filename="../gui/ui_glossary.py" line="15"/>

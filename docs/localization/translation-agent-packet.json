@@ -1040,7 +1040,7 @@
     },
     {
       "context": "CalibrationGuideWidget",
-      "source": "Start from the no-key frame. The scan looks ahead for each enabled Left/Right color family.",
+      "source": "Find Pressed-Key Colors",
       "placeholders": [],
       "locations": [
         {
@@ -1052,7 +1052,7 @@
     },
     {
       "context": "CalibrationGuideWidget",
-      "source": "Find Pressed-Key Colors",
+      "source": "Start from the no-key frame. The scan looks ahead for Natural and Sharp / Flat examples in every enabled Color family.",
       "placeholders": [],
       "locations": [
         {
@@ -1995,7 +1995,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 652
+          "line": 657
         }
       ],
       "notes": ""
@@ -2007,7 +2007,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 654
+          "line": 659
         }
       ],
       "notes": ""
@@ -2019,7 +2019,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 660
+          "line": 665
         }
       ],
       "notes": ""
@@ -2031,7 +2031,45 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 665
+          "line": 670
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWorkflow",
+      "source": "Color {number}",
+      "placeholders": [
+        "{number}"
+      ],
+      "locations": [
+        {
+          "filename": "../workflows/calibration.py",
+          "line": 36
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWorkflow",
+      "source": "Natural",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/calibration.py",
+          "line": 40
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWorkflow",
+      "source": "Sharp / Flat",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/calibration.py",
+          "line": 42
         }
       ],
       "notes": ""
@@ -2043,7 +2081,7 @@
       "locations": [
         {
           "filename": "../workflows/calibration.py",
-          "line": 202
+          "line": 216
         }
       ],
       "notes": ""
@@ -2057,7 +2095,34 @@
       "locations": [
         {
           "filename": "../workflows/calibration.py",
-          "line": 203
+          "line": 217
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWorkflow",
+      "source": "Lit Exemplar Calibration",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../workflows/calibration.py",
+          "line": 307
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWorkflow",
+      "source": "Click a glowing key that matches {label}. The application will sample the color and histogram for {label}.",
+      "placeholders": [
+        "{label}",
+        "{label}"
+      ],
+      "locations": [
+        {
+          "filename": "../workflows/calibration.py",
+          "line": 308
         }
       ],
       "notes": ""
@@ -2942,30 +3007,6 @@
         {
           "filename": "../gui/controls_qt.py",
           "line": 1463
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Put each hand/color on a separate MIDI channel",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1477
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Use this only if the video uses different colors for left and right hand notes.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1483
         }
       ],
       "notes": ""
@@ -4235,6 +4276,30 @@
         {
           "filename": "../gui/controls_qt.py",
           "line": 1064
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Put each Color family on a separate MIDI channel",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1477
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Use this when the video contains more than one Color family.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1483
         }
       ],
       "notes": ""
@@ -6931,7 +6996,7 @@
     },
     {
       "context": "UiGlossary",
-      "source": "Left/Right color family: the two Synthesia note colors, not keyboard position.",
+      "source": "Color family: one Synthesia note color, with separate Natural and Sharp / Flat examples.",
       "placeholders": [],
       "locations": [
         {

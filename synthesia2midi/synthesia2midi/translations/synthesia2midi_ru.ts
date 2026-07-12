@@ -467,14 +467,18 @@
         <translation>4. Найдите цвета нажатых клавиш</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="235"/>
         <source>Start from the no-key frame. The scan looks ahead for each enabled Left/Right color family.</source>
-        <translation>Начните с кадра без нажатых клавиш. Сканирование проверит следующие кадры для каждой включённой цветовой группы Left/Right.</translation>
+        <translation type="vanished">Начните с кадра без нажатых клавиш. Сканирование проверит следующие кадры для каждой включённой цветовой группы Left/Right.</translation>
     </message>
     <message>
         <location filename="../gui/calibration_guide.py" line="235"/>
         <source>Find Pressed-Key Colors</source>
         <translation>Найти цвета нажатых клавиш</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="235"/>
+        <source>Start from the no-key frame. The scan looks ahead for Natural and Sharp / Flat examples in every enabled Color family.</source>
+        <translation>Начните с кадра без подсвеченных клавиш. Сканирование ищет примеры «Натуральная» и «Диез / бемоль» для каждой включенной цветовой группы.</translation>
     </message>
     <message>
         <location filename="../gui/calibration_guide.py" line="236"/>
@@ -913,22 +917,22 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">Применить эти обновления калибровки?</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="652"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="657"/>
         <source>Open Manual Fit for the current manual calibration.</source>
         <translation>Открыть ручную подгонку для текущей ручной калибровки.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="654"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="659"/>
         <source>Edit Current Calibration becomes available after manual overlays exist.</source>
         <translation>Изменение текущей калибровки станет доступно после создания ручных оверлеев.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="660"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="665"/>
         <source>Open the auto-detect tuning panel for the current calibration.</source>
         <translation>Открыть панель настройки автоопределения для текущей калибровки.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="665"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="670"/>
         <source>Edit Current Calibration becomes available after an auto-detect run.</source>
         <translation>Изменение текущей калибровки станет доступно после запуска автоопределения.</translation>
     </message>
@@ -936,18 +940,43 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
 <context>
     <name>CalibrationWorkflow</name>
     <message>
-        <location filename="../workflows/calibration.py" line="202"/>
+        <location filename="../workflows/calibration.py" line="36"/>
+        <source>Color {number}</source>
+        <translation>Цвет {number}</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="40"/>
+        <source>Natural</source>
+        <translation>Натуральная</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="42"/>
+        <source>Sharp / Flat</source>
+        <translation>Диез / бемоль</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="216"/>
         <source>Unlit Frame May Contain Lit Keys</source>
         <translation>В кадре без подсветки могут быть подсвеченные клавиши</translation>
     </message>
     <message>
-        <location filename="../workflows/calibration.py" line="203"/>
+        <location filename="../workflows/calibration.py" line="217"/>
         <source>It looks like these keys may be lit: {notes}.
 
 Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation>Похоже, эти клавиши могут быть подсвечены: {notes}.
 
 Перейдите к кадру без подсвеченных клавиш или продолжите, если это ожидаемо.</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="307"/>
+        <source>Lit Exemplar Calibration</source>
+        <translation>Калибровка примера подсвеченной клавиши</translation>
+    </message>
+    <message>
+        <location filename="../workflows/calibration.py" line="308"/>
+        <source>Click a glowing key that matches {label}. The application will sample the color and histogram for {label}.</source>
+        <translation>Щёлкните подсвеченную клавишу, соответствующую {label}. Приложение возьмёт образец цвета и гистограммы для {label}.</translation>
     </message>
 </context>
 <context>
@@ -1361,14 +1390,12 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation>Расширенные</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1477"/>
         <source>Put each hand/color on a separate MIDI channel</source>
-        <translation>Поместить каждую руку/цвет в отдельный MIDI-канал</translation>
+        <translation type="vanished">Поместить каждую руку/цвет в отдельный MIDI-канал</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1483"/>
         <source>Use this only if the video uses different colors for left and right hand notes.</source>
-        <translation>Используйте это только если в видео используются разные цвета для нот левой и правой руки.</translation>
+        <translation type="vanished">Используйте это только если в видео используются разные цвета для нот левой и правой руки.</translation>
     </message>
     <message>
         <location filename="../gui/controls_qt.py" line="1703"/>
@@ -1596,6 +1623,16 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <location filename="../gui/controls_qt.py" line="1064"/>
         <source>Select Flash Area Above Keys</source>
         <translation>Выбрать область вспышек над клавишами</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1477"/>
+        <source>Put each Color family on a separate MIDI channel</source>
+        <translation>Разместить каждую цветовую группу на отдельном MIDI-канале</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1483"/>
+        <source>Use this when the video contains more than one Color family.</source>
+        <translation>Используйте это, если в видео больше одной цветовой группы.</translation>
     </message>
     <message>
         <source>Before tuning detection: run Unlit Key Calibration + at least one Lit Key Exemplar.</source>
@@ -3283,8 +3320,12 @@ Sparks should be just barely noticeable as bright flashes in the ROI.</source>
     </message>
     <message>
         <location filename="../gui/ui_glossary.py" line="14"/>
+        <source>Color family: one Synthesia note color, with separate Natural and Sharp / Flat examples.</source>
+        <translation>Цветовая группа: один цвет нот Synthesia с отдельными примерами «Натуральная» и «Диез / бемоль».</translation>
+    </message>
+    <message>
         <source>Left/Right color family: the two Synthesia note colors, not keyboard position.</source>
-        <translation>Цветовая группа Left/Right: два цвета нот Synthesia, а не положение на клавиатуре.</translation>
+        <translation type="vanished">Цветовая группа Left/Right: два цвета нот Synthesia, а не положение на клавиатуре.</translation>
     </message>
     <message>
         <location filename="../gui/ui_glossary.py" line="15"/>

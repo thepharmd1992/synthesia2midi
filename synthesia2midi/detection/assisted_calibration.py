@@ -10,6 +10,16 @@ import cv2
 import numpy as np
 
 from synthesia2midi.app_config import OverlayConfig
+from synthesia2midi.core.color_families import (
+    COLOR_FAMILIES,
+    SUPPORTED_EXEMPLAR_SLOTS,
+    slots_for_family,
+)
+from synthesia2midi.detection.color_family_assignment import (
+    FamilyEvidence,
+    SavedFamilyAnchors,
+    assign_family_slots,
+)
 
 if TYPE_CHECKING:
     from synthesia2midi.core.app_state import AppState
@@ -386,19 +396,60 @@ def assign_exemplar_slots(
     candidates: Sequence[ExemplarCandidate],
     *,
     family_hue_threshold: float = 22.0,
+    saved_anchors: SavedFamilyAnchors | None = None,
 ) -> ExemplarAssignmentResult:
-    family_buckets = _cluster_exemplar_families(candidates, family_hue_threshold)
-    slot_pairs = [("LW", "LB"), ("RW", "RB")]
+    evidence_sources: dict[FamilyEvidence, list[ExemplarCandidate]] = {}
+    evidence: list[FamilyEvidence] = []
+    for candidate in candidates:
+        item = FamilyEvidence(
+            frame_index=candidate.frame_index,
+            key_id=candidate.key_id,
+            morphology="natural" if candidate.slot_color == "W" else "accidental",
+            rgb=candidate.rgb,
+            score=candidate.confidence,
+        )
+        evidence.append(item)
+        evidence_sources.setdefault(item, []).append(candidate)
+
+    def source_sort_key(candidate: ExemplarCandidate) -> tuple[object, ...]:
+        histogram = candidate.hist
+        histogram_key: tuple[object, ...] = (1,)
+        if histogram is not None:
+            array = np.asarray(histogram)
+            histogram_key = (0, array.dtype.str, array.shape, array.tobytes())
+        return (
+            -candidate.delta_from_unlit,
+            candidate.note_label,
+            candidate.hsv,
+            histogram_key,
+        )
+
+    family_assignments, _warnings = assign_family_slots(
+        evidence,
+        saved_anchors=saved_anchors,
+        family_hue_threshold=family_hue_threshold,
+    )
+    by_family_number = {
+        assignment.family_number: assignment for assignment in family_assignments
+    }
     assignments: Dict[str, AssignedExemplar] = {}
     missing: list[str] = []
     disabled: list[str] = []
     confidences: list[float] = []
 
-    for family_index, slots in enumerate(slot_pairs):
-        bucket = family_buckets[family_index] if family_index < len(family_buckets) else []
-        family_present = family_index < len(family_buckets)
-        for slot, key_color in zip(slots, ("W", "B")):
-            source = _best_candidate(item for item in bucket if item.slot_color == key_color)
+    for family in COLOR_FAMILIES:
+        family_number = family.number
+        natural_slot, accidental_slot = slots_for_family(family_number)
+        family_assignment = by_family_number.get(family_number)
+        family_present = family_assignment is not None
+        selected_evidence = (
+            (family_assignment.natural, family_assignment.accidental)
+            if family_assignment is not None
+            else (None, None)
+        )
+        for slot, item in zip((natural_slot, accidental_slot), selected_evidence):
+            source_candidates = evidence_sources.get(item, []) if item is not None else []
+            source = min(source_candidates, key=source_sort_key) if source_candidates else None
             if source is None:
                 assignments[slot] = AssignedExemplar(
                     slot=slot,
@@ -421,12 +472,14 @@ def assign_exemplar_slots(
             )
             confidences.append(source.confidence)
 
+    assert tuple(assignments) == SUPPORTED_EXEMPLAR_SLOTS
+
     confidence = float(np.mean(confidences)) if confidences else 0.0
     return ExemplarAssignmentResult(
         assignments=assignments,
         missing_slots=tuple(missing),
         disabled_slots=tuple(disabled),
-        family_count=len(family_buckets),
+        family_count=len(family_assignments),
         confidence=confidence,
     )
 

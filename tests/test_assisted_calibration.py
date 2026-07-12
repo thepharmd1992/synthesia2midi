@@ -41,6 +41,35 @@ def _candidate(slot_color, rgb, frame_index=10, note="C4", key_id=1, confidence=
     )
 
 
+def _stable_candidates(
+    slot_color,
+    rgb,
+    *,
+    first_frame=10,
+    note="C4",
+    key_id=1,
+    confidence=0.9,
+):
+    return [
+        _candidate(
+            slot_color,
+            rgb,
+            frame_index=first_frame,
+            note=note,
+            key_id=key_id,
+            confidence=confidence,
+        ),
+        _candidate(
+            slot_color,
+            rgb,
+            frame_index=first_frame + 10,
+            note=note,
+            key_id=key_id,
+            confidence=confidence,
+        ),
+    ]
+
+
 def _overlay(
     key_id=1,
     note="C",
@@ -724,26 +753,31 @@ def test_scanner_honors_cancel_callback():
 
 def test_assign_exemplar_slots_maps_two_color_families_by_hue_not_position():
     candidates = [
-        _candidate("W", (130, 165, 205), key_id=50, note="D5"),
-        _candidate("B", (70, 110, 170), key_id=30, note="C♯4"),
-        _candidate("W", (243, 176, 68), key_id=10, note="A2"),
-        _candidate("B", (243, 131, 46), key_id=20, note="A♯2"),
+        *_stable_candidates("W", (130, 165, 205), key_id=50, note="D5"),
+        *_stable_candidates("B", (70, 110, 170), key_id=30, note="C♯4"),
+        *_stable_candidates("W", (243, 176, 68), key_id=10, note="A2"),
+        *_stable_candidates("B", (243, 131, 46), key_id=20, note="A♯2"),
     ]
 
     result = assign_exemplar_slots(candidates)
 
     assert result.family_count == 2
-    assert result.assignments["LW"].rgb == (130, 165, 205)
-    assert result.assignments["LB"].rgb == (70, 110, 170)
-    assert result.assignments["RW"].rgb == (243, 176, 68)
-    assert result.assignments["RB"].rgb == (243, 131, 46)
-    assert result.disabled_slots == ()
+    assert result.assignments["LW"].rgb == (243, 176, 68)
+    assert result.assignments["LB"].rgb == (243, 131, 46)
+    assert result.assignments["RW"].rgb == (130, 165, 205)
+    assert result.assignments["RB"].rgb == (70, 110, 170)
+    assert result.disabled_slots == (
+        "COLOR_3_W",
+        "COLOR_3_B",
+        "COLOR_4_W",
+        "COLOR_4_B",
+    )
 
 
 def test_assign_exemplar_slots_disables_absent_second_family():
     result = assign_exemplar_slots([
-        _candidate("W", (130, 165, 205), key_id=1),
-        _candidate("B", (70, 110, 170), key_id=2),
+        *_stable_candidates("W", (130, 165, 205), key_id=1),
+        *_stable_candidates("B", (70, 110, 170), key_id=2),
     ])
 
     assert result.family_count == 1
@@ -751,12 +785,19 @@ def test_assign_exemplar_slots_disables_absent_second_family():
     assert result.assignments["LB"].enabled is True
     assert result.assignments["RW"].enabled is False
     assert result.assignments["RB"].enabled is False
-    assert result.disabled_slots == ("RW", "RB")
+    assert result.disabled_slots == (
+        "RW",
+        "RB",
+        "COLOR_3_W",
+        "COLOR_3_B",
+        "COLOR_4_W",
+        "COLOR_4_B",
+    )
 
 
 def test_assign_exemplar_slots_enables_partial_family_with_missing_partner_as_missing():
     result = assign_exemplar_slots([
-        _candidate("W", (130, 165, 205), key_id=1),
+        *_stable_candidates("W", (130, 165, 205), key_id=1),
     ])
 
     assert result.family_count == 1
@@ -767,14 +808,89 @@ def test_assign_exemplar_slots_enables_partial_family_with_missing_partner_as_mi
     assert result.assignments["LB"].rgb is None
     assert result.assignments["LB"].hist is None
     assert result.missing_slots == ("LB",)
-    assert result.disabled_slots == ("RW", "RB")
+    assert result.disabled_slots == (
+        "RW",
+        "RB",
+        "COLOR_3_W",
+        "COLOR_3_B",
+        "COLOR_4_W",
+        "COLOR_4_B",
+    )
+
+
+def test_assign_exemplar_slots_maps_four_stable_families_to_registry_slots():
+    family_samples = (
+        ((70, 130, 230), (45, 95, 185)),
+        ((235, 65, 65), (185, 35, 35)),
+        ((235, 215, 45), (185, 165, 25)),
+        ((45, 210, 70), (25, 160, 50)),
+    )
+    candidates = []
+    for family_index, (natural_rgb, accidental_rgb) in enumerate(family_samples):
+        candidates.extend(
+            _stable_candidates(
+                "W",
+                natural_rgb,
+                first_frame=10 + (family_index * 30),
+                key_id=10 + family_index,
+            )
+        )
+        candidates.extend(
+            _stable_candidates(
+                "B",
+                accidental_rgb,
+                first_frame=11 + (family_index * 30),
+                key_id=20 + family_index,
+            )
+        )
+
+    result = assign_exemplar_slots(list(reversed(candidates)))
+
+    assert result.family_count == 4
+    assert tuple(result.assignments) == (
+        "LW",
+        "LB",
+        "RW",
+        "RB",
+        "COLOR_3_W",
+        "COLOR_3_B",
+        "COLOR_4_W",
+        "COLOR_4_B",
+    )
+    assert result.missing_slots == ()
+    assert result.disabled_slots == ()
+    assert all(assignment.enabled for assignment in result.assignments.values())
+
+
+def test_assign_exemplar_slots_selects_duplicate_source_deterministically():
+    duplicate_a = _candidate("W", (130, 165, 205), frame_index=10, key_id=1)
+    duplicate_b = ExemplarCandidate(
+        slot_color=duplicate_a.slot_color,
+        key_id=duplicate_a.key_id,
+        note_label=duplicate_a.note_label,
+        frame_index=duplicate_a.frame_index,
+        rgb=duplicate_a.rgb,
+        hsv=duplicate_a.hsv,
+        delta_from_unlit=duplicate_a.delta_from_unlit,
+        confidence=duplicate_a.confidence,
+        hist=np.array([2.0], dtype=np.float32),
+    )
+    later = _candidate("W", (130, 165, 205), frame_index=20, key_id=1)
+
+    forward = assign_exemplar_slots([duplicate_a, duplicate_b, later])
+    reversed_result = assign_exemplar_slots([later, duplicate_b, duplicate_a])
+
+    assert np.array_equal(
+        forward.assignments["LW"].hist,
+        reversed_result.assignments["LW"].hist,
+    )
 
 
 def test_apply_assisted_calibration_proposal_updates_colors_histograms_and_enabled_slots():
     app_state = AppState()
     assignment = assign_exemplar_slots([
-        _candidate("W", (130, 165, 205), key_id=1),
-        _candidate("B", (70, 110, 170), key_id=2),
+        *_stable_candidates("W", (130, 165, 205), key_id=1),
+        *_stable_candidates("B", (70, 110, 170), key_id=2),
     ])
     proposal = AssistedCalibrationProposal(
         baseline_frame_index=12,
@@ -804,7 +920,7 @@ def test_build_assisted_calibration_proposal_combines_guard_scan_and_assignment(
     baseline = np.full((8, 8, 3), (245, 245, 235), dtype=np.uint8)
     lit = baseline.copy()
     lit[0:4, 0:4] = (130, 165, 205)
-    frames = {0: baseline, 10: lit}
+    frames = {0: baseline, 5: lit, 10: lit}
 
     capture_unlit_references_from_frame(baseline, [overlay])
     proposal = build_assisted_calibration_proposal(
@@ -817,7 +933,7 @@ def test_build_assisted_calibration_proposal_combines_guard_scan_and_assignment(
 
     assert proposal.baseline_frame_index == 0
     assert proposal.unlit_assessment.status == "clean"
-    assert proposal.candidate_count == 1
+    assert proposal.candidate_count == 2
     assert proposal.assignment_result.assignments["LW"].rgb == (130, 165, 205)
 
 
@@ -826,6 +942,7 @@ def test_build_assisted_calibration_proposal_skips_baseline_frame_as_lit_candida
     overlay.unlit_reference_color = (245, 245, 235)
 
     baseline = np.full((8, 8, 3), (170, 175, 185), dtype=np.uint8)
+    unlit = np.full((8, 8, 3), (245, 245, 235), dtype=np.uint8)
     lit = np.full((8, 8, 3), (150, 155, 165), dtype=np.uint8)
     lit[0:4, 0:4] = (130, 165, 205)
 
@@ -833,19 +950,19 @@ def test_build_assisted_calibration_proposal_skips_baseline_frame_as_lit_candida
 
     def frame_provider(index: int):
         calls.append(index)
-        return {0: baseline, 1: lit}.get(index)
+        return {0: baseline, 1: lit, 2: unlit, 3: unlit, 4: lit}.get(index)
 
     proposal = build_assisted_calibration_proposal(
         frame_provider,
         [overlay],
         baseline_frame_index=0,
-        end_frame=1,
+        end_frame=4,
         settings=ExemplarScanSettings(coarse_stride=1, refine_radius=0, min_rgb_delta=30.0),
     )
 
     assert calls.count(0) == 1
-    assert proposal.scanned_frame_count == 1
-    assert proposal.candidate_count == 1
+    assert proposal.scanned_frame_count == 4
+    assert proposal.candidate_count == 2
     assert proposal.assignment_result.assignments["LW"].rgb == (130, 165, 205)
 
 

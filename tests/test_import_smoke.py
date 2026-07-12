@@ -101,6 +101,8 @@ IMPORT_SMOKE_MODULES = [
     "synthesia2midi.workflows.video_loading",
     "synthesia2midi.workflows.video_session_coordinator",
     "synthesia2midi.workflows.video_to_frames",
+    # Developer tools imported by tests must resolve under CI's repo-root PYTHONPATH.
+    "synthesia2midi.tools.probe_assisted_calibration",
 ]
 
 

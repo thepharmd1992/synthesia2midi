@@ -3,6 +3,7 @@ import pytest
 import cv2
 import numpy as np
 
+import synthesia2midi.detection.assisted_calibration as assisted_calibration
 from synthesia2midi.app_config import OverlayConfig
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.detection.assisted_calibration import (
@@ -229,6 +230,98 @@ def test_scanner_collapses_overlapping_hits_into_one_event_per_lit_burst():
     assert by_frame[26].rgb == (45, 65, 85)
 
 
+def test_scanner_bounds_completed_candidates_while_scanning(monkeypatch):
+    overlay = _overlay(key_id=1, note="C", x=0, y=0, width=4, height=4, key_type="LW")
+    overlay.unlit_reference_color = (245, 245, 235)
+
+    frames = {}
+    for frame_index in range(31):
+        frame = np.full((6, 6, 3), (245, 245, 235), dtype=np.uint8)
+        if frame_index % 2 == 1:
+            frame[0:4, 0:4] = (130, 165, 205)
+        frames[frame_index] = frame
+
+    largest_completed_bucket = 0
+    original_flatten = assisted_calibration._flatten_scan_candidates
+
+    def record_bucket_size(candidates_by_key, active_candidates_by_key, max_candidates_per_key):
+        nonlocal largest_completed_bucket
+        largest_completed_bucket = max(
+            [largest_completed_bucket]
+            + [len(bucket) for bucket in candidates_by_key.values()]
+        )
+        return original_flatten(
+            candidates_by_key,
+            active_candidates_by_key,
+            max_candidates_per_key,
+        )
+
+    monkeypatch.setattr(
+        assisted_calibration,
+        "_flatten_scan_candidates",
+        record_bucket_size,
+    )
+    candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        lambda index: frames[index],
+        [overlay],
+        0,
+        30,
+        settings=ExemplarScanSettings(
+            coarse_stride=1,
+            refine_radius=0,
+            min_rgb_delta=30.0,
+            max_candidates_per_key=3,
+        ),
+    )
+
+    assert canceled is False
+    assert scanned == 31
+    assert largest_completed_bucket <= 3
+    assert [candidate.frame_index for candidate in candidates] == [1, 3, 5]
+
+
+def test_scanner_recomputes_early_stop_evidence_only_after_completed_bursts(monkeypatch):
+    overlay = _overlay(key_id=1, note="C", x=0, y=0, width=4, height=4, key_type="LW")
+    overlay.unlit_reference_color = (245, 245, 235)
+
+    frames = {}
+    for frame_index in range(21):
+        frame = np.full((6, 6, 3), (245, 245, 235), dtype=np.uint8)
+        if frame_index == 1:
+            frame[0:4, 0:4] = (130, 165, 205)
+        frames[frame_index] = frame
+
+    evidence_checks = 0
+    original_complete_evidence = assisted_calibration._complete_two_family_evidence
+
+    def count_evidence_checks(candidates, settings, stride):
+        nonlocal evidence_checks
+        evidence_checks += 1
+        return original_complete_evidence(candidates, settings, stride)
+
+    monkeypatch.setattr(
+        assisted_calibration,
+        "_complete_two_family_evidence",
+        count_evidence_checks,
+    )
+    candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        lambda index: frames[index],
+        [overlay],
+        0,
+        20,
+        settings=ExemplarScanSettings(
+            coarse_stride=1,
+            refine_radius=0,
+            min_rgb_delta=30.0,
+        ),
+    )
+
+    assert canceled is False
+    assert scanned == 21
+    assert len(candidates) == 1
+    assert evidence_checks == 1
+
+
 def test_scanner_reuses_frame_provider_reads_across_refinement_window():
     overlay = _overlay(key_id=1, note="C", octave=4, x=0, y=0, width=4, height=4, key_type="LW")
     overlay.unlit_reference_color = (245, 245, 235)
@@ -260,6 +353,337 @@ def test_scanner_reuses_frame_provider_reads_across_refinement_window():
     assert len(candidates) == 1
     assert candidates[0].frame_index == 1
     assert calls == [0, 1, 5, 4]
+
+
+def test_scanner_stops_after_confirmed_two_family_exemplars():
+    overlays = [
+        _overlay(key_id=1, note="C", x=0, y=0, width=4, height=4, key_type="LW"),
+        _overlay(key_id=2, note="C#", x=5, y=0, width=4, height=4, key_type="LB"),
+        _overlay(key_id=3, note="D", x=10, y=0, width=4, height=4, key_type="RW"),
+        _overlay(key_id=4, note="D#", x=15, y=0, width=4, height=4, key_type="RB"),
+    ]
+    for overlay in overlays:
+        overlay.unlit_reference_color = (
+            (25, 25, 25) if overlay.key_type.endswith("B") else (245, 245, 235)
+        )
+
+    frames = {}
+    for index in range(41):
+        frame = np.zeros((6, 20, 3), dtype=np.uint8)
+        frame[0:4, 0:4] = (245, 245, 235)
+        frame[0:4, 5:9] = (25, 25, 25)
+        frame[0:4, 10:14] = (245, 245, 235)
+        frame[0:4, 15:19] = (25, 25, 25)
+        frames[index] = frame
+
+    lit_events = {
+        1: (0, (130, 165, 205)),
+        2: (1, (70, 110, 170)),
+        3: (2, (243, 176, 68)),
+        4: (3, (243, 131, 46)),
+        9: (0, (130, 165, 205)),
+        10: (1, (70, 110, 170)),
+        11: (2, (243, 176, 68)),
+        12: (3, (243, 131, 46)),
+        15: (0, (130, 165, 205)),
+        16: (1, (70, 110, 170)),
+        17: (2, (243, 176, 68)),
+        18: (3, (243, 131, 46)),
+    }
+    for frame_index, (overlay_index, rgb) in lit_events.items():
+        overlay = overlays[overlay_index]
+        frames[frame_index][0:4, int(overlay.x):int(overlay.x + overlay.width)] = rgb
+
+    calls: list[int] = []
+
+    def frame_provider(index: int):
+        calls.append(index)
+        return frames[index]
+
+    candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        0,
+        40,
+        settings=ExemplarScanSettings(
+            coarse_stride=1,
+            refine_radius=0,
+            min_rgb_delta=30.0,
+        ),
+    )
+
+    assignment = assign_exemplar_slots(candidates)
+    assert canceled is False
+    assert assignment.family_count == 2
+    assert assignment.missing_slots == ()
+    assert scanned == 20
+    assert calls == list(range(20))
+
+
+def test_scanner_uses_fresh_evidence_after_output_candidate_bucket_is_full():
+    overlays = [
+        _overlay(key_id=1, note="C", x=0, y=0, width=4, height=4, key_type="LW"),
+        _overlay(key_id=2, note="C#", x=5, y=0, width=4, height=4, key_type="LB"),
+        _overlay(key_id=3, note="D", x=10, y=0, width=4, height=4, key_type="RW"),
+        _overlay(key_id=4, note="D#", x=15, y=0, width=4, height=4, key_type="RB"),
+    ]
+    for overlay in overlays:
+        overlay.unlit_reference_color = (
+            (25, 25, 25) if overlay.key_type.endswith("B") else (245, 245, 235)
+        )
+
+    frames = {}
+    for frame_index in range(41):
+        frame = np.zeros((6, 20, 3), dtype=np.uint8)
+        frame[0:4, 0:4] = (245, 245, 235)
+        frame[0:4, 5:9] = (25, 25, 25)
+        frame[0:4, 10:14] = (245, 245, 235)
+        frame[0:4, 15:19] = (25, 25, 25)
+        frames[frame_index] = frame
+
+    for frame_index in (1, 3, 5, 7, 9, 11, 13):
+        frames[frame_index][0:4, 0:4] = (130, 165, 205)
+        frames[frame_index][0:4, 5:9] = (70, 110, 170)
+        frames[frame_index][0:4, 10:14] = (243, 176, 68)
+    for frame_index in (15, 17):
+        frames[frame_index][0:4, 15:19] = (243, 131, 46)
+    frames[19][0:4, 0:4] = (130, 165, 205)
+    frames[19][0:4, 5:9] = (70, 110, 170)
+    frames[19][0:4, 10:14] = (243, 176, 68)
+    frames[19][0:4, 15:19] = (243, 131, 46)
+
+    calls: list[int] = []
+
+    def frame_provider(index: int):
+        calls.append(index)
+        return frames[index]
+
+    candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        0,
+        40,
+        settings=ExemplarScanSettings(
+            coarse_stride=1,
+            refine_radius=0,
+            min_rgb_delta=30.0,
+            max_candidates_per_key=6,
+        ),
+    )
+
+    assert canceled is False
+    assert assign_exemplar_slots(candidates).missing_slots == ()
+    assert scanned == 25
+    assert calls == list(range(25))
+
+
+def test_scanner_does_not_treat_reordered_color_families_as_fresh_evidence():
+    overlays = [
+        _overlay(key_id=1, note="C", x=0, y=0, width=4, height=4, key_type="LW"),
+        _overlay(key_id=2, note="C#", x=5, y=0, width=4, height=4, key_type="LB"),
+        _overlay(key_id=3, note="D", x=10, y=0, width=4, height=4, key_type="RW"),
+        _overlay(key_id=4, note="D#", x=15, y=0, width=4, height=4, key_type="RB"),
+    ]
+    for overlay in overlays:
+        overlay.unlit_reference_color = (
+            (25, 25, 25) if overlay.key_type.endswith("B") else (245, 245, 235)
+        )
+
+    frames = {}
+    for frame_index in range(31):
+        frame = np.zeros((6, 20, 3), dtype=np.uint8)
+        frame[0:4, 0:4] = (245, 245, 235)
+        frame[0:4, 5:9] = (25, 25, 25)
+        frame[0:4, 10:14] = (245, 245, 235)
+        frame[0:4, 15:19] = (25, 25, 25)
+        frames[frame_index] = frame
+
+    for frame_index in (1, 5, 9, 11):
+        frames[frame_index][0:4, 0:4] = (230, 80, 80)
+        frames[frame_index][0:4, 5:9] = (180, 40, 40)
+    for frame_index in (3, 7):
+        frames[frame_index][0:4, 10:14] = (230, 220, 80)
+        frames[frame_index][0:4, 15:19] = (180, 160, 40)
+
+    calls: list[int] = []
+
+    def frame_provider(index: int):
+        calls.append(index)
+        return frames[index]
+
+    candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        0,
+        30,
+        settings=ExemplarScanSettings(
+            coarse_stride=1,
+            refine_radius=0,
+            min_rgb_delta=30.0,
+        ),
+    )
+
+    assert canceled is False
+    assert assign_exemplar_slots(candidates).family_count == 2
+    assert scanned == 31
+    assert calls == list(range(31))
+
+
+def test_scanner_does_not_stop_for_two_transient_animation_pulses():
+    overlays = []
+    for index in range(8):
+        key_color = "B" if index in {2, 3, 6, 7} else "W"
+        overlay = _overlay(
+            key_id=index + 1,
+            note="C" if key_color == "W" else "C#",
+            x=index * 5,
+            y=0,
+            width=4,
+            height=4,
+            key_type=f"L{key_color}",
+        )
+        overlay.unlit_reference_color = (
+            (25, 25, 25) if key_color == "B" else (245, 245, 235)
+        )
+        overlays.append(overlay)
+
+    frames = {}
+    for frame_index in range(21):
+        frame = np.zeros((6, 40, 3), dtype=np.uint8)
+        for overlay in overlays:
+            unlit_rgb = overlay.unlit_reference_color
+            frame[0:4, int(overlay.x):int(overlay.x + overlay.width)] = unlit_rgb
+        frames[frame_index] = frame
+
+    animation_colors = [
+        (130, 165, 205),
+        (130, 165, 205),
+        (70, 110, 170),
+        (70, 110, 170),
+        (243, 176, 68),
+        (243, 176, 68),
+        (243, 131, 46),
+        (243, 131, 46),
+    ]
+    for frame_index in (1, 3):
+        for overlay, rgb in zip(overlays, animation_colors):
+            frames[frame_index][0:4, int(overlay.x):int(overlay.x + overlay.width)] = rgb
+
+    calls: list[int] = []
+
+    def frame_provider(index: int):
+        calls.append(index)
+        return frames[index]
+
+    _candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        0,
+        20,
+        settings=ExemplarScanSettings(
+            coarse_stride=1,
+            refine_radius=0,
+            min_rgb_delta=30.0,
+        ),
+    )
+
+    assert canceled is False
+    assert scanned == 21
+    assert max(calls) == 20
+
+
+def test_scanner_scans_to_end_for_one_complete_color_family():
+    overlays = [
+        _overlay(key_id=1, note="C", x=0, y=0, width=4, height=4, key_type="LW"),
+        _overlay(key_id=2, note="C#", x=5, y=0, width=4, height=4, key_type="LB"),
+    ]
+    overlays[0].unlit_reference_color = (245, 245, 235)
+    overlays[1].unlit_reference_color = (25, 25, 25)
+
+    frames = {}
+    for frame_index in range(21):
+        frame = np.zeros((6, 10, 3), dtype=np.uint8)
+        frame[0:4, 0:4] = (245, 245, 235)
+        frame[0:4, 5:9] = (25, 25, 25)
+        frames[frame_index] = frame
+    for frame_index in (1, 9):
+        frames[frame_index][0:4, 0:4] = (130, 165, 205)
+    for frame_index in (2, 10):
+        frames[frame_index][0:4, 5:9] = (70, 110, 170)
+
+    calls: list[int] = []
+
+    def frame_provider(index: int):
+        calls.append(index)
+        return frames[index]
+
+    candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        0,
+        20,
+        settings=ExemplarScanSettings(
+            coarse_stride=1,
+            refine_radius=0,
+            min_rgb_delta=30.0,
+        ),
+    )
+
+    assert canceled is False
+    assert assign_exemplar_slots(candidates).family_count == 1
+    assert scanned == 21
+    assert calls == list(range(21))
+
+
+def test_scanner_scans_to_end_when_second_family_is_incomplete():
+    overlays = [
+        _overlay(key_id=1, note="C", x=0, y=0, width=4, height=4, key_type="LW"),
+        _overlay(key_id=2, note="C#", x=5, y=0, width=4, height=4, key_type="LB"),
+        _overlay(key_id=3, note="D", x=10, y=0, width=4, height=4, key_type="RW"),
+    ]
+    for overlay in overlays:
+        overlay.unlit_reference_color = (
+            (25, 25, 25) if overlay.key_type.endswith("B") else (245, 245, 235)
+        )
+
+    frames = {}
+    for frame_index in range(21):
+        frame = np.zeros((6, 15, 3), dtype=np.uint8)
+        frame[0:4, 0:4] = (245, 245, 235)
+        frame[0:4, 5:9] = (25, 25, 25)
+        frame[0:4, 10:14] = (245, 245, 235)
+        frames[frame_index] = frame
+    for frame_index in (1, 9):
+        frames[frame_index][0:4, 0:4] = (130, 165, 205)
+    for frame_index in (2, 10):
+        frames[frame_index][0:4, 5:9] = (70, 110, 170)
+    for frame_index in (3, 11):
+        frames[frame_index][0:4, 10:14] = (243, 176, 68)
+
+    calls: list[int] = []
+
+    def frame_provider(index: int):
+        calls.append(index)
+        return frames[index]
+
+    candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        0,
+        20,
+        settings=ExemplarScanSettings(
+            coarse_stride=1,
+            refine_radius=0,
+            min_rgb_delta=30.0,
+        ),
+    )
+
+    assignment = assign_exemplar_slots(candidates)
+    assert canceled is False
+    assert assignment.family_count == 2
+    assert assignment.missing_slots == ("RB",)
+    assert scanned == 21
+    assert calls == list(range(21))
 
 
 def test_bounded_frame_cache_evicts_old_frames():

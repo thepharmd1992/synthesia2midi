@@ -90,6 +90,17 @@ class ExemplarScanSettings:
     min_rgb_delta: float = 35.0
     min_saturation: float = 35.0
     max_candidates_per_key: int = 6
+    early_stop_min_confidence: float = 0.5
+    early_stop_min_slot_events: int = 2
+    early_stop_min_slot_span_steps: int = 2
+    early_stop_confirmation_steps: int = 6
+
+
+@dataclass(frozen=True)
+class _FamilyEarlyStopEvidence:
+    hue: float
+    white_events: frozenset[tuple[int, int]]
+    black_events: frozenset[tuple[int, int]]
 
 
 class _BoundedFrameCache:
@@ -319,6 +330,14 @@ def _circular_hue_distance(a: float, b: float) -> float:
     return min(delta, 180.0 - delta)
 
 
+def _circular_mean_hue(candidates: Sequence[ExemplarCandidate]) -> float:
+    angles = np.array([_family_hue(candidate) for candidate in candidates]) * (2.0 * np.pi / 180.0)
+    mean_angle = float(np.arctan2(np.sin(angles).mean(), np.cos(angles).mean()))
+    if mean_angle < 0:
+        mean_angle += 2.0 * np.pi
+    return mean_angle * (180.0 / (2.0 * np.pi))
+
+
 def _family_hue(candidate: ExemplarCandidate) -> float:
     return candidate.hsv[0] if candidate.hsv[1] > 0 else _rgb_to_hsv_tuple(candidate.rgb)[0]
 
@@ -335,11 +354,10 @@ def _best_candidate(candidates: Iterable[ExemplarCandidate]) -> Optional[Exempla
     return ordered[0] if ordered else None
 
 
-def assign_exemplar_slots(
+def _cluster_exemplar_families(
     candidates: Sequence[ExemplarCandidate],
-    *,
-    family_hue_threshold: float = 22.0,
-) -> ExemplarAssignmentResult:
+    family_hue_threshold: float,
+) -> list[list[ExemplarCandidate]]:
     family_buckets: list[list[ExemplarCandidate]] = []
     ordered_candidates = sorted(
         candidates,
@@ -361,6 +379,15 @@ def assign_exemplar_slots(
         target_bucket.append(candidate)
 
     family_buckets.sort(key=_family_sort_key)
+    return family_buckets
+
+
+def assign_exemplar_slots(
+    candidates: Sequence[ExemplarCandidate],
+    *,
+    family_hue_threshold: float = 22.0,
+) -> ExemplarAssignmentResult:
+    family_buckets = _cluster_exemplar_families(candidates, family_hue_threshold)
     slot_pairs = [("LW", "LB"), ("RW", "RB")]
     assignments: Dict[str, AssignedExemplar] = {}
     missing: list[str] = []
@@ -452,6 +479,115 @@ def build_assisted_calibration_proposal(
     )
 
 
+def _flatten_scan_candidates(
+    candidates_by_key: dict[int, list[ExemplarCandidate]],
+    active_candidates_by_key: dict[int, ExemplarCandidate],
+    max_candidates_per_key: int,
+) -> list[ExemplarCandidate]:
+    flattened = [candidate for bucket in candidates_by_key.values() for candidate in bucket]
+    flattened.extend(active_candidates_by_key.values())
+    flattened.sort(key=lambda item: (-item.confidence, item.frame_index, item.key_id))
+    if max_candidates_per_key <= 0:
+        return flattened
+
+    pruned: list[ExemplarCandidate] = []
+    per_key_counts: dict[int, int] = {}
+    for candidate in flattened:
+        count = per_key_counts.get(candidate.key_id, 0)
+        if count >= max_candidates_per_key:
+            continue
+        per_key_counts[candidate.key_id] = count + 1
+        pruned.append(candidate)
+    return pruned
+
+
+def _store_completed_candidate(
+    candidates_by_key: dict[int, list[ExemplarCandidate]],
+    candidate: ExemplarCandidate,
+    max_candidates_per_key: int,
+) -> None:
+    bucket = candidates_by_key.setdefault(candidate.key_id, [])
+    bucket.append(candidate)
+    if max_candidates_per_key <= 0 or len(bucket) <= max_candidates_per_key:
+        return
+    bucket.sort(key=lambda item: (-item.confidence, item.frame_index, item.key_id))
+    del bucket[max_candidates_per_key:]
+
+
+def _store_recent_candidate(
+    recent_candidates_by_key: dict[int, list[ExemplarCandidate]],
+    candidate: ExemplarCandidate,
+    history_size: int,
+) -> None:
+    bucket = recent_candidates_by_key.setdefault(candidate.key_id, [])
+    bucket.append(candidate)
+    if len(bucket) > history_size:
+        del bucket[:-history_size]
+
+
+def _complete_two_family_evidence(
+    candidates: Sequence[ExemplarCandidate],
+    settings: ExemplarScanSettings,
+    stride: int,
+) -> Optional[tuple[_FamilyEarlyStopEvidence, _FamilyEarlyStopEvidence]]:
+    family_buckets = _cluster_exemplar_families(candidates, 22.0)
+    if len(family_buckets) != 2:
+        return None
+
+    required_events = max(1, settings.early_stop_min_slot_events)
+    required_span = stride * max(0, settings.early_stop_min_slot_span_steps)
+    family_evidence: list[_FamilyEarlyStopEvidence] = []
+    for family in family_buckets:
+        events_by_color: dict[KeyColor, frozenset[tuple[int, int]]] = {}
+        for key_color in ("W", "B"):
+            supporting_candidates = [
+                candidate
+                for candidate in family
+                if candidate.slot_color == key_color
+                and candidate.confidence >= settings.early_stop_min_confidence
+            ]
+            supporting_frames = sorted({candidate.frame_index for candidate in supporting_candidates})
+            if len(supporting_frames) < required_events:
+                return None
+            if supporting_frames[-1] - supporting_frames[0] < required_span:
+                return None
+            events_by_color[key_color] = frozenset(
+                (candidate.key_id, candidate.frame_index)
+                for candidate in supporting_candidates
+            )
+        family_evidence.append(
+            _FamilyEarlyStopEvidence(
+                hue=_circular_mean_hue(family),
+                white_events=events_by_color["W"],
+                black_events=events_by_color["B"],
+            )
+        )
+    return family_evidence[0], family_evidence[1]
+
+
+def _match_family_evidence(
+    current: tuple[_FamilyEarlyStopEvidence, _FamilyEarlyStopEvidence],
+    initial: tuple[_FamilyEarlyStopEvidence, _FamilyEarlyStopEvidence],
+    family_hue_threshold: float = 22.0,
+) -> Optional[tuple[tuple[_FamilyEarlyStopEvidence, _FamilyEarlyStopEvidence], ...]]:
+    direct = ((current[0], initial[0]), (current[1], initial[1]))
+    swapped = ((current[1], initial[0]), (current[0], initial[1]))
+    matched = min(
+        (direct, swapped),
+        key=lambda pairs: sum(
+            _circular_hue_distance(current_family.hue, initial_family.hue)
+            for current_family, initial_family in pairs
+        ),
+    )
+    if any(
+        _circular_hue_distance(current_family.hue, initial_family.hue)
+        > family_hue_threshold
+        for current_family, initial_family in matched
+    ):
+        return None
+    return matched
+
+
 def scan_lit_exemplar_candidates(
     frame_provider: FrameProvider,
     overlays: Sequence[OverlayConfig],
@@ -462,11 +598,20 @@ def scan_lit_exemplar_candidates(
     progress_callback: Optional[ProgressCallback] = None,
 ) -> Tuple[list[ExemplarCandidate], int, bool]:
     candidates_by_key: dict[int, list[ExemplarCandidate]] = {}
+    recent_candidates_by_key: dict[int, list[ExemplarCandidate]] = {}
     active_candidates_by_key: dict[int, ExemplarCandidate] = {}
     scanned = 0
     end_frame = max(start_frame, end_frame)
     stride = max(1, settings.coarse_stride)
     frame_cache = _BoundedFrameCache(stride + (2 * settings.refine_radius) + 1)
+    complete_since_frame: Optional[int] = None
+    confirmation_evidence: Optional[
+        tuple[_FamilyEarlyStopEvidence, _FamilyEarlyStopEvidence]
+    ] = None
+    complete_evidence: Optional[
+        tuple[_FamilyEarlyStopEvidence, _FamilyEarlyStopEvidence]
+    ] = None
+    recent_history_size = max(2, settings.early_stop_min_slot_events + 1)
 
     for frame_index in range(start_frame, end_frame + 1, stride):
         if progress_callback is not None and not progress_callback(frame_index, end_frame):
@@ -476,6 +621,7 @@ def scan_lit_exemplar_candidates(
         if frame is None:
             continue
         scanned += 1
+        recent_history_changed = False
 
         coarse_candidates: dict[int, ExemplarCandidate] = {}
         for overlay in overlays:
@@ -508,7 +654,17 @@ def scan_lit_exemplar_candidates(
 
             if best is None:
                 if active is not None:
-                    candidates_by_key.setdefault(key_id, []).append(active)
+                    _store_completed_candidate(
+                        candidates_by_key,
+                        active,
+                        settings.max_candidates_per_key,
+                    )
+                    _store_recent_candidate(
+                        recent_candidates_by_key,
+                        active,
+                        recent_history_size,
+                    )
+                    recent_history_changed = True
                     del active_candidates_by_key[key_id]
                 continue
 
@@ -517,19 +673,62 @@ def scan_lit_exemplar_candidates(
             elif _candidate_is_better(best, active):
                 active_candidates_by_key[key_id] = best
 
-    for key_id, active in active_candidates_by_key.items():
-        candidates_by_key.setdefault(key_id, []).append(active)
+        if recent_history_changed:
+            recent_completed_candidates = _flatten_scan_candidates(
+                recent_candidates_by_key,
+                {},
+                0,
+            )
+            complete_evidence = _complete_two_family_evidence(
+                recent_completed_candidates,
+                settings,
+                stride,
+            )
+        if complete_evidence is not None:
+            if complete_since_frame is None:
+                complete_since_frame = frame_index
+                confirmation_evidence = complete_evidence
+            elif confirmation_evidence is not None:
+                matched_evidence = _match_family_evidence(
+                    complete_evidence,
+                    confirmation_evidence,
+                )
+                if matched_evidence is None:
+                    complete_since_frame = frame_index
+                    confirmation_evidence = complete_evidence
+                else:
+                    confirmation_span = stride * max(
+                        0,
+                        settings.early_stop_confirmation_steps,
+                    )
+                    has_fresh_slot_evidence = all(
+                        current.white_events - initial.white_events
+                        and current.black_events - initial.black_events
+                        for current, initial in matched_evidence
+                    )
+                    if (
+                        frame_index - complete_since_frame >= confirmation_span
+                        and has_fresh_slot_evidence
+                    ):
+                        return (
+                            _flatten_scan_candidates(
+                                candidates_by_key,
+                                active_candidates_by_key,
+                                settings.max_candidates_per_key,
+                            ),
+                            scanned,
+                            False,
+                        )
+        else:
+            complete_since_frame = None
+            confirmation_evidence = None
 
-    flattened = [candidate for bucket in candidates_by_key.values() for candidate in bucket]
-    flattened.sort(key=lambda item: (-item.confidence, item.frame_index, item.key_id))
-    if settings.max_candidates_per_key > 0:
-        pruned: list[ExemplarCandidate] = []
-        per_key_counts: dict[int, int] = {}
-        for candidate in flattened:
-            count = per_key_counts.get(candidate.key_id, 0)
-            if count >= settings.max_candidates_per_key:
-                continue
-            per_key_counts[candidate.key_id] = count + 1
-            pruned.append(candidate)
-        flattened = pruned
-    return flattened, scanned, False
+    return (
+        _flatten_scan_candidates(
+            candidates_by_key,
+            active_candidates_by_key,
+            settings.max_candidates_per_key,
+        ),
+        scanned,
+        False,
+    )

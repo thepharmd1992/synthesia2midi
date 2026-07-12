@@ -63,6 +63,8 @@ def test_ui_matrix_writes_nonblank_screenshots_and_stable_report(tmp_path):
         for entry in report["surfaces"]
         if not entry["nonblank"] or entry["clipping"]
     }
+    if failures:
+        print("UI_MATRIX_FAILURES=" + json.dumps(failures, ensure_ascii=False, sort_keys=True))
     assert exit_code == 0, failures
     assert [entry["surface"] for entry in report["surfaces"]] == render_ui_matrix.surface_names()
     assert all(entry["nonblank"] for entry in report["surfaces"])

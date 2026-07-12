@@ -134,11 +134,10 @@ def test_calibration_matrix_grid_reflows_without_horizontal_overflow():
         sharp_flat_row = grid.rows["LB"]
 
         assert scroll_area.horizontalScrollBar().maximum() == 0
-        for widget in (
-            sharp_flat_row.label,
-            sharp_flat_row.set_button,
-            sharp_flat_row.present,
-        ):
+        assert sharp_flat_row.label.height() + 2 >= sharp_flat_row.label.heightForWidth(
+            sharp_flat_row.label.width()
+        )
+        for widget in (sharp_flat_row.set_button, sharp_flat_row.present):
             assert widget.width() + 2 >= widget.sizeHint().width()
         assert render_ui_matrix._detect_clipping(window) == []
 

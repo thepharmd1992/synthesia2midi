@@ -7,6 +7,7 @@ and MIDI file generation.
 import logging
 import os
 import shutil
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Dict, Tuple, Optional, Callable, List
 
@@ -20,7 +21,11 @@ from synthesia2midi.detection.factory import DetectionFactory
 from synthesia2midi.video_loader import VideoSession
 from synthesia2midi.app_config import DEBUG_FRAMES_DIR
 from synthesia2midi.core.app_state import AppState
-from synthesia2midi.core.color_families import exemplar_display_parts
+from synthesia2midi.core.color_families import (
+    SUPPORTED_EXEMPLAR_SLOTS,
+    exemplar_display_parts,
+    family_for_slot,
+)
 from synthesia2midi.detection.roi_utils import extract_roi_bgr, get_average_color_from_roi, euclidean_distance
 from synthesia2midi.runtime_paths import RuntimePaths, detect_runtime_paths
 
@@ -38,6 +43,12 @@ def _exemplar_display_label(slot: str) -> str:
         else translate("ConversionWorkflow", "Sharp / Flat")
     )
     return f"{family_label} {morphology_label}"
+
+
+def _midi_channel_for_exemplar(slot: str | None) -> int:
+    """Return the zero-based MIDI channel for a supported exemplar slot."""
+    family = family_for_slot(slot) if slot is not None else None
+    return family.midi_channel if family is not None else 0
 
 
 class ConversionWorkflow:
@@ -489,6 +500,17 @@ class ConversionWorkflow:
                     left_hand_hue_mean=self.app_state.detection.left_hand_hue_mean,
                     right_hand_hue_mean=self.app_state.detection.right_hand_hue_mean,
                 )
+                get_last_exemplar_match = getattr(
+                    detector, "get_last_exemplar_match", None
+                )
+                exemplar_matches = {
+                    key_id: (
+                        get_last_exemplar_match(key_id)
+                        if get_last_exemplar_match is not None
+                        else None
+                    )
+                    for key_id in pressed_key_ids
+                }
                 detection_end_time = time.time()
                 detection_duration = (detection_end_time - detection_start_time) * 1000
                 
@@ -512,7 +534,15 @@ class ConversionWorkflow:
                 if frame_count/total_frames*100 >= 99.0:
                     self.logger.warning(f"[MIDI-EVENTS-99%] Processing MIDI events at {frame_count/total_frames*100:.2f}%")
                     
-                notes_created_this_frame = self._process_midi_events(pressed_key_ids, actual_frame_idx, active_notes, midi_writer, frame_bgr, detection_overlays)
+                notes_created_this_frame = self._process_midi_events(
+                    pressed_key_ids,
+                    actual_frame_idx,
+                    active_notes,
+                    midi_writer,
+                    frame_bgr,
+                    detection_overlays,
+                    exemplar_matches,
+                )
                 total_notes_created += notes_created_this_frame
                 
                 if frame_count/total_frames*100 >= 99.0:
@@ -574,7 +604,16 @@ class ConversionWorkflow:
             self.logger.warning("[FRAME-PROCESS-FINALLY] Exiting _process_frame_range method")
     
     
-    def _process_midi_events(self, pressed_key_ids, frame_idx, active_notes, midi_writer, frame_bgr, overlays):
+    def _process_midi_events(
+        self,
+        pressed_key_ids,
+        frame_idx,
+        active_notes,
+        midi_writer,
+        frame_bgr,
+        overlays,
+        exemplar_matches: Mapping[int, str | None] | None = None,
+    ):
         """Process MIDI events for the current frame."""
         notes_created = 0
         
@@ -623,8 +662,19 @@ class ConversionWorkflow:
                         self.logger.info(f"  - MIDI note: {midi_note}")
                         self._logged_transpose_info = True
                     
-                    # Determine MIDI channel based on color matching
-                    midi_channel = self._determine_hand_channel(overlay, frame_bgr)
+                    exemplar_match = (
+                        exemplar_matches.get(key_id)
+                        if exemplar_matches is not None
+                        else None
+                    )
+                    if exemplar_match is not None:
+                        midi_channel = (
+                            _midi_channel_for_exemplar(exemplar_match)
+                            if self.app_state.detection.hand_assignment_enabled
+                            else 0
+                        )
+                    else:
+                        midi_channel = self._determine_hand_channel(overlay, frame_bgr)
                     
                     self.logger.debug(f"Frame {frame_idx}: Note ON - key_id={key_id}, note={overlay.get_full_note_name(self.app_state.midi.octave_transpose)}, midi_note={midi_note}, channel={midi_channel}")
                     midi_writer.add_note_on(0, midi_channel, current_time_beats, midi_note, 80)
@@ -740,6 +790,13 @@ class ConversionWorkflow:
                 elif isinstance(obj, tuple):
                     return list(obj)
                 return obj
+
+            exemplar_slots_to_log = tuple(
+                slot
+                for slot in SUPPORTED_EXEMPLAR_SLOTS
+                if self.app_state.detection.exemplar_key_type_enabled.get(slot, False)
+                or self.app_state.detection.exemplar_lit_colors.get(slot) is not None
+            )
             
             # Create comprehensive settings data structure
             settings_data = {
@@ -787,17 +844,17 @@ class ConversionWorkflow:
                         }
                     },
                     "exemplar_key_type_enabled": {
-                        "LW": self.app_state.detection.exemplar_key_type_enabled.get("LW", True),
-                        "LB": self.app_state.detection.exemplar_key_type_enabled.get("LB", True),
-                        "RW": self.app_state.detection.exemplar_key_type_enabled.get("RW", True),
-                        "RB": self.app_state.detection.exemplar_key_type_enabled.get("RB", True)
+                        slot: self.app_state.detection.exemplar_key_type_enabled.get(
+                            slot, False
+                        )
+                        for slot in exemplar_slots_to_log
                     },
                     "exemplar_lit_colors": {
-                        "LW": serialize_for_json(self.app_state.detection.exemplar_lit_colors.get("LW")),
-                        "LB": serialize_for_json(self.app_state.detection.exemplar_lit_colors.get("LB")),
-                        "RW": serialize_for_json(self.app_state.detection.exemplar_lit_colors.get("RW")),
-                        "RB": serialize_for_json(self.app_state.detection.exemplar_lit_colors.get("RB"))
-                    }
+                        slot: serialize_for_json(
+                            self.app_state.detection.exemplar_lit_colors.get(slot)
+                        )
+                        for slot in exemplar_slots_to_log
+                    },
                 },
                 "midi_settings": {
                     "tempo": self.app_state.midi.tempo,

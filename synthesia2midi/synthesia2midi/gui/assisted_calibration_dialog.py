@@ -1,18 +1,17 @@
 """Review UI for assisted pressed-key exemplar proposals."""
 
-from dataclasses import dataclass
 from enum import Enum
 
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QDialog,
     QGridLayout,
-    QHBoxLayout,
     QLabel,
     QPushButton,
     QVBoxLayout,
-    QWidget,
 )
+
+from synthesia2midi.core.color_families import active_family_numbers
+from synthesia2midi.gui.color_family_grid import ColorFamilyGrid
 
 
 class AssistedCalibrationDecision(str, Enum):
@@ -21,21 +20,7 @@ class AssistedCalibrationDecision(str, Enum):
     KEEP = "keep"
 
 
-@dataclass
-class AssistedCalibrationRow:
-    name_label: QLabel
-    swatch: QWidget
-    status_label: QLabel
-
-
 class AssistedCalibrationDialog(QDialog):
-    SLOT_LABELS = {
-        "LW": "Left White",
-        "LB": "Left Black",
-        "RW": "Right White",
-        "RB": "Right Black",
-    }
-
     def __init__(self, proposal, parent=None):
         super().__init__(parent)
         self.proposal = proposal
@@ -60,48 +45,30 @@ class AssistedCalibrationDialog(QDialog):
         self.summary_label.setWordWrap(True)
         layout.addWidget(self.summary_label)
 
-        self.color_family_note = QLabel(
-            self.tr("Left/Right refer to Synthesia note colors, not the physical side of the keyboard.")
+        self.warning_banner = QLabel("\n".join(self.proposal.warnings))
+        self.warning_banner.setWordWrap(True)
+        self.warning_banner.setStyleSheet(
+            "background-color: #fff4ce; border: 1px solid #d9a400; color: #5c3b00; padding: 6px;"
         )
-        self.color_family_note.setWordWrap(True)
-        layout.addWidget(self.color_family_note)
+        self.warning_banner.setVisible(bool(self.proposal.warnings))
+        layout.addWidget(self.warning_banner)
 
-        slot_labels = {
-            "LW": self.tr("Left White"),
-            "LB": self.tr("Left Black"),
-            "RW": self.tr("Right White"),
-            "RB": self.tr("Right Black"),
+        assignments = self.proposal.assignment_result.assignments
+        colors = {
+            slot: assignment.rgb for slot, assignment in assignments.items()
         }
-
-        for slot in ("LW", "LB", "RW", "RB"):
-            assignment = self.proposal.assignment_result.assignments.get(slot)
-            row_layout = QHBoxLayout()
-            name_label = QLabel(slot_labels[slot])
-            name_label.setMinimumWidth(max(110, name_label.sizeHint().width()))
-            row_layout.addWidget(name_label)
-
-            swatch = QWidget()
-            swatch.setFixedSize(48, 28)
-            swatch.setAccessibleName(self.tr("{name} proposed color").format(name=name_label.text()))
-            if assignment is not None and assignment.enabled and assignment.rgb is not None:
-                red, green, blue = assignment.rgb
-                swatch.setStyleSheet(
-                    f"background-color: rgb({red}, {green}, {blue}); border: 1px solid #454545;"
-                )
-                status = self.tr("Found")
-            elif assignment is not None and not assignment.enabled:
-                swatch.setStyleSheet("background-color: transparent; border: 1px dashed #595959;")
-                status = self.tr("Not used")
-            else:
-                swatch.setStyleSheet("background-color: transparent; border: 1px dashed #595959;")
-                status = self.tr("Not found")
-            row_layout.addWidget(swatch)
-
-            status_label = QLabel(status)
-            status_label.setMinimumWidth(status_label.sizeHint().width())
-            row_layout.addWidget(status_label, 1)
-            layout.addLayout(row_layout)
-            self.rows[slot] = AssistedCalibrationRow(name_label, swatch, status_label)
+        enabled = {
+            slot: assignment.enabled for slot, assignment in assignments.items()
+        }
+        self.color_family_grid = ColorFamilyGrid(mode="review")
+        self.color_family_grid.set_families(
+            active_family_numbers(enabled, colors),
+            colors=colors,
+            enabled=enabled,
+            assignments=assignments,
+        )
+        layout.addWidget(self.color_family_grid)
+        self.rows = self.color_family_grid.rows
 
         button_layout = QGridLayout()
         self.keep_button = QPushButton(self.tr("Keep Current Examples"))

@@ -3,6 +3,15 @@ from __future__ import annotations
 
 import logging
 
+from PySide6.QtCore import QCoreApplication
+from PySide6.QtWidgets import QMessageBox
+
+from synthesia2midi.core.color_families import (
+    SUPPORTED_EXEMPLAR_SLOTS,
+    active_family_numbers,
+    slots_for_family,
+)
+
 
 class MainActionController:
     """Owns remaining menu/control action handlers that do not belong in the root window."""
@@ -99,7 +108,7 @@ class MainActionController:
             detection_manager.set_winner_takes_black_enabled(enabled)
 
     def handle_exemplar_key_type_enabled_change(self, key_type: str, enabled: bool) -> None:
-        if key_type not in {"LW", "LB", "RW", "RB"}:
+        if key_type not in SUPPORTED_EXEMPLAR_SLOTS:
             logging.warning("Ignoring invalid exemplar key type toggle: %s", key_type)
             return
 
@@ -117,6 +126,77 @@ class MainActionController:
             app.app_state.calibration.current_calibration_key_type = None
             logging.info("Cancelled lit exemplar calibration for disabled key type %s", key_type)
 
+        if app.control_panel:
+            app.control_panel.update_controls_from_state()
+
+    def handle_add_additional_color(self) -> None:
+        detection = self.app.app_state.detection
+        active_families = set(
+            active_family_numbers(
+                detection.exemplar_key_type_enabled,
+                detection.exemplar_lit_colors,
+            )
+        )
+        family_number = next(
+            (number for number in range(2, 5) if number not in active_families),
+            None,
+        )
+        if family_number is None:
+            return
+
+        for slot in slots_for_family(family_number):
+            detection.exemplar_key_type_enabled[slot] = True
+        self.app.app_state.unsaved_changes = True
+        if self.app.control_panel:
+            self.app.control_panel.update_controls_from_state()
+
+    def handle_remove_additional_color(self, family_number: int) -> None:
+        if family_number not in {2, 3, 4}:
+            return
+
+        app = self.app
+        detection = app.app_state.detection
+        slots = slots_for_family(family_number)
+        colors = detection.exemplar_lit_colors
+        histograms = detection.exemplar_lit_histograms
+        enabled = detection.exemplar_key_type_enabled
+        has_saved_data = any(
+            colors.get(slot) is not None or histograms.get(slot) is not None
+            for slot in slots
+        )
+        if has_saved_data:
+            response = QMessageBox.question(
+                getattr(app, "control_panel", None),
+                QCoreApplication.translate(
+                    "MainActionController", "Remove Color {number}"
+                ).format(number=family_number),
+                QCoreApplication.translate(
+                    "MainActionController",
+                    "Remove Color {number} and delete its saved calibration data?",
+                ).format(number=family_number),
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            if response != QMessageBox.Yes:
+                return
+
+        if not has_saved_data and not any(enabled.get(slot, False) for slot in slots):
+            return
+
+        for slot in slots:
+            enabled[slot] = False
+            colors[slot] = None
+            histograms[slot] = None
+
+        calibration = app.app_state.calibration
+        if (
+            calibration.calibration_mode == "lit_exemplar"
+            and calibration.current_calibration_key_type in slots
+        ):
+            calibration.calibration_mode = None
+            calibration.current_calibration_key_type = None
+
+        app.app_state.unsaved_changes = True
         if app.control_panel:
             app.control_panel.update_controls_from_state()
 

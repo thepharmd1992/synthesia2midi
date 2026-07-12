@@ -26,37 +26,50 @@ def _assignment(slot, rgb=None, *, enabled=True):
 def _proposal():
     assignments = {
         "LW": _assignment("LW", (220, 40, 30)),
-        "LB": _assignment("LB"),
-        "RW": _assignment("RW", (20, 100, 240)),
-        "RB": _assignment("RB", enabled=False),
+        "LB": _assignment("LB", (150, 25, 20)),
+        "COLOR_3_W": _assignment("COLOR_3_W", (235, 185, 30)),
+        "COLOR_3_B": _assignment("COLOR_3_B"),
     }
     return AssistedCalibrationProposal(
         baseline_frame_index=10,
         unlit_assessment=UnlitFrameAssessment(status="clean"),
         assignment_result=ExemplarAssignmentResult(
             assignments=assignments,
-            missing_slots=("LB",),
-            disabled_slots=("RB",),
+            missing_slots=("COLOR_3_B",),
+            disabled_slots=(),
             family_count=2,
             confidence=0.9,
         ),
         scanned_frame_count=70,
         candidate_count=12,
+        warnings=("More than four stable color families were found.",),
     )
 
 
-def test_assisted_dialog_shows_color_family_rows_and_real_swatches():
+def test_assisted_dialog_shows_partial_color_family_and_scanner_warning():
     QApplication.instance() or QApplication([])
     dialog = AssistedCalibrationDialog(_proposal())
     try:
         assert dialog.summary_label.text() == "12 samples found across 2 Synthesia note color families."
-        assert "not the physical side" in dialog.color_family_note.text()
-        assert list(dialog.rows) == ["LW", "LB", "RW", "RB"]
-        assert dialog.rows["LW"].name_label.text() == "Left White"
-        assert dialog.rows["LW"].status_label.text() == "Found"
+        assert list(dialog.color_family_grid.rows) == [
+            "LW",
+            "LB",
+            "COLOR_3_W",
+            "COLOR_3_B",
+        ]
+        assert dialog.color_family_grid.family_heading(1).text() == "Color 1"
+        assert dialog.color_family_grid.family_heading(3).text() == "Color 3"
+        assert dialog.rows["LW"].label.text() == "Natural"
+        assert dialog.rows["LW"].status.text() == "Found"
         assert "rgb(220, 40, 30)" in dialog.rows["LW"].swatch.styleSheet()
-        assert dialog.rows["LB"].status_label.text() == "Not found"
-        assert dialog.rows["RB"].status_label.text() == "Not used"
+        assert dialog.rows["COLOR_3_W"].label.text() == "Natural"
+        assert dialog.rows["COLOR_3_W"].status.text() == "Found"
+        assert dialog.rows["COLOR_3_B"].label.text() == "Sharp / Flat"
+        assert dialog.rows["COLOR_3_B"].status.text() == "Missing"
+        assert dialog.warning_banner.text() == (
+            "More than four stable color families were found."
+        )
+        assert not dialog.warning_banner.isHidden()
         assert "(220, 40, 30)" not in dialog.summary_label.text()
     finally:
         dialog.close()

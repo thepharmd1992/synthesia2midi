@@ -1,5 +1,5 @@
 from PySide6.QtCore import QSettings
-from PySide6.QtWidgets import QApplication, QGroupBox, QLabel, QScrollArea
+from PySide6.QtWidgets import QApplication, QGroupBox, QLabel, QPushButton, QScrollArea
 
 from synthesia2midi.app_config import OverlayConfig
 from synthesia2midi.gui.controls_qt import ControlPanelQt
@@ -210,9 +210,67 @@ def test_calibration_section_shows_visible_step_instructions():
         assert panel.calibration_instruction_labels["pressed"].text() == (
             "Pause where a key is glowing, then click that key."
         )
-        assert panel.left_right_color_family_note.text() == (
-            "Left/Right refer to Synthesia note colors, not the physical side of the keyboard."
-        )
+        calibration_page = panel.tab_widget.widget(1)
+        button_texts = [
+            button.text() for button in calibration_page.findChildren(QPushButton)
+        ]
+        assert "Set Left White" not in button_texts
+        assert "Set Left Black" not in button_texts
+    finally:
+        panel.close()
+        panel.deleteLater()
+
+
+def test_calibration_panel_uses_dynamic_color_family_grid_and_forwards_actions():
+    state = AppState()
+    panel = _panel_with_state(state)
+    calibrated = []
+    added = []
+    panel.calibrate_lit_exemplar_requested.connect(calibrated.append)
+    panel.add_additional_color_requested.connect(lambda: added.append(True))
+    try:
+        assert panel.color_family_grid.family_heading(1).text() == "Color 1"
+        assert panel.color_family_grid.family_heading(2).text() == "Color 2"
+        assert panel.exemplar_buttons["LW"].text() == "Set"
+        assert panel.color_family_grid.rows["LW"].label.text() == "Natural"
+        assert panel.color_family_grid.rows["LB"].label.text() == "Sharp / Flat"
+        assert 1 not in panel.color_family_grid.remove_family_buttons
+
+        panel.exemplar_buttons["LW"].click()
+        panel.color_family_grid.add_family_button.click()
+
+        assert calibrated == ["LW"]
+        assert added == [True]
+    finally:
+        panel.close()
+        panel.deleteLater()
+
+
+def test_calibration_panel_hides_add_at_four_families():
+    state = AppState()
+    state.detection.exemplar_key_type_enabled.update(
+        {slot: True for slot in state.detection.exemplar_key_type_enabled}
+    )
+    panel = _panel_with_state(state)
+    try:
+        assert set(panel.color_family_grid.remove_family_buttons) == {2, 3, 4}
+        assert not hasattr(panel.color_family_grid, "add_family_button")
+    finally:
+        panel.close()
+        panel.deleteLater()
+
+
+def test_one_family_state_hides_color_two_without_deleting_compatibility_slots():
+    state = AppState()
+    state.detection.exemplar_key_type_enabled["RW"] = False
+    state.detection.exemplar_key_type_enabled["RB"] = False
+    panel = _panel_with_state(state)
+    try:
+        assert list(panel.color_family_grid.rows) == ["LW", "LB"]
+        assert "RW" in state.detection.exemplar_lit_colors
+        assert "RB" in state.detection.exemplar_lit_histograms
+        assert "RW" not in panel.exemplar_buttons
+        assert "RB" not in panel.exemplar_presence_checkboxes
     finally:
         panel.close()
         panel.deleteLater()

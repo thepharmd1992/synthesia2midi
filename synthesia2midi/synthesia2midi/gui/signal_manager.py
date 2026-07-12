@@ -104,6 +104,12 @@ class ControlSignalManager(QObject):
         cp.calibrate_unlit_requested.connect(mw.main_action_controller.handle_calibrate_unlit_all_keys)
         cp.calibrate_lit_exemplar_requested.connect(mw.main_action_controller.handle_calibrate_lit_exemplar_key_start)
         cp.exemplar_key_type_enabled_changed.connect(mw.main_action_controller.handle_exemplar_key_type_enabled_change)
+        cp.add_additional_color_requested.connect(
+            mw.main_action_controller.handle_add_additional_color
+        )
+        cp.remove_additional_color_requested.connect(
+            mw.main_action_controller.handle_remove_additional_color
+        )
         cp.calibration_wizard_requested.connect(mw.calibration_wizard_controller.run_calibration_wizard)
         
         # Overlay management actions

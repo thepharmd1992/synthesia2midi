@@ -17,7 +17,9 @@ from PySide6.QtWidgets import (
 )
 
 from synthesia2midi.core.app_state import AppState
+from synthesia2midi.core.color_families import active_family_numbers
 from synthesia2midi.gui.calibration_guide import CalibrationGuideWidget, derive_guide_snapshot
+from synthesia2midi.gui.color_family_grid import ColorFamilyGrid
 from synthesia2midi.gui.repeated_notes_tool_window import RepeatedNotesToolWindow
 from synthesia2midi.gui.ui_glossary import UiGlossary
 from synthesia2midi.localization import (
@@ -30,10 +32,10 @@ from synthesia2midi.localization import (
 # Key type constants
 KEY_TYPES = ["LW", "LB", "RW", "RB"]
 KEY_TYPE_LABELS = {
-    "LW": "Left White",
-    "LB": "Left Black",
-    "RW": "Right White",
-    "RB": "Right Black",
+    "LW": "Color 1 Natural",
+    "LB": "Color 1 Sharp / Flat",
+    "RW": "Color 2 Natural",
+    "RB": "Color 2 Sharp / Flat",
 }
 
 translate = QCoreApplication.translate
@@ -93,7 +95,7 @@ class ControlPanelQt(QWidget):
     align_white_keys_requested = Signal()
     align_black_keys_requested = Signal()
     add_additional_color_requested = Signal()
-    remove_additional_color_requested = Signal(str)  # key_type
+    remove_additional_color_requested = Signal(int)  # family number
     
     # ==================== Spark Calibration Signals ====================
     spark_calibration_requested = Signal(str)  # calibration step
@@ -400,7 +402,7 @@ class ControlPanelQt(QWidget):
             ),
             translate(
                 "ControlPanelQt",
-                "3) Capture Pressed-Key Examples: for each button you need (Left/Right x White/Black), pause where that kind of overlay is glowing, click the button, then click that overlay in the video. Left/Right refer to Synthesia note colors, not the physical side of the keyboard.",
+                "3) Capture Pressed-Key Examples: for each Color family, capture a Natural and Sharp / Flat example that appears in the video.",
             ),
             translate("ControlPanelQt", "If a key type is not present in this video, uncheck its 'Present in Video' box."),
             translate("ControlPanelQt", "Octave Transpose: shifts the generated MIDI up/down by octaves."),
@@ -522,16 +524,6 @@ class ControlPanelQt(QWidget):
         self.calibration_instruction_labels["pressed"] = pressed_instruction
         layout.addWidget(pressed_instruction)
 
-        self.left_right_color_family_note = QLabel(
-            translate(
-                "ControlPanelQt",
-                "Left/Right refer to Synthesia note colors, not the physical side of the keyboard.",
-            )
-        )
-        self.left_right_color_family_note.setWordWrap(True)
-        self.left_right_color_family_note.setStyleSheet("color: #555; font-style: italic;")
-        layout.addWidget(self.left_right_color_family_note)
-
         layout.addSpacing(10)  # Extra space before next section
         
         # Lit exemplar calibration - plain text label
@@ -539,52 +531,24 @@ class ControlPanelQt(QWidget):
         exemplar_label.setStyleSheet("font-weight: bold; font-size: 11pt;")
         layout.addWidget(exemplar_label)
         
-        # Create vertical layout for exemplar buttons
-        exemplar_container = QVBoxLayout()
-        exemplar_container.setSpacing(10)
-        
+        self.color_family_grid = ColorFamilyGrid(mode="calibration")
+        self.color_family_grid.exemplar_requested.connect(
+            self.calibrate_lit_exemplar_requested.emit
+        )
+        self.color_family_grid.exemplar_enabled_changed.connect(
+            self._handle_exemplar_key_type_presence_toggled
+        )
+        self.color_family_grid.family_add_requested.connect(
+            self.add_additional_color_requested.emit
+        )
+        self.color_family_grid.family_remove_requested.connect(
+            self.remove_additional_color_requested.emit
+        )
         self.exemplar_buttons = {}
         self.exemplar_swatches = {}
         self.exemplar_presence_checkboxes = {}
-        
-        # Single column order: LW, LB, RW, RB
-        for key_type, label in [("LW", "Left White"), ("LB", "Left Black"), ("RW", "Right White"), ("RB", "Right Black")]:
-            button = QPushButton(translate("ControlPanelQt", "Set {label}").format(label=label))
-            button.setMinimumWidth(110)
-            button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            button.clicked.connect(lambda checked, kt=key_type: self.calibrate_lit_exemplar_requested.emit(kt))
-            button.setToolTip(
-                translate(
-                    "ControlPanelQt",
-                    "Captures a pressed-overlay example for this type. Pause on a frame where that type is highlighted, click the button, then click that highlighted overlay.",
-                )
-            )
-            self.exemplar_buttons[key_type] = button
-            
-            # Color swatch next to button
-            color_swatch = QLabel("")
-            color_swatch.setFixedSize(20, 20)
-            color_swatch.setStyleSheet("border: 1px solid black; background-color: gray;")
-            self.exemplar_swatches[key_type] = color_swatch
-            presence_cb = QCheckBox(translate("ControlPanelQt", "Present"))
-            presence_cb.setChecked(True)
-            presence_cb.setToolTip(translate("ControlPanelQt", "Uncheck if this key type never appears in this video."))
-            presence_cb.toggled.connect(
-                lambda checked, kt=key_type: self._handle_exemplar_key_type_presence_toggled(kt, checked)
-            )
-            self.exemplar_presence_checkboxes[key_type] = presence_cb
-            
-            button_layout = QGridLayout()
-            button_layout.setContentsMargins(0, 0, 0, 0)
-            button_layout.setHorizontalSpacing(8)
-            button_layout.setVerticalSpacing(4)
-            button_layout.addWidget(button, 0, 0, 1, 3)
-            button_layout.addWidget(color_swatch, 1, 0)
-            button_layout.addWidget(presence_cb, 1, 1)
-            button_layout.setColumnStretch(2, 1)
-            exemplar_container.addLayout(button_layout)
-        
-        layout.addLayout(exemplar_container)
+        self._refresh_color_family_grid()
+        layout.addWidget(self.color_family_grid)
         
         layout.addStretch()  # Push everything to the top
         
@@ -1544,6 +1508,31 @@ class ControlPanelQt(QWidget):
         self._update_exemplar_key_type_ui_state(key_type)
         self.exemplar_key_type_enabled_changed.emit(key_type, checked)
 
+    def _refresh_color_family_grid(self) -> None:
+        detection = self.app_state.detection
+        colors = detection.exemplar_lit_colors
+        enabled = detection.exemplar_key_type_enabled
+        self.color_family_grid.set_families(
+            active_family_numbers(enabled, colors),
+            colors=colors,
+            enabled=enabled,
+        )
+        self.exemplar_buttons = {
+            slot: row.set_button
+            for slot, row in self.color_family_grid.rows.items()
+            if row.set_button is not None
+        }
+        self.exemplar_swatches = {
+            slot: row.swatch for slot, row in self.color_family_grid.rows.items()
+        }
+        self.exemplar_presence_checkboxes = {
+            slot: row.present
+            for slot, row in self.color_family_grid.rows.items()
+            if row.present is not None
+        }
+        for slot in self.color_family_grid.rows:
+            self._update_exemplar_key_type_ui_state(slot)
+
     def _update_exemplar_key_type_ui_state(self, key_type: str):
         """Update button and swatch styling for one exemplar key type."""
         button = self.exemplar_buttons.get(key_type)
@@ -1974,16 +1963,9 @@ class ControlPanelQt(QWidget):
                     self.unlit_status_label.setText(translate("ControlPanelQt", "Not Set"))
                     self.unlit_status_label.setStyleSheet("color: #595959; font-style: italic;")
             
-            # Update exemplar availability controls and swatches
+            # Rebuild the dynamic family rows from persisted calibration state.
             if hasattr(self.app_state, 'detection') and hasattr(self.app_state.detection, 'exemplar_lit_colors'):
-                enabled_map = getattr(self.app_state.detection, 'exemplar_key_type_enabled', {})
-                for key_type in KEY_TYPES:
-                    checkbox = self.exemplar_presence_checkboxes.get(key_type)
-                    if checkbox:
-                        old_block_state = checkbox.blockSignals(True)
-                        checkbox.setChecked(enabled_map.get(key_type, True))
-                        checkbox.blockSignals(old_block_state)
-                    self._update_exemplar_key_type_ui_state(key_type)
+                self._refresh_color_family_grid()
             
             # Update spark ROI visibility button state
             if hasattr(self.app_state, 'detection') and hasattr(self, 'spark_roi_toggle_button'):

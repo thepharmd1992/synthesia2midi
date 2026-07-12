@@ -610,6 +610,41 @@ def test_scanner_rerefines_stronger_candidate_after_confidence_saturates():
     assert selected.hist is not None
 
 
+def test_targeted_refinement_rejects_stronger_incompatible_family_hue():
+    overlay = _overlay(key_id=1, x=0, y=0, width=4, height=4, key_type="LW")
+    overlay.unlit_reference_color = (245, 245, 235)
+    first_blue = (160, 185, 220)
+    stronger_blue = (130, 165, 205)
+    incompatible_orange = (243, 80, 10)
+
+    def frame_provider(frame_index):
+        frame = np.full((6, 6, 3), overlay.unlit_reference_color, dtype=np.uint8)
+        if frame_index == 100:
+            frame[0:4, 0:4] = first_blue
+        elif frame_index == 140:
+            frame[0:4, 0:4] = stronger_blue
+        elif frame_index == 141:
+            frame[0:4, 0:4] = incompatible_orange
+        return frame
+
+    candidates, _scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        [overlay],
+        0,
+        160,
+        settings=ExemplarScanSettings(
+            coarse_stride=10,
+            refine_radius=2,
+            min_rgb_delta=30.0,
+        ),
+    )
+
+    assignment = assign_exemplar_slots(candidates)
+    assert canceled is False
+    assert assignment.family_count == 1
+    assert assignment.assignments["LW"].rgb == stronger_blue
+
+
 def test_scanner_retains_refined_exemplar_after_quiescent_events_fill_bound():
     overlays, base_provider = _four_family_scanner_fixture(())
     overlays = overlays[:2]
@@ -1329,6 +1364,49 @@ def test_scanner_honors_cancel_callback():
     assert candidates == []
     assert scanned == 0
     assert canceled is True
+
+
+def test_scanner_cancels_inside_targeted_refinement_before_next_frame_read():
+    overlay = _overlay(key_id=1, x=0, y=0, width=4, height=4, key_type="LW")
+    overlay.unlit_reference_color = (245, 245, 235)
+    first_blue = (160, 185, 220)
+    stronger_blue = (130, 165, 205)
+    reads: list[int] = []
+    progress_calls = 0
+
+    def frame_provider(frame_index):
+        reads.append(frame_index)
+        frame = np.full((6, 6, 3), overlay.unlit_reference_color, dtype=np.uint8)
+        if frame_index == 100:
+            frame[0:4, 0:4] = first_blue
+        elif frame_index == 140:
+            frame[0:4, 0:4] = stronger_blue
+        return frame
+
+    def progress_callback(_current, _end):
+        nonlocal progress_calls
+        progress_calls += 1
+        return progress_calls < 20
+
+    candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        [overlay],
+        0,
+        200,
+        settings=ExemplarScanSettings(
+            coarse_stride=10,
+            refine_radius=2,
+            min_rgb_delta=30.0,
+        ),
+        progress_callback=progress_callback,
+    )
+
+    assert candidates == []
+    assert scanned == 16
+    assert canceled is True
+    assert progress_calls == 20
+    assert len(reads) == 18
+    assert 141 not in reads
 
 
 def test_assign_exemplar_slots_maps_two_color_families_by_hue_not_position():

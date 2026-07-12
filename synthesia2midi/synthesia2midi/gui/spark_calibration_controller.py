@@ -6,7 +6,22 @@ import logging
 from PySide6.QtCore import QCoreApplication
 from PySide6.QtWidgets import QMessageBox
 
+from synthesia2midi.core.color_families import exemplar_display_parts
+
 translate = QCoreApplication.translate
+
+
+def _exemplar_display_label(slot: str) -> str:
+    family_number, morphology = exemplar_display_parts(slot)
+    family_label = translate(
+        "SparkCalibrationController", "Color {number}"
+    ).format(number=family_number)
+    morphology_label = (
+        translate("SparkCalibrationController", "Natural")
+        if morphology == "Natural"
+        else translate("SparkCalibrationController", "Sharp / Flat")
+    )
+    return f"{family_label} {morphology_label}"
 
 
 class SparkCalibrationController:
@@ -209,14 +224,21 @@ class SparkCalibrationController:
         success = self.auto_calibration_workflow.start_auto_calibration(key_type)
 
         if success:
+            exemplar_label = _exemplar_display_label(key_type)
             instruction_msg = translate(
                 "SparkCalibrationController",
-                "Auto-Calibration for {key_type} Started\n\nInstructions:\n1. Navigate to a frame where a {key_type} key FIRST turns ON\n2. Click on that key overlay\n3. The system will automatically:\n   - Detect if it's left/right hand based on color\n   - Capture bar-only (frame +0)\n   - Capture dimmest sparks (frame +2)\n   - Find brightest sparks (frames +3 to +22)\n   - Save calibration data\n\nKey Type Legend:\nLW = Left White, LB = Left Black\nRW = Right White, RB = Right Black",
-            ).format(key_type=key_type)
+                "Auto-calibration for {label} started.\n\n"
+                "1. Navigate to a frame where a {label} key first turns on.\n"
+                "2. Click that key overlay.\n"
+                "3. The application will capture the bar-only frame, dimmest sparks, "
+                "and brightest sparks, then save the calibration.",
+            ).format(label=exemplar_label)
 
             QMessageBox.information(
                 self.app,
-                translate("SparkCalibrationController", "Auto-Calibrate {key_type}").format(key_type=key_type),
+                translate(
+                    "SparkCalibrationController", "Auto-Calibrate {label}"
+                ).format(label=exemplar_label),
                 instruction_msg,
             )
         else:

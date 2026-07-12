@@ -356,15 +356,14 @@ class StandardDetection(DetectionMethod):
                 if progression_ratio > current_max_progression_ratio:
                     current_max_progression_ratio = progression_ratio
 
-                current_to_lit_distance = euclidean_distance(
-                    current_color, lit_ref_color
-                )
-                if current_to_lit_distance < closest_lit_distance:
-                    closest_lit_distance = current_to_lit_distance
-                    winning_exemplar_slot = exemplar_key_type
-
                 if progression_ratio >= detection_threshold:
                     is_key_lit_by_color = True
+                    current_to_lit_distance = euclidean_distance(
+                        current_color, lit_ref_color
+                    )
+                    if current_to_lit_distance < closest_lit_distance:
+                        closest_lit_distance = current_to_lit_distance
+                        winning_exemplar_slot = exemplar_key_type
 
             except Exception as e:
                 self.logger.error(f"Error processing exemplar {exemplar_key_type}: {e}")

@@ -98,6 +98,23 @@ TASK_10_PRODUCTION_LOCALE_STRINGS = [
     *SCANNER_WARNING_PRODUCTION_LOCALE_STRINGS,
 ]
 
+SPARK_AUTO_CALIBRATION_PRODUCTION_LOCALE_STRINGS = [
+    "Color {number}",
+    "Natural",
+    "Sharp / Flat",
+    "Auto-Calibrate {label}",
+    (
+        "Auto-calibration for {label} started.\n\n"
+        "1. Navigate to a frame where a {label} key first turns on.\n"
+        "2. Click that key overlay.\n"
+        "3. The application will capture the bar-only frame, dimmest sparks, "
+        "and brightest sparks, then save the calibration."
+    ),
+]
+SPARK_AUTO_CALIBRATION_RUNTIME_STRINGS = (
+    SPARK_AUTO_CALIBRATION_PRODUCTION_LOCALE_STRINGS[-2:]
+)
+
 FINAL_REVIEW_RUNTIME_STRINGS = [
     (
         "CalibrationGuideWidget",
@@ -129,6 +146,8 @@ FINAL_REVIEW_COPY_FILES = [
     Path("synthesia2midi/synthesia2midi/gui/controls_qt.py"),
     Path("synthesia2midi/synthesia2midi/gui/calibration_guide.py"),
     Path("synthesia2midi/synthesia2midi/gui/ui_glossary.py"),
+    Path("synthesia2midi/synthesia2midi/gui/spark_calibration_controller.py"),
+    Path("synthesia2midi/synthesia2midi/workflows/auto_calibration.py"),
 ]
 
 OBSOLETE_FAMILY_COPY = [
@@ -140,6 +159,9 @@ OBSOLETE_FAMILY_COPY = [
     "the two Synthesia note colors",
     "different colors for left and right hand notes",
     "Put each hand/color",
+    "System detects hand via hue analysis",
+    "Detect if it's left/right hand based on color",
+    "Key Type Legend",
 ]
 
 
@@ -241,6 +263,10 @@ def test_production_translators_load_known_source_texts():
                 ) != source
             for context, source in FINAL_REVIEW_RUNTIME_STRINGS:
                 assert QCoreApplication.translate(context, source) != source
+            for source in SPARK_AUTO_CALIBRATION_RUNTIME_STRINGS:
+                assert QCoreApplication.translate(
+                    "SparkCalibrationController", source
+                ) != source
     finally:
         install_translator(app, "en")
 
@@ -405,6 +431,27 @@ def test_task_10_color_family_strings_are_active_in_production_catalogs():
 
     assert incomplete == []
     assert placeholder_mismatches == []
+
+
+def test_spark_auto_calibration_strings_are_active_in_their_qt_context():
+    for locale_name in _production_translation_locales():
+        messages = {
+            source: translation
+            for context_name, source, translation in _catalog_messages(locale_name)
+            if context_name == "SparkCalibrationController"
+            and source in SPARK_AUTO_CALIBRATION_PRODUCTION_LOCALE_STRINGS
+            and translation is not None
+            and translation.get("type") != "vanished"
+        }
+
+        assert set(messages) == set(SPARK_AUTO_CALIBRATION_PRODUCTION_LOCALE_STRINGS)
+        for source, translation in messages.items():
+            assert translation.get("type") != "unfinished"
+            translated = translation.text or ""
+            assert translated.strip()
+            assert sorted(re.findall(r"\{[^{}]+\}", translated)) == sorted(
+                re.findall(r"\{[^{}]+\}", source)
+            )
 
 
 def test_color_family_grid_uses_installed_translator_for_all_locales():

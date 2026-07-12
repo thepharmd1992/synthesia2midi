@@ -914,6 +914,8 @@ def _refine_new_stable_slots(
     settings: ExemplarScanSettings,
     diagnostics: ExemplarScanDiagnostics,
     refined_slots: dict[tuple[int, KeyColor], _RefinedSlotState],
+    progress_callback: Optional[ProgressCallback],
+    progress_frame_index: int,
 ) -> bool:
     for assignment in assignments:
         for key_color, item in (
@@ -938,9 +940,14 @@ def _refine_new_stable_slots(
                 continue
             diagnostics.refined_events += 1
             best: Optional[ExemplarCandidate] = None
+            stable_hue = _family_hue(event.candidate)
             refine_start = max(start_frame, item.frame_index - settings.refine_radius)
             refine_end = min(end_frame, item.frame_index + settings.refine_radius)
             for refined_index in range(refine_start, refine_end + 1):
+                if progress_callback is not None and not progress_callback(
+                    progress_frame_index, end_frame
+                ):
+                    return True
                 refined_frame = frame_cache.get(refined_index, frame_provider)
                 if refined_frame is None:
                     continue
@@ -951,8 +958,15 @@ def _refine_new_stable_slots(
                     overlay,
                     settings,
                 )
-                if candidate is not None and (
-                    best is None or _candidate_is_better(candidate, best)
+                if (
+                    candidate is not None
+                    and _circular_hue_distance(
+                        _family_hue(candidate), stable_hue
+                    )
+                    <= DEFAULT_FAMILY_HUE_THRESHOLD
+                    and (
+                        best is None or _candidate_is_better(candidate, best)
+                    )
                 ):
                     best = candidate
             if best is not None:
@@ -968,9 +982,7 @@ def _refine_new_stable_slots(
                     score=discovery_score,
                 )
 
-    return len(assignments) == 4 and all(
-        assignment.complete for assignment in assignments
-    )
+    return False
 
 
 def _complete_four_family_evidence(
@@ -1128,7 +1140,7 @@ def _scan_candidates_with_diagnostics(
                 stride,
                 diagnostics,
             )
-            _refine_new_stable_slots(
+            refinement_canceled = _refine_new_stable_slots(
                 assignments,
                 event_by_evidence_id,
                 overlays_by_key,
@@ -1139,7 +1151,11 @@ def _scan_candidates_with_diagnostics(
                 settings,
                 diagnostics,
                 refined_slots,
+                progress_callback,
+                frame_index,
             )
+            if refinement_canceled:
+                return [], scanned, True
             latest_complete_evidence = _complete_four_family_evidence(
                 assignments,
                 event_by_evidence_id,
@@ -1192,7 +1208,7 @@ def _scan_candidates_with_diagnostics(
             stride,
             diagnostics,
         )
-        _refine_new_stable_slots(
+        refinement_canceled = _refine_new_stable_slots(
             assignments,
             event_by_evidence_id,
             overlays_by_key,
@@ -1203,7 +1219,11 @@ def _scan_candidates_with_diagnostics(
             settings,
             diagnostics,
             refined_slots,
+            progress_callback,
+            end_frame,
         )
+        if refinement_canceled:
+            return [], scanned, True
 
     return (
         _scan_event_candidates(

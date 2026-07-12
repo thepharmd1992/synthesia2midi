@@ -262,3 +262,31 @@ def test_four_family_enabled_ignores_invalid_color_three_sample(tmp_path):
         "COLOR_3_W",
         "COLOR_3_B",
     ]
+
+
+def test_malformed_exemplar_enabled_value_is_ignored_per_slot(tmp_path):
+    config_path = tmp_path / "malformed-enabled.ini"
+    config_path.write_text(
+        "[Settings]\n"
+        "tempo = 144\n\n"
+        "[ExemplarEnabled]\n"
+        "color_3_w = true\n"
+        "color_3_b = definitely\n"
+        "color_4_w = true\n\n"
+        "[ExemplarLitColors]\n"
+        "color_3_w = 1,2,3\n"
+        "color_3_b = 4,5,6\n"
+        "color_4_w = 7,8,9\n",
+        encoding="utf-8",
+    )
+    app_state = AppState()
+    manager = ConfigManager(app_state, runtime_paths=_runtime_paths(tmp_path))
+
+    assert manager.load_config(str(config_path)) is True
+    assert app_state.midi.tempo == 144
+    assert app_state.detection.exemplar_key_type_enabled["COLOR_3_W"] is True
+    assert app_state.detection.exemplar_key_type_enabled["COLOR_3_B"] is False
+    assert app_state.detection.exemplar_key_type_enabled["COLOR_4_W"] is True
+    assert app_state.detection.exemplar_lit_colors["COLOR_3_W"] == (1, 2, 3)
+    assert app_state.detection.exemplar_lit_colors["COLOR_3_B"] == (4, 5, 6)
+    assert app_state.detection.exemplar_lit_colors["COLOR_4_W"] == (7, 8, 9)

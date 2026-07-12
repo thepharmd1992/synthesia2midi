@@ -4,9 +4,8 @@ Auto-calibration workflow for key-type-specific spark detection.
 Implements the automated calibration process:
 1. User clicks auto-calibrate button for key type (LW/LB/RW/RB)
 2. User clicks on overlay at frame where it first turns ON
-3. System detects hand via hue analysis
-4. Automated capture: Frame +0 (bar-only), Frame +2 (dimmest), Frames +3-22 (brightest)
-5. Save calibration data to appropriate key type
+3. Automated capture: Frame +0 (bar-only), Frame +2 (dimmest), Frames +3-22 (brightest)
+4. Save calibration data to the selected canonical color slot
 """
 import logging
 from dataclasses import dataclass
@@ -18,10 +17,6 @@ import numpy as np
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.video_loader import VideoSession
 from synthesia2midi.app_config import OverlayConfig
-from synthesia2midi.detection.hand_detection import (
-    detect_hand_for_overlay_frame, 
-    get_key_type_for_overlay
-)
 from synthesia2midi.detection.spark_calibration import SparkCalibrationManager
 
 
@@ -120,39 +115,9 @@ class AutoCalibrationWorkflow:
             
             self.logger.debug(f"[AUTO-CAL] ROI shape: {roi_bgr.shape}")
             
-            # Detect hand for this overlay at this frame
-            detected_hand, confidence = detect_hand_for_overlay_frame(roi_bgr)
-            
-            if detected_hand is None:
-                error_msg = "Failed to detect hand from overlay region"
-                self.logger.error(f"[AUTO-CAL ERROR] {error_msg}")
-                self.logger.error(error_msg)
-                self._cleanup_calibration()
-                return False
-            
-            self.logger.debug(f"[AUTO-CAL] Hand detection: {detected_hand} (confidence: {confidence:.2f})")
-            
-            if confidence < 0.5:
-                warning_msg = f"Low confidence hand detection: {confidence:.2f}"
-                self.logger.warning(f"[AUTO-CAL WARNING] {warning_msg}")
-                self.logger.warning(warning_msg)
-            
-            # Get actual key type based on detection
-            actual_key_type = get_key_type_for_overlay(overlay_config, detected_hand)
-            
-            self.logger.debug(f"[AUTO-CAL] Detected hand: {detected_hand}, actual key type: {actual_key_type}")
-            self.logger.info(f"Detected hand: {detected_hand}, actual key type: {actual_key_type}")
-            
-            # Verify the detected key type matches the requested key type
-            if actual_key_type != requested_key_type:
-                warning_msg = f"Key type mismatch: requested {requested_key_type}, detected {actual_key_type}"
-                self.logger.warning(f"[AUTO-CAL WARNING] {warning_msg}")
-                self.logger.warning(warning_msg)
-                # Continue with detected key type for now
-            
             # Create calibration request
             self.current_request = AutoCalibrationRequest(
-                requested_key_type=actual_key_type,
+                requested_key_type=requested_key_type,
                 overlay_config=overlay_config,
                 start_frame=current_frame,
                 roi_bgr=roi_bgr.copy()

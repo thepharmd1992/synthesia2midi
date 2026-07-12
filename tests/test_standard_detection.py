@@ -124,6 +124,27 @@ def test_legacy_hand_hue_classification_does_not_hide_color_two_family():
     assert detector.get_last_exemplar_match(overlay.key_id) == "RW"
 
 
+def test_identity_uses_only_color_exemplars_that_pass_detection():
+    detector = StandardDetection()
+    overlay = _overlay()
+
+    pressed = detector.detect_frame(
+        frame_bgr=_solid_rgb((100, 0, 0)),
+        overlays=[overlay],
+        exemplar_lit_colors=_color_exemplars(
+            LW=(130, 0, 0),
+            RW=(80, 80, 0),
+        ),
+        exemplar_lit_histograms=_histogram_exemplars(),
+        detection_threshold=0.8,
+        use_delta_detection=False,
+        apply_black_filter=False,
+    )
+
+    assert pressed == {overlay.key_id}
+    assert detector.get_last_exemplar_match(overlay.key_id) == "RW"
+
+
 def test_accidental_overlay_never_matches_natural_slot_when_hand_hues_are_close():
     detector = StandardDetection()
     overlay = _overlay(key_type="LB")

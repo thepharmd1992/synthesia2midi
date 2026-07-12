@@ -29,14 +29,8 @@ from synthesia2midi.localization import (
     supported_user_locales,
 )
 
-# Key type constants
+# Spark auto-calibration currently exposes the two legacy persisted families.
 KEY_TYPES = ["LW", "LB", "RW", "RB"]
-KEY_TYPE_LABELS = {
-    "LW": "Color 1 Natural",
-    "LB": "Color 1 Sharp / Flat",
-    "RW": "Color 2 Natural",
-    "RB": "Color 2 Sharp / Flat",
-}
 
 translate = QCoreApplication.translate
 
@@ -1147,7 +1141,7 @@ class ControlPanelQt(QWidget):
 
             button = QPushButton(
                 translate("ControlPanelQt", "Auto {key_type_label}").format(
-                    key_type_label=KEY_TYPE_LABELS[key_type]
+                    key_type_label=_exemplar_display_label(key_type)
                 )
             )
             button.clicked.connect(lambda checked=False, kt=key_type: self.auto_spark_calibration_requested.emit(kt))

@@ -231,6 +231,86 @@ def test_conversion_readiness_ignores_unchecked_higher_family_slot():
         panel.deleteLater()
 
 
+def test_assisted_proposal_distinguishes_absent_and_partial_families_for_readiness():
+    from synthesia2midi.detection.assisted_calibration import (
+        AssistedCalibrationProposal,
+        UnlitFrameAssessment,
+        apply_assisted_calibration_proposal,
+        assign_exemplar_slots,
+    )
+
+    def stable_candidates(slot_color, rgb, *, first_frame, key_id):
+        from synthesia2midi.detection.assisted_calibration import ExemplarCandidate
+
+        return [
+            ExemplarCandidate(
+                slot_color=slot_color,
+                key_id=key_id,
+                note_label="C4",
+                frame_index=frame_index,
+                rgb=rgb,
+                hsv=(0.0, 255.0, 255.0),
+                delta_from_unlit=100.0,
+                confidence=0.9,
+                hist=None,
+            )
+            for frame_index in (first_frame, first_frame + 10)
+        ]
+
+    state = AppState()
+    _prepare_conversion_ready_state(state)
+    panel = _panel_with_state(state)
+    try:
+        one_family = assign_exemplar_slots(
+            [
+                *stable_candidates("W", (130, 165, 205), first_frame=10, key_id=1),
+                *stable_candidates("B", (70, 110, 170), first_frame=11, key_id=2),
+            ]
+        )
+        apply_assisted_calibration_proposal(
+            state,
+            AssistedCalibrationProposal(
+                baseline_frame_index=0,
+                unlit_assessment=UnlitFrameAssessment(status="clean"),
+                assignment_result=one_family,
+                scanned_frame_count=20,
+                candidate_count=4,
+            ),
+        )
+        panel.update_controls_from_state()
+
+        assert state.detection.exemplar_key_type_enabled["RW"] is False
+        assert state.detection.exemplar_key_type_enabled["RB"] is False
+        assert panel.convert_button.isEnabled()
+
+        partial_second_family = assign_exemplar_slots(
+            [
+                *stable_candidates("W", (130, 165, 205), first_frame=10, key_id=1),
+                *stable_candidates("B", (70, 110, 170), first_frame=11, key_id=2),
+                *stable_candidates("W", (243, 176, 68), first_frame=40, key_id=3),
+            ]
+        )
+        apply_assisted_calibration_proposal(
+            state,
+            AssistedCalibrationProposal(
+                baseline_frame_index=0,
+                unlit_assessment=UnlitFrameAssessment(status="clean"),
+                assignment_result=partial_second_family,
+                scanned_frame_count=50,
+                candidate_count=6,
+            ),
+        )
+        panel.update_controls_from_state()
+
+        missing_slot = partial_second_family.missing_slots[0]
+        assert state.detection.exemplar_key_type_enabled[missing_slot] is True
+        assert panel.color_family_grid.rows[missing_slot].present.isChecked()
+        assert not panel.convert_button.isEnabled()
+    finally:
+        panel.close()
+        panel.deleteLater()
+
+
 def test_calibration_section_shows_visible_step_instructions():
     QApplication.instance() or QApplication([])
     panel = ControlPanelQt()

@@ -363,9 +363,16 @@ class ConfigManager:
             if config.has_section("ExemplarEnabled"):
                 for slot in SUPPORTED_EXEMPLAR_SLOTS:
                     if config.has_option("ExemplarEnabled", slot):
-                        self.app_state.detection.exemplar_key_type_enabled[slot] = (
-                            config.getboolean("ExemplarEnabled", slot)
-                        )
+                        try:
+                            enabled = config.getboolean("ExemplarEnabled", slot)
+                        except ValueError:
+                            logging.warning(
+                                "Ignoring invalid ExemplarEnabled value for %s: %r",
+                                slot,
+                                config.get("ExemplarEnabled", slot),
+                            )
+                            continue
+                        self.app_state.detection.exemplar_key_type_enabled[slot] = enabled
 
             # Try to load overlay data from the JSON file next to this INI first.
             # Extract the base path from the INI file path (remove .ini extension)

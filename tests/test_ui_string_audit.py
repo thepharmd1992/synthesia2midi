@@ -30,6 +30,14 @@ TASK_10_MANIFEST_STRINGS = {
         "Click a glowing key that matches {label}. The application will sample "
         "the color and histogram for {label}."
     ),
+    "Auto-Calibrate {label}",
+    (
+        "Auto-calibration for {label} started.\n\n"
+        "1. Navigate to a frame where a {label} key first turns on.\n"
+        "2. Click that key overlay.\n"
+        "3. The application will capture the bar-only frame, dimmest sparks, "
+        "and brightest sparks, then save the calibration."
+    ),
 }
 
 

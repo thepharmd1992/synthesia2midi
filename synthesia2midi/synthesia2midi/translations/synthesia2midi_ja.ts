@@ -1143,123 +1143,123 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
 <context>
     <name>ControlPanelQt</name>
     <message>
-        <location filename="../gui/controls_qt.py" line="318"/>
-        <location filename="../gui/controls_qt.py" line="2004"/>
+        <location filename="../gui/controls_qt.py" line="312"/>
+        <location filename="../gui/controls_qt.py" line="1998"/>
         <source>Convert</source>
         <translation>変換</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="324"/>
+        <location filename="../gui/controls_qt.py" line="318"/>
+        <location filename="../gui/controls_qt.py" line="2121"/>
         <location filename="../gui/controls_qt.py" line="2127"/>
-        <location filename="../gui/controls_qt.py" line="2133"/>
         <source>Load a video to convert.</source>
         <translation>変換する動画を読み込んでください。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="328"/>
+        <location filename="../gui/controls_qt.py" line="322"/>
         <source>Edit MIDI</source>
         <translation>MIDIを編集</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="333"/>
+        <location filename="../gui/controls_qt.py" line="327"/>
         <source>Overlay</source>
         <translation>オーバーレイ</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="334"/>
-        <location filename="../gui/controls_qt.py" line="2019"/>
+        <location filename="../gui/controls_qt.py" line="328"/>
+        <location filename="../gui/controls_qt.py" line="2013"/>
         <source>None</source>
         <translation>なし</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="375"/>
-        <location filename="../gui/controls_qt.py" line="395"/>
-        <location filename="../gui/controls_qt.py" line="1508"/>
+        <location filename="../gui/controls_qt.py" line="369"/>
+        <location filename="../gui/controls_qt.py" line="389"/>
+        <location filename="../gui/controls_qt.py" line="1502"/>
         <source>Language</source>
         <translation>言語</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="378"/>
+        <location filename="../gui/controls_qt.py" line="372"/>
         <source>Language:</source>
         <translation>言語:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="404"/>
-        <location filename="../gui/controls_qt.py" line="797"/>
-        <location filename="../gui/controls_qt.py" line="999"/>
+        <location filename="../gui/controls_qt.py" line="398"/>
+        <location filename="../gui/controls_qt.py" line="791"/>
+        <location filename="../gui/controls_qt.py" line="993"/>
         <source>Help</source>
         <translation>ヘルプ</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="407"/>
+        <location filename="../gui/controls_qt.py" line="401"/>
         <source>Initial calibration directions (recommended order):</source>
         <translation>初期キャリブレーション手順（推奨順）:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="416"/>
+        <location filename="../gui/controls_qt.py" line="410"/>
         <source>3) Capture Pressed-Key Examples: for each Color family, capture a Natural and Sharp / Flat example that appears in the video.</source>
         <translation>3) 押されたキーの例をキャプチャ: 各カラーファミリーについて、動画に表示されるナチュラルとシャープ / フラットの例をキャプチャします。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="420"/>
+        <location filename="../gui/controls_qt.py" line="414"/>
         <source>If a key type is not present in this video, uncheck its &apos;Present in Video&apos; box.</source>
         <translation>この動画に存在しないキータイプがある場合は、その「動画に存在」ボックスのチェックを外してください。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="421"/>
+        <location filename="../gui/controls_qt.py" line="415"/>
         <source>Octave Transpose: shifts the generated MIDI up/down by octaves.</source>
         <translation>オクターブ移調: 生成されるMIDIをオクターブ単位で上下に移動します。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="788"/>
+        <location filename="../gui/controls_qt.py" line="782"/>
         <source>Overlays</source>
         <translation>オーバーレイ</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="463"/>
+        <location filename="../gui/controls_qt.py" line="457"/>
         <source>Creates overlays for the keyboard in your video. Re-run if overlays don&apos;t line up.</source>
         <translation>動画内のキーボード用オーバーレイを作成します。位置が合わない場合は再実行してください。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="46"/>
+        <location filename="../gui/controls_qt.py" line="40"/>
         <source>Color {number}</source>
         <translation>カラー {number}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="50"/>
+        <location filename="../gui/controls_qt.py" line="44"/>
         <source>Natural</source>
         <translation>ナチュラル</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="52"/>
+        <location filename="../gui/controls_qt.py" line="46"/>
         <source>Sharp / Flat</source>
         <translation>シャープ / フラット</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="477"/>
+        <location filename="../gui/controls_qt.py" line="471"/>
         <source>Octave</source>
         <translation>オクターブ</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="486"/>
+        <location filename="../gui/controls_qt.py" line="480"/>
         <source>Shifts the MIDI output up/down by octaves.</source>
         <translation>MIDI出力をオクターブ単位で上下に移動します。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="499"/>
+        <location filename="../gui/controls_qt.py" line="493"/>
         <source>Captures what unpressed overlays look like from the current frame. Pause on a frame with no highlighted notes first.</source>
         <translation>現在のフレームから、押されていないオーバーレイの見え方を取得します。先にハイライトされた音符がないフレームで一時停止してください。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="521"/>
-        <location filename="../gui/controls_qt.py" line="1163"/>
-        <location filename="../gui/controls_qt.py" line="1976"/>
-        <location filename="../gui/controls_qt.py" line="2096"/>
+        <location filename="../gui/controls_qt.py" line="515"/>
+        <location filename="../gui/controls_qt.py" line="1157"/>
+        <location filename="../gui/controls_qt.py" line="1970"/>
+        <location filename="../gui/controls_qt.py" line="2090"/>
         <source>Not Set</source>
         <translation>未設定</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="543"/>
+        <location filename="../gui/controls_qt.py" line="537"/>
         <source>Lit Key Exemplars</source>
         <translation>点灯キーの例</translation>
     </message>
@@ -1272,43 +1272,43 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">この種類の押されたオーバーレイ例を取得します。その種類がハイライトされているフレームで一時停止し、ボタンをクリックしてから、ハイライトされたオーバーレイをクリックします。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="801"/>
+        <location filename="../gui/controls_qt.py" line="795"/>
         <source>Before tuning detection: capture a no-key frame and at least one pressed-key example.</source>
         <translation>検出を調整する前に、キーが光っていないフレームと、押されたキーの例を少なくとも1つキャプチャしてください。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="802"/>
+        <location filename="../gui/controls_qt.py" line="796"/>
         <source>Detection Sensitivity: main setting for pressed vs unpressed keys.</source>
         <translation>検出感度: 押されたキーと押されていないキーを区別する主な設定です。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="803"/>
-        <location filename="../gui/controls_qt.py" line="843"/>
+        <location filename="../gui/controls_qt.py" line="797"/>
+        <location filename="../gui/controls_qt.py" line="837"/>
         <source>Missing notes? Lower it. Extra notes? Raise it.</source>
         <translation>音が抜ける場合は下げます。余分な音が出る場合は上げます。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="804"/>
+        <location filename="../gui/controls_qt.py" line="798"/>
         <source>Histogram Detection helps when pressed colors have gradients or uneven lighting.</source>
         <translation>ヒストグラム検出は、押された色にグラデーションや照明むらがある場合に役立ちます。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="808"/>
+        <location filename="../gui/controls_qt.py" line="802"/>
         <source>Delta Detection helps when pressed colors fade in or out instead of switching cleanly.</source>
         <translation>デルタ検出は、押された色がはっきり切り替わらずフェードイン/フェードアウトする場合に役立ちます。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="812"/>
+        <location filename="../gui/controls_qt.py" line="806"/>
         <source>Black Key Filter reduces false black-key notes caused by nearby overlays.</source>
         <translation>黒鍵フィルターは、近くのオーバーレイによる黒鍵の誤検出を減らします。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="821"/>
+        <location filename="../gui/controls_qt.py" line="815"/>
         <source>Detection Sensitivity</source>
         <translation>検出感度</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="840"/>
+        <location filename="../gui/controls_qt.py" line="834"/>
         <source>Detection Sensitivity:</source>
         <translation>検出感度:</translation>
     </message>
@@ -1317,75 +1317,75 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">キーの上のスパーク領域を選択</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1067"/>
+        <location filename="../gui/controls_qt.py" line="1061"/>
         <source>Select the area above the keys where spark bars and flashes appear.</source>
         <translation>キーの上でスパークバーや光が表示される領域を選択します。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1076"/>
+        <location filename="../gui/controls_qt.py" line="1070"/>
         <source>Show or hide the spark area overlay on the video.</source>
         <translation>動画上のスパーク領域オーバーレイを表示または非表示にします。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1242"/>
+        <location filename="../gui/controls_qt.py" line="1236"/>
         <source>Convert Only Part of the Video</source>
         <translation>動画の一部だけを変換</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1246"/>
+        <location filename="../gui/controls_qt.py" line="1240"/>
         <source>This affects MIDI creation only. It does not trim or change the video session.</source>
         <translation>これはMIDI作成のみに影響します。動画セッションをトリミングしたり変更したりしません。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1315"/>
-        <location filename="../gui/controls_qt.py" line="1377"/>
-        <location filename="../gui/controls_qt.py" line="1439"/>
-        <location filename="../gui/controls_qt.py" line="1694"/>
+        <location filename="../gui/controls_qt.py" line="1309"/>
+        <location filename="../gui/controls_qt.py" line="1371"/>
+        <location filename="../gui/controls_qt.py" line="1433"/>
+        <location filename="../gui/controls_qt.py" line="1688"/>
         <source>Permanently Trim Project</source>
         <translation>プロジェクトを完全にトリミング</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1320"/>
+        <location filename="../gui/controls_qt.py" line="1314"/>
         <source>Most users should use MIDI range instead. Trim changes the working video session, not the original video file.</source>
         <translation>ほとんどのユーザーは代わりにMIDI範囲を使ってください。トリミングは元の動画ファイルではなく、作業中の動画セッションを変更します。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1399"/>
+        <location filename="../gui/controls_qt.py" line="1393"/>
         <source>Open the dedicated setup window when repeated presses merge into one long note.</source>
         <translation>同じ音の連打が1つの長い音に結合される場合は、専用の設定ウィンドウを開きます。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1407"/>
+        <location filename="../gui/controls_qt.py" line="1401"/>
         <source>Open Repeated Notes Tool</source>
         <translation>同じ音の連打ツールを開く</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1419"/>
+        <location filename="../gui/controls_qt.py" line="1413"/>
         <source>Gradient or uneven pressed colors</source>
         <translation>押された色にグラデーションやムラがある</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1424"/>
+        <location filename="../gui/controls_qt.py" line="1418"/>
         <source>Pressed colors fade in or out</source>
         <translation>押された色がフェードイン・アウトする</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1429"/>
+        <location filename="../gui/controls_qt.py" line="1423"/>
         <source>False black-key notes</source>
         <translation>黒鍵の誤検出</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1434"/>
+        <location filename="../gui/controls_qt.py" line="1428"/>
         <source>Repeated notes merge together</source>
         <translation>同じ音の連打がつながってしまう</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1456"/>
+        <location filename="../gui/controls_qt.py" line="1450"/>
         <source>Glossary</source>
         <translation>用語集</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1463"/>
+        <location filename="../gui/controls_qt.py" line="1457"/>
         <source>Advanced</source>
         <translation>詳細</translation>
     </message>
@@ -1398,48 +1398,48 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">動画で左手と右手のノートに異なる色が使われている場合のみ使用してください。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1703"/>
+        <location filename="../gui/controls_qt.py" line="1697"/>
         <source>&lt;b&gt;This will permanently trim the working video session.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Frames outside {start_frame} to {end_text} will be unavailable in this project session.&lt;br&gt;&lt;br&gt;Most users should cancel and use the MIDI range controls instead.</source>
         <translation>&lt;b&gt;作業中の動画セッションを完全にトリミングします。&lt;/b&gt;&lt;br&gt;&lt;br&gt;{start_frame} から {end_text} の範囲外のフレームは、このプロジェクトセッションで使用できなくなります。&lt;br&gt;&lt;br&gt;ほとんどのユーザーはキャンセルして、代わりにMIDI範囲コントロールを使ってください。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1715"/>
+        <location filename="../gui/controls_qt.py" line="1709"/>
         <source>Trim Project</source>
         <translation>プロジェクトをトリミング</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2140"/>
+        <location filename="../gui/controls_qt.py" line="2134"/>
         <source>Create key overlays first.</source>
         <translation>先にキーオーバーレイを作成してください。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2151"/>
-        <location filename="../gui/controls_qt.py" line="2163"/>
+        <location filename="../gui/controls_qt.py" line="2145"/>
+        <location filename="../gui/controls_qt.py" line="2157"/>
         <source>Capture a no-key frame.</source>
         <translation>キーが光っていないフレームを取得してください。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2170"/>
+        <location filename="../gui/controls_qt.py" line="2164"/>
         <source>Capture at least one pressed-key example.</source>
         <translation>押されたキーの例を少なくとも1つ取得してください。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2179"/>
+        <location filename="../gui/controls_qt.py" line="2173"/>
         <source>Capture a pressed-key example for {label}.</source>
         <translation>{label}の押されたキーの例をキャプチャしてください。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2189"/>
+        <location filename="../gui/controls_qt.py" line="2183"/>
         <source>Check detection sensitivity.</source>
         <translation>検出感度を確認してください。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2195"/>
+        <location filename="../gui/controls_qt.py" line="2189"/>
         <source>Check MIDI tempo.</source>
         <translation>MIDIテンポを確認してください。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2200"/>
+        <location filename="../gui/controls_qt.py" line="2194"/>
         <source>Ready to create MIDI.</source>
         <translation>MIDIを作成できます。</translation>
     </message>
@@ -1448,17 +1448,17 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">存在</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="268"/>
+        <location filename="../gui/controls_qt.py" line="262"/>
         <source>Guide</source>
         <translation>ガイド</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="408"/>
+        <location filename="../gui/controls_qt.py" line="402"/>
         <source>1) Find Keyboard Box: create overlays that line up with the keyboard in your video.</source>
         <translation>1) キーボード枠を見つける: 動画のキーボードに合うオーバーレイを作成します。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="412"/>
+        <location filename="../gui/controls_qt.py" line="406"/>
         <source>2) Capture No-Key Frame: pause where no keys are glowing, then click Capture No-Key Frame.</source>
         <translation>2) 無点灯フレームを取得: キーが光っていないフレームで一時停止し、[無点灯フレームを取得] をクリックします。</translation>
     </message>
@@ -1467,42 +1467,42 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">3) 押下キーの例を取得: 必要な各ボタン（左/右 x 白/黒）について、その種類のオーバーレイが光っているフレームで一時停止し、ボタンをクリックしてから動画内のそのオーバーレイをクリックします。左/右はキーボードの物理的な左右ではなく、Synthesia のノート色を指します。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="453"/>
+        <location filename="../gui/controls_qt.py" line="447"/>
         <source>Draw Keyboard Box and Find Keys</source>
         <translation>キーボード枠を描いてキーを検出</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="470"/>
+        <location filename="../gui/controls_qt.py" line="464"/>
         <source>Find the keyboard</source>
         <translation>キーボードを見つける</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="471"/>
+        <location filename="../gui/controls_qt.py" line="465"/>
         <source>Pause on a clear frame where the full keyboard is visible.</source>
         <translation>キーボード全体が見える、はっきりしたフレームで一時停止してください。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="493"/>
+        <location filename="../gui/controls_qt.py" line="487"/>
         <source>Capture No-Key Frame</source>
         <translation>無点灯フレームを取得</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="505"/>
+        <location filename="../gui/controls_qt.py" line="499"/>
         <source>Capture no-key frame</source>
         <translation>無点灯フレームを取得</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="509"/>
+        <location filename="../gui/controls_qt.py" line="503"/>
         <source>Pause where no keys are glowing.</source>
         <translation>キーが光っていない場所で一時停止します。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="528"/>
+        <location filename="../gui/controls_qt.py" line="522"/>
         <source>Capture pressed-key examples</source>
         <translation>押下キーの例を取得</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="533"/>
+        <location filename="../gui/controls_qt.py" line="527"/>
         <source>Pause where a key is glowing, then click that key.</source>
         <translation>キーが光っている場所で一時停止し、そのキーをクリックします。</translation>
     </message>
@@ -1515,122 +1515,122 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">このキータイプがこの動画に一度も現れない場合はチェックを外します。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="568"/>
+        <location filename="../gui/controls_qt.py" line="562"/>
         <source>Calibration</source>
         <translation>キャリブレーション</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="578"/>
+        <location filename="../gui/controls_qt.py" line="572"/>
         <source>Key Alignment</source>
         <translation>キー整列</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="584"/>
+        <location filename="../gui/controls_qt.py" line="578"/>
         <source>Align White Keys</source>
         <translation>白鍵を整列</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="587"/>
+        <location filename="../gui/controls_qt.py" line="581"/>
         <source>Align Black Keys</source>
         <translation>黒鍵を整列</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="590"/>
+        <location filename="../gui/controls_qt.py" line="584"/>
         <source>Manual Fit</source>
         <translation>手動フィット</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="602"/>
+        <location filename="../gui/controls_qt.py" line="596"/>
         <source>Overlay Size Adjustment</source>
         <translation>オーバーレイサイズ調整</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="619"/>
+        <location filename="../gui/controls_qt.py" line="613"/>
         <source>Current:</source>
         <translation>現在:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="622"/>
+        <location filename="../gui/controls_qt.py" line="616"/>
         <source>Reset</source>
         <translation>リセット</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="637"/>
+        <location filename="../gui/controls_qt.py" line="631"/>
         <source>Decrease {setting}</source>
         <translation>{setting} を下げる</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="640"/>
+        <location filename="../gui/controls_qt.py" line="634"/>
         <source>Increase {setting}</source>
         <translation>{setting} を上げる</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="655"/>
+        <location filename="../gui/controls_qt.py" line="649"/>
         <source>White Key Height</source>
         <translation>白鍵の高さ</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="672"/>
+        <location filename="../gui/controls_qt.py" line="666"/>
         <source>White Key Width</source>
         <translation>白鍵の幅</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="689"/>
+        <location filename="../gui/controls_qt.py" line="683"/>
         <source>Black Key Height</source>
         <translation>黒鍵の高さ</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="706"/>
+        <location filename="../gui/controls_qt.py" line="700"/>
         <source>Black Key Width</source>
         <translation>黒鍵の幅</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="723"/>
+        <location filename="../gui/controls_qt.py" line="717"/>
         <source>Left Slant</source>
         <translation>左傾き</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="740"/>
+        <location filename="../gui/controls_qt.py" line="734"/>
         <source>Right Slant</source>
         <translation>右傾き</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="762"/>
+        <location filename="../gui/controls_qt.py" line="756"/>
         <source>Overlay Appearance</source>
         <translation>オーバーレイ表示</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="767"/>
+        <location filename="../gui/controls_qt.py" line="761"/>
         <source>Overlay Color:</source>
         <translation>オーバーレイ色:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1014"/>
+        <location filename="../gui/controls_qt.py" line="1008"/>
         <source>Repeated Notes Fix</source>
         <translation>同じ音の連打を修正</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1025"/>
+        <location filename="../gui/controls_qt.py" line="1019"/>
         <source>Enable Repeated Notes Fix</source>
         <translation>同じ音の連打の修正を有効化</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1057"/>
+        <location filename="../gui/controls_qt.py" line="1051"/>
         <source>Repeated-Note Setup</source>
         <translation>同じ音の連打の設定</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1064"/>
+        <location filename="../gui/controls_qt.py" line="1058"/>
         <source>Select Flash Area Above Keys</source>
         <translation>キー上部のフラッシュ範囲を選択</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1477"/>
+        <location filename="../gui/controls_qt.py" line="1471"/>
         <source>Put each Color family on a separate MIDI channel</source>
         <translation>各カラーファミリーを別々の MIDI チャンネルに割り当てる</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1483"/>
+        <location filename="../gui/controls_qt.py" line="1477"/>
         <source>Use this when the video contains more than one Color family.</source>
         <translation>動画に複数のカラーファミリーが含まれる場合に使用します。</translation>
     </message>
@@ -1663,8 +1663,8 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">検出しきい値</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="832"/>
-        <location filename="../gui/controls_qt.py" line="837"/>
+        <location filename="../gui/controls_qt.py" line="826"/>
+        <location filename="../gui/controls_qt.py" line="831"/>
         <source>Main sensitivity. Lower = detects more; higher = fewer false notes.</source>
         <translation>主な感度です。低いほど多く検出し、高いほど誤検出が減ります。</translation>
     </message>
@@ -1677,106 +1677,106 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">検出モード</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="875"/>
+        <location filename="../gui/controls_qt.py" line="869"/>
         <source>Enable Histogram Detection</source>
         <translation>ヒストグラム検出を有効化</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="879"/>
+        <location filename="../gui/controls_qt.py" line="873"/>
         <source>Uses a color-pattern match inside the overlay. Helpful with gradients/uneven lighting.</source>
         <translation>オーバーレイ内の色パターン一致を使用します。グラデーションや不均一な照明に有効です。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="891"/>
-        <location filename="../gui/controls_qt.py" line="896"/>
+        <location filename="../gui/controls_qt.py" line="885"/>
+        <location filename="../gui/controls_qt.py" line="890"/>
         <source>How strong the histogram match must be (only used when Histogram Detection is enabled).</source>
         <translation>ヒストグラム一致の必要強度（ヒストグラム検出が有効な場合のみ使用）。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="898"/>
+        <location filename="../gui/controls_qt.py" line="892"/>
         <source>Strength:</source>
         <translation>強度:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="901"/>
+        <location filename="../gui/controls_qt.py" line="895"/>
         <source>Enable Delta Detection</source>
         <translation>デルタ検出を有効化</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="905"/>
+        <location filename="../gui/controls_qt.py" line="899"/>
         <source>Uses frame-to-frame change to confirm press/release (helps when color fades).</source>
         <translation>フレーム間の変化で押下/リリースを確認します（色がフェードする場合に有効）。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="916"/>
-        <location filename="../gui/controls_qt.py" line="921"/>
+        <location filename="../gui/controls_qt.py" line="910"/>
+        <location filename="../gui/controls_qt.py" line="915"/>
         <source>How big the change must be to count as a press (only used when Delta Detection is enabled).</source>
         <translation>押下と判定するために必要な変化量（デルタ検出が有効な場合のみ使用）。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="923"/>
+        <location filename="../gui/controls_qt.py" line="917"/>
         <source>Rise:</source>
         <translation>上昇:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="932"/>
-        <location filename="../gui/controls_qt.py" line="937"/>
+        <location filename="../gui/controls_qt.py" line="926"/>
+        <location filename="../gui/controls_qt.py" line="931"/>
         <source>How big the change must be to count as a release (only used when Delta Detection is enabled).</source>
         <translation>リリースと判定するために必要な変化量（デルタ検出が有効な場合のみ使用）。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="939"/>
+        <location filename="../gui/controls_qt.py" line="933"/>
         <source>Fall:</source>
         <translation>下降:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="942"/>
+        <location filename="../gui/controls_qt.py" line="936"/>
         <source>Enable Black Key Filter</source>
         <translation>黒鍵フィルターを有効化</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="946"/>
+        <location filename="../gui/controls_qt.py" line="940"/>
         <source>Reduces false black-key presses from nearby overlays.</source>
         <translation>近くのオーバーレイによる黒鍵の誤押下を減らします。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="958"/>
-        <location filename="../gui/controls_qt.py" line="963"/>
+        <location filename="../gui/controls_qt.py" line="952"/>
+        <location filename="../gui/controls_qt.py" line="957"/>
         <source>Controls how strict black-key filtering is (only used when Black Key Filter is enabled).</source>
         <translation>黒鍵フィルターの厳しさを制御します（黒鍵フィルターが有効な場合のみ使用）。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="965"/>
+        <location filename="../gui/controls_qt.py" line="959"/>
         <source>Similarity:</source>
         <translation>類似度:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="974"/>
+        <location filename="../gui/controls_qt.py" line="968"/>
         <source>Restore Defaults</source>
         <translation>既定値に戻す</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="976"/>
+        <location filename="../gui/controls_qt.py" line="970"/>
         <source>Reset detection threshold and detection mode parameter sliders to their defaults. Detection mode checkboxes stay unchanged.</source>
         <translation>検出しきい値と検出モードパラメータのスライダーを既定値にリセットします。検出モードのチェックボックスは変更されません。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="983"/>
+        <location filename="../gui/controls_qt.py" line="977"/>
         <source>Detection</source>
         <translation>検出</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1002"/>
+        <location filename="../gui/controls_qt.py" line="996"/>
         <source>Use Spark Detection only when:</source>
         <translation>Spark Detectionを使うのは次の場合のみ:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1003"/>
+        <location filename="../gui/controls_qt.py" line="997"/>
         <source>1) Key overlays stay ON across repeated notes (false continuous press).</source>
         <translation>1) 繰り返し音でキーオーバーレイがONのままになる（誤った連続押下）。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1004"/>
+        <location filename="../gui/controls_qt.py" line="998"/>
         <source>2) Key overlays are solid color (no fading or gradients).</source>
         <translation>2) キーオーバーレイが単色（フェードやグラデーションなし）。</translation>
     </message>
@@ -1785,7 +1785,7 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">Spark Detection</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1019"/>
+        <location filename="../gui/controls_qt.py" line="1013"/>
         <source>Use this only if repeated notes merge into one long note.</source>
         <translation>繰り返し音が1つの長い音に結合される場合のみ使用してください。</translation>
     </message>
@@ -1794,18 +1794,18 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">Spark Detectionを有効化</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1029"/>
+        <location filename="../gui/controls_qt.py" line="1023"/>
         <source>Use only when key overlays stay ON across repeated notes (false continuous press), and the overlays are solid color (no fading or gradients).</source>
         <translation>キーオーバーレイが繰り返し音でONのままになる（誤った連続押下）かつ、オーバーレイが単色（フェードやグラデーションなし）の場合のみ使用します。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1037"/>
+        <location filename="../gui/controls_qt.py" line="1031"/>
         <source>Sensitivity:</source>
         <translation>感度:</translation>
     </message>
     <message>
+        <location filename="../gui/controls_qt.py" line="1038"/>
         <location filename="../gui/controls_qt.py" line="1044"/>
-        <location filename="../gui/controls_qt.py" line="1050"/>
         <source>Controls how aggressively Spark Detection splits false continuous notes.</source>
         <translation>Spark Detectionが誤った連続音をどれだけ積極的に分割するかを制御します。</translation>
     </message>
@@ -1822,9 +1822,9 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">キーの上にあるSparkバーとSparkが表示される範囲を選択します。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1072"/>
-        <location filename="../gui/controls_qt.py" line="1816"/>
-        <location filename="../gui/controls_qt.py" line="1988"/>
+        <location filename="../gui/controls_qt.py" line="1066"/>
+        <location filename="../gui/controls_qt.py" line="1810"/>
+        <location filename="../gui/controls_qt.py" line="1982"/>
         <source>Hide Spark Overlays</source>
         <translation>Sparkオーバーレイを非表示</translation>
     </message>
@@ -1833,82 +1833,82 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">動画上のSpark ROIオーバーレイを表示または非表示にします。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1082"/>
+        <location filename="../gui/controls_qt.py" line="1076"/>
         <source>Manual Calibration</source>
         <translation>手動キャリブレーション</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1087"/>
+        <location filename="../gui/controls_qt.py" line="1081"/>
         <source>Step 1)</source>
         <translation>ステップ1)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1090"/>
+        <location filename="../gui/controls_qt.py" line="1084"/>
         <source>Calibrate Background</source>
         <translation>背景をキャリブレーション</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1094"/>
+        <location filename="../gui/controls_qt.py" line="1088"/>
         <source>Manual calibration: capture baseline brightness when there are no bars or sparks.</source>
         <translation>手動キャリブレーション: バーやSparkがないときの基準輝度を取得します。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1102"/>
+        <location filename="../gui/controls_qt.py" line="1096"/>
         <source>Step 2)</source>
         <translation>ステップ2)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1105"/>
+        <location filename="../gui/controls_qt.py" line="1099"/>
         <source>Calibrate Bar Only</source>
         <translation>バーのみをキャリブレーション</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1109"/>
+        <location filename="../gui/controls_qt.py" line="1103"/>
         <source>Manual calibration: click an overlay showing colored bars with no sparks.</source>
         <translation>手動キャリブレーション: Sparkなしで色付きバーが表示されているオーバーレイをクリックします。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1117"/>
+        <location filename="../gui/controls_qt.py" line="1111"/>
         <source>Step 3)</source>
         <translation>ステップ3)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1120"/>
+        <location filename="../gui/controls_qt.py" line="1114"/>
         <source>Calibrate Dimmest Sparks</source>
         <translation>最も暗いSparkをキャリブレーション</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1124"/>
+        <location filename="../gui/controls_qt.py" line="1118"/>
         <source>Manual calibration: click an overlay where sparks are just barely visible.</source>
         <translation>手動キャリブレーション: Sparkがかろうじて見えるオーバーレイをクリックします。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1133"/>
+        <location filename="../gui/controls_qt.py" line="1127"/>
         <source>Auto Calibration:</source>
         <translation>自動キャリブレーション:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1149"/>
+        <location filename="../gui/controls_qt.py" line="1143"/>
         <source>Auto {key_type_label}</source>
         <translation>自動 {key_type_label}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1155"/>
+        <location filename="../gui/controls_qt.py" line="1149"/>
         <source>Recommended: auto-calibrate spark detection for this key type. Navigate to the frame where a key first turns ON, then click that overlay.</source>
         <translation>推奨: このキータイプのSpark Detectionを自動キャリブレーションします。キーが最初にONになるフレームへ移動し、そのオーバーレイをクリックします。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1175"/>
+        <location filename="../gui/controls_qt.py" line="1169"/>
         <source>Spark Preview / Status</source>
         <translation>Sparkプレビュー / 状態</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1177"/>
+        <location filename="../gui/controls_qt.py" line="1171"/>
         <source>Preview will show spark calibration status here.</source>
         <translation>ここにSparkキャリブレーション状態のプレビューが表示されます。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1181"/>
+        <location filename="../gui/controls_qt.py" line="1175"/>
         <source>Preview not available yet.</source>
         <translation>プレビューはまだ利用できません。</translation>
     </message>
@@ -1917,18 +1917,18 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">Spark</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1205"/>
+        <location filename="../gui/controls_qt.py" line="1199"/>
         <source>Frame Rate Override</source>
         <translation>フレームレート上書き</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1222"/>
+        <location filename="../gui/controls_qt.py" line="1216"/>
         <source>Auto</source>
         <translation>自動</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1236"/>
-        <location filename="../gui/controls_qt.py" line="1829"/>
+        <location filename="../gui/controls_qt.py" line="1230"/>
+        <location filename="../gui/controls_qt.py" line="1823"/>
         <source>Current FPS: Auto-detected</source>
         <translation>現在のFPS: 自動検出</translation>
     </message>
@@ -1937,27 +1937,27 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">カスタムMIDI処理範囲</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1261"/>
-        <location filename="../gui/controls_qt.py" line="1335"/>
+        <location filename="../gui/controls_qt.py" line="1255"/>
+        <location filename="../gui/controls_qt.py" line="1329"/>
         <source>Start Frame:</source>
         <translation>開始フレーム:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1273"/>
-        <location filename="../gui/controls_qt.py" line="1293"/>
-        <location filename="../gui/controls_qt.py" line="1347"/>
-        <location filename="../gui/controls_qt.py" line="1367"/>
+        <location filename="../gui/controls_qt.py" line="1267"/>
+        <location filename="../gui/controls_qt.py" line="1287"/>
+        <location filename="../gui/controls_qt.py" line="1341"/>
+        <location filename="../gui/controls_qt.py" line="1361"/>
         <source>Set to Current</source>
         <translation>現在位置に設定</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1281"/>
-        <location filename="../gui/controls_qt.py" line="1355"/>
+        <location filename="../gui/controls_qt.py" line="1275"/>
+        <location filename="../gui/controls_qt.py" line="1349"/>
         <source>End Frame:</source>
         <translation>終了フレーム:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1306"/>
+        <location filename="../gui/controls_qt.py" line="1300"/>
         <source>MIDI</source>
         <translation>MIDI</translation>
     </message>
@@ -1974,7 +1974,7 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">トリム</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1472"/>
+        <location filename="../gui/controls_qt.py" line="1466"/>
         <source>Optional Features</source>
         <translation>オプション機能</translation>
     </message>
@@ -1983,32 +1983,32 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">手の割り当てを有効化（MIDIチャンネル）</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1498"/>
+        <location filename="../gui/controls_qt.py" line="1492"/>
         <source>Optional</source>
         <translation>オプション</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1509"/>
+        <location filename="../gui/controls_qt.py" line="1503"/>
         <source>Restart Synthesia2MIDI to apply the selected language.</source>
         <translation>選択した言語を適用するにはSynthesia2MIDIを再起動してください。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1514"/>
+        <location filename="../gui/controls_qt.py" line="1508"/>
         <source>Converting...</source>
         <translation>変換中...</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1516"/>
+        <location filename="../gui/controls_qt.py" line="1510"/>
         <source>Converting video to MIDI...</source>
         <translation>動画をMIDIに変換中...</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1687"/>
+        <location filename="../gui/controls_qt.py" line="1681"/>
         <source>Invalid Trim Range</source>
         <translation>無効なトリム範囲</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1688"/>
+        <location filename="../gui/controls_qt.py" line="1682"/>
         <source>Start frame must be less than end frame.</source>
         <translation>開始フレームは終了フレームより小さくする必要があります。</translation>
     </message>
@@ -2017,12 +2017,12 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">⚠️ 動画をトリム - 元に戻せない操作</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1698"/>
+        <location filename="../gui/controls_qt.py" line="1692"/>
         <source>frame {end_frame}</source>
         <translation>フレーム {end_frame}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1700"/>
+        <location filename="../gui/controls_qt.py" line="1694"/>
         <source>end of video</source>
         <translation>動画の末尾</translation>
     </message>
@@ -2051,43 +2051,43 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
         <translation type="vanished">⚠️ はい、動画をトリム</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1818"/>
-        <location filename="../gui/controls_qt.py" line="1990"/>
+        <location filename="../gui/controls_qt.py" line="1812"/>
+        <location filename="../gui/controls_qt.py" line="1984"/>
         <source>Show Spark Overlays</source>
         <translation>Sparkオーバーレイを表示</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1832"/>
+        <location filename="../gui/controls_qt.py" line="1826"/>
         <source>Current FPS: {fps} (override)</source>
         <translation>現在のFPS: {fps}（上書き）</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1851"/>
+        <location filename="../gui/controls_qt.py" line="1845"/>
         <source>Current FPS: {fps_override} (override, detected: {detected_fps})</source>
         <translation>現在のFPS: {fps_override}（上書き、検出値: {detected_fps}）</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1858"/>
+        <location filename="../gui/controls_qt.py" line="1852"/>
         <source>Current FPS: {detected_fps} (auto-detected)</source>
         <translation>現在のFPS: {detected_fps}（自動検出）</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1973"/>
+        <location filename="../gui/controls_qt.py" line="1967"/>
         <source>Unlit State Calibrated</source>
         <translation>消灯状態をキャリブレーション済み</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2009"/>
+        <location filename="../gui/controls_qt.py" line="2003"/>
         <source>Success: {message}</source>
         <translation>成功: {message}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2013"/>
+        <location filename="../gui/controls_qt.py" line="2007"/>
         <source>Error: {message}</source>
         <translation>エラー: {message}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2093"/>
+        <location filename="../gui/controls_qt.py" line="2087"/>
         <source>Calibrated</source>
         <translation>キャリブレーション済み</translation>
     </message>
@@ -2939,45 +2939,60 @@ Black pixels: {black_pixels}/{total_pixels}{save_msg}</source>
 <context>
     <name>SparkCalibrationController</name>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="30"/>
+        <location filename="../gui/spark_calibration_controller.py" line="16"/>
+        <source>Color {number}</source>
+        <translation>カラー {number}</translation>
+    </message>
+    <message>
+        <location filename="../gui/spark_calibration_controller.py" line="20"/>
+        <source>Natural</source>
+        <translation>ナチュラル</translation>
+    </message>
+    <message>
+        <location filename="../gui/spark_calibration_controller.py" line="22"/>
+        <source>Sharp / Flat</source>
+        <translation>シャープ / フラット</translation>
+    </message>
+    <message>
+        <location filename="../gui/spark_calibration_controller.py" line="45"/>
         <source>Spark ROI Selection</source>
         <translation>Spark ROI選択</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="31"/>
+        <location filename="../gui/spark_calibration_controller.py" line="46"/>
         <source>Click and drag on the video to select the spark detection region.
 Right-click to cancel.</source>
         <translation>動画上でクリックしてドラッグし、Spark検出範囲を選択します。
 右クリックでキャンセルします。</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="39"/>
+        <location filename="../gui/spark_calibration_controller.py" line="54"/>
         <source>Canvas Error</source>
         <translation>キャンバスエラー</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="40"/>
+        <location filename="../gui/spark_calibration_controller.py" line="55"/>
         <source>Canvas interaction system not available.</source>
         <translation>キャンバス操作システムを利用できません。</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="45"/>
-        <location filename="../gui/spark_calibration_controller.py" line="96"/>
+        <location filename="../gui/spark_calibration_controller.py" line="60"/>
+        <location filename="../gui/spark_calibration_controller.py" line="111"/>
         <source>No Canvas</source>
         <translation>キャンバスなし</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="46"/>
+        <location filename="../gui/spark_calibration_controller.py" line="61"/>
         <source>No video canvas available for ROI selection.</source>
         <translation>ROI選択に利用できる動画キャンバスがありません。</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="82"/>
+        <location filename="../gui/spark_calibration_controller.py" line="97"/>
         <source>Spark ROI Set</source>
         <translation>Spark ROI設定済み</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="83"/>
+        <location filename="../gui/spark_calibration_controller.py" line="98"/>
         <source>Spark detection region set:
 Top: {top_y} pixels
 Bottom: {bottom_y} pixels
@@ -2988,32 +3003,32 @@ Height: {height} pixels</source>
 高さ: {height} ピクセル</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="97"/>
+        <location filename="../gui/spark_calibration_controller.py" line="112"/>
         <source>No video canvas available for calibration.</source>
         <translation>キャリブレーションに利用できる動画キャンバスがありません。</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="104"/>
+        <location filename="../gui/spark_calibration_controller.py" line="119"/>
         <source>No Frame</source>
         <translation>フレームなし</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="105"/>
+        <location filename="../gui/spark_calibration_controller.py" line="120"/>
         <source>No video frame loaded. Please open a video and navigate to a frame.</source>
         <translation>動画フレームが読み込まれていません。動画を開いてフレームへ移動してください。</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="128"/>
+        <location filename="../gui/spark_calibration_controller.py" line="143"/>
         <source>Invalid Step</source>
         <translation>無効なステップ</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="129"/>
+        <location filename="../gui/spark_calibration_controller.py" line="144"/>
         <source>Unknown calibration step: {step_type}</source>
         <translation>不明なキャリブレーションステップ: {step_type}</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="166"/>
+        <location filename="../gui/spark_calibration_controller.py" line="181"/>
         <source>Now click on a {hand_type}key that shows {condition} condition.
 
 For {display_name}:
@@ -3024,7 +3039,7 @@ For {display_name}:
 </translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="172"/>
+        <location filename="../gui/spark_calibration_controller.py" line="187"/>
         <source>- Key should show colored bars WITHOUT any sparks
 - Navigate to a frame where this condition is visible
 - Click on the key showing this exact condition</source>
@@ -3033,7 +3048,7 @@ For {display_name}:
 - この正確な状態を示しているキーをクリックしてください</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="177"/>
+        <location filename="../gui/spark_calibration_controller.py" line="192"/>
         <source>- Key should show colored bars WITH barely visible sparks
 - Navigate to a frame where sparks are just starting to appear
 - Click on the key showing this exact condition</source>
@@ -3042,7 +3057,7 @@ For {display_name}:
 - この正確な状態を示しているキーをクリックしてください</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="182"/>
+        <location filename="../gui/spark_calibration_controller.py" line="197"/>
         <source>- Key should show colored bars WITH very bright/intense sparks
 - Navigate to a frame where sparks are at their brightest
 - Click on the key showing this exact condition</source>
@@ -3051,22 +3066,39 @@ For {display_name}:
 - この正確な状態を示しているキーをクリックしてください</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="189"/>
+        <location filename="../gui/spark_calibration_controller.py" line="204"/>
         <source>Spark {display_name} Calibration</source>
         <translation>Spark {display_name} キャリブレーション</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="203"/>
+        <location filename="../gui/spark_calibration_controller.py" line="218"/>
         <source>Workflow Error</source>
         <translation>ワークフローエラー</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="204"/>
+        <location filename="../gui/spark_calibration_controller.py" line="219"/>
         <source>Auto-calibration workflow not available.</source>
         <translation>自動キャリブレーションワークフローを利用できません。</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="212"/>
+        <location filename="../gui/spark_calibration_controller.py" line="228"/>
+        <source>Auto-calibration for {label} started.
+
+1. Navigate to a frame where a {label} key first turns on.
+2. Click that key overlay.
+3. The application will capture the bar-only frame, dimmest sparks, and brightest sparks, then save the calibration.</source>
+        <translation>{label} の自動キャリブレーションを開始しました。
+
+1. {label} のキーが最初に点灯するフレームに移動します。
+2. そのキーのオーバーレイをクリックします。
+3. アプリケーションがバーのみのフレーム、最も暗いスパーク、最も明るいスパークを取得し、キャリブレーションを保存します。</translation>
+    </message>
+    <message>
+        <location filename="../gui/spark_calibration_controller.py" line="239"/>
+        <source>Auto-Calibrate {label}</source>
+        <translation>{label} を自動キャリブレーション</translation>
+    </message>
+    <message>
         <source>Auto-Calibration for {key_type} Started
 
 Instructions:
@@ -3082,7 +3114,7 @@ Instructions:
 Key Type Legend:
 LW = Left White, LB = Left Black
 RW = Right White, RB = Right Black</source>
-        <translation>{key_type} の自動キャリブレーションを開始しました
+        <translation type="vanished">{key_type} の自動キャリブレーションを開始しました
 
 手順:
 1. {key_type} キーが最初にONになるフレームへ移動します
@@ -3099,32 +3131,31 @@ LW = 左手白鍵, LB = 左手黒鍵
 RW = 右手白鍵, RB = 右手黒鍵</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="219"/>
         <source>Auto-Calibrate {key_type}</source>
-        <translation>{key_type}を自動キャリブレーション</translation>
+        <translation type="vanished">{key_type}を自動キャリブレーション</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="225"/>
-        <location filename="../gui/spark_calibration_controller.py" line="312"/>
-        <location filename="../gui/spark_calibration_controller.py" line="426"/>
+        <location filename="../gui/spark_calibration_controller.py" line="247"/>
+        <location filename="../gui/spark_calibration_controller.py" line="334"/>
+        <location filename="../gui/spark_calibration_controller.py" line="448"/>
         <source>Calibration Error</source>
         <translation>キャリブレーションエラー</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="226"/>
+        <location filename="../gui/spark_calibration_controller.py" line="248"/>
         <source>Failed to start auto-calibration. Please check video and overlays are loaded.</source>
         <translation>自動キャリブレーションを開始できませんでした。動画とオーバーレイが読み込まれていることを確認してください。</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="262"/>
-        <location filename="../gui/spark_calibration_controller.py" line="288"/>
-        <location filename="../gui/spark_calibration_controller.py" line="353"/>
-        <location filename="../gui/spark_calibration_controller.py" line="371"/>
+        <location filename="../gui/spark_calibration_controller.py" line="284"/>
+        <location filename="../gui/spark_calibration_controller.py" line="310"/>
+        <location filename="../gui/spark_calibration_controller.py" line="375"/>
+        <location filename="../gui/spark_calibration_controller.py" line="393"/>
         <source>Calibration Failed</source>
         <translation>キャリブレーション失敗</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="263"/>
+        <location filename="../gui/spark_calibration_controller.py" line="285"/>
         <source>Could not start background calibration.
 
 Requirements:
@@ -3137,17 +3168,17 @@ Requirements:
 - キーオーバーレイが設定されていること</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="281"/>
+        <location filename="../gui/spark_calibration_controller.py" line="303"/>
         <source>Background Calibration Complete</source>
         <translation>背景キャリブレーション完了</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="282"/>
+        <location filename="../gui/spark_calibration_controller.py" line="304"/>
         <source>Background calibration captured successfully!</source>
         <translation>背景キャリブレーションを正常に取得しました。</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="289"/>
+        <location filename="../gui/spark_calibration_controller.py" line="311"/>
         <source>Failed to capture background calibration data.
 
 Please check that spark ROI is properly set.</source>
@@ -3156,37 +3187,37 @@ Please check that spark ROI is properly set.</source>
 Spark ROIが正しく設定されていることを確認してください。</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="313"/>
+        <location filename="../gui/spark_calibration_controller.py" line="335"/>
         <source>No spark zone found for key {key_id}. Please ensure spark ROI is properly set.</source>
         <translation>キー {key_id} のSparkゾーンが見つかりません。Spark ROIが正しく設定されていることを確認してください。</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="339"/>
+        <location filename="../gui/spark_calibration_controller.py" line="361"/>
         <source>Invalid Mode</source>
         <translation>無効なモード</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="340"/>
+        <location filename="../gui/spark_calibration_controller.py" line="362"/>
         <source>Unknown calibration mode: {calibration_mode}</source>
         <translation>不明なキャリブレーションモード: {calibration_mode}</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="354"/>
+        <location filename="../gui/spark_calibration_controller.py" line="376"/>
         <source>Could not start calibration step. Please check spark ROI configuration.</source>
         <translation>キャリブレーションステップを開始できませんでした。Spark ROI設定を確認してください。</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="372"/>
+        <location filename="../gui/spark_calibration_controller.py" line="394"/>
         <source>Could not extract calibration data from key {key_id}.</source>
         <translation>キー {key_id} からキャリブレーションデータを抽出できませんでした。</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="406"/>
+        <location filename="../gui/spark_calibration_controller.py" line="428"/>
         <source>{step_name} Calibration Complete</source>
         <translation>{step_name} キャリブレーション完了</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="409"/>
+        <location filename="../gui/spark_calibration_controller.py" line="431"/>
         <source>{step_name} calibration captured successfully from key {key_id}!
 
 Quality: {quality}
@@ -3197,33 +3228,33 @@ Brightness: {brightness}</source>
 明るさ: {brightness}</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="427"/>
+        <location filename="../gui/spark_calibration_controller.py" line="449"/>
         <source>An error occurred during calibration: {error}</source>
         <translation>キャリブレーション中にエラーが発生しました: {error}</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="438"/>
+        <location filename="../gui/spark_calibration_controller.py" line="460"/>
         <source>Navigate to a frame with no bars visible and no sparks.
 The spark ROI should show only background content.</source>
         <translation>バーもSparkも表示されていないフレームへ移動してください。
 Spark ROIには背景のみが表示されている必要があります。</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="442"/>
+        <location filename="../gui/spark_calibration_controller.py" line="464"/>
         <source>Navigate to a frame with colored bars visible but NO sparks.
 Bars should be clearly visible in the spark ROI without any bright flashes.</source>
         <translation>色付きバーが表示されているがSparkはないフレームへ移動してください。
 Spark ROI内にバーがはっきり見え、明るい閃光がない状態にしてください。</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="446"/>
+        <location filename="../gui/spark_calibration_controller.py" line="468"/>
         <source>Navigate to a frame with the DIMMEST visible sparks.
 Sparks should be just barely noticeable as bright flashes in the ROI.</source>
         <translation>最も暗く見えるSparkがあるフレームへ移動してください。
 SparkはROI内でかろうじて目立つ明るい閃光として見える状態にしてください。</translation>
     </message>
     <message>
-        <location filename="../gui/spark_calibration_controller.py" line="451"/>
+        <location filename="../gui/spark_calibration_controller.py" line="473"/>
         <source>Unknown calibration step</source>
         <translation>不明なキャリブレーションステップ</translation>
     </message>

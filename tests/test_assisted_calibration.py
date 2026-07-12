@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 
 import synthesia2midi.detection.assisted_calibration as assisted_calibration
+import synthesia2midi.detection.color_family_assignment as color_family_assignment
 from synthesia2midi.app_config import OverlayConfig
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.detection.assisted_calibration import (
@@ -141,9 +142,11 @@ def _four_family_scanner_fixture(events):
             x1 = int(overlay.x)
             x2 = x1 + int(overlay.width)
             frame[0:4, x1:x2] = overlay.unlit_reference_color
-        for family_index, start_frame, end_frame in events:
+        for event in events:
+            family_index, start_frame, end_frame = event[:3]
+            morphology_indices = range(2) if len(event) == 3 else (event[3],)
             if start_frame <= frame_index <= end_frame:
-                for morphology_index in range(2):
+                for morphology_index in morphology_indices:
                     overlay_index = (family_index * 2) + morphology_index
                     overlay = overlays[overlay_index]
                     x1 = int(overlay.x)
@@ -383,6 +386,206 @@ def test_scanner_rejects_one_frame_intro_flash_as_unstable():
     assert scanned == 11
     assert assign_exemplar_slots(candidates).family_count == 0
     assert diagnostics.refined_events == 0
+
+
+def test_scanner_requires_stability_for_each_family_morphology():
+    events = (
+        (0, 20, 30, 0),
+        (0, 60, 70, 0),
+        (0, 30, 40, 1),
+        (0, 70, 80, 1),
+        (1, 40, 50, 0),
+        (1, 80, 90, 0),
+        (1, 50, 60, 1),
+        (1, 90, 100, 1),
+        (2, 100, 110, 0),
+        (2, 140, 150, 0),
+        (2, 110, 120, 1),
+        (2, 150, 160, 1),
+        (3, 160, 170, 0),
+        (3, 200, 210, 0),
+        (3, 170, 180, 1),
+    )
+    overlays, frame_provider = _four_family_scanner_fixture(events)
+    diagnostics = ExemplarScanDiagnostics()
+
+    candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        0,
+        300,
+        diagnostics=diagnostics,
+    )
+
+    assignment = assign_exemplar_slots(candidates)
+    assert canceled is False
+    assert scanned == diagnostics.discovery_frames == 31
+    assert assignment.family_count == 4
+    assert assignment.missing_slots == ("COLOR_4_B",)
+    assert assignment.assignments["COLOR_4_B"].hist is None
+    assert diagnostics.refined_events == 7
+
+
+def test_scanner_rerefines_only_a_materially_stronger_stable_candidate():
+    overlays, base_provider = _four_family_scanner_fixture(())
+    overlays = overlays[:2]
+    weak_natural = (170, 195, 215)
+    strong_natural = (140, 170, 210)
+    nearby_natural = (135, 168, 210)
+    accidental = _SCANNER_FAMILY_COLORS[0][1]
+
+    def frame_provider(frame_index):
+        frame = base_provider(frame_index)
+        if 100 <= frame_index <= 110 or 140 <= frame_index <= 150:
+            frame[0:4, 0:4] = weak_natural
+        elif 300 <= frame_index <= 310:
+            frame[0:4, 0:4] = strong_natural
+        elif 400 <= frame_index <= 410:
+            frame[0:4, 0:4] = nearby_natural
+        elif 500 <= frame_index <= 510:
+            frame[0:4, 0:4] = weak_natural
+        if 100 <= frame_index <= 110 or 140 <= frame_index <= 150:
+            frame[0:4, 5:9] = accidental
+        return frame
+
+    diagnostics = ExemplarScanDiagnostics()
+    candidates, _scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        0,
+        550,
+        diagnostics=diagnostics,
+    )
+
+    assignment = assign_exemplar_slots(candidates)
+    selected = assignment.assignments["LW"]
+    assert canceled is False
+    assert diagnostics.refined_events == 3
+    assert selected.rgb == strong_natural
+    assert selected.source is not None
+    assert selected.source.frame_index == 300
+    assert selected.hist is not None
+
+
+def test_scanner_rerefines_stronger_candidate_after_confidence_saturates():
+    overlays, base_provider = _four_family_scanner_fixture(())
+    overlays = overlays[:2]
+    initial_natural = (80, 120, 200)
+    stronger_natural = (20, 60, 180)
+    accidental = _SCANNER_FAMILY_COLORS[0][1]
+
+    def frame_provider(frame_index):
+        frame = base_provider(frame_index)
+        if 100 <= frame_index <= 110 or 140 <= frame_index <= 150:
+            frame[0:4, 0:4] = initial_natural
+        elif 300 <= frame_index <= 310:
+            frame[0:4, 0:4] = stronger_natural
+        if 100 <= frame_index <= 110 or 140 <= frame_index <= 150:
+            frame[0:4, 5:9] = accidental
+        return frame
+
+    diagnostics = ExemplarScanDiagnostics()
+    candidates, _scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        0,
+        350,
+        diagnostics=diagnostics,
+    )
+
+    selected = assign_exemplar_slots(candidates).assignments["LW"]
+    assert canceled is False
+    assert diagnostics.refined_events == 3
+    assert selected.rgb == stronger_natural
+    assert selected.source is not None
+    assert selected.source.frame_index == 300
+    assert selected.hist is not None
+
+
+def test_scanner_retains_refined_exemplar_after_quiescent_events_fill_bound():
+    overlays, base_provider = _four_family_scanner_fixture(())
+    overlays = overlays[:2]
+    refined_natural = (140, 170, 210)
+    nearby_naturals = (
+        (138, 169, 210),
+        (136, 168, 210),
+        (134, 167, 210),
+    )
+    accidental = _SCANNER_FAMILY_COLORS[0][1]
+
+    def frame_provider(frame_index):
+        frame = base_provider(frame_index)
+        if 100 <= frame_index <= 110 or 140 <= frame_index <= 150:
+            frame[0:4, 0:4] = refined_natural
+        for event_index, rgb in zip((300, 400, 500), nearby_naturals):
+            if event_index <= frame_index <= event_index + 10:
+                frame[0:4, 0:4] = rgb
+        if 100 <= frame_index <= 110 or 140 <= frame_index <= 150:
+            frame[0:4, 5:9] = accidental
+        return frame
+
+    diagnostics = ExemplarScanDiagnostics()
+    candidates, _scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        0,
+        550,
+        diagnostics=diagnostics,
+    )
+
+    selected = assign_exemplar_slots(candidates).assignments["LW"]
+    assert canceled is False
+    assert diagnostics.refined_events == 2
+    assert selected.rgb == refined_natural
+    assert selected.source is not None
+    assert selected.source.frame_index == 100
+    assert selected.hist is not None
+
+
+def test_scanner_clustering_work_scales_near_linearly_with_event_count(monkeypatch):
+    work_counts = []
+    assignment_hue_calls = []
+    hue_call_count = 0
+    original_hue_distance = color_family_assignment._circular_hue_distance
+
+    def count_hue_distance(left, right):
+        nonlocal hue_call_count
+        hue_call_count += 1
+        return original_hue_distance(left, right)
+
+    monkeypatch.setattr(
+        color_family_assignment,
+        "_circular_hue_distance",
+        count_hue_distance,
+    )
+    for event_count in (10, 20, 40):
+        hue_calls_before_scan = hue_call_count
+        overlay = _overlay(key_id=1, x=0, y=0, width=4, height=4, key_type="LW")
+        overlay.unlit_reference_color = (245, 245, 235)
+
+        def frame_provider(frame_index, *, event_count=event_count):
+            frame = np.full((6, 6, 3), (245, 245, 235), dtype=np.uint8)
+            if frame_index % 20 == 0 and frame_index // 20 < event_count:
+                frame[0:4, 0:4] = _SCANNER_FAMILY_COLORS[0][0]
+            return frame
+
+        diagnostics = ExemplarScanDiagnostics()
+        candidates, _scanned, canceled = scan_lit_exemplar_candidates(
+            frame_provider,
+            [overlay],
+            0,
+            event_count * 20,
+            diagnostics=diagnostics,
+        )
+
+        assert canceled is False
+        assignment_hue_calls.append(hue_call_count - hue_calls_before_scan)
+        assert assign_exemplar_slots(candidates).family_count == 1
+        assert diagnostics.max_clustering_evidence <= 3
+        work_counts.append(diagnostics.clustering_work)
+
+    assert work_counts == [34, 74, 154]
+    assert assignment_hue_calls == [33, 73, 153]
 
 
 def test_scanner_collapses_sustained_note_into_one_discovery_event():

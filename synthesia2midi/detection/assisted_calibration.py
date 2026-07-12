@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections import OrderedDict
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Callable, Dict, Literal, Optional, Sequence, Tuple
 
 import cv2
@@ -28,6 +28,7 @@ KeyColor = Literal["W", "B"]
 AssessmentStatus = Literal["clean", "warning", "unknown"]
 FrameProvider = Callable[[int], Optional[np.ndarray]]
 ProgressCallback = Callable[[int, int], bool]
+_MAX_RGB_DISTANCE = float(np.sqrt(3.0 * (255.0**2)))
 
 
 @dataclass(frozen=True)
@@ -63,6 +64,7 @@ class ExemplarCandidate:
     delta_from_unlit: float
     confidence: float
     hist: Optional[np.ndarray] = field(default=None, compare=False)
+    stability_confirmed: Optional[bool] = field(default=None, compare=False)
 
 
 @dataclass(frozen=True)
@@ -105,6 +107,7 @@ class ExemplarScanSettings:
     early_stop_min_slot_events: int = 2
     early_stop_min_slot_span_steps: int = 2
     early_stop_confirmation_steps: int = 6
+    refinement_min_score_improvement: float = 10.0
 
 
 @dataclass
@@ -112,11 +115,163 @@ class ExemplarScanDiagnostics:
     discovery_frames: int = 0
     refined_frames: int = 0
     refined_events: int = 0
+    clustering_work: int = 0  # Incremental hue checks plus assignment input pairs.
+    max_clustering_evidence: int = 0
 
 
 @dataclass
 class _DiscoveryEvent:
     candidate: ExemplarCandidate
+
+
+@dataclass
+class _DiscoveryCluster:
+    events_by_color: dict[KeyColor, list[_DiscoveryEvent]] = field(
+        default_factory=lambda: {"W": [], "B": []}
+    )
+    event_count_by_color: dict[KeyColor, int] = field(
+        default_factory=lambda: {"W": 0, "B": 0}
+    )
+    first_frame_by_color: dict[KeyColor, Optional[int]] = field(
+        default_factory=lambda: {"W": None, "B": None}
+    )
+    last_frame_by_color: dict[KeyColor, Optional[int]] = field(
+        default_factory=lambda: {"W": None, "B": None}
+    )
+
+    def events(self) -> list[_DiscoveryEvent]:
+        return [
+            event
+            for key_color in ("W", "B")
+            for event in self.events_by_color[key_color]
+        ]
+
+    def hue(self) -> float:
+        candidates = [event.candidate for event in self.events()]
+        angles = np.array([_family_hue(candidate) for candidate in candidates]) * (
+            2.0 * np.pi / 180.0
+        )
+        mean_angle = float(np.arctan2(np.sin(angles).mean(), np.cos(angles).mean()))
+        if mean_angle < 0:
+            mean_angle += 2.0 * np.pi
+        return mean_angle * (180.0 / (2.0 * np.pi))
+
+    def add(self, event: _DiscoveryEvent, representative_limit: int) -> None:
+        key_color = event.candidate.slot_color
+        bucket = self.events_by_color[key_color]
+        bucket.append(event)
+        bucket.sort(
+            key=lambda item: (
+                -item.candidate.delta_from_unlit,
+                -item.candidate.confidence,
+                item.candidate.frame_index,
+                item.candidate.key_id,
+            )
+        )
+        del bucket[representative_limit:]
+
+        frame_index = event.candidate.frame_index
+        self.event_count_by_color[key_color] += 1
+        first_frame = self.first_frame_by_color[key_color]
+        last_frame = self.last_frame_by_color[key_color]
+        self.first_frame_by_color[key_color] = (
+            frame_index if first_frame is None else min(first_frame, frame_index)
+        )
+        self.last_frame_by_color[key_color] = (
+            frame_index if last_frame is None else max(last_frame, frame_index)
+        )
+
+    def morphology_is_stable(
+        self,
+        key_color: KeyColor,
+        settings: ExemplarScanSettings,
+        stride: int,
+    ) -> bool:
+        required_events = max(1, settings.early_stop_min_slot_events)
+        if self.event_count_by_color[key_color] < required_events:
+            return False
+        first_frame = self.first_frame_by_color[key_color]
+        last_frame = self.last_frame_by_color[key_color]
+        if first_frame is None or last_frame is None:
+            return False
+        required_span = stride * max(0, settings.early_stop_min_slot_span_steps)
+        return last_frame - first_frame >= required_span
+
+
+class _DiscoveryEvidenceStore:
+    _MAX_PROVISIONAL_CLUSTERS = 12
+
+    def __init__(
+        self,
+        settings: ExemplarScanSettings,
+        diagnostics: ExemplarScanDiagnostics,
+    ) -> None:
+        self._settings = settings
+        self._diagnostics = diagnostics
+        self._clusters: list[_DiscoveryCluster] = []
+        self._representative_limit = 3
+
+    def add(self, event: _DiscoveryEvent) -> None:
+        hue = _family_hue(event.candidate)
+        nearest: Optional[_DiscoveryCluster] = None
+        nearest_distance = float("inf")
+        for cluster in self._clusters:
+            self._diagnostics.clustering_work += 1
+            distance = _circular_hue_distance(hue, cluster.hue())
+            if distance < nearest_distance:
+                nearest = cluster
+                nearest_distance = distance
+
+        if nearest is None or nearest_distance > 22.0:
+            if len(self._clusters) < self._MAX_PROVISIONAL_CLUSTERS:
+                nearest = _DiscoveryCluster()
+                self._clusters.append(nearest)
+            else:
+                nearest = min(
+                    self._clusters,
+                    key=lambda cluster: (
+                        sum(cluster.event_count_by_color.values()),
+                        max(
+                            event.candidate.confidence
+                            for event in cluster.events()
+                        ),
+                    ),
+                )
+                nearest.events_by_color = {"W": [], "B": []}
+                nearest.event_count_by_color = {"W": 0, "B": 0}
+                nearest.first_frame_by_color = {"W": None, "B": None}
+                nearest.last_frame_by_color = {"W": None, "B": None}
+        nearest.add(event, self._representative_limit)
+
+    def events(self) -> list[_DiscoveryEvent]:
+        events = [event for cluster in self._clusters for event in cluster.events()]
+        return sorted(
+            events,
+            key=lambda event: (
+                event.candidate.frame_index,
+                event.candidate.key_id,
+                event.candidate.slot_color,
+            ),
+        )
+
+    def cluster_for(self, candidate: ExemplarCandidate) -> Optional[_DiscoveryCluster]:
+        if not self._clusters:
+            return None
+        hue = _family_hue(candidate)
+        distance, cluster = min(
+            (
+                (_circular_hue_distance(hue, cluster.hue()), cluster)
+                for cluster in self._clusters
+            ),
+            key=lambda item: item[0],
+        )
+        return cluster if distance <= 22.0 else None
+
+
+@dataclass(frozen=True)
+class _RefinedSlotState:
+    candidate: ExemplarCandidate
+    score: float
 
 
 class _BoundedFrameCache:
@@ -295,6 +450,8 @@ def _candidate_from_sample(
     overlay: OverlayConfig,
     rgb: Tuple[int, int, int],
     hist: Optional[np.ndarray],
+    *,
+    stability_confirmed: Optional[bool] = None,
 ) -> Optional[ExemplarCandidate]:
     if overlay.unlit_reference_color is None:
         return None
@@ -311,6 +468,7 @@ def _candidate_from_sample(
         delta_from_unlit=delta,
         confidence=confidence,
         hist=hist,
+        stability_confirmed=stability_confirmed,
     )
 
 
@@ -346,7 +504,13 @@ def _discovery_candidate_for_overlay(
     hsv = _rgb_to_hsv_tuple(rgb)
     if delta < settings.min_rgb_delta or hsv[1] < settings.min_saturation:
         return None
-    return _candidate_from_sample(frame_index, overlay, rgb, None)
+    return _candidate_from_sample(
+        frame_index,
+        overlay,
+        rgb,
+        None,
+        stability_confirmed=False,
+    )
 
 
 def _candidate_is_better(
@@ -377,12 +541,21 @@ def _assign_exemplar_slots_with_warnings(
     evidence_sources: dict[FamilyEvidence, list[ExemplarCandidate]] = {}
     evidence: list[FamilyEvidence] = []
     for candidate in candidates:
+        if candidate.stability_confirmed is False:
+            continue
+        score = candidate.confidence
+        if candidate.stability_confirmed is True:
+            score = (
+                candidate.delta_from_unlit / _MAX_RGB_DISTANCE
+                if candidate.hist is not None
+                else 0.0
+            )
         item = FamilyEvidence(
             frame_index=candidate.frame_index,
             key_id=candidate.key_id,
             morphology="natural" if candidate.slot_color == "W" else "accidental",
             rgb=candidate.rgb,
-            score=candidate.confidence,
+            score=score,
         )
         evidence.append(item)
         evidence_sources.setdefault(item, []).append(candidate)
@@ -591,6 +764,7 @@ def _scan_event_candidates(
     completed_events: Sequence[_DiscoveryEvent],
     active_events_by_key: dict[int, _DiscoveryEvent],
     max_candidates_per_key: int,
+    pinned_candidates: Sequence[ExemplarCandidate] = (),
 ) -> list[ExemplarCandidate]:
     candidates_by_key: dict[int, list[ExemplarCandidate]] = {}
     for event in completed_events:
@@ -599,17 +773,27 @@ def _scan_event_candidates(
             event.candidate,
             max_candidates_per_key,
         )
-    return _flatten_scan_candidates(
+    flattened = _flatten_scan_candidates(
         candidates_by_key,
         {key_id: event.candidate for key_id, event in active_events_by_key.items()},
         max_candidates_per_key,
     )
+    for pinned in pinned_candidates:
+        if not any(candidate is pinned for candidate in flattened):
+            flattened.append(pinned)
+    flattened.sort(key=lambda item: (-item.confidence, item.frame_index, item.key_id))
+    return flattened
 
 def _stable_family_assignments(
-    completed_events: Sequence[_DiscoveryEvent],
+    evidence_store: _DiscoveryEvidenceStore,
+    settings: ExemplarScanSettings,
+    stride: int,
+    diagnostics: ExemplarScanDiagnostics,
 ):
+    completed_events = evidence_store.events()
     evidence: list[FamilyEvidence] = []
     event_by_evidence_id: dict[int, _DiscoveryEvent] = {}
+    evidence_by_event_id: dict[int, FamilyEvidence] = {}
     for event in completed_events:
         candidate = event.candidate
         item = FamilyEvidence(
@@ -621,12 +805,50 @@ def _stable_family_assignments(
         )
         evidence.append(item)
         event_by_evidence_id[id(item)] = event
+        evidence_by_event_id[id(event)] = item
+    diagnostics.max_clustering_evidence = max(
+        diagnostics.max_clustering_evidence,
+        len(evidence),
+    )
+    diagnostics.clustering_work += len(evidence) * (len(evidence) - 1) // 2
     assignments, _warnings = assign_family_slots(evidence)
+
+    for assignment in assignments:
+        for attribute, key_color in (("natural", "W"), ("accidental", "B")):
+            item = getattr(assignment, attribute)
+            if item is None:
+                continue
+            event = event_by_evidence_id[id(item)]
+            cluster = evidence_store.cluster_for(event.candidate)
+            if cluster is None or not cluster.morphology_is_stable(
+                key_color,
+                settings,
+                stride,
+            ):
+                setattr(assignment, attribute, None)
+                continue
+            best_event = min(
+                cluster.events_by_color[key_color],
+                key=lambda supporting_event: (
+                    -supporting_event.candidate.delta_from_unlit,
+                    -supporting_event.candidate.confidence,
+                    supporting_event.candidate.frame_index,
+                    supporting_event.candidate.key_id,
+                ),
+            )
+            setattr(assignment, attribute, evidence_by_event_id[id(best_event)])
+            for supporting_event in cluster.events_by_color[key_color]:
+                if supporting_event.candidate.stability_confirmed is not True:
+                    supporting_event.candidate = replace(
+                        supporting_event.candidate,
+                        stability_confirmed=True,
+                    )
     return assignments, event_by_evidence_id
 
 
 def _refine_new_stable_slots(
-    completed_events: Sequence[_DiscoveryEvent],
+    assignments,
+    event_by_evidence_id: dict[int, _DiscoveryEvent],
     overlays_by_key: dict[int, OverlayConfig],
     frame_provider: FrameProvider,
     frame_cache: _BoundedFrameCache,
@@ -634,9 +856,8 @@ def _refine_new_stable_slots(
     end_frame: int,
     settings: ExemplarScanSettings,
     diagnostics: ExemplarScanDiagnostics,
-    refined_hues_by_color: dict[KeyColor, list[float]],
+    refined_slots: dict[tuple[int, KeyColor], _RefinedSlotState],
 ) -> bool:
-    assignments, event_by_evidence_id = _stable_family_assignments(completed_events)
     for assignment in assignments:
         for key_color, item in (
             ("W", assignment.natural),
@@ -644,14 +865,17 @@ def _refine_new_stable_slots(
         ):
             if item is None:
                 continue
-            hue = _rgb_to_hsv_tuple(item.rgb)[0]
-            if any(
-                _circular_hue_distance(hue, refined_hue) <= 22.0
-                for refined_hue in refined_hues_by_color[key_color]
+            event = event_by_evidence_id[id(item)]
+            slot_key = (assignment.family_number, key_color)
+            previous = refined_slots.get(slot_key)
+            discovery_score = event.candidate.delta_from_unlit
+            if (
+                previous is not None
+                and discovery_score
+                < previous.score + settings.refinement_min_score_improvement
             ):
                 continue
 
-            event = event_by_evidence_id[id(item)]
             overlay = overlays_by_key.get(item.key_id)
             if overlay is None:
                 continue
@@ -675,10 +899,18 @@ def _refine_new_stable_slots(
                 ):
                     best = candidate
             if best is not None:
+                best = replace(best, stability_confirmed=True)
                 event.candidate = best
-            refined_hues_by_color[key_color].append(hue)
+                refined_slots[slot_key] = _RefinedSlotState(
+                    candidate=best,
+                    score=best.delta_from_unlit,
+                )
+            elif previous is None:
+                refined_slots[slot_key] = _RefinedSlotState(
+                    candidate=event.candidate,
+                    score=discovery_score,
+                )
 
-    assignments, _event_by_evidence_id = _stable_family_assignments(completed_events)
     return len(assignments) == 4 and all(
         assignment.complete for assignment in assignments
     )
@@ -693,10 +925,10 @@ def _scan_candidates_with_diagnostics(
     progress_callback: Optional[ProgressCallback],
     diagnostics: ExemplarScanDiagnostics,
 ) -> Tuple[list[ExemplarCandidate], int, bool]:
-    completed_events: list[_DiscoveryEvent] = []
     active_events_by_key: dict[int, _DiscoveryEvent] = {}
     overlays_by_key = {overlay.key_id: overlay for overlay in overlays}
-    refined_hues_by_color: dict[KeyColor, list[float]] = {"W": [], "B": []}
+    evidence_store = _DiscoveryEvidenceStore(settings, diagnostics)
+    refined_slots: dict[tuple[int, KeyColor], _RefinedSlotState] = {}
     scanned = 0
     end_frame = max(start_frame, end_frame)
     stride = max(1, settings.coarse_stride)
@@ -731,7 +963,7 @@ def _scan_candidates_with_diagnostics(
             active_event = active_events_by_key.get(key_id)
             if current is None:
                 if active_event is not None:
-                    completed_events.append(active_event)
+                    evidence_store.add(active_event)
                     del active_events_by_key[key_id]
                     completed_changed = True
                 continue
@@ -746,30 +978,46 @@ def _scan_candidates_with_diagnostics(
                 )
                 > 22.0
             ):
-                completed_events.append(active_event)
+                evidence_store.add(active_event)
                 active_events_by_key[key_id] = _DiscoveryEvent(current)
                 completed_changed = True
             elif _candidate_is_better(current, active_event.candidate):
                 active_event.candidate = current
 
-        if completed_changed and _refine_new_stable_slots(
-            completed_events,
-            overlays_by_key,
-            frame_provider,
-            frame_cache,
-            start_frame,
-            end_frame,
-            settings,
-            diagnostics,
-            refined_hues_by_color,
-        ):
-            break
+        if completed_changed:
+            assignments, event_by_evidence_id = _stable_family_assignments(
+                evidence_store,
+                settings,
+                stride,
+                diagnostics,
+            )
+            if _refine_new_stable_slots(
+                assignments,
+                event_by_evidence_id,
+                overlays_by_key,
+                frame_provider,
+                frame_cache,
+                start_frame,
+                end_frame,
+                settings,
+                diagnostics,
+                refined_slots,
+            ):
+                break
 
     if active_events_by_key:
-        completed_events.extend(active_events_by_key.values())
+        for active_event in active_events_by_key.values():
+            evidence_store.add(active_event)
         active_events_by_key = {}
+        assignments, event_by_evidence_id = _stable_family_assignments(
+            evidence_store,
+            settings,
+            stride,
+            diagnostics,
+        )
         _refine_new_stable_slots(
-            completed_events,
+            assignments,
+            event_by_evidence_id,
             overlays_by_key,
             frame_provider,
             frame_cache,
@@ -777,14 +1025,15 @@ def _scan_candidates_with_diagnostics(
             end_frame,
             settings,
             diagnostics,
-            refined_hues_by_color,
+            refined_slots,
         )
 
     return (
         _scan_event_candidates(
-            completed_events,
+            evidence_store.events(),
             active_events_by_key,
             settings.max_candidates_per_key,
+            tuple(state.candidate for state in refined_slots.values()),
         ),
         scanned,
         False,

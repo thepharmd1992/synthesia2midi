@@ -5,9 +5,11 @@ from types import SimpleNamespace
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
-from PySide6.QtWidgets import QApplication, QWidget
+from PySide6.QtWidgets import QAbstractScrollArea, QApplication, QWidget
 
 from synthesia2midi.gui.color_family_grid import ColorFamilyGrid
+from synthesia2midi.localization import install_translator
+from synthesia2midi.tools.render_ui_matrix import _detect_clipping
 
 
 def test_exemplar_labels_use_literal_extractable_translation_sources():
@@ -35,6 +37,21 @@ def _family_data():
         "LB": (20, 45, 150),
         "COLOR_3_W": (230, 180, 30),
         "COLOR_3_B": (170, 120, 20),
+    }
+    enabled = {slot: True for slot in colors}
+    return colors, enabled
+
+
+def _four_family_data():
+    colors = {
+        "LW": (30, 80, 220),
+        "LB": (20, 45, 150),
+        "RW": (220, 60, 70),
+        "RB": (160, 35, 50),
+        "COLOR_3_W": (230, 180, 30),
+        "COLOR_3_B": (170, 120, 20),
+        "COLOR_4_W": (35, 190, 90),
+        "COLOR_4_B": (25, 125, 60),
     }
     enabled = {slot: True for slot in colors}
     return colors, enabled
@@ -108,25 +125,16 @@ def test_review_grid_replaces_editable_controls_with_found_and_missing_statuses(
 
 def test_calibration_grid_rebuild_removes_stale_add_control_at_four_families():
     QApplication.instance() or QApplication([])
-    colors = {
-        "LW": (30, 80, 220),
-        "LB": (20, 45, 150),
-        "RW": (220, 60, 70),
-        "RB": (160, 35, 50),
-        "COLOR_3_W": (230, 180, 30),
-        "COLOR_3_B": (170, 120, 20),
-        "COLOR_4_W": (35, 190, 90),
-        "COLOR_4_B": (25, 125, 60),
-    }
+    colors, enabled = _four_family_data()
     grid = ColorFamilyGrid(mode="calibration")
     try:
-        grid.set_families((1,), colors=colors, enabled={slot: True for slot in colors})
+        grid.set_families((1,), colors=colors, enabled=enabled)
         assert hasattr(grid, "add_family_button")
 
         grid.set_families(
             (1, 2, 3, 4),
             colors=colors,
-            enabled={slot: True for slot in colors},
+            enabled=enabled,
         )
 
         assert not hasattr(grid, "add_family_button")
@@ -144,19 +152,10 @@ def test_grid_stays_within_compact_geometry_at_150_percent_font_scale():
     base_size = original_font.pointSizeF() if original_font.pointSizeF() > 0 else 13.0
     scaled_font.setPointSizeF(base_size * 1.5)
     app.setFont(scaled_font)
-    colors = {
-        "LW": (30, 80, 220),
-        "LB": (20, 45, 150),
-        "RW": (220, 60, 70),
-        "RB": (160, 35, 50),
-        "COLOR_3_W": (230, 180, 30),
-        "COLOR_3_B": (170, 120, 20),
-        "COLOR_4_W": (35, 190, 90),
-        "COLOR_4_B": (25, 125, 60),
-    }
+    colors, enabled = _four_family_data()
     grid = ColorFamilyGrid(mode="calibration")
     try:
-        grid.set_families((1, 2, 3, 4), colors=colors, enabled={slot: True for slot in colors})
+        grid.set_families((1, 2, 3, 4), colors=colors, enabled=enabled)
         grid.show()
         app.processEvents()
         grid.resize(grid.sizeHint())
@@ -170,5 +169,50 @@ def test_grid_stays_within_compact_geometry_at_150_percent_font_scale():
     finally:
         grid.close()
         grid.deleteLater()
+        app.setFont(original_font)
+        app.processEvents()
+
+
+def test_family_grid_variants_render_without_clipping_at_default_and_150_percent():
+    app = QApplication.instance() or QApplication([])
+    original_font = QFont(app.font())
+    colors, enabled = _four_family_data()
+
+    try:
+        for locale_name, font_scale in (("en", 1.0), ("qps", 1.5)):
+            assert install_translator(app, locale_name) == locale_name
+            scaled_font = QFont(original_font)
+            base_size = original_font.pointSizeF() if original_font.pointSizeF() > 0 else 13.0
+            scaled_font.setPointSizeF(base_size * font_scale)
+            app.setFont(scaled_font)
+
+            for family_count in (1, 2, 3, 4):
+                grid = ColorFamilyGrid(mode="calibration")
+                try:
+                    family_numbers = tuple(range(1, family_count + 1))
+                    grid.set_families(family_numbers, colors=colors, enabled=enabled)
+                    grid.resize(max(420, grid.sizeHint().width()), grid.sizeHint().height())
+                    grid.show()
+                    app.processEvents()
+                    grid.resize(max(420, grid.sizeHint().width()), grid.sizeHint().height())
+                    app.processEvents()
+
+                    scrollbars = [
+                        area.horizontalScrollBar().maximum()
+                        for area in grid.findChildren(QAbstractScrollArea)
+                    ]
+                    assert scrollbars == [] or max(scrollbars) == 0
+                    assert _detect_clipping(grid) == []
+                    assert all(
+                        grid.rect().contains(child.geometry())
+                        for child in grid.findChildren(QWidget, options=Qt.FindDirectChildrenOnly)
+                        if child.isVisible()
+                    )
+                finally:
+                    grid.close()
+                    grid.deleteLater()
+                    app.processEvents()
+    finally:
+        install_translator(app, "en")
         app.setFont(original_font)
         app.processEvents()

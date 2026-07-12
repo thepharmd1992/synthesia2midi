@@ -60,11 +60,41 @@ TASK_6_PRODUCTION_LOCALE_STRINGS = [
     "Up to {preset} ({actual_height}p source) - {note}",
 ]
 
+TASK_10_PRODUCTION_LOCALE_STRINGS = [
+    "Color {number}",
+    "Natural",
+    "Sharp / Flat",
+    "Add Color Family",
+    "Found",
+    "Missing",
+    "Set",
+    "Present",
+    "Remove Color {number}",
+    "Remove Color {number} and delete its saved calibration data?",
+    "Capture a pressed-key example for {label}.",
+    (
+        "3) Capture Pressed-Key Examples: for each Color family, capture a "
+        "Natural and Sharp / Flat example that appears in the video."
+    ),
+    "Found {count} Synthesia note color families.",
+    "Scanning for lit key examples...",
+]
+
 
 def _production_translation_locales():
     from synthesia2midi.localization import supported_user_locales
 
     return [locale for locale in supported_user_locales() if locale != "en"]
+
+
+def _catalog_messages(locale_name):
+    ts_path = Path(f"synthesia2midi/synthesia2midi/translations/synthesia2midi_{locale_name}.ts")
+    tree = ET.parse(ts_path)
+    for context in tree.findall("context"):
+        context_name = context.findtext("name") or ""
+        for message in context.findall("message"):
+            translation = message.find("translation")
+            yield context_name, message.findtext("source") or "", translation
 
 
 def test_available_locales_includes_english_and_pseudo_locale():
@@ -138,8 +168,8 @@ def test_production_translators_load_known_source_texts():
             assert selected == locale_name
             assert translated != "File"
             assert QCoreApplication.translate(
-                "AssistedCalibrationDialog", "Left White"
-            ) != "Left White"
+                "ColorFamilyGrid", "Add Color Family"
+            ) != "Add Color Family"
             assert QCoreApplication.translate(
                 "CalibrationGuideWidget", "Download from YouTube"
             ) != "Download from YouTube"
@@ -261,6 +291,83 @@ def test_task_6_production_strings_are_localized_in_non_english_catalogs():
                 identical_english.append((locale_name, source))
 
     assert identical_english == []
+
+
+def test_task_10_color_family_strings_are_active_in_production_catalogs():
+    incomplete = []
+    placeholder_mismatches = []
+
+    for locale_name in _production_translation_locales():
+        active_sources = set()
+        for context_name, source, translation in _catalog_messages(locale_name):
+            if source not in TASK_10_PRODUCTION_LOCALE_STRINGS:
+                continue
+            if translation is not None and translation.get("type") == "vanished":
+                continue
+
+            active_sources.add(source)
+            translated = "" if translation is None else translation.text or ""
+            if (
+                translation is None
+                or translation.get("type") == "unfinished"
+                or not translated.strip()
+            ):
+                incomplete.append((locale_name, context_name, source))
+
+            source_placeholders = sorted(re.findall(r"\{[^{}]+\}", source))
+            translated_placeholders = sorted(re.findall(r"\{[^{}]+\}", translated))
+            if source_placeholders != translated_placeholders:
+                placeholder_mismatches.append((locale_name, context_name, source, translated))
+
+        missing_sources = set(TASK_10_PRODUCTION_LOCALE_STRINGS) - active_sources
+        for source in sorted(missing_sources):
+            incomplete.append((locale_name, "missing", source))
+
+    assert incomplete == []
+    assert placeholder_mismatches == []
+
+
+def test_color_family_grid_uses_installed_translator_for_all_locales():
+    from synthesia2midi.gui.color_family_grid import ColorFamilyGrid
+    from synthesia2midi.localization import install_translator
+
+    app = QApplication.instance() or QApplication([])
+    colors = {
+        "LW": (30, 80, 220),
+        "LB": (20, 45, 150),
+        "RW": (220, 60, 70),
+        "RB": (160, 35, 50),
+        "COLOR_3_W": (230, 180, 30),
+        "COLOR_3_B": (170, 120, 20),
+    }
+    enabled = {slot: True for slot in colors}
+
+    try:
+        for locale_name in [*_production_translation_locales(), "qps"]:
+            assert install_translator(app, locale_name) == locale_name
+            grid = ColorFamilyGrid(mode="calibration")
+            try:
+                grid.set_families((1, 2, 3), colors=colors, enabled=enabled)
+                texts = [
+                    grid.family_heading(1).text(),
+                    grid.family_heading(2).text(),
+                    grid.rows["LW"].label.text(),
+                    grid.rows["LB"].label.text(),
+                    grid.rows["LW"].set_button.text(),
+                    grid.rows["LW"].present.text(),
+                    grid.add_family_button.text(),
+                    grid.remove_family_buttons[2].toolTip(),
+                ]
+
+                assert all(text.strip() for text in texts)
+                if locale_name == "qps":
+                    assert all(text.startswith("[!! ") and text.endswith(" !!]") for text in texts)
+            finally:
+                grid.close()
+                grid.deleteLater()
+                app.processEvents()
+    finally:
+        install_translator(app, "en")
 
 
 def test_translation_agent_packet_matches_source_catalog():

@@ -2,6 +2,25 @@ from pathlib import Path, PureWindowsPath
 import json
 
 
+TASK_10_MANIFEST_STRINGS = {
+    "Color {number}",
+    "Natural",
+    "Sharp / Flat",
+    "Add Color Family",
+    "Found",
+    "Missing",
+    "Set",
+    "Present",
+    "Remove Color {number}",
+    "Remove Color {number} and delete its saved calibration data?",
+    "Capture a pressed-key example for {label}.",
+    (
+        "3) Capture Pressed-Key Examples: for each Color family, capture a "
+        "Natural and Sharp / Flat example that appears in the video."
+    ),
+}
+
+
 def test_static_extractor_finds_qt_visible_strings_and_classifies_literals(tmp_path):
     from synthesia2midi.tools.audit_ui_strings import collect_static_candidates
 
@@ -54,6 +73,29 @@ def test_static_extractor_includes_qcoreapplication_translate_calls(tmp_path):
 
     assert [candidate.text for candidate in candidates] == ["File"]
     assert candidates[0].context == "QCoreApplication.translate"
+    assert candidates[0].classification == "translate"
+
+
+def test_static_extractor_includes_qobject_tr_calls(tmp_path):
+    from synthesia2midi.tools.audit_ui_strings import collect_static_candidates
+
+    source = tmp_path / "translated_widget.py"
+    source.write_text(
+        "\n".join(
+            [
+                "from PySide6.QtWidgets import QPushButton",
+                "class Widget:",
+                "    def build(self):",
+                "        button = QPushButton(self.tr('Add Color Family'))",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    candidates = collect_static_candidates([source], root=tmp_path)
+
+    assert [candidate.text for candidate in candidates] == ["Add Color Family"]
+    assert candidates[0].context == "tr"
     assert candidates[0].classification == "translate"
 
 
@@ -147,6 +189,19 @@ def test_tracked_ui_string_manifest_is_current():
     assert tracked_payload == current_payload
 
 
+def test_tracked_ui_string_manifest_includes_task_10_color_family_copy():
+    root = Path(__file__).resolve().parents[1]
+    manifest_path = root / "docs" / "localization" / "ui-string-manifest.json"
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    translatable_texts = {
+        candidate["text"]
+        for candidate in payload["candidates"]
+        if candidate["classification"] == "translate"
+    }
+
+    assert TASK_10_MANIFEST_STRINGS <= translatable_texts
+
+
 def test_no_raw_translatable_static_ui_strings():
     from synthesia2midi.tools.audit_ui_strings import collect_project_static_candidates
 
@@ -155,7 +210,7 @@ def test_no_raw_translatable_static_ui_strings():
         candidate
         for candidate in collect_project_static_candidates(root)
         if candidate.classification == "translate"
-        and candidate.context not in {"QCoreApplication.translate", "translate"}
+        and candidate.context not in {"QCoreApplication.translate", "translate", "tr"}
     ]
 
     assert raw_candidates == []

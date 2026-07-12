@@ -137,6 +137,8 @@ def _is_qt_visible_call(name: str) -> str | None:
         return f"QFileDialog.{leaf}"
     if name in {"QCoreApplication.translate", "translate"}:
         return name
+    if leaf == "tr":
+        return leaf
     return None
 
 

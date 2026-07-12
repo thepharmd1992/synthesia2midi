@@ -4,72 +4,63 @@
 <context>
     <name>AssistedCalibrationDialog</name>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="44"/>
+        <location filename="../gui/assisted_calibration_dialog.py" line="29"/>
         <source>Assisted Calibration</source>
         <translation>辅助校准</translation>
     </message>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="55"/>
+        <location filename="../gui/assisted_calibration_dialog.py" line="40"/>
         <source>{count} samples found across {families} Synthesia note color families.</source>
         <translation>在 {families} 个 Synthesia 音符颜色系列中找到 {count} 个样本。</translation>
     </message>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="64"/>
         <source>Left/Right refer to Synthesia note colors, not the physical side of the keyboard.</source>
-        <translation>Left/Right 指的是 Synthesia 音符颜色，不是键盘的物理左右侧。</translation>
+        <translation type="vanished">Left/Right 指的是 Synthesia 音符颜色，不是键盘的物理左右侧。</translation>
     </message>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="71"/>
         <source>Left White</source>
-        <translation>左白</translation>
+        <translation type="vanished">左白</translation>
     </message>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="72"/>
         <source>Left Black</source>
-        <translation>左黑</translation>
+        <translation type="vanished">左黑</translation>
     </message>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="73"/>
         <source>Right White</source>
-        <translation>右白</translation>
+        <translation type="vanished">右白</translation>
+    </message>
+    <message>
+        <source>Right Black</source>
+        <translation type="vanished">右黑</translation>
+    </message>
+    <message>
+        <source>{name} proposed color</source>
+        <translation type="vanished">{name} 建议颜色</translation>
+    </message>
+    <message>
+        <source>Found</source>
+        <translation type="vanished">已找到</translation>
+    </message>
+    <message>
+        <source>Not used</source>
+        <translation type="vanished">未使用</translation>
+    </message>
+    <message>
+        <source>Not found</source>
+        <translation type="vanished">未找到</translation>
     </message>
     <message>
         <location filename="../gui/assisted_calibration_dialog.py" line="74"/>
-        <source>Right Black</source>
-        <translation>右黑</translation>
-    </message>
-    <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="86"/>
-        <source>{name} proposed color</source>
-        <translation>{name} 建议颜色</translation>
-    </message>
-    <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="92"/>
-        <source>Found</source>
-        <translation>已找到</translation>
-    </message>
-    <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="95"/>
-        <source>Not used</source>
-        <translation>未使用</translation>
-    </message>
-    <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="98"/>
-        <source>Not found</source>
-        <translation>未找到</translation>
-    </message>
-    <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="107"/>
         <source>Keep Current Examples</source>
         <translation>保留当前示例</translation>
     </message>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="111"/>
+        <location filename="../gui/assisted_calibration_dialog.py" line="78"/>
         <source>Try Another Frame</source>
         <translation>换一帧再试</translation>
     </message>
     <message>
-        <location filename="../gui/assisted_calibration_dialog.py" line="115"/>
+        <location filename="../gui/assisted_calibration_dialog.py" line="82"/>
         <source>Use These Examples</source>
         <translation>使用这些示例</translation>
     </message>
@@ -385,143 +376,143 @@
     </message>
     <message>
         <location filename="../gui/calibration_guide.py" line="149"/>
-        <location filename="../gui/calibration_guide.py" line="180"/>
+        <location filename="../gui/calibration_guide.py" line="183"/>
         <source>Done</source>
         <translation>完成</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="181"/>
+        <location filename="../gui/calibration_guide.py" line="184"/>
         <source>Next</source>
         <translation>下一步</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="182"/>
+        <location filename="../gui/calibration_guide.py" line="185"/>
         <source>Needs review</source>
         <translation>需要检查</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="183"/>
+        <location filename="../gui/calibration_guide.py" line="186"/>
         <source>Not ready</source>
         <translation>未就绪</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="217"/>
+        <location filename="../gui/calibration_guide.py" line="220"/>
         <source>Start here</source>
         <translation>从这里开始</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="220"/>
+        <location filename="../gui/calibration_guide.py" line="223"/>
         <source>Follow the next highlighted step. Your existing calibration is detected automatically.</source>
         <translation>按下一个高亮步骤操作。现有校准会自动检测。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="229"/>
+        <location filename="../gui/calibration_guide.py" line="232"/>
         <source>1. Open or download a video</source>
         <translation>1. 打开或下载视频</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="229"/>
+        <location filename="../gui/calibration_guide.py" line="232"/>
         <source>Use a clear Synthesia-style piano video with visible keys and falling notes.</source>
         <translation>使用清晰的 Synthesia 风格钢琴视频，琴键和下落音符要可见。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="229"/>
+        <location filename="../gui/calibration_guide.py" line="232"/>
         <source>Open Video</source>
         <translation>打开视频</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="230"/>
+        <location filename="../gui/calibration_guide.py" line="233"/>
         <source>2. Find and check the keyboard overlays</source>
         <translation>2. 查找并检查键盘覆盖层</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="230"/>
+        <location filename="../gui/calibration_guide.py" line="233"/>
         <source>Draw around the full keyboard, then check that the boxes line up with the keys.</source>
         <translation>框住整个键盘，然后检查各个框是否对准琴键。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="230"/>
-        <location filename="../gui/calibration_guide.py" line="263"/>
+        <location filename="../gui/calibration_guide.py" line="233"/>
+        <location filename="../gui/calibration_guide.py" line="266"/>
         <source>Find Keyboard</source>
         <translation>查找键盘</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="231"/>
+        <location filename="../gui/calibration_guide.py" line="234"/>
         <source>3. Capture a no-key frame</source>
         <translation>3. 捕获无按键亮起的帧</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="231"/>
+        <location filename="../gui/calibration_guide.py" line="234"/>
         <source>Pause where the keyboard is visible and no keys are glowing.</source>
         <translation>暂停在键盘可见且没有琴键发亮的位置。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="231"/>
+        <location filename="../gui/calibration_guide.py" line="234"/>
         <source>Capture No-Key Frame</source>
         <translation>捕获无按键帧</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="232"/>
+        <location filename="../gui/calibration_guide.py" line="235"/>
         <source>4. Find pressed-key colors</source>
         <translation>4. 查找按下琴键颜色</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="232"/>
+        <location filename="../gui/calibration_guide.py" line="235"/>
         <source>Start from the no-key frame. The scan looks ahead for each enabled Left/Right color family.</source>
         <translation>从无按键帧开始。扫描会向后查找每个已启用的 Left/Right 颜色系列。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="232"/>
+        <location filename="../gui/calibration_guide.py" line="235"/>
         <source>Find Pressed-Key Colors</source>
         <translation>查找按下琴键颜色</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="233"/>
+        <location filename="../gui/calibration_guide.py" line="236"/>
         <source>5. Create MIDI</source>
         <translation>5. 创建 MIDI</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="233"/>
+        <location filename="../gui/calibration_guide.py" line="236"/>
         <source>When every required step is done, create the MIDI file.</source>
         <translation>完成所有必需步骤后，创建 MIDI 文件。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="233"/>
+        <location filename="../gui/calibration_guide.py" line="236"/>
         <source>Create MIDI</source>
         <translation>创建 MIDI</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="244"/>
+        <location filename="../gui/calibration_guide.py" line="247"/>
         <source>Download from YouTube</source>
         <translation>从 YouTube 下载</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="261"/>
+        <location filename="../gui/calibration_guide.py" line="264"/>
         <source>Review Alignment</source>
         <translation>检查对齐</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="268"/>
+        <location filename="../gui/calibration_guide.py" line="271"/>
         <source>Scanning the video for pressed-key colors...</source>
         <translation>正在扫描视频中的按下琴键颜色...</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="269"/>
+        <location filename="../gui/calibration_guide.py" line="272"/>
         <source>Pressed-key colors updated.</source>
         <translation>按下琴键颜色已更新。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="270"/>
+        <location filename="../gui/calibration_guide.py" line="273"/>
         <source>No pressed-key colors were found. Move to another no-key frame and try again.</source>
         <translation>未找到按下琴键颜色。移到另一个无按键帧后重试。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="271"/>
+        <location filename="../gui/calibration_guide.py" line="274"/>
         <source>Move to another no-key frame, then run the scan again.</source>
         <translation>移到另一个无按键帧，然后重新扫描。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_guide.py" line="272"/>
+        <location filename="../gui/calibration_guide.py" line="275"/>
         <source>Your current pressed-key colors were kept.</source>
         <translation>已保留当前按下琴键颜色。</translation>
     </message>
@@ -645,17 +636,17 @@ Move to a frame where the key is lit, then click the lit key overlay again.</sou
         <translation>编辑当前校准</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="94"/>
+        <location filename="../gui/wizard.py" line="93"/>
         <source>Open the auto-detect tuning panel using your current calibration.</source>
         <translation>使用当前校准打开自动检测调校面板。</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="101"/>
+        <location filename="../gui/wizard.py" line="100"/>
         <source>Edit becomes available after you create key overlays.</source>
         <translation>创建按键覆盖层后即可进行编辑。</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="111"/>
+        <location filename="../gui/wizard.py" line="110"/>
         <source>Or use manual calibration:</source>
         <translation>或使用手动校准：</translation>
     </message>
@@ -665,42 +656,42 @@ Move to a frame where the key is lit, then click the lit key overlay again.</sou
         <translation>最左琴键：</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="131"/>
+        <location filename="../gui/wizard.py" line="132"/>
         <source>Total Keys:</source>
         <translation>琴键总数：</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="137"/>
+        <location filename="../gui/wizard.py" line="139"/>
         <source>Number of keys on the keyboard</source>
         <translation>键盘上的琴键数量</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="142"/>
+        <location filename="../gui/wizard.py" line="144"/>
         <source>Generate Manual Overlays</source>
         <translation>生成手动覆盖层</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="149"/>
+        <location filename="../gui/wizard.py" line="152"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="177"/>
+        <location filename="../gui/wizard.py" line="186"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="178"/>
+        <location filename="../gui/wizard.py" line="187"/>
         <source>Please select keyboard region first.</source>
         <translation>请先选择键盘区域。</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="233"/>
+        <location filename="../gui/wizard.py" line="242"/>
         <source>Select Keyboard Region</source>
         <translation>选择键盘区域</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="234"/>
+        <location filename="../gui/wizard.py" line="243"/>
         <source>Please navigate to a frame where the keyboard is fully visible.
 
 After clicking OK:
@@ -715,41 +706,41 @@ After clicking OK:
 3. 右键取消选择</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="262"/>
-        <location filename="../gui/wizard.py" line="278"/>
-        <location filename="../gui/wizard.py" line="310"/>
-        <location filename="../gui/wizard.py" line="330"/>
-        <location filename="../gui/wizard.py" line="345"/>
+        <location filename="../gui/wizard.py" line="271"/>
+        <location filename="../gui/wizard.py" line="287"/>
+        <location filename="../gui/wizard.py" line="319"/>
+        <location filename="../gui/wizard.py" line="339"/>
+        <location filename="../gui/wizard.py" line="354"/>
         <source>Detection Error</source>
         <translation>检测错误</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="263"/>
+        <location filename="../gui/wizard.py" line="272"/>
         <source>No video frame available. Please ensure a video is loaded.</source>
         <translation>没有可用的视频帧。请确保已加载视频。</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="279"/>
+        <location filename="../gui/wizard.py" line="288"/>
         <source>Selected region is empty. Please draw a valid keyboard region.</source>
         <translation>所选区域为空。请绘制有效的键盘区域。</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="299"/>
+        <location filename="../gui/wizard.py" line="308"/>
         <source>Video quality is too blurry for autodetector. Please assign overlays manually.</source>
         <translation>视频画质过于模糊，自动检测器无法处理。请手动分配覆盖层。</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="304"/>
+        <location filename="../gui/wizard.py" line="313"/>
         <source>Failed to detect keys in the selected region. Please try again.</source>
         <translation>未能在所选区域检测到琴键。请重试。</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="331"/>
+        <location filename="../gui/wizard.py" line="340"/>
         <source>Autodetection produced no overlays. Please try another region.</source>
         <translation>自动检测未生成覆盖层。请尝试其他区域。</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="346"/>
+        <location filename="../gui/wizard.py" line="355"/>
         <source>Key detection failed: {error}</source>
         <translation>琴键检测失败：{error}</translation>
     </message>
@@ -757,42 +748,42 @@ After clicking OK:
 <context>
     <name>CalibrationWizardController</name>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="94"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="118"/>
         <source>Wizard Error</source>
         <translation>向导错误</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="95"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="119"/>
         <source>Please open a video file first.</source>
         <translation>请先打开视频文件。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="225"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="249"/>
         <source>Canvas Error</source>
         <translation>画布错误</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="226"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="250"/>
         <source>Canvas interaction system not available.</source>
         <translation>画布交互系统不可用。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="259"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="283"/>
         <source>Manual Fit</source>
         <translation>手动贴合</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="260"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="284"/>
         <source>No reusable manual calibration is available yet.</source>
         <translation>尚无可复用的手动校准。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="269"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="293"/>
         <source>Auto-Detect Tuning</source>
         <translation>自动检测调校</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="270"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="294"/>
         <source>No reusable auto-detect calibration context is available yet. Run autodetect once with ROI selection first.</source>
         <translation>尚无可复用的自动检测校准上下文。请先通过 ROI 选择运行一次自动检测。</translation>
     </message>
@@ -813,62 +804,72 @@ After clicking OK:
         <translation type="vanished">未找到</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="318"/>
         <source>Left White</source>
-        <translation>左白</translation>
+        <translation type="vanished">左白</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="319"/>
         <source>Left Black</source>
-        <translation>左黑</translation>
+        <translation type="vanished">左黑</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="320"/>
         <source>Right White</source>
-        <translation>右白</translation>
+        <translation type="vanished">右白</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="321"/>
         <source>Right Black</source>
-        <translation>右黑</translation>
+        <translation type="vanished">右黑</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="324"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="342"/>
         <source>Assisted calibration found {count} possible pressed-key samples.</source>
         <translation>辅助校准找到了 {count} 个可能的按键样本。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="328"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="346"/>
         <source>Found {count} Synthesia note color families.</source>
         <translation>找到 {count} 个 Synthesia 音符颜色族。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="332"/>
         <source>Left/Right refer to Synthesia note colors, not the physical side of the keyboard.</source>
-        <translation>左/右指的是 Synthesia 音符颜色，不是键盘的物理左右侧。</translation>
+        <translation type="vanished">左/右指的是 Synthesia 音符颜色，不是键盘的物理左右侧。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="344"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="44"/>
+        <source>Color {number}</source>
+        <translation>颜色 {number}</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="48"/>
+        <source>Natural</source>
+        <translation>自然音</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="50"/>
+        <source>Sharp / Flat</source>
+        <translation>升号 / 降号</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="358"/>
         <source>{label}: not present in this video</source>
         <translation>{label}：此视频中不存在</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="351"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="365"/>
         <source>{label}: found</source>
         <translation>{label}：已找到</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="358"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="372"/>
         <source>{label}: not found</source>
         <translation>{label}：未找到</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="435"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="467"/>
         <source>Unlit Frame May Contain Lit Keys</source>
         <translation>未点亮帧可能包含已点亮的琴键</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="436"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="468"/>
         <source>It looks like these keys may be lit: {notes}.
 
 Move to a frame where no keys are lit, or continue if this is expected.</source>
@@ -877,23 +878,23 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
 请移到没有琴键点亮的帧，或者如果这是预期情况则继续。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="453"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="487"/>
         <source>Scanning for lit key examples...</source>
         <translation>正在扫描已点亮琴键示例...</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="454"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="488"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="459"/>
-        <location filename="../gui/calibration_wizard_controller.py" line="486"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="493"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="531"/>
         <source>Assisted Calibration</source>
         <translation>辅助校准</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="487"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="532"/>
         <source>No lit examples were found for assisted calibration. Existing calibration samples were left unchanged.</source>
         <translation>未找到用于辅助校准的已点亮示例。现有校准样本保持不变。</translation>
     </message>
@@ -902,22 +903,22 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">应用这些校准更新吗？</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="579"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="638"/>
         <source>Open Manual Fit for the current manual calibration.</source>
         <translation>为当前手动校准打开手动贴合。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="581"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="640"/>
         <source>Edit Current Calibration becomes available after manual overlays exist.</source>
         <translation>手动覆盖层存在后，才可使用编辑当前校准。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="587"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="646"/>
         <source>Open the auto-detect tuning panel for the current calibration.</source>
         <translation>为当前校准打开自动检测调校面板。</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="592"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="651"/>
         <source>Edit Current Calibration becomes available after an auto-detect run.</source>
         <translation>自动检测运行后，才可使用编辑当前校准。</translation>
     </message>
@@ -1053,156 +1054,222 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
     </message>
 </context>
 <context>
+    <name>ColorFamilyGrid</name>
+    <message>
+        <location filename="../gui/color_family_grid.py" line="93"/>
+        <source>Color {number}</source>
+        <translation>颜色 {number}</translation>
+    </message>
+    <message>
+        <location filename="../gui/color_family_grid.py" line="111"/>
+        <source>Add Color Family</source>
+        <translation>添加颜色组</translation>
+    </message>
+    <message>
+        <location filename="../gui/color_family_grid.py" line="126"/>
+        <source>Natural</source>
+        <translation>自然音</translation>
+    </message>
+    <message>
+        <location filename="../gui/color_family_grid.py" line="128"/>
+        <source>Sharp / Flat</source>
+        <translation>升号 / 降号</translation>
+    </message>
+    <message>
+        <location filename="../gui/color_family_grid.py" line="141"/>
+        <source>Found</source>
+        <translation>已找到</translation>
+    </message>
+    <message>
+        <location filename="../gui/color_family_grid.py" line="141"/>
+        <source>Missing</source>
+        <translation>缺失</translation>
+    </message>
+    <message>
+        <location filename="../gui/color_family_grid.py" line="144"/>
+        <source>Set</source>
+        <translation>设置</translation>
+    </message>
+    <message>
+        <location filename="../gui/color_family_grid.py" line="150"/>
+        <source>Present</source>
+        <translation>存在</translation>
+    </message>
+    <message>
+        <location filename="../gui/color_family_grid.py" line="281"/>
+        <source>Remove Color {number}</source>
+        <translation>移除颜色 {number}</translation>
+    </message>
+</context>
+<context>
     <name>ControlPanelQt</name>
     <message>
-        <location filename="../gui/controls_qt.py" line="300"/>
-        <location filename="../gui/controls_qt.py" line="1992"/>
+        <location filename="../gui/controls_qt.py" line="318"/>
+        <location filename="../gui/controls_qt.py" line="2004"/>
         <source>Convert</source>
         <translation>转换</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="306"/>
-        <location filename="../gui/controls_qt.py" line="2115"/>
-        <location filename="../gui/controls_qt.py" line="2121"/>
+        <location filename="../gui/controls_qt.py" line="324"/>
+        <location filename="../gui/controls_qt.py" line="2127"/>
+        <location filename="../gui/controls_qt.py" line="2133"/>
         <source>Load a video to convert.</source>
         <translation>加载要转换的视频。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="310"/>
+        <location filename="../gui/controls_qt.py" line="328"/>
         <source>Edit MIDI</source>
         <translation>编辑 MIDI</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="315"/>
+        <location filename="../gui/controls_qt.py" line="333"/>
         <source>Overlay</source>
         <translation>覆盖层</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="316"/>
-        <location filename="../gui/controls_qt.py" line="2007"/>
+        <location filename="../gui/controls_qt.py" line="334"/>
+        <location filename="../gui/controls_qt.py" line="2019"/>
         <source>None</source>
         <translation>无</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="355"/>
         <location filename="../gui/controls_qt.py" line="375"/>
-        <location filename="../gui/controls_qt.py" line="1514"/>
+        <location filename="../gui/controls_qt.py" line="395"/>
+        <location filename="../gui/controls_qt.py" line="1508"/>
         <source>Language</source>
         <translation>语言</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="358"/>
+        <location filename="../gui/controls_qt.py" line="378"/>
         <source>Language:</source>
         <translation>语言：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="384"/>
-        <location filename="../gui/controls_qt.py" line="819"/>
-        <location filename="../gui/controls_qt.py" line="1021"/>
+        <location filename="../gui/controls_qt.py" line="404"/>
+        <location filename="../gui/controls_qt.py" line="797"/>
+        <location filename="../gui/controls_qt.py" line="999"/>
         <source>Help</source>
         <translation>帮助</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="387"/>
+        <location filename="../gui/controls_qt.py" line="407"/>
         <source>Initial calibration directions (recommended order):</source>
         <translation>初始校准说明（推荐顺序）：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="400"/>
+        <location filename="../gui/controls_qt.py" line="416"/>
+        <source>3) Capture Pressed-Key Examples: for each Color family, capture a Natural and Sharp / Flat example that appears in the video.</source>
+        <translation>3) 捕获按键示例：为每个颜色组捕获视频中出现的自然音和升号 / 降号示例。</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="420"/>
         <source>If a key type is not present in this video, uncheck its &apos;Present in Video&apos; box.</source>
         <translation>如果此视频中不存在某种琴键类型，请取消勾选其“视频中存在”框。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="401"/>
+        <location filename="../gui/controls_qt.py" line="421"/>
         <source>Octave Transpose: shifts the generated MIDI up/down by octaves.</source>
         <translation>八度移调：按八度上移/下移生成的 MIDI。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="810"/>
+        <location filename="../gui/controls_qt.py" line="788"/>
         <source>Overlays</source>
         <translation>覆盖层</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="439"/>
+        <location filename="../gui/controls_qt.py" line="463"/>
         <source>Creates overlays for the keyboard in your video. Re-run if overlays don&apos;t line up.</source>
         <translation>为视频中的键盘创建覆盖层。如果覆盖层未对齐，请重新运行。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="453"/>
+        <location filename="../gui/controls_qt.py" line="46"/>
+        <source>Color {number}</source>
+        <translation>颜色 {number}</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="50"/>
+        <source>Natural</source>
+        <translation>自然音</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="52"/>
+        <source>Sharp / Flat</source>
+        <translation>升号 / 降号</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="477"/>
         <source>Octave</source>
         <translation>八度</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="462"/>
+        <location filename="../gui/controls_qt.py" line="486"/>
         <source>Shifts the MIDI output up/down by octaves.</source>
         <translation>按八度上移/下移 MIDI 输出。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="475"/>
+        <location filename="../gui/controls_qt.py" line="499"/>
         <source>Captures what unpressed overlays look like from the current frame. Pause on a frame with no highlighted notes first.</source>
         <translation>从当前帧捕获未按下覆盖层的外观。请先暂停在没有高亮音符的一帧。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="497"/>
-        <location filename="../gui/controls_qt.py" line="1185"/>
-        <location filename="../gui/controls_qt.py" line="1957"/>
-        <location filename="../gui/controls_qt.py" line="2084"/>
+        <location filename="../gui/controls_qt.py" line="521"/>
+        <location filename="../gui/controls_qt.py" line="1163"/>
+        <location filename="../gui/controls_qt.py" line="1976"/>
+        <location filename="../gui/controls_qt.py" line="2096"/>
         <source>Not Set</source>
         <translation>未设置</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="529"/>
+        <location filename="../gui/controls_qt.py" line="543"/>
         <source>Lit Key Exemplars</source>
         <translation>亮起琴键样本</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="543"/>
         <source>Set {label}</source>
-        <translation>设置 {label}</translation>
+        <translation type="vanished">设置 {label}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="548"/>
         <source>Captures a pressed-overlay example for this type. Pause on a frame where that type is highlighted, click the button, then click that highlighted overlay.</source>
-        <translation>为此类型捕获按下覆盖层示例。暂停在该类型高亮的一帧，点击按钮，然后点击该高亮覆盖层。</translation>
+        <translation type="vanished">为此类型捕获按下覆盖层示例。暂停在该类型高亮的一帧，点击按钮，然后点击该高亮覆盖层。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="823"/>
+        <location filename="../gui/controls_qt.py" line="801"/>
         <source>Before tuning detection: capture a no-key frame and at least one pressed-key example.</source>
         <translation>调整检测前：先捕获一个没有按键亮起的帧，以及至少一个按键亮起的示例。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="824"/>
+        <location filename="../gui/controls_qt.py" line="802"/>
         <source>Detection Sensitivity: main setting for pressed vs unpressed keys.</source>
         <translation>检测灵敏度：区分按下和未按下按键的主要设置。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="825"/>
-        <location filename="../gui/controls_qt.py" line="865"/>
+        <location filename="../gui/controls_qt.py" line="803"/>
+        <location filename="../gui/controls_qt.py" line="843"/>
         <source>Missing notes? Lower it. Extra notes? Raise it.</source>
         <translation>漏掉音符？调低它。多出音符？调高它。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="826"/>
+        <location filename="../gui/controls_qt.py" line="804"/>
         <source>Histogram Detection helps when pressed colors have gradients or uneven lighting.</source>
         <translation>当按下颜色有渐变或光照不均时，直方图检测会有帮助。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="830"/>
+        <location filename="../gui/controls_qt.py" line="808"/>
         <source>Delta Detection helps when pressed colors fade in or out instead of switching cleanly.</source>
         <translation>当按下颜色是淡入或淡出，而不是清晰切换时，差值检测会有帮助。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="834"/>
+        <location filename="../gui/controls_qt.py" line="812"/>
         <source>Black Key Filter reduces false black-key notes caused by nearby overlays.</source>
         <translation>黑键过滤可减少附近叠加层导致的黑键误检。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="843"/>
+        <location filename="../gui/controls_qt.py" line="821"/>
         <source>Detection Sensitivity</source>
         <translation>检测灵敏度</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="862"/>
+        <location filename="../gui/controls_qt.py" line="840"/>
         <source>Detection Sensitivity:</source>
         <translation>检测灵敏度：</translation>
     </message>
@@ -1211,312 +1278,312 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">选择按键上方的火花区域</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1089"/>
+        <location filename="../gui/controls_qt.py" line="1067"/>
         <source>Select the area above the keys where spark bars and flashes appear.</source>
         <translation>选择按键上方出现火花条和闪光的区域。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1098"/>
+        <location filename="../gui/controls_qt.py" line="1076"/>
         <source>Show or hide the spark area overlay on the video.</source>
         <translation>显示或隐藏视频中的火花区域叠加层。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1264"/>
+        <location filename="../gui/controls_qt.py" line="1242"/>
         <source>Convert Only Part of the Video</source>
         <translation>只转换视频的一部分</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1268"/>
+        <location filename="../gui/controls_qt.py" line="1246"/>
         <source>This affects MIDI creation only. It does not trim or change the video session.</source>
         <translation>这只影响 MIDI 创建。它不会裁剪或更改视频会话。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1331"/>
-        <location filename="../gui/controls_qt.py" line="1383"/>
-        <location filename="../gui/controls_qt.py" line="1445"/>
-        <location filename="../gui/controls_qt.py" line="1675"/>
+        <location filename="../gui/controls_qt.py" line="1315"/>
+        <location filename="../gui/controls_qt.py" line="1377"/>
+        <location filename="../gui/controls_qt.py" line="1439"/>
+        <location filename="../gui/controls_qt.py" line="1694"/>
         <source>Permanently Trim Project</source>
         <translation>永久裁剪项目</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1336"/>
+        <location filename="../gui/controls_qt.py" line="1320"/>
         <source>Most users should use MIDI range instead. Trim changes the working video session, not the original video file.</source>
         <translation>大多数用户应改用 MIDI 范围。裁剪会更改当前工作视频会话，而不是原始视频文件。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1405"/>
+        <location filename="../gui/controls_qt.py" line="1399"/>
         <source>Open the dedicated setup window when repeated presses merge into one long note.</source>
         <translation>当重复按键合并为一个长音符时，打开专用设置窗口。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1413"/>
+        <location filename="../gui/controls_qt.py" line="1407"/>
         <source>Open Repeated Notes Tool</source>
         <translation>打开重复音符工具</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1425"/>
+        <location filename="../gui/controls_qt.py" line="1419"/>
         <source>Gradient or uneven pressed colors</source>
         <translation>按下颜色有渐变或不均匀</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1430"/>
+        <location filename="../gui/controls_qt.py" line="1424"/>
         <source>Pressed colors fade in or out</source>
         <translation>按下颜色会淡入或淡出</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1435"/>
+        <location filename="../gui/controls_qt.py" line="1429"/>
         <source>False black-key notes</source>
         <translation>误判黑键音符</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1440"/>
+        <location filename="../gui/controls_qt.py" line="1434"/>
         <source>Repeated notes merge together</source>
         <translation>重复音符合并在一起</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1462"/>
+        <location filename="../gui/controls_qt.py" line="1456"/>
         <source>Glossary</source>
         <translation>术语表</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1469"/>
+        <location filename="../gui/controls_qt.py" line="1463"/>
         <source>Advanced</source>
         <translation>高级</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1483"/>
+        <location filename="../gui/controls_qt.py" line="1477"/>
         <source>Put each hand/color on a separate MIDI channel</source>
         <translation>将每只手/每种颜色放到单独的 MIDI 通道</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1489"/>
+        <location filename="../gui/controls_qt.py" line="1483"/>
         <source>Use this only if the video uses different colors for left and right hand notes.</source>
         <translation>仅当视频使用不同颜色表示左手和右手音符时使用此项。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1684"/>
+        <location filename="../gui/controls_qt.py" line="1703"/>
         <source>&lt;b&gt;This will permanently trim the working video session.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Frames outside {start_frame} to {end_text} will be unavailable in this project session.&lt;br&gt;&lt;br&gt;Most users should cancel and use the MIDI range controls instead.</source>
         <translation>&lt;b&gt;这将永久裁剪当前工作视频会话。&lt;/b&gt;&lt;br&gt;&lt;br&gt;{start_frame} 到 {end_text} 之外的帧将在此项目会话中不可用。&lt;br&gt;&lt;br&gt;大多数用户应取消并改用 MIDI 范围控件。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1696"/>
+        <location filename="../gui/controls_qt.py" line="1715"/>
         <source>Trim Project</source>
         <translation>裁剪项目</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2128"/>
+        <location filename="../gui/controls_qt.py" line="2140"/>
         <source>Create key overlays first.</source>
         <translation>请先创建按键叠加层。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2139"/>
         <location filename="../gui/controls_qt.py" line="2151"/>
+        <location filename="../gui/controls_qt.py" line="2163"/>
         <source>Capture a no-key frame.</source>
         <translation>捕获没有按键亮起的帧。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2158"/>
-        <location filename="../gui/controls_qt.py" line="2166"/>
+        <location filename="../gui/controls_qt.py" line="2170"/>
         <source>Capture at least one pressed-key example.</source>
         <translation>至少捕获一个按下按键的示例。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2173"/>
+        <location filename="../gui/controls_qt.py" line="2179"/>
+        <source>Capture a pressed-key example for {label}.</source>
+        <translation>为 {label} 捕获一个按键示例。</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="2189"/>
         <source>Check detection sensitivity.</source>
         <translation>检查检测灵敏度。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2179"/>
+        <location filename="../gui/controls_qt.py" line="2195"/>
         <source>Check MIDI tempo.</source>
         <translation>检查 MIDI 速度。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2184"/>
+        <location filename="../gui/controls_qt.py" line="2200"/>
         <source>Ready to create MIDI.</source>
         <translation>已准备好创建 MIDI。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="560"/>
         <source>Present</source>
-        <translation>存在</translation>
+        <translation type="vanished">存在</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="252"/>
+        <location filename="../gui/controls_qt.py" line="268"/>
         <source>Guide</source>
         <translation>向导</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="388"/>
+        <location filename="../gui/controls_qt.py" line="408"/>
         <source>1) Find Keyboard Box: create overlays that line up with the keyboard in your video.</source>
         <translation>1) 找到键盘框：创建与视频中的键盘对齐的覆盖层。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="392"/>
+        <location filename="../gui/controls_qt.py" line="412"/>
         <source>2) Capture No-Key Frame: pause where no keys are glowing, then click Capture No-Key Frame.</source>
         <translation>2) 捕获无按键画面：在没有按键发亮的画面上暂停，然后单击“捕获无按键画面”。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="396"/>
         <source>3) Capture Pressed-Key Examples: for each button you need (Left/Right x White/Black), pause where that kind of overlay is glowing, click the button, then click that overlay in the video. Left/Right refer to Synthesia note colors, not the physical side of the keyboard.</source>
-        <translation>3) 捕获按键示例：对于你需要的每个按钮（左/右 x 白/黑），在对应覆盖层发亮的画面上暂停，单击按钮，然后在视频中单击该覆盖层。左/右指的是 Synthesia 音符颜色，不是键盘的物理左右侧。</translation>
+        <translation type="vanished">3) 捕获按键示例：对于你需要的每个按钮（左/右 x 白/黑），在对应覆盖层发亮的画面上暂停，单击按钮，然后在视频中单击该覆盖层。左/右指的是 Synthesia 音符颜色，不是键盘的物理左右侧。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="433"/>
+        <location filename="../gui/controls_qt.py" line="453"/>
         <source>Draw Keyboard Box and Find Keys</source>
         <translation>绘制键盘框并找出按键</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="446"/>
+        <location filename="../gui/controls_qt.py" line="470"/>
         <source>Find the keyboard</source>
         <translation>找到键盘</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="447"/>
+        <location filename="../gui/controls_qt.py" line="471"/>
         <source>Pause on a clear frame where the full keyboard is visible.</source>
         <translation>在键盘完整可见的清晰画面上暂停。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="469"/>
+        <location filename="../gui/controls_qt.py" line="493"/>
         <source>Capture No-Key Frame</source>
         <translation>捕获无按键画面</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="481"/>
+        <location filename="../gui/controls_qt.py" line="505"/>
         <source>Capture no-key frame</source>
         <translation>捕获无按键画面</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="485"/>
+        <location filename="../gui/controls_qt.py" line="509"/>
         <source>Pause where no keys are glowing.</source>
         <translation>在没有按键发亮的地方暂停。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="504"/>
+        <location filename="../gui/controls_qt.py" line="528"/>
         <source>Capture pressed-key examples</source>
         <translation>捕获按键示例</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="509"/>
+        <location filename="../gui/controls_qt.py" line="533"/>
         <source>Pause where a key is glowing, then click that key.</source>
         <translation>在某个按键发亮的位置暂停，然后单击该按键。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="517"/>
         <source>Left/Right refer to Synthesia note colors, not the physical side of the keyboard.</source>
-        <translation>左/右指的是 Synthesia 音符颜色，不是键盘的物理左右侧。</translation>
+        <translation type="vanished">左/右指的是 Synthesia 音符颜色，不是键盘的物理左右侧。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="562"/>
         <source>Uncheck if this key type never appears in this video.</source>
-        <translation>如果此琴键类型从未出现在此视频中，请取消勾选。</translation>
+        <translation type="vanished">如果此琴键类型从未出现在此视频中，请取消勾选。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="583"/>
+        <location filename="../gui/controls_qt.py" line="568"/>
         <source>Calibration</source>
         <translation>校准</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="593"/>
+        <location filename="../gui/controls_qt.py" line="578"/>
         <source>Key Alignment</source>
         <translation>琴键对齐</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="598"/>
+        <location filename="../gui/controls_qt.py" line="584"/>
         <source>Align White Keys</source>
         <translation>对齐白键</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="601"/>
+        <location filename="../gui/controls_qt.py" line="587"/>
         <source>Align Black Keys</source>
         <translation>对齐黑键</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="604"/>
+        <location filename="../gui/controls_qt.py" line="590"/>
         <source>Manual Fit</source>
         <translation>手动贴合</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="624"/>
+        <location filename="../gui/controls_qt.py" line="602"/>
         <source>Overlay Size Adjustment</source>
         <translation>覆盖层大小调整</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="641"/>
+        <location filename="../gui/controls_qt.py" line="619"/>
         <source>Current:</source>
         <translation>当前：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="644"/>
+        <location filename="../gui/controls_qt.py" line="622"/>
         <source>Reset</source>
         <translation>重置</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="659"/>
+        <location filename="../gui/controls_qt.py" line="637"/>
         <source>Decrease {setting}</source>
         <translation>降低 {setting}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="662"/>
+        <location filename="../gui/controls_qt.py" line="640"/>
         <source>Increase {setting}</source>
         <translation>提高 {setting}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="677"/>
+        <location filename="../gui/controls_qt.py" line="655"/>
         <source>White Key Height</source>
         <translation>白键高度</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="694"/>
+        <location filename="../gui/controls_qt.py" line="672"/>
         <source>White Key Width</source>
         <translation>白键宽度</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="711"/>
+        <location filename="../gui/controls_qt.py" line="689"/>
         <source>Black Key Height</source>
         <translation>黑键高度</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="728"/>
+        <location filename="../gui/controls_qt.py" line="706"/>
         <source>Black Key Width</source>
         <translation>黑键宽度</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="745"/>
+        <location filename="../gui/controls_qt.py" line="723"/>
         <source>Left Slant</source>
         <translation>左倾斜</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="762"/>
+        <location filename="../gui/controls_qt.py" line="740"/>
         <source>Right Slant</source>
         <translation>右倾斜</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="784"/>
+        <location filename="../gui/controls_qt.py" line="762"/>
         <source>Overlay Appearance</source>
         <translation>覆盖层外观</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="789"/>
+        <location filename="../gui/controls_qt.py" line="767"/>
         <source>Overlay Color:</source>
         <translation>覆盖层颜色：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1036"/>
+        <location filename="../gui/controls_qt.py" line="1014"/>
         <source>Repeated Notes Fix</source>
         <translation>重复音符修正</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1047"/>
+        <location filename="../gui/controls_qt.py" line="1025"/>
         <source>Enable Repeated Notes Fix</source>
         <translation>启用重复音符修正</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1079"/>
+        <location filename="../gui/controls_qt.py" line="1057"/>
         <source>Repeated-Note Setup</source>
         <translation>重复音符设置</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1086"/>
+        <location filename="../gui/controls_qt.py" line="1064"/>
         <source>Select Flash Area Above Keys</source>
         <translation>选择琴键上方闪光区域</translation>
     </message>
@@ -1549,8 +1616,8 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">检测阈值</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="854"/>
-        <location filename="../gui/controls_qt.py" line="859"/>
+        <location filename="../gui/controls_qt.py" line="832"/>
+        <location filename="../gui/controls_qt.py" line="837"/>
         <source>Main sensitivity. Lower = detects more; higher = fewer false notes.</source>
         <translation>主要灵敏度。较低 = 检测更多；较高 = 减少误检音符。</translation>
     </message>
@@ -1563,106 +1630,106 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">检测模式</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="897"/>
+        <location filename="../gui/controls_qt.py" line="875"/>
         <source>Enable Histogram Detection</source>
         <translation>启用直方图检测</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="901"/>
+        <location filename="../gui/controls_qt.py" line="879"/>
         <source>Uses a color-pattern match inside the overlay. Helpful with gradients/uneven lighting.</source>
         <translation>在覆盖层内使用颜色模式匹配。对渐变/光照不均有帮助。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="913"/>
-        <location filename="../gui/controls_qt.py" line="918"/>
+        <location filename="../gui/controls_qt.py" line="891"/>
+        <location filename="../gui/controls_qt.py" line="896"/>
         <source>How strong the histogram match must be (only used when Histogram Detection is enabled).</source>
         <translation>直方图匹配必须达到的强度（仅在启用直方图检测时使用）。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="920"/>
+        <location filename="../gui/controls_qt.py" line="898"/>
         <source>Strength:</source>
         <translation>强度：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="923"/>
+        <location filename="../gui/controls_qt.py" line="901"/>
         <source>Enable Delta Detection</source>
         <translation>启用增量检测</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="927"/>
+        <location filename="../gui/controls_qt.py" line="905"/>
         <source>Uses frame-to-frame change to confirm press/release (helps when color fades).</source>
         <translation>使用帧间变化确认按下/释放（有助于颜色渐变时检测）。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="938"/>
-        <location filename="../gui/controls_qt.py" line="943"/>
+        <location filename="../gui/controls_qt.py" line="916"/>
+        <location filename="../gui/controls_qt.py" line="921"/>
         <source>How big the change must be to count as a press (only used when Delta Detection is enabled).</source>
         <translation>变化需要多大才算按下（仅在启用增量检测时使用）。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="945"/>
+        <location filename="../gui/controls_qt.py" line="923"/>
         <source>Rise:</source>
         <translation>上升：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="954"/>
-        <location filename="../gui/controls_qt.py" line="959"/>
+        <location filename="../gui/controls_qt.py" line="932"/>
+        <location filename="../gui/controls_qt.py" line="937"/>
         <source>How big the change must be to count as a release (only used when Delta Detection is enabled).</source>
         <translation>变化需要多大才算释放（仅在启用增量检测时使用）。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="961"/>
+        <location filename="../gui/controls_qt.py" line="939"/>
         <source>Fall:</source>
         <translation>下降：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="964"/>
+        <location filename="../gui/controls_qt.py" line="942"/>
         <source>Enable Black Key Filter</source>
         <translation>启用黑键过滤</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="968"/>
+        <location filename="../gui/controls_qt.py" line="946"/>
         <source>Reduces false black-key presses from nearby overlays.</source>
         <translation>减少附近覆盖层导致的黑键误按。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="980"/>
-        <location filename="../gui/controls_qt.py" line="985"/>
+        <location filename="../gui/controls_qt.py" line="958"/>
+        <location filename="../gui/controls_qt.py" line="963"/>
         <source>Controls how strict black-key filtering is (only used when Black Key Filter is enabled).</source>
         <translation>控制黑键过滤的严格程度（仅在启用黑键过滤时使用）。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="987"/>
+        <location filename="../gui/controls_qt.py" line="965"/>
         <source>Similarity:</source>
         <translation>相似度：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="996"/>
+        <location filename="../gui/controls_qt.py" line="974"/>
         <source>Restore Defaults</source>
         <translation>恢复默认值</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="998"/>
+        <location filename="../gui/controls_qt.py" line="976"/>
         <source>Reset detection threshold and detection mode parameter sliders to their defaults. Detection mode checkboxes stay unchanged.</source>
         <translation>将检测阈值和检测模式参数滑块重置为默认值。检测模式复选框保持不变。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1005"/>
+        <location filename="../gui/controls_qt.py" line="983"/>
         <source>Detection</source>
         <translation>检测</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1024"/>
+        <location filename="../gui/controls_qt.py" line="1002"/>
         <source>Use Spark Detection only when:</source>
         <translation>仅在以下情况使用火花检测：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1025"/>
+        <location filename="../gui/controls_qt.py" line="1003"/>
         <source>1) Key overlays stay ON across repeated notes (false continuous press).</source>
         <translation>1) 琴键覆盖层在重复音之间一直保持开启（误判为持续按下）。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1026"/>
+        <location filename="../gui/controls_qt.py" line="1004"/>
         <source>2) Key overlays are solid color (no fading or gradients).</source>
         <translation>2) 琴键覆盖层为纯色（无淡入淡出或渐变）。</translation>
     </message>
@@ -1671,7 +1738,7 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">火花检测</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1041"/>
+        <location filename="../gui/controls_qt.py" line="1019"/>
         <source>Use this only if repeated notes merge into one long note.</source>
         <translation>仅当重复音符合并成一个长音符时使用此项。</translation>
     </message>
@@ -1680,18 +1747,18 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">启用火花检测</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1051"/>
+        <location filename="../gui/controls_qt.py" line="1029"/>
         <source>Use only when key overlays stay ON across repeated notes (false continuous press), and the overlays are solid color (no fading or gradients).</source>
         <translation>仅当琴键覆盖层在重复音之间一直保持开启（误判为持续按下），且覆盖层为纯色（无淡入淡出或渐变）时使用。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1059"/>
+        <location filename="../gui/controls_qt.py" line="1037"/>
         <source>Sensitivity:</source>
         <translation>灵敏度：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1066"/>
-        <location filename="../gui/controls_qt.py" line="1072"/>
+        <location filename="../gui/controls_qt.py" line="1044"/>
+        <location filename="../gui/controls_qt.py" line="1050"/>
         <source>Controls how aggressively Spark Detection splits false continuous notes.</source>
         <translation>控制火花检测拆分误判连续音符的积极程度。</translation>
     </message>
@@ -1708,9 +1775,9 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">选择琴键上方出现火花条和火花的区域。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1094"/>
-        <location filename="../gui/controls_qt.py" line="1797"/>
-        <location filename="../gui/controls_qt.py" line="1976"/>
+        <location filename="../gui/controls_qt.py" line="1072"/>
+        <location filename="../gui/controls_qt.py" line="1816"/>
+        <location filename="../gui/controls_qt.py" line="1988"/>
         <source>Hide Spark Overlays</source>
         <translation>隐藏火花覆盖层</translation>
     </message>
@@ -1719,82 +1786,82 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">显示或隐藏视频上的火花 ROI 覆盖层。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1104"/>
+        <location filename="../gui/controls_qt.py" line="1082"/>
         <source>Manual Calibration</source>
         <translation>手动校准</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1109"/>
+        <location filename="../gui/controls_qt.py" line="1087"/>
         <source>Step 1)</source>
         <translation>步骤 1)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1112"/>
+        <location filename="../gui/controls_qt.py" line="1090"/>
         <source>Calibrate Background</source>
         <translation>校准背景</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1116"/>
+        <location filename="../gui/controls_qt.py" line="1094"/>
         <source>Manual calibration: capture baseline brightness when there are no bars or sparks.</source>
         <translation>手动校准：在没有条形或火花时捕获基线亮度。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1124"/>
+        <location filename="../gui/controls_qt.py" line="1102"/>
         <source>Step 2)</source>
         <translation>步骤 2)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1127"/>
+        <location filename="../gui/controls_qt.py" line="1105"/>
         <source>Calibrate Bar Only</source>
         <translation>校准仅条形</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1131"/>
+        <location filename="../gui/controls_qt.py" line="1109"/>
         <source>Manual calibration: click an overlay showing colored bars with no sparks.</source>
         <translation>手动校准：点击显示彩色条形但无火花的覆盖层。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1139"/>
+        <location filename="../gui/controls_qt.py" line="1117"/>
         <source>Step 3)</source>
         <translation>步骤 3)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1142"/>
+        <location filename="../gui/controls_qt.py" line="1120"/>
         <source>Calibrate Dimmest Sparks</source>
         <translation>校准最暗火花</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1146"/>
+        <location filename="../gui/controls_qt.py" line="1124"/>
         <source>Manual calibration: click an overlay where sparks are just barely visible.</source>
         <translation>手动校准：点击火花刚刚可见的覆盖层。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1155"/>
+        <location filename="../gui/controls_qt.py" line="1133"/>
         <source>Auto Calibration:</source>
         <translation>自动校准：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1171"/>
+        <location filename="../gui/controls_qt.py" line="1149"/>
         <source>Auto {key_type_label}</source>
         <translation>自动 {key_type_label}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1177"/>
+        <location filename="../gui/controls_qt.py" line="1155"/>
         <source>Recommended: auto-calibrate spark detection for this key type. Navigate to the frame where a key first turns ON, then click that overlay.</source>
         <translation>建议：为此键类型自动校准火花检测。导航到琴键刚亮起的一帧，然后点击该覆盖层。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1197"/>
+        <location filename="../gui/controls_qt.py" line="1175"/>
         <source>Spark Preview / Status</source>
         <translation>火花预览 / 状态</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1199"/>
+        <location filename="../gui/controls_qt.py" line="1177"/>
         <source>Preview will show spark calibration status here.</source>
         <translation>此处将显示火花校准状态。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1203"/>
+        <location filename="../gui/controls_qt.py" line="1181"/>
         <source>Preview not available yet.</source>
         <translation>预览尚不可用。</translation>
     </message>
@@ -1803,18 +1870,18 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">火花</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1227"/>
+        <location filename="../gui/controls_qt.py" line="1205"/>
         <source>Frame Rate Override</source>
         <translation>帧率覆盖</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1244"/>
+        <location filename="../gui/controls_qt.py" line="1222"/>
         <source>Auto</source>
         <translation>自动</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1258"/>
-        <location filename="../gui/controls_qt.py" line="1810"/>
+        <location filename="../gui/controls_qt.py" line="1236"/>
+        <location filename="../gui/controls_qt.py" line="1829"/>
         <source>Current FPS: Auto-detected</source>
         <translation>当前 FPS：自动检测</translation>
     </message>
@@ -1823,27 +1890,27 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">自定义 MIDI 处理范围</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1283"/>
-        <location filename="../gui/controls_qt.py" line="1351"/>
+        <location filename="../gui/controls_qt.py" line="1261"/>
+        <location filename="../gui/controls_qt.py" line="1335"/>
         <source>Start Frame:</source>
         <translation>起始帧：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1294"/>
-        <location filename="../gui/controls_qt.py" line="1311"/>
-        <location filename="../gui/controls_qt.py" line="1361"/>
-        <location filename="../gui/controls_qt.py" line="1376"/>
+        <location filename="../gui/controls_qt.py" line="1273"/>
+        <location filename="../gui/controls_qt.py" line="1293"/>
+        <location filename="../gui/controls_qt.py" line="1347"/>
+        <location filename="../gui/controls_qt.py" line="1367"/>
         <source>Set to Current</source>
         <translation>设为当前</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1300"/>
-        <location filename="../gui/controls_qt.py" line="1366"/>
+        <location filename="../gui/controls_qt.py" line="1281"/>
+        <location filename="../gui/controls_qt.py" line="1355"/>
         <source>End Frame:</source>
         <translation>结束帧：</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1322"/>
+        <location filename="../gui/controls_qt.py" line="1306"/>
         <source>MIDI</source>
         <translation>MIDI</translation>
     </message>
@@ -1860,7 +1927,7 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">裁剪</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1478"/>
+        <location filename="../gui/controls_qt.py" line="1472"/>
         <source>Optional Features</source>
         <translation>可选功能</translation>
     </message>
@@ -1869,32 +1936,32 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">启用左右手分配（MIDI 通道）</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1504"/>
+        <location filename="../gui/controls_qt.py" line="1498"/>
         <source>Optional</source>
         <translation>可选</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1515"/>
+        <location filename="../gui/controls_qt.py" line="1509"/>
         <source>Restart Synthesia2MIDI to apply the selected language.</source>
         <translation>重启 Synthesia2MIDI 以应用所选语言。</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1520"/>
+        <location filename="../gui/controls_qt.py" line="1514"/>
         <source>Converting...</source>
         <translation>正在转换...</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1522"/>
+        <location filename="../gui/controls_qt.py" line="1516"/>
         <source>Converting video to MIDI...</source>
         <translation>正在将视频转换为 MIDI...</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1668"/>
+        <location filename="../gui/controls_qt.py" line="1687"/>
         <source>Invalid Trim Range</source>
         <translation>裁剪范围无效</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1669"/>
+        <location filename="../gui/controls_qt.py" line="1688"/>
         <source>Start frame must be less than end frame.</source>
         <translation>起始帧必须小于结束帧。</translation>
     </message>
@@ -1903,12 +1970,12 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">⚠️ 裁剪视频 - 不可逆操作</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1679"/>
+        <location filename="../gui/controls_qt.py" line="1698"/>
         <source>frame {end_frame}</source>
         <translation>第 {end_frame} 帧</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1681"/>
+        <location filename="../gui/controls_qt.py" line="1700"/>
         <source>end of video</source>
         <translation>视频末尾</translation>
     </message>
@@ -1937,43 +2004,43 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
         <translation type="vanished">⚠️ 是，裁剪视频</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1799"/>
-        <location filename="../gui/controls_qt.py" line="1978"/>
+        <location filename="../gui/controls_qt.py" line="1818"/>
+        <location filename="../gui/controls_qt.py" line="1990"/>
         <source>Show Spark Overlays</source>
         <translation>显示火花覆盖层</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1813"/>
+        <location filename="../gui/controls_qt.py" line="1832"/>
         <source>Current FPS: {fps} (override)</source>
         <translation>当前 FPS：{fps}（覆盖）</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1832"/>
+        <location filename="../gui/controls_qt.py" line="1851"/>
         <source>Current FPS: {fps_override} (override, detected: {detected_fps})</source>
         <translation>当前 FPS：{fps_override}（覆盖，检测到：{detected_fps}）</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1839"/>
+        <location filename="../gui/controls_qt.py" line="1858"/>
         <source>Current FPS: {detected_fps} (auto-detected)</source>
         <translation>当前 FPS：{detected_fps}（自动检测）</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1954"/>
+        <location filename="../gui/controls_qt.py" line="1973"/>
         <source>Unlit State Calibrated</source>
         <translation>未亮状态已校准</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1997"/>
+        <location filename="../gui/controls_qt.py" line="2009"/>
         <source>Success: {message}</source>
         <translation>成功：{message}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2001"/>
+        <location filename="../gui/controls_qt.py" line="2013"/>
         <source>Error: {message}</source>
         <translation>错误：{message}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2081"/>
+        <location filename="../gui/controls_qt.py" line="2093"/>
         <source>Calibrated</source>
         <translation>已校准</translation>
     </message>
@@ -1981,32 +2048,47 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
 <context>
     <name>ConversionWorkflow</name>
     <message>
-        <location filename="../workflows/conversion.py" line="326"/>
+        <location filename="../workflows/conversion.py" line="37"/>
+        <source>Color {number}</source>
+        <translation>颜色 {number}</translation>
+    </message>
+    <message>
+        <location filename="../workflows/conversion.py" line="41"/>
+        <source>Natural</source>
+        <translation>自然音</translation>
+    </message>
+    <message>
+        <location filename="../workflows/conversion.py" line="43"/>
+        <source>Sharp / Flat</source>
+        <translation>升号 / 降号</translation>
+    </message>
+    <message>
+        <location filename="../workflows/conversion.py" line="349"/>
         <source>Detecting notes...</source>
         <translation>正在检测音符...</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="327"/>
+        <location filename="../workflows/conversion.py" line="350"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="332"/>
+        <location filename="../workflows/conversion.py" line="355"/>
         <source>Processing...</source>
         <translation>正在处理...</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="396"/>
+        <location filename="../workflows/conversion.py" line="419"/>
         <source>Detecting notes</source>
         <translation>正在检测音符</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="398"/>
+        <location filename="../workflows/conversion.py" line="421"/>
         <source>Processing</source>
         <translation>正在处理</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="402"/>
+        <location filename="../workflows/conversion.py" line="425"/>
         <source>{phase_label}... {frame_count}/{total_frames} ({percent}%) (frame {actual_frame_idx})</source>
         <translation>{phase_label}... {frame_count}/{total_frames} ({percent}%)（帧 {actual_frame_idx}）</translation>
     </message>
@@ -2022,6 +2104,19 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
         <location filename="../gui/keyboard_canvas.py" line="179"/>
         <source>Cancel</source>
         <translation>取消</translation>
+    </message>
+</context>
+<context>
+    <name>MainActionController</name>
+    <message>
+        <location filename="../gui/main_action_controller.py" line="170"/>
+        <source>Remove Color {number}</source>
+        <translation>移除颜色 {number}</translation>
+    </message>
+    <message>
+        <location filename="../gui/main_action_controller.py" line="173"/>
+        <source>Remove Color {number} and delete its saved calibration data?</source>
+        <translation>移除颜色 {number} 并删除其保存的校准数据？</translation>
     </message>
 </context>
 <context>
@@ -2119,41 +2214,41 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
         <translation>倾斜</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="83"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="87"/>
         <source>Manual Fit</source>
         <translation>手动贴合</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="103"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="107"/>
         <source>Setup</source>
         <translation>设置</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="105"/>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="440"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="109"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="444"/>
         <source>Fine Tune Overlays</source>
         <translation>微调覆盖层</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="109"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="113"/>
         <source>Back</source>
         <translation>返回</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="110"/>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="431"/>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="443"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="114"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="435"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="447"/>
         <source>Use Suggested</source>
         <translation>使用建议值</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="111"/>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="294"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="115"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="298"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="130"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="134"/>
         <source>Edit Mode</source>
         <translation>编辑模式</translation>
     </message>
@@ -2162,167 +2257,167 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
         <translation type="vanished">正在编辑：整个键盘</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="137"/>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="507"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="141"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="511"/>
         <source>Move and resize every overlay together.</source>
         <translation>一起移动并调整所有覆盖层大小。</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="142"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="146"/>
         <source>All Overlays</source>
         <translation>全部覆盖层</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="143"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="147"/>
         <source>All Whites</source>
         <translation>全部白键</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="144"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="148"/>
         <source>All Blacks</source>
         <translation>全部黑键</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="145"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="149"/>
         <source>Select Overlays</source>
         <translation>选择覆盖层</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="146"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="150"/>
         <source>Single Overlay</source>
         <translation>单个覆盖层</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="175"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="179"/>
         <source>Octave</source>
         <translation>八度</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="203"/>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="259"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="207"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="263"/>
         <source>Reset {label}</source>
         <translation>重置 {label}</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="238"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="242"/>
         <source>Select</source>
         <translation>选择</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="240"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="244"/>
         <source>Black Keys</source>
         <translation>黑键</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="241"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="245"/>
         <source>White Keys</source>
         <translation>白键</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="242"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="246"/>
         <source>All Keys</source>
         <translation>全部琴键</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="243"/>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="382"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="247"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="386"/>
         <source>Draw a box around problem keys</source>
         <translation>框选有问题的琴键</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="289"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="293"/>
         <source>Reset All</source>
         <translation>全部重置</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="290"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="294"/>
         <source>Reset Position</source>
         <translation>重置位置</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="291"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="295"/>
         <source>Reset Local</source>
         <translation>重置局部调整</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="292"/>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="399"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="296"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="403"/>
         <source>Edit Keyboard Box</source>
         <translation>编辑键盘框</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="293"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="297"/>
         <source>Clear Selected Override</source>
         <translation>清除所选手动调整</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="295"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="299"/>
         <source>Apply</source>
         <translation>应用</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="386"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="390"/>
         <source>{count} selected</source>
         <translation>已选择 {count} 个</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="392"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="396"/>
         <source>Step 1 of 3: Draw Keyboard Area</source>
         <translation>步骤 1/3：绘制键盘区域</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="393"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="397"/>
         <source>Draw one rectangle around the visible keyboard area.</source>
         <translation>围绕可见键盘区域绘制一个矩形。</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="400"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="404"/>
         <source>Adjust the green boundary bars, or draw a replacement box around the visible keyboard area.</source>
         <translation>调整绿色边界条，或围绕可见键盘区域绘制替换框。</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="406"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="410"/>
         <source>Step 2 of 3: Set Black Key Bottom</source>
         <translation>步骤 2/3：设置黑键底部</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="407"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="411"/>
         <source>Drag the orange line to slightly above the bottom of black keys.</source>
         <translation>将橙色线拖到略高于黑键底部的位置。</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="413"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="417"/>
         <source>Step 3 of 3: Set White Key Start</source>
         <translation>步骤 3/3：设置白键起点</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="414"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="418"/>
         <source>Drag the blue line to a bit under the black keys.</source>
         <translation>将蓝色线拖到黑键稍下方。</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="428"/>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="449"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="432"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="453"/>
         <source>OK</source>
         <translation>确定</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="514"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="518"/>
         <source>Adjust all white-key overlays together.</source>
         <translation>一起调整所有白键覆盖层。</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="521"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="525"/>
         <source>Adjust all black-key overlays together.</source>
         <translation>一起调整所有黑键覆盖层。</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="528"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="532"/>
         <source>Draw around the problem keys, then adjust that selected group.</source>
         <translation>框选有问题的琴键，然后调整所选组。</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="536"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="540"/>
         <source>Click one problem key, then adjust only that overlay.</source>
         <translation>点击一个有问题的琴键，然后只调整该覆盖层。</translation>
     </message>
@@ -3099,67 +3194,67 @@ Sparks should be just barely noticeable as bright flashes in the ROI.</source>
         <translation>欢迎使用 Synthesia 转 MIDI</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="66"/>
+        <location filename="../gui/startup_dialog.py" line="67"/>
         <source>Language:</source>
         <translation>语言：</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="83"/>
+        <location filename="../gui/startup_dialog.py" line="86"/>
         <source>How would you like to load a video?</source>
         <translation>请选择视频加载方式：</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="88"/>
+        <location filename="../gui/startup_dialog.py" line="92"/>
         <source>Choose a Synthesia-style piano video with visible keys and falling notes.</source>
         <translation>选择一个 Synthesia 风格钢琴视频，琴键和下落音符要可见。</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="105"/>
+        <location filename="../gui/startup_dialog.py" line="109"/>
         <source>Open Video File</source>
         <translation>打开视频文件</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="107"/>
+        <location filename="../gui/startup_dialog.py" line="111"/>
         <source>Browse for a video file on your computer</source>
         <translation>浏览电脑上的视频文件</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="112"/>
+        <location filename="../gui/startup_dialog.py" line="116"/>
         <source>Download from YouTube</source>
         <translation>从 YouTube 下载</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="114"/>
+        <location filename="../gui/startup_dialog.py" line="118"/>
         <source>Download a video from YouTube</source>
         <translation>从 YouTube 下载视频</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="126"/>
+        <location filename="../gui/startup_dialog.py" line="130"/>
         <source>Recent Videos</source>
         <translation>最近视频</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="155"/>
+        <location filename="../gui/startup_dialog.py" line="159"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="187"/>
+        <location filename="../gui/startup_dialog.py" line="197"/>
         <source>Language</source>
         <translation>语言</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="188"/>
+        <location filename="../gui/startup_dialog.py" line="198"/>
         <source>Restart Synthesia2MIDI to apply the selected language.</source>
         <translation>重启 Synthesia2MIDI 以应用所选语言。</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="195"/>
+        <location filename="../gui/startup_dialog.py" line="205"/>
         <source>{filename} (missing)</source>
         <translation>{filename}（缺失）</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="200"/>
+        <location filename="../gui/startup_dialog.py" line="210"/>
         <source>{filename} — {folder}</source>
         <translation>{filename} — {folder}</translation>
     </message>
@@ -3694,175 +3789,175 @@ You can now load the frame series for faster playback.</source>
         <translation type="vanished">YouTube 访问后备</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="144"/>
+        <location filename="../gui/youtube_download_dialog.py" line="146"/>
         <source>If YouTube blocks the download</source>
         <translation>如果 YouTube 阻止下载</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="148"/>
+        <location filename="../gui/youtube_download_dialog.py" line="150"/>
         <source>Synthesia2MIDI can retry using saved browser cookies only if YouTube blocks the normal download.</source>
         <translation>只有在 YouTube 阻止正常下载时，Synthesia2MIDI 才能使用已保存的浏览器 Cookie 重试。</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="166"/>
+        <location filename="../gui/youtube_download_dialog.py" line="168"/>
         <source>Auto-retry with saved browser cookies if YouTube blocks access</source>
         <translation>如果 YouTube 阻止访问，使用已保存的浏览器 Cookie 自动重试</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="176"/>
+        <location filename="../gui/youtube_download_dialog.py" line="178"/>
         <source>Refresh Info</source>
         <translation>刷新信息</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="182"/>
+        <location filename="../gui/youtube_download_dialog.py" line="184"/>
         <source>Download Progress</source>
         <translation>下载进度</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="189"/>
-        <location filename="../gui/youtube_download_dialog.py" line="242"/>
-        <location filename="../gui/youtube_download_dialog.py" line="247"/>
-        <location filename="../gui/youtube_download_dialog.py" line="271"/>
-        <location filename="../gui/youtube_download_dialog.py" line="329"/>
+        <location filename="../gui/youtube_download_dialog.py" line="191"/>
+        <location filename="../gui/youtube_download_dialog.py" line="244"/>
+        <location filename="../gui/youtube_download_dialog.py" line="249"/>
+        <location filename="../gui/youtube_download_dialog.py" line="273"/>
+        <location filename="../gui/youtube_download_dialog.py" line="331"/>
         <source>Ready to download</source>
         <translation>准备下载</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="199"/>
+        <location filename="../gui/youtube_download_dialog.py" line="201"/>
         <source>Download Video</source>
         <translation>下载视频</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="204"/>
-        <location filename="../gui/youtube_download_dialog.py" line="517"/>
+        <location filename="../gui/youtube_download_dialog.py" line="206"/>
+        <location filename="../gui/youtube_download_dialog.py" line="529"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="209"/>
+        <location filename="../gui/youtube_download_dialog.py" line="211"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="239"/>
-        <location filename="../gui/youtube_download_dialog.py" line="269"/>
+        <location filename="../gui/youtube_download_dialog.py" line="241"/>
+        <location filename="../gui/youtube_download_dialog.py" line="271"/>
         <source>Invalid YouTube URL</source>
         <translation>无效的 YouTube URL</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="244"/>
-        <location filename="../gui/youtube_download_dialog.py" line="285"/>
+        <location filename="../gui/youtube_download_dialog.py" line="246"/>
+        <location filename="../gui/youtube_download_dialog.py" line="287"/>
         <source>Fetching video information...</source>
         <translation>正在获取视频信息...</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="302"/>
+        <location filename="../gui/youtube_download_dialog.py" line="304"/>
         <source>&lt;b&gt;Title:&lt;/b&gt; {title}</source>
         <translation>&lt;b&gt;标题：&lt;/b&gt; {title}</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="311"/>
+        <location filename="../gui/youtube_download_dialog.py" line="313"/>
         <source>&lt;b&gt;Duration:&lt;/b&gt; {duration}</source>
         <translation>&lt;b&gt;时长：&lt;/b&gt; {duration}</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="317"/>
+        <location filename="../gui/youtube_download_dialog.py" line="319"/>
         <source>&lt;b&gt;Uploader:&lt;/b&gt; {uploader}</source>
         <translation>&lt;b&gt;上传者：&lt;/b&gt; {uploader}</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="356"/>
+        <location filename="../gui/youtube_download_dialog.py" line="368"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="357"/>
+        <location filename="../gui/youtube_download_dialog.py" line="369"/>
         <source>Failed to fetch video info: {error}</source>
         <translation>获取视频信息失败：{error}</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="361"/>
+        <location filename="../gui/youtube_download_dialog.py" line="373"/>
         <source>Failed to fetch video info</source>
         <translation>获取视频信息失败</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="390"/>
+        <location filename="../gui/youtube_download_dialog.py" line="402"/>
         <source>Video Already Downloaded</source>
         <translation>视频已下载</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="391"/>
+        <location filename="../gui/youtube_download_dialog.py" line="403"/>
         <source>This quality is already downloaded. Use existing file?</source>
         <translation>此清晰度已下载。使用现有文件吗？</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="402"/>
-        <location filename="../gui/youtube_download_dialog.py" line="442"/>
+        <location filename="../gui/youtube_download_dialog.py" line="414"/>
+        <location filename="../gui/youtube_download_dialog.py" line="454"/>
         <source>Download cancelled</source>
         <translation>下载已取消</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="421"/>
+        <location filename="../gui/youtube_download_dialog.py" line="433"/>
         <source>Cancel Download</source>
         <translation>取消下载</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="427"/>
+        <location filename="../gui/youtube_download_dialog.py" line="439"/>
         <source>Starting download...</source>
         <translation>正在开始下载...</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="469"/>
+        <location filename="../gui/youtube_download_dialog.py" line="481"/>
         <source>Still waiting for YouTube...</source>
         <translation>仍在等待 YouTube...</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="475"/>
+        <location filename="../gui/youtube_download_dialog.py" line="487"/>
         <source>Download complete!</source>
         <translation>下载完成！</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="483"/>
+        <location filename="../gui/youtube_download_dialog.py" line="495"/>
         <source>Download Complete</source>
         <translation>下载完成</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="484"/>
+        <location filename="../gui/youtube_download_dialog.py" line="496"/>
         <source>Video downloaded successfully. Load it now?</source>
         <translation>视频已成功下载。现在加载吗？</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="501"/>
+        <location filename="../gui/youtube_download_dialog.py" line="513"/>
         <source>Download failed</source>
         <translation>下载失败</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="505"/>
+        <location filename="../gui/youtube_download_dialog.py" line="517"/>
         <source>Download Error</source>
         <translation>下载错误</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="506"/>
+        <location filename="../gui/youtube_download_dialog.py" line="518"/>
         <source>Failed to download video: {error}</source>
         <translation>视频下载失败：{error}</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="527"/>
+        <location filename="../gui/youtube_download_dialog.py" line="539"/>
         <source>1080p - recommended for best MIDI detection</source>
         <translation>1080p - 建议用于最佳 MIDI 检测</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="533"/>
+        <location filename="../gui/youtube_download_dialog.py" line="545"/>
         <source>720p - faster, may be less accurate</source>
         <translation>720p - 更快，但精度可能较低</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="539"/>
+        <location filename="../gui/youtube_download_dialog.py" line="551"/>
         <source>480p - fastest, highest risk of bad calibration</source>
         <translation>480p - 最快，但错误校准风险最高</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="589"/>
+        <location filename="../gui/youtube_download_dialog.py" line="601"/>
         <source>Up to {preset} ({actual_height}p source) - {note}</source>
         <translation>最高到 {preset}（源为 {actual_height}p） - {note}</translation>
     </message>
@@ -3875,35 +3970,35 @@ You can now load the frame series for faster playback.</source>
         <translation type="vanished">480p - 处理最快，校准风险最高</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="595"/>
+        <location filename="../gui/youtube_download_dialog.py" line="607"/>
         <source>Up to {target_height}p ({actual_height}p source)</source>
         <translation>最高 {target_height}p ({actual_height}p 源)</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="602"/>
-        <location filename="../gui/youtube_download_dialog.py" line="605"/>
+        <location filename="../gui/youtube_download_dialog.py" line="614"/>
+        <location filename="../gui/youtube_download_dialog.py" line="617"/>
         <source>recommended for best MIDI detection</source>
         <translation>建议用于最佳 MIDI 检测</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="608"/>
-        <location filename="../gui/youtube_download_dialog.py" line="611"/>
+        <location filename="../gui/youtube_download_dialog.py" line="620"/>
+        <location filename="../gui/youtube_download_dialog.py" line="623"/>
         <source>faster, may be less accurate</source>
         <translation>更快，但精度可能较低</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="614"/>
-        <location filename="../gui/youtube_download_dialog.py" line="617"/>
+        <location filename="../gui/youtube_download_dialog.py" line="626"/>
+        <location filename="../gui/youtube_download_dialog.py" line="629"/>
         <source>fastest, highest risk of bad calibration</source>
         <translation>最快，但错误校准风险最高</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="675"/>
+        <location filename="../gui/youtube_download_dialog.py" line="687"/>
         <source>Download in Progress</source>
         <translation>下载进行中</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="676"/>
+        <location filename="../gui/youtube_download_dialog.py" line="688"/>
         <source>A download is in progress. Cancel and close?</source>
         <translation>下载正在进行。取消并关闭吗？</translation>
     </message>

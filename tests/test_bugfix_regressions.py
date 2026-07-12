@@ -13,6 +13,7 @@ from synthesia2midi.core.app_state import AppState
 from synthesia2midi.detection.assisted_calibration import (
     AssignedExemplar,
     AssistedCalibrationProposal,
+    ExemplarCandidate,
     ExemplarAssignmentResult,
     UnlitFrameAssessment,
 )
@@ -317,6 +318,21 @@ def _make_assigned_exemplar(slot, *, rgb=None, enabled=True):
         hist=np.array([1.0], dtype=np.float32) if rgb is not None and enabled else None,
         source=None,
         enabled=enabled,
+    )
+
+
+def _make_exemplar_candidate(slot_color, rgb, *, frame_index, key_id):
+    hsv = cv2.cvtColor(np.array([[rgb]], dtype=np.uint8), cv2.COLOR_RGB2HSV)[0, 0]
+    return ExemplarCandidate(
+        slot_color=slot_color,
+        key_id=key_id,
+        note_label="C4",
+        frame_index=frame_index,
+        rgb=rgb,
+        hsv=(float(hsv[0]), float(hsv[1]), float(hsv[2])),
+        delta_from_unlit=100.0,
+        confidence=0.9,
+        hist=np.array([1.0], dtype=np.float32),
     )
 
 
@@ -999,6 +1015,69 @@ def test_assisted_calibration_accept_preserves_prior_slots_not_found_by_scan(mon
     )
     assert save_log == ["save"]
     assert refresh_calls == ["refresh"]
+
+
+def test_assisted_calibration_controller_preserves_saved_family_identity_with_reversed_evidence(
+    monkeypatch,
+):
+    from synthesia2midi.gui.assisted_calibration_dialog import AssistedCalibrationDecision
+
+    QApplication.instance() or QApplication([])
+    controller = _make_assisted_calibration_controller(save_log=[])
+    detection = controller.app_state.detection
+    saved_colors = {
+        "LW": (70, 130, 230),
+        "LB": (45, 95, 185),
+        "RW": (235, 65, 65),
+        "RB": (185, 35, 35),
+    }
+    detection.exemplar_lit_colors.update(saved_colors)
+
+    candidates = list(
+        reversed(
+            [
+                _make_exemplar_candidate("W", saved_colors["RW"], frame_index=10, key_id=1),
+                _make_exemplar_candidate("W", saved_colors["RW"], frame_index=20, key_id=1),
+                _make_exemplar_candidate("B", saved_colors["RB"], frame_index=11, key_id=2),
+                _make_exemplar_candidate("B", saved_colors["RB"], frame_index=21, key_id=2),
+                _make_exemplar_candidate("W", saved_colors["LW"], frame_index=40, key_id=3),
+                _make_exemplar_candidate("W", saved_colors["LW"], frame_index=50, key_id=3),
+                _make_exemplar_candidate("B", saved_colors["LB"], frame_index=41, key_id=4),
+                _make_exemplar_candidate("B", saved_colors["LB"], frame_index=51, key_id=4),
+            ]
+        )
+    )
+
+    class FakeProgressDialog:
+        def __init__(self, *_args, **_kwargs):
+            pass
+
+        def setWindowTitle(self, _title):
+            pass
+
+        def setMinimumDuration(self, _duration):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(
+        "synthesia2midi.gui.calibration_wizard_controller.QProgressDialog",
+        FakeProgressDialog,
+    )
+    monkeypatch.setattr(
+        "synthesia2midi.detection.assisted_calibration.scan_lit_exemplar_candidates",
+        lambda *_args, **_kwargs: (candidates, len(candidates), False),
+    )
+    _patch_assisted_dialog(monkeypatch, AssistedCalibrationDecision.USE)
+
+    assert controller._run_assisted_auto_calibration(
+        np.full((8, 8, 3), 245, dtype=np.uint8), 3
+    ) is True
+    assert detection.exemplar_lit_colors["LW"] == saved_colors["LW"]
+    assert detection.exemplar_lit_colors["LB"] == saved_colors["LB"]
+    assert detection.exemplar_lit_colors["RW"] == saved_colors["RW"]
+    assert detection.exemplar_lit_colors["RB"] == saved_colors["RB"]
 
 
 def test_main_action_controller_delegates_histogram_and_similarity_thresholds():

@@ -92,6 +92,21 @@ def _overlay(
     )
 
 
+def _build_proposal_from_candidates(monkeypatch, candidates, *, saved_anchors=None):
+    monkeypatch.setattr(
+        assisted_calibration,
+        "scan_lit_exemplar_candidates",
+        lambda *_args, **_kwargs: (candidates, len(candidates), False),
+    )
+    return build_assisted_calibration_proposal(
+        lambda _index: np.zeros((4, 4, 3), dtype=np.uint8),
+        [],
+        baseline_frame_index=0,
+        end_frame=100,
+        saved_anchors=saved_anchors,
+    )
+
+
 def test_overlay_sampling_uses_clipped_integer_roi():
     frame = np.zeros((5, 6, 3), dtype=np.uint8)
     frame[1:3, 1:4] = (10, 20, 30)
@@ -915,6 +930,20 @@ def test_apply_assisted_calibration_proposal_updates_colors_histograms_and_enabl
     assert app_state.unsaved_changes is True
 
 
+def test_assisted_calibration_proposal_preserves_positional_canceled_argument():
+    proposal = AssistedCalibrationProposal(
+        12,
+        UnlitFrameAssessment(status="clean"),
+        assign_exemplar_slots([]),
+        3,
+        0,
+        True,
+    )
+
+    assert proposal.canceled is True
+    assert proposal.warnings == ()
+
+
 def test_build_assisted_calibration_proposal_combines_guard_scan_and_assignment():
     overlay = _overlay(key_id=1, x=0, y=0, width=4, height=4)
     baseline = np.full((8, 8, 3), (245, 245, 235), dtype=np.uint8)
@@ -964,6 +993,60 @@ def test_build_assisted_calibration_proposal_skips_baseline_frame_as_lit_candida
     assert proposal.scanned_frame_count == 4
     assert proposal.candidate_count == 2
     assert proposal.assignment_result.assignments["LW"].rgb == (130, 165, 205)
+
+
+def test_build_assisted_calibration_proposal_carries_over_cap_warning(monkeypatch):
+    family_samples = (
+        ((70, 130, 230), (45, 95, 185)),
+        ((235, 65, 65), (185, 35, 35)),
+        ((235, 215, 45), (185, 165, 25)),
+        ((45, 210, 70), (25, 160, 50)),
+        ((165, 80, 220), (115, 45, 170)),
+    )
+    candidates = []
+    for family_index, (natural_rgb, accidental_rgb) in enumerate(family_samples):
+        candidates.extend(
+            _stable_candidates(
+                "W",
+                natural_rgb,
+                first_frame=10 + (family_index * 30),
+                key_id=10 + family_index,
+            )
+        )
+        candidates.extend(
+            _stable_candidates(
+                "B",
+                accidental_rgb,
+                first_frame=11 + (family_index * 30),
+                key_id=20 + family_index,
+            )
+        )
+
+    proposal = _build_proposal_from_candidates(monkeypatch, candidates)
+
+    assert proposal.warnings == ("More than four stable color families were found.",)
+
+
+def test_build_assisted_calibration_proposal_carries_anchor_conflict_warning(monkeypatch):
+    natural_rgb = (70, 130, 230)
+    accidental_rgb = (45, 95, 185)
+    candidates = [
+        *_stable_candidates("W", natural_rgb, key_id=1),
+        *_stable_candidates("B", accidental_rgb, first_frame=11, key_id=2),
+    ]
+
+    proposal = _build_proposal_from_candidates(
+        monkeypatch,
+        candidates,
+        saved_anchors={
+            1: {"natural": natural_rgb},
+            2: {"accidental": accidental_rgb},
+        },
+    )
+
+    assert proposal.warnings == (
+        "Evidence conflicts with two saved color family identities.",
+    )
 
 
 def test_load_exemplar_lit_color_targets_reads_configured_slots(tmp_path):

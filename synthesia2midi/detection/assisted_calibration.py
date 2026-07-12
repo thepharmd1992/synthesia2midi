@@ -91,6 +91,7 @@ class AssistedCalibrationProposal:
     scanned_frame_count: int
     candidate_count: int
     canceled: bool = False
+    warnings: Tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -392,12 +393,12 @@ def _cluster_exemplar_families(
     return family_buckets
 
 
-def assign_exemplar_slots(
+def _assign_exemplar_slots_with_warnings(
     candidates: Sequence[ExemplarCandidate],
     *,
     family_hue_threshold: float = 22.0,
     saved_anchors: SavedFamilyAnchors | None = None,
-) -> ExemplarAssignmentResult:
+) -> tuple[ExemplarAssignmentResult, Tuple[str, ...]]:
     evidence_sources: dict[FamilyEvidence, list[ExemplarCandidate]] = {}
     evidence: list[FamilyEvidence] = []
     for candidate in candidates:
@@ -424,7 +425,7 @@ def assign_exemplar_slots(
             histogram_key,
         )
 
-    family_assignments, _warnings = assign_family_slots(
+    family_assignments, warnings = assign_family_slots(
         evidence,
         saved_anchors=saved_anchors,
         family_hue_threshold=family_hue_threshold,
@@ -475,13 +476,30 @@ def assign_exemplar_slots(
     assert tuple(assignments) == SUPPORTED_EXEMPLAR_SLOTS
 
     confidence = float(np.mean(confidences)) if confidences else 0.0
-    return ExemplarAssignmentResult(
-        assignments=assignments,
-        missing_slots=tuple(missing),
-        disabled_slots=tuple(disabled),
-        family_count=len(family_assignments),
-        confidence=confidence,
+    return (
+        ExemplarAssignmentResult(
+            assignments=assignments,
+            missing_slots=tuple(missing),
+            disabled_slots=tuple(disabled),
+            family_count=len(family_assignments),
+            confidence=confidence,
+        ),
+        warnings,
     )
+
+
+def assign_exemplar_slots(
+    candidates: Sequence[ExemplarCandidate],
+    *,
+    family_hue_threshold: float = 22.0,
+    saved_anchors: SavedFamilyAnchors | None = None,
+) -> ExemplarAssignmentResult:
+    result, _warnings = _assign_exemplar_slots_with_warnings(
+        candidates,
+        family_hue_threshold=family_hue_threshold,
+        saved_anchors=saved_anchors,
+    )
+    return result
 
 
 def apply_assisted_calibration_proposal(
@@ -504,6 +522,7 @@ def build_assisted_calibration_proposal(
     end_frame: int,
     settings: ExemplarScanSettings = ExemplarScanSettings(),
     progress_callback: Optional[ProgressCallback] = None,
+    saved_anchors: SavedFamilyAnchors | None = None,
 ) -> AssistedCalibrationProposal:
     baseline_frame = frame_provider(baseline_frame_index)
     assessment = (
@@ -521,13 +540,17 @@ def build_assisted_calibration_proposal(
         settings=settings,
         progress_callback=progress_callback,
     )
-    assignment = assign_exemplar_slots(candidates)
+    assignment, warnings = _assign_exemplar_slots_with_warnings(
+        candidates,
+        saved_anchors=saved_anchors,
+    )
     return AssistedCalibrationProposal(
         baseline_frame_index=baseline_frame_index,
         unlit_assessment=assessment,
         assignment_result=assignment,
         scanned_frame_count=scanned,
         candidate_count=len(candidates),
+        warnings=warnings,
         canceled=canceled,
     )
 

@@ -10,12 +10,18 @@ import numpy as np
 from PySide6.QtCore import QCoreApplication, Qt
 from PySide6.QtWidgets import QApplication, QDialog, QMessageBox, QProgressDialog, QWidget
 
+from synthesia2midi.core.color_families import COLOR_FAMILIES, slots_for_family
 from synthesia2midi.detection.assisted_calibration import (
     assess_unlit_frame,
     ExemplarScanSettings,
     apply_assisted_calibration_proposal,
     build_assisted_calibration_proposal,
     capture_unlit_references_from_frame,
+)
+from synthesia2midi.detection.color_family_assignment import (
+    Morphology,
+    RGB,
+    SavedFamilyAnchors,
 )
 
 from synthesia2midi.gui.auto_detect_tuning_controller import AutoDetectTuningController
@@ -406,6 +412,20 @@ class CalibrationWizardController:
         )
         self.app_state.unsaved_changes = snapshot["unsaved_changes"]
 
+    def _saved_family_anchors(self) -> SavedFamilyAnchors:
+        saved_colors = self.app_state.detection.exemplar_lit_colors
+        anchors: dict[int, dict[Morphology, RGB]] = {}
+        for family in COLOR_FAMILIES:
+            natural_slot, accidental_slot = slots_for_family(family.number)
+            family_anchors: dict[Morphology, RGB] = {}
+            if saved_colors.get(natural_slot) is not None:
+                family_anchors["natural"] = saved_colors[natural_slot]
+            if saved_colors.get(accidental_slot) is not None:
+                family_anchors["accidental"] = saved_colors[accidental_slot]
+            if family_anchors:
+                anchors[family.number] = family_anchors
+        return anchors
+
     def _set_assisted_calibration_guide_state(self, state: str) -> None:
         panel = getattr(self.app, "control_panel", None)
         guide = getattr(panel, "guide_page", None) if panel is not None else None
@@ -472,6 +492,7 @@ class CalibrationWizardController:
             end_frame=end_frame,
             settings=ExemplarScanSettings(),
             progress_callback=progress_callback,
+            saved_anchors=self._saved_family_anchors(),
         )
         progress.close()
         if proposal.canceled:

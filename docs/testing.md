@@ -137,6 +137,19 @@ print('offscreen Video2MidiApp smoke ok')
 PY
 ```
 
+## Offscreen UI Matrix
+
+Render the core UI surfaces in the expanded pseudo-locale and fail on blank images or detected text clipping:
+
+```bash
+QT_QPA_PLATFORM=offscreen .venv/bin/python -m synthesia2midi.tools.render_ui_matrix \
+  --locale qps \
+  --font-scale 1.5 \
+  --output logs/ux-audit/phase-4-qps
+```
+
+The command writes one PNG per surface plus `report.json`. The default `logs/` destination is ignored and must not be committed.
+
 ## Rust Editor Gate
 
 ```bash

@@ -10,7 +10,7 @@ import logging
 from typing import Any, Callable, Dict, Optional, Tuple
 
 # Third-party imports
-from PySide6.QtCore import QObject, QPoint, QRect, Qt, Signal
+from PySide6.QtCore import QCoreApplication, QObject, QPoint, QRect, Qt, Signal
 from PySide6.QtGui import QKeyEvent, QMouseEvent
 from PySide6.QtWidgets import QRubberBand, QWidget
 
@@ -46,6 +46,10 @@ class CanvasInteraction(QObject):
     request_repaint = Signal()  # Request canvas repaint after interaction
     spark_roi_selected = Signal(int, int)  # top_y, bottom_y coordinates for spark ROI
     keyboard_region_selected = Signal(int, int, int, int)  # x, y, width, height in image coordinates
+    selection_mode_started = Signal(str, str)  # title, instruction
+    selection_mode_finished = Signal()
+    selection_feedback_changed = Signal(str)
+    selection_cancelled = Signal(str)
     
     def __init__(self, canvas_widget: QWidget, coord_manager: CoordinateManager, app_state: AppState):
         super().__init__()
@@ -148,16 +152,33 @@ class CanvasInteraction(QObject):
     def _enter_roi_selection_mode(self, roi_type: str):
         self._roi_selection_mode = True
         self._roi_selection_type = roi_type
+        titles = {
+            "spark": QCoreApplication.translate("CanvasInteraction", "Select Spark Region"),
+            "shadow": QCoreApplication.translate("CanvasInteraction", "Select Shadow Region"),
+            "shadow_white": QCoreApplication.translate("CanvasInteraction", "Select White-Key Shadow Region"),
+            "shadow_black": QCoreApplication.translate("CanvasInteraction", "Select Black-Key Shadow Region"),
+        }
+        self.selection_mode_started.emit(
+            titles.get(roi_type, QCoreApplication.translate("CanvasInteraction", "Select Region")),
+            QCoreApplication.translate(
+                "CanvasInteraction",
+                "Drag across the video to select the region.",
+            ),
+        )
         self.logger.info("Entered %s ROI selection mode - click and drag to select region", roi_type)
     
         
-    def exit_spark_roi_selection_mode(self):
+    def exit_spark_roi_selection_mode(self, *, cancelled: bool = False):
         """Exit spark ROI selection mode."""
+        selection_type = self._roi_selection_type
         self._roi_selection_mode = False
         self._roi_selecting = False
         if self._roi_rubber_band:
             self._roi_rubber_band.hide()
             self._roi_rubber_band = None
+        self.selection_mode_finished.emit()
+        if cancelled:
+            self.selection_cancelled.emit(selection_type)
         self.logger.info("Exited spark ROI selection mode")
     
         
@@ -192,6 +213,48 @@ class CanvasInteraction(QObject):
         self._manual_fit_keyboard_box_edge_dragging = False
         self._manual_fit_keyboard_box_edge = ""
         self._manual_fit_keyboard_box_edge_image_offset = 0.0
+        selection_copy = {
+            "manual_fit_local_select": (
+                QCoreApplication.translate("CanvasInteraction", "Select Local Keys"),
+                QCoreApplication.translate(
+                    "CanvasInteraction", "Drag a box around the keys to adjust together."
+                ),
+            ),
+            "manual_fit_keyboard_box": (
+                QCoreApplication.translate("CanvasInteraction", "Draw Keyboard Box"),
+                QCoreApplication.translate(
+                    "CanvasInteraction", "Drag a box around the full keyboard."
+                ),
+            ),
+            "manual_fit_black_region": (
+                QCoreApplication.translate("CanvasInteraction", "Select Black-Key Region"),
+                QCoreApplication.translate(
+                    "CanvasInteraction", "Drag across the vertical area occupied by black keys."
+                ),
+            ),
+            "manual_fit_white_region": (
+                QCoreApplication.translate("CanvasInteraction", "Select White-Key Region"),
+                QCoreApplication.translate(
+                    "CanvasInteraction", "Drag across the vertical area occupied by white keys."
+                ),
+            ),
+            "manual_fit_black_bottom": (
+                QCoreApplication.translate("CanvasInteraction", "Set Black-Key Bottom"),
+                QCoreApplication.translate(
+                    "CanvasInteraction", "Click or drag the guide to the bottom of the black keys."
+                ),
+            ),
+            "manual_fit_white_start": (
+                QCoreApplication.translate("CanvasInteraction", "Set White-Key Start"),
+                QCoreApplication.translate(
+                    "CanvasInteraction", "Click or drag the guide to the top of the white-key area."
+                ),
+            ),
+        }
+        if mode in selection_copy:
+            self.selection_mode_started.emit(*selection_copy[mode])
+        else:
+            self.selection_mode_finished.emit()
 
     def manual_fit_mode(self) -> str:
         return self._manual_fit_mode
@@ -199,20 +262,59 @@ class CanvasInteraction(QObject):
     def enter_keyboard_region_selection_mode(self):
         """Enter keyboard region selection mode."""
         self._keyboard_region_selection_mode = True
+        self.selection_mode_started.emit(
+            QCoreApplication.translate("CanvasInteraction", "Find Keyboard"),
+            QCoreApplication.translate(
+                "CanvasInteraction", "Drag a box around the full keyboard, from the first key to the last."
+            ),
+        )
         self.logger.info("Entered keyboard region selection mode - click and drag to select keyboard area")
         
-    def exit_keyboard_region_selection_mode(self):
+    def exit_keyboard_region_selection_mode(self, *, cancelled: bool = False):
         """Exit keyboard region selection mode."""
         self._keyboard_region_selection_mode = False
         self._keyboard_region_selecting = False
         if self._keyboard_region_rubber_band:
             self._keyboard_region_rubber_band.hide()
             self._keyboard_region_rubber_band = None
+        self.selection_mode_finished.emit()
+        if cancelled:
+            self.selection_cancelled.emit("keyboard_region")
         self.logger.info("Exited keyboard region selection mode")
         
     def is_in_keyboard_region_selection_mode(self) -> bool:
         """Check if currently in keyboard region selection mode."""
         return self._keyboard_region_selection_mode
+
+    def has_active_selection_mode(self) -> bool:
+        return bool(
+            self._keyboard_region_selection_mode
+            or self._roi_selection_mode
+            or self._manual_fit_mode
+            in {
+                "manual_fit_local_select",
+                "manual_fit_keyboard_box",
+                "manual_fit_black_bottom",
+                "manual_fit_white_start",
+                "manual_fit_black_region",
+                "manual_fit_white_region",
+            }
+        )
+
+    def cancel_active_selection_mode(self) -> bool:
+        if self._keyboard_region_selection_mode:
+            self.exit_keyboard_region_selection_mode(cancelled=True)
+            return True
+        if self._roi_selection_mode:
+            self.exit_spark_roi_selection_mode(cancelled=True)
+            return True
+        if self._manual_fit_mode != "off" and self.has_active_selection_mode():
+            cancelled_mode = self._manual_fit_mode
+            self._finish_manual_fit_region_selection()
+            self.set_manual_fit_mode("manual_fit_group")
+            self.selection_cancelled.emit(cancelled_mode)
+            return True
+        return False
     
     def handle_mouse_press(self, event: QMouseEvent) -> bool:
         """
@@ -238,6 +340,8 @@ class CanvasInteraction(QObject):
             return self._handle_manual_fit_local_selection_press(event)
         elif self._manual_fit_mode == "manual_fit_group":
             return self._handle_manual_fit_group_press(event)
+        elif self._manual_fit_mode == "manual_fit_single":
+            return self._handle_manual_fit_single_press(event)
         elif event.modifiers() & Qt.ControlModifier:
             return self._handle_ctrl_press(event)
         else:
@@ -315,45 +419,34 @@ class CanvasInteraction(QObject):
     def _handle_normal_press(self, event: QMouseEvent) -> bool:
         """Handle normal mouse press (no modifiers)."""
         canvas_x, canvas_y = event.x(), event.y()
-        
-        # Check if clicking on an overlay
         overlay_info = self._find_overlay_at_position(canvas_x, canvas_y)
-        
         if overlay_info is not None:
-            overlay_idx, overlay, click_type = overlay_info
-            
-            if click_type == "center":
-                # Start drag operation
-                self._start_drag_operation(overlay_idx, overlay, canvas_x, canvas_y, "drag")
-                self.overlay_selected.emit(overlay.key_id)  # Emit key_id, not index
-            elif click_type == "corner":
-                # Start resize operation
-                self._start_resize_operation(overlay_idx, overlay, canvas_x, canvas_y)
-                self.overlay_selected.emit(overlay.key_id)  # Emit key_id, not index
-            
+            _overlay_idx, overlay, _click_type = overlay_info
+            self.overlay_selected.emit(overlay.key_id)
             return True
-        else:
-            # Clicked on empty area - emit no selection and let the canvas/controller own state.
-            self.overlay_selected.emit(-1)  # Signal no selection
-            
-            return True
-    
-    def _handle_ctrl_press(self, event: QMouseEvent) -> bool:
-        """Handle Ctrl+click for color picking and resize mode."""
+
+        self.overlay_selected.emit(-1)
+        return True
+
+    def _handle_manual_fit_single_press(self, event: QMouseEvent) -> bool:
+        """Start a geometry edit only from the explicit Single Overlay tool."""
         canvas_x, canvas_y = event.x(), event.y()
-        
-        # Check if clicking on an overlay for resize mode
         overlay_info = self._find_overlay_at_position(canvas_x, canvas_y)
-        
-        if overlay_info is not None:
-            overlay_idx, overlay, _ = overlay_info
-            # Force resize mode for Ctrl+click on overlay
+        if overlay_info is None:
+            self.overlay_selected.emit(-1)
+            return True
+
+        overlay_idx, overlay, click_type = overlay_info
+        if click_type == "corner":
             self._start_resize_operation(overlay_idx, overlay, canvas_x, canvas_y)
-            self.overlay_selected.emit(overlay.key_id)  # Emit key_id, not index
         else:
-            # Ctrl+click on empty area - color picking
-            self._perform_color_picking(canvas_x, canvas_y)
-        
+            self._start_drag_operation(overlay_idx, overlay, canvas_x, canvas_y, "drag")
+        self.overlay_selected.emit(overlay.key_id)
+        return True
+
+    def _handle_ctrl_press(self, event: QMouseEvent) -> bool:
+        """Handle Ctrl+click for color picking without editing overlay geometry."""
+        self._perform_color_picking(event.x(), event.y())
         return True
     
     def _start_drag_operation(self, overlay_idx: int, overlay: OverlayConfig, 
@@ -930,6 +1023,7 @@ class CanvasInteraction(QObject):
     def _handle_roi_selection_press(self, event: QMouseEvent) -> bool:
         """Handle mouse press during ROI selection mode."""
         if event.button() == Qt.LeftButton:
+            self.selection_feedback_changed.emit("")
             # Start ROI selection
             self._roi_selecting = True
             self._roi_start_pos = QPoint(event.x(), event.y())
@@ -952,7 +1046,7 @@ class CanvasInteraction(QObject):
             return True
         elif event.button() == Qt.RightButton:
             # Right click to cancel ROI selection mode
-            self.exit_spark_roi_selection_mode()
+            self.exit_spark_roi_selection_mode(cancelled=True)
             return True
         return False
     
@@ -1011,6 +1105,7 @@ class CanvasInteraction(QObject):
     def _handle_keyboard_region_selection_press(self, event: QMouseEvent) -> bool:
         """Handle mouse press during keyboard region selection mode."""
         if event.button() == Qt.LeftButton:
+            self.selection_feedback_changed.emit("")
             # Start keyboard region selection
             self._keyboard_region_selecting = True
             self._keyboard_region_start_pos = QPoint(event.x(), event.y())
@@ -1033,7 +1128,7 @@ class CanvasInteraction(QObject):
             return True
         elif event.button() == Qt.RightButton:
             # Right click to cancel keyboard region selection mode
-            self.exit_keyboard_region_selection_mode()
+            self.exit_keyboard_region_selection_mode(cancelled=True)
             return True
         return False
     
@@ -1080,7 +1175,15 @@ class CanvasInteraction(QObject):
                 # Ensure minimum size
                 if width < 50 or height < 20:
                     self.logger.warning(f"Selected keyboard region too small ({width}x{height}), please select a larger area")
-                    self.exit_keyboard_region_selection_mode()
+                    self._keyboard_region_selecting = False
+                    if self._keyboard_region_rubber_band:
+                        self._keyboard_region_rubber_band.hide()
+                    self.selection_feedback_changed.emit(
+                        QCoreApplication.translate(
+                            "CanvasInteraction",
+                            "That box is too small. Drag a larger box around the full keyboard.",
+                        )
+                    )
                     return
                 
                 # Clamp to image bounds
@@ -1104,9 +1207,18 @@ class CanvasInteraction(QObject):
             else:
                 self.logger.warning("Failed to convert keyboard region selection to image coordinates")
                 self.logger.warning(f"coord_manager dimensions: image={self.coord_manager.image_width}x{self.coord_manager.image_height}")
+                self._keyboard_region_selecting = False
+                if self._keyboard_region_rubber_band:
+                    self._keyboard_region_rubber_band.hide()
+                self.selection_feedback_changed.emit(
+                    QCoreApplication.translate(
+                        "CanvasInteraction",
+                        "The box could not be read. Try drawing it again inside the video.",
+                    )
+                )
 
-            # Ensure selection mode is exited even if coordinate conversion failed.
-            if self._keyboard_region_selection_mode or self._keyboard_region_selecting:
+            # Successful selections exit before emitting; failed selections remain active for retry.
+            if self._keyboard_region_selecting:
                 self.logger.info("Exiting keyboard region selection mode")
                 self.exit_keyboard_region_selection_mode()
         else:

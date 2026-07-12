@@ -8,9 +8,9 @@ from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 import cv2
 import numpy as np
 from PIL import Image  # type: ignore
-from PySide6.QtCore import QPoint, QRect, Qt, Signal
+from PySide6.QtCore import QCoreApplication, QPoint, QRect, Qt, Signal
 from PySide6.QtGui import QColor, QFont, QFontMetrics, QImage, QMouseEvent, QPaintEvent, QPainter, QPen, QPixmap, QPolygon
-from PySide6.QtWidgets import QLabel, QWidget
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 # PERFORMANCE FIX: Disable debug logging in paint methods to prevent progressive slowdown
 # Paint methods are called frequently and logging causes cumulative file I/O overhead
@@ -141,6 +141,66 @@ class ThresholdDebugBox(QWidget):
             event.accept()
 
 
+class CanvasSelectionModeBar(QFrame):
+    """Persistent instruction and cancellation surface for canvas selection modes."""
+
+    cancel_requested = Signal()
+
+    def __init__(self, parent: QWidget):
+        super().__init__(parent)
+        self.setObjectName("canvas_selection_mode_bar")
+        self.setAttribute(Qt.WA_StyledBackground, True)
+        self.setStyleSheet(
+            "QFrame#canvas_selection_mode_bar {"
+            "background: #f7f7f7; border: 1px solid #666; border-radius: 6px;"
+            "}"
+            "QLabel { background: transparent; color: #1f1f1f; }"
+            "QLabel#canvas_selection_feedback { color: #9a3f00; font-weight: 600; }"
+        )
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(10, 8, 10, 8)
+        layout.setSpacing(4)
+        row = QHBoxLayout()
+        row.setSpacing(10)
+        self.title_label = QLabel()
+        title_font = self.title_label.font()
+        title_font.setBold(True)
+        self.title_label.setFont(title_font)
+        row.addWidget(self.title_label)
+        self.instruction_label = QLabel()
+        self.instruction_label.setWordWrap(True)
+        row.addWidget(self.instruction_label, 1)
+        self.escape_label = QLabel(
+            QCoreApplication.translate("KeyboardCanvas", "Esc cancels")
+        )
+        row.addWidget(self.escape_label)
+        self.cancel_button = QPushButton(
+            QCoreApplication.translate("KeyboardCanvas", "Cancel")
+        )
+        self.cancel_button.clicked.connect(lambda: self.cancel_requested.emit())
+        row.addWidget(self.cancel_button)
+        layout.addLayout(row)
+
+        self.feedback_label = QLabel()
+        self.feedback_label.setObjectName("canvas_selection_feedback")
+        self.feedback_label.setWordWrap(True)
+        self.feedback_label.hide()
+        layout.addWidget(self.feedback_label)
+        self.hide()
+
+    def set_mode(self, title: str, instruction: str) -> None:
+        self.title_label.setText(title)
+        self.instruction_label.setText(instruction)
+        self.set_feedback("")
+        self.show()
+        self.raise_()
+
+    def set_feedback(self, message: str) -> None:
+        self.feedback_label.setText(message)
+        self.feedback_label.setVisible(bool(message))
+
+
 class KeyboardCanvas(QWidget):
     """Manages display of video frames and draggable/resizable overlays."""
 
@@ -196,6 +256,8 @@ class KeyboardCanvas(QWidget):
         # Initialize interaction handling
         self.interaction = CanvasInteraction(self, self.coord_manager, app_state)
         self._setup_interaction_callbacks()
+        self.selection_mode_bar = CanvasSelectionModeBar(self)
+        self.selection_mode_bar.cancel_requested.connect(self.cancel_active_selection_mode)
         self._connect_interaction_signals()
 
         # Enable mouse tracking to capture all mouse events
@@ -220,6 +282,32 @@ class KeyboardCanvas(QWidget):
 
     def set_video_session(self, video_session: Optional[VideoSession]):
         self.video_session = video_session
+
+    def _show_selection_mode(self, title: str, instruction: str) -> None:
+        self.selection_mode_bar.set_mode(title, instruction)
+        self._position_selection_mode_bar()
+        self.setCursor(Qt.CrossCursor)
+        self.setFocus(Qt.OtherFocusReason)
+
+    def _hide_selection_mode(self) -> None:
+        self.selection_mode_bar.hide()
+        self.setCursor(Qt.ArrowCursor)
+
+    def _set_selection_feedback(self, message: str) -> None:
+        self.selection_mode_bar.set_feedback(message)
+        self._position_selection_mode_bar()
+
+    def _position_selection_mode_bar(self) -> None:
+        if not self.selection_mode_bar.isVisible():
+            return
+        bar_width = min(760, max(240, self.width() - 24))
+        self.selection_mode_bar.setFixedWidth(bar_width)
+        self.selection_mode_bar.adjustSize()
+        self.selection_mode_bar.move(max(0, (self.width() - bar_width) // 2), 12)
+        self.selection_mode_bar.raise_()
+
+    def cancel_active_selection_mode(self) -> bool:
+        return self.interaction.cancel_active_selection_mode()
 
 
     def _crop_frame_to_keyboard_area(self, frame_rgb: np.ndarray) -> np.ndarray:
@@ -1578,7 +1666,10 @@ class KeyboardCanvas(QWidget):
 
     def mousePressEvent(self, event: QMouseEvent):
         """Delegate mouse press events to interaction module."""
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.LeftButton or (
+            event.button() == Qt.RightButton
+            and self.interaction.has_active_selection_mode()
+        ):
             handled = self.interaction.handle_mouse_press(event)
             if not handled:
                 super().mousePressEvent(event)
@@ -1603,6 +1694,9 @@ class KeyboardCanvas(QWidget):
 
     def keyPressEvent(self, event):
         """Handle keyboard shortcuts."""
+        if event.key() == Qt.Key_Escape and self.cancel_active_selection_mode():
+            event.accept()
+            return
         # Pass to parent for default handling
         super().keyPressEvent(event)
 
@@ -1956,6 +2050,7 @@ class KeyboardCanvas(QWidget):
             self._display_image()
         else:
             self.update()
+        self._position_selection_mode_bar()
 
         # Update debug box position if visible, ensuring it stays within bounds
         if self._debug_box and self._debug_box.isVisible():
@@ -2024,6 +2119,9 @@ class KeyboardCanvas(QWidget):
         self.interaction.color_picked.connect(self._handle_color_picked)
         self.interaction.request_repaint.connect(self._handle_repaint_request)
         self.interaction.spark_roi_selected.connect(self._handle_spark_roi_selected)
+        self.interaction.selection_mode_started.connect(self._show_selection_mode)
+        self.interaction.selection_mode_finished.connect(self._hide_selection_mode)
+        self.interaction.selection_feedback_changed.connect(self._set_selection_feedback)
 
     def cleanup(self):
         """Clean up resources and disconnect signals before deletion."""
@@ -2043,6 +2141,9 @@ class KeyboardCanvas(QWidget):
             self.interaction.color_picked.disconnect()
             self.interaction.request_repaint.disconnect()
             self.interaction.spark_roi_selected.disconnect()
+            self.interaction.selection_mode_started.disconnect()
+            self.interaction.selection_mode_finished.disconnect()
+            self.interaction.selection_feedback_changed.disconnect()
         except (TypeError, RuntimeError):
             pass  # Ignore errors if already disconnected
 

@@ -138,21 +138,53 @@ def test_handle_process_finished_uses_last_valid_stdout_json_and_emits_saved(mon
 def test_handle_process_finished_emits_failure_for_error_result(monkeypatch, tmp_path):
     app = _fake_app()
     controller = MidiTouchupController(app)
-    process = FinishedProcess('{"status":"error","message":"load failed"}\n', "stderr details")
-    critical_calls = []
+    process = FinishedProcess(
+        'diagnostic output\n{"status":"error","message":"load failed"}\n',
+        "stderr details " * 2000,
+    )
     failures = []
 
+    class FakeMessageBox:
+        Critical = object()
+
+        def __init__(self, parent=None):
+            self.parent = parent
+            FakeMessageBox.latest = self
+
+        def setIcon(self, icon):
+            self.icon = icon
+
+        def setWindowTitle(self, title):
+            self.window_title = title
+
+        def setText(self, text):
+            self.text = text
+
+        def setInformativeText(self, text):
+            self.informative_text = text
+
+        def setDetailedText(self, text):
+            self.detailed_text = text
+
+        def exec(self):
+            self.executed = True
+
     monkeypatch.setattr(
-        "synthesia2midi.gui.midi_touchup_controller.QMessageBox.critical",
-        lambda *args: critical_calls.append(args),
+        "synthesia2midi.gui.midi_touchup_controller.QMessageBox",
+        FakeMessageBox,
     )
     monkeypatch.setattr(controller, "cleanup_process", lambda proc: None)
     controller.editor_failed.connect(lambda source, message: failures.append((source, message)))
 
     controller.handle_process_finished(process, str(tmp_path / "song.mid"), 1)
 
-    assert len(critical_calls) == 1
-    assert "load failed" in critical_calls[0][2]
+    message_box = FakeMessageBox.latest
+    assert message_box.executed is True
+    assert message_box.text == "load failed"
+    assert str(tmp_path / "song.mid") in message_box.informative_text
+    assert "diagnostic output" in message_box.detailed_text
+    assert "stderr details" in message_box.detailed_text
+    assert len(message_box.detailed_text) <= 12050
     assert failures == [(str(tmp_path / "song.mid"), "load failed")]
 
 
@@ -172,6 +204,8 @@ def test_conversion_complete_dialog_has_editor_and_show_folder(monkeypatch, tmp_
             self.parent = parent
             self.buttons = []
             self._clicked = None
+            self.button_by_text = {}
+            FakeMessageBox.latest = self
 
         def setIcon(self, icon):
             self.icon = icon
@@ -188,6 +222,7 @@ def test_conversion_complete_dialog_has_editor_and_show_folder(monkeypatch, tmp_
         def addButton(self, text, role):
             self.buttons.append((text, role))
             button = object()
+            self.button_by_text[text] = button
             if text == "Show MIDI in Folder":
                 self._clicked = button
             return button
@@ -209,6 +244,7 @@ def test_conversion_complete_dialog_has_editor_and_show_folder(monkeypatch, tmp_
     assert "Open Touch-Up Editor" in shown_actions
     assert "Show MIDI in Folder" in shown_actions
     assert "Done" not in shown_actions
+    assert FakeMessageBox.latest.default_button is FakeMessageBox.latest.button_by_text["Show MIDI in Folder"]
     assert ("revealed", str(midi_path)) in shown_actions
 
 

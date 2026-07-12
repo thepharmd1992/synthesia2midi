@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 from PySide6.QtCore import QRect, QSize, Qt
 from PySide6.QtGui import QResizeEvent
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QMessageBox
 
 from synthesia2midi.app_config import OverlayConfig
@@ -170,6 +171,73 @@ def test_canvas_interaction_manual_fit_single_mode_keeps_existing_overlay_drag()
 
     assert group_moves == []
     assert single_moves == [(0, 15, 25)]
+
+
+def test_canvas_interaction_normal_mode_selects_without_starting_geometry_edit():
+    app_state = AppState()
+    overlays = [_overlay(key_id=1)]
+    interaction = CanvasInteraction(None, _IdentityCoordManager(), app_state)
+    interaction.set_callbacks(
+        get_overlays=lambda: overlays,
+        get_pixel_color=lambda x, y: None,
+        get_current_frame=lambda: None,
+    )
+    selected = []
+    moved = []
+    resized = []
+    interaction.overlay_selected.connect(selected.append)
+    interaction.overlay_moved.connect(lambda *args: moved.append(args))
+    interaction.overlay_resized.connect(lambda *args: resized.append(args))
+
+    assert interaction.handle_mouse_press(_MouseEvent(25, 40)) is True
+    assert interaction.handle_mouse_move(_MouseEvent(35, 50)) is False
+    assert interaction.handle_mouse_release(_MouseEvent(35, 50)) is False
+
+    assert selected == [1]
+    assert moved == []
+    assert resized == []
+    assert interaction.get_interaction_state()["dragging"] is False
+
+
+def test_keyboard_region_selection_has_visible_cancel_escape_and_retry_feedback():
+    QApplication.instance() or QApplication([])
+    canvas = KeyboardCanvas(
+        AppState(),
+        width=600,
+        height=400,
+        on_color_pick_callback=lambda *_: None,
+        on_overlay_select_callback=lambda *_: None,
+    )
+    canvas.coord_manager.update_image_size(600, 400)
+    canvas.coord_manager.update_canvas_size(600, 400)
+    canvas.show()
+    QApplication.processEvents()
+    cancelled = []
+    canvas.interaction.selection_cancelled.connect(cancelled.append)
+
+    canvas.interaction.enter_keyboard_region_selection_mode()
+    QApplication.processEvents()
+
+    assert canvas.selection_mode_bar.isVisible()
+    assert canvas.selection_mode_bar.title_label.text() == "Find Keyboard"
+    assert "Drag a box" in canvas.selection_mode_bar.instruction_label.text()
+    assert canvas.selection_mode_bar.cancel_button.isVisible()
+    assert "Esc" in canvas.selection_mode_bar.escape_label.text()
+
+    assert canvas.interaction.handle_mouse_press(_MouseEvent(10, 10)) is True
+    assert canvas.interaction.handle_mouse_release(_MouseEvent(20, 20)) is True
+
+    assert canvas.interaction.is_in_keyboard_region_selection_mode()
+    assert "larger" in canvas.selection_mode_bar.feedback_label.text().lower()
+
+    canvas.setFocus()
+    QTest.keyClick(canvas, Qt.Key_Escape)
+    QApplication.processEvents()
+
+    assert not canvas.interaction.is_in_keyboard_region_selection_mode()
+    assert not canvas.selection_mode_bar.isVisible()
+    assert cancelled == ["keyboard_region"]
+    canvas.close()
 
 
 def test_canvas_interaction_manual_fit_keyboard_box_mode_emits_rectangle():

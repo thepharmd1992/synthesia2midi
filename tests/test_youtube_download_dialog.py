@@ -1,6 +1,6 @@
-from PySide6.QtGui import QCloseEvent
+from PySide6.QtGui import QCloseEvent, QFont
 from PySide6.QtTest import QTest
-from PySide6.QtWidgets import QApplication, QDialog, QMessageBox
+from PySide6.QtWidgets import QApplication, QBoxLayout, QDialog, QMessageBox
 
 from synthesia2midi.gui import youtube_download_dialog
 from synthesia2midi.gui.youtube_download_dialog import YouTubeDownloadDialog
@@ -26,6 +26,19 @@ def _wait_until(predicate, *, timeout_ms=500):
         QTest.qWait(10)
         deadline -= 10
     return predicate()
+
+
+def test_download_dialog_stacks_actions_and_wraps_metadata():
+    QApplication.instance() or QApplication([])
+    dialog = YouTubeDownloadDialog(default_output_dir="/tmp")
+    try:
+        assert dialog.action_layout.direction() == QBoxLayout.TopToBottom
+        assert dialog.title_label.wordWrap()
+        assert dialog.duration_label.wordWrap()
+        assert dialog.uploader_label.wordWrap()
+    finally:
+        dialog.close()
+        dialog.deleteLater()
 
 
 def test_dialog_preserves_default_download_dir(tmp_path):
@@ -136,6 +149,9 @@ def test_dialog_uses_refresh_info_label_and_default_1080p_quality(tmp_path):
 
     assert dialog.fetch_info_btn.text() == "Refresh Info"
     assert dialog.quality_combo.currentData() == "1080p"
+    assert dialog.quality_combo.itemText(0) == "1080p - recommended for best MIDI detection"
+    assert dialog.quality_combo.itemText(1) == "720p - faster, may be less accurate"
+    assert dialog.quality_combo.itemText(2) == "480p - fastest, highest risk of bad calibration"
     assert [dialog.quality_combo.itemData(i) for i in range(dialog.quality_combo.count())] == [
         "1080p",
         "720p",
@@ -143,7 +159,27 @@ def test_dialog_uses_refresh_info_label_and_default_1080p_quality(tmp_path):
     ]
     assert dialog.browser_combo.currentData() == "chrome"
     assert dialog.auto_retry_checkbox.isChecked()
-    assert "faster processing" in dialog.quality_combo.itemText(1)
+    assert dialog.fallback_group.title() == "If YouTube blocks the download"
+    assert dialog.fallback_group.isHidden()
+    assert dialog.fallback_hint_label.text() == (
+        "Synthesia2MIDI can retry using saved browser cookies only if YouTube blocks the normal download."
+    )
+
+
+def test_cookie_fallback_appears_only_when_downloader_reports_cookie_retry(tmp_path):
+    QApplication.instance() or QApplication([])
+    dialog = YouTubeDownloadDialog(default_output_dir=str(tmp_path))
+    dialog.show()
+    QApplication.processEvents()
+
+    assert dialog.fallback_group.isHidden()
+
+    dialog.update_status(
+        "Video info request failed. Retrying with Safari browser cookies..."
+    )
+    QApplication.processEvents()
+
+    assert dialog.fallback_group.isVisible()
 
 
 def test_dialog_restores_saved_cookie_retry_preferences(tmp_path):
@@ -206,6 +242,35 @@ def test_video_info_group_expands_to_fit_metadata_labels(tmp_path):
     assert dialog.info_widget.height() >= dialog.info_widget.sizeHint().height()
 
 
+def test_video_info_group_does_not_overlap_quality_selector_with_wide_font(tmp_path):
+    app = QApplication.instance() or QApplication([])
+    original_font = QFont(app.font())
+    wide_font = QFont(original_font)
+    wide_font.setPointSizeF(original_font.pointSizeF() * 1.5)
+    wide_font.setStretch(135)
+    app.setFont(wide_font)
+    dialog = YouTubeDownloadDialog(default_output_dir=str(tmp_path))
+    try:
+        dialog.show()
+        dialog.url_input.setText("https://www.youtube.com/watch?v=SFFSZQCnU_M")
+        dialog.auto_fetch_timer.stop()
+        dialog._on_video_info_fetched(
+            "https://www.youtube.com/watch?v=SFFSZQCnU_M",
+            {
+                "title": "A Long but Fully Visible Synthesia Piano Tutorial Title",
+                "duration": 754,
+                "uploader": "Example Piano Channel",
+            },
+        )
+        QApplication.processEvents()
+
+        assert dialog.info_widget.geometry().bottom() < dialog.quality_combo.geometry().top()
+    finally:
+        dialog.close()
+        dialog.deleteLater()
+        app.setFont(original_font)
+
+
 def test_video_info_success_uses_real_available_quality_options(tmp_path):
     QApplication.instance() or QApplication([])
     dialog = YouTubeDownloadDialog(default_output_dir=str(tmp_path))
@@ -218,9 +283,21 @@ def test_video_info_success_uses_real_available_quality_options(tmp_path):
             "duration": 24,
             "uploader": "Tuttopiano",
             "available_qualities": {
-                "1080p": {"available": True, "actual_height": 720, "note": "Highest detail"},
-                "720p": {"available": True, "actual_height": 720, "note": "Faster processing, higher calibration risk"},
-                "480p": {"available": True, "actual_height": 360, "note": "Fastest processing, highest calibration risk"},
+                "1080p": {
+                    "available": True,
+                    "actual_height": 720,
+                    "note": "recommended for best MIDI detection",
+                },
+                "720p": {
+                    "available": True,
+                    "actual_height": 720,
+                    "note": "faster, may be less accurate",
+                },
+                "480p": {
+                    "available": True,
+                    "actual_height": 360,
+                    "note": "fastest, highest risk of bad calibration",
+                },
             },
         },
     )
@@ -231,6 +308,41 @@ def test_video_info_success_uses_real_available_quality_options(tmp_path):
     ]
     assert dialog.quality_combo.currentData() == "720p"
     assert dialog.quality_combo.itemText(1).startswith("Up to 480p (360p source)")
+
+
+def test_video_info_success_rewords_legacy_quality_notes(tmp_path):
+    QApplication.instance() or QApplication([])
+    dialog = YouTubeDownloadDialog(default_output_dir=str(tmp_path))
+    dialog.url_input.setText("https://www.youtube.com/watch?v=SFFSZQCnU_M")
+
+    dialog._on_video_info_fetched(
+        "https://www.youtube.com/watch?v=SFFSZQCnU_M",
+        {
+            "title": "Mary",
+            "duration": 24,
+            "uploader": "Tuttopiano",
+            "available_qualities": {
+                "1080p": {"available": True, "actual_height": 1080, "note": "Highest detail"},
+                "720p": {
+                    "available": True,
+                    "actual_height": 720,
+                    "note": "Faster processing, higher calibration risk",
+                },
+                "480p": {
+                    "available": True,
+                    "actual_height": 360,
+                    "note": "Fastest processing, highest calibration risk",
+                },
+            },
+        },
+    )
+
+    assert dialog.quality_combo.itemText(0) == (
+        "Up to 1080p (1080p source) - recommended for best MIDI detection"
+    )
+    assert dialog.quality_combo.itemText(2) == (
+        "Up to 480p (360p source) - fastest, highest risk of bad calibration"
+    )
 
 
 def test_download_starts_with_indeterminate_progress(monkeypatch, tmp_path):

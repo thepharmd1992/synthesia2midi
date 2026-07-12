@@ -18,10 +18,12 @@ from PySide6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
     QLabel,
+    QListWidget,
     QPushButton,
     QScrollArea,
     QSlider,
     QSpinBox,
+    QStackedWidget,
     QStyle,
     QTabWidget,
     QVBoxLayout,
@@ -100,25 +102,45 @@ class AutoDetectTuningDialog(QDialog):
             banner.setStyleSheet("color: #8a6d00; background: #fff8db; border: 1px solid #e6d390; padding: 6px;")
             layout.addWidget(banner)
 
+        self.guidance_label = QLabel(
+            QCoreApplication.translate(
+                "AutoDetectTuningDialog",
+                "Check the overlays on the video. If they line up with the keys, click Save. If the edges are off, adjust the edge controls.",
+            )
+        )
+        self.guidance_label.setWordWrap(True)
+        self.guidance_label.setStyleSheet("color: #444;")
+        layout.addWidget(self.guidance_label)
+
         controls_row = QHBoxLayout()
-        reset_all_btn = QPushButton(QCoreApplication.translate("AutoDetectTuningDialog", "Reset All to Active Defaults"))
-        reset_all_btn.clicked.connect(self._reset_all_to_defaults)
-        controls_row.addWidget(reset_all_btn)
+        self.reset_all_button = QPushButton(
+            QCoreApplication.translate("AutoDetectTuningDialog", "Reset to Recommended Settings")
+        )
+        self.reset_all_button.setAutoDefault(False)
+        self.reset_all_button.setMinimumHeight(36)
+        self.reset_all_button.clicked.connect(self._reset_all_to_defaults)
+        controls_row.addWidget(self.reset_all_button)
         controls_row.addStretch()
         layout.addLayout(controls_row)
 
-        tabs = QTabWidget()
-        tabs.tabBar().setExpanding(False)
-        tabs.setStyleSheet("QTabWidget::tab-bar { alignment: right; }")
-        tabs.addTab(
+        self.tabs = QTabWidget()
+        self.tabs.tabBar().setExpanding(False)
+        self.tabs.setStyleSheet("QTabWidget::tab-bar { alignment: right; }")
+        self.tabs.addTab(
             self._build_param_tab(get_basic_auto_detect_param_keys()),
             QCoreApplication.translate("AutoDetectTuningDialog", "Basic"),
         )
-        tabs.addTab(
-            self._build_param_tab(get_advanced_auto_detect_param_keys()),
-            QCoreApplication.translate("AutoDetectTuningDialog", "Advanced"),
+        self.tabs.addTab(
+            self._build_param_tab(
+                get_advanced_auto_detect_param_keys(),
+                expand_first=False,
+                expert=True,
+            ),
+            QCoreApplication.translate("AutoDetectTuningDialog", "Advanced (Expert)"),
         )
-        layout.addWidget(tabs, 1)
+        self.tabs.setCurrentIndex(0)
+        self.tabs.setMinimumHeight(self.tabs.minimumSizeHint().height())
+        layout.addWidget(self.tabs, 1)
 
         status_group = QGroupBox(QCoreApplication.translate("AutoDetectTuningDialog", "Preview Status"))
         status_layout = QGridLayout(status_group)
@@ -136,18 +158,25 @@ class AutoDetectTuningDialog(QDialog):
             else QCoreApplication.translate("AutoDetectTuningDialog", "No")
         )
 
-        status_layout.addWidget(QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "Detected White Keys:")), 0, 0)
-        status_layout.addWidget(self._status_labels["white"], 0, 1)
-        status_layout.addWidget(QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "Detected Black Keys:")), 0, 2)
-        status_layout.addWidget(self._status_labels["black"], 0, 3)
-        status_layout.addWidget(QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "Detected Total Keys:")), 1, 0)
-        status_layout.addWidget(self._status_labels["total"], 1, 1)
-        status_layout.addWidget(QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "Overlays Created:")), 1, 2)
-        status_layout.addWidget(self._status_labels["overlays"], 1, 3)
-        status_layout.addWidget(QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "Leftmost Note/Octave:")), 2, 0)
-        status_layout.addWidget(self._status_labels["leftmost"], 2, 1)
-        status_layout.addWidget(QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "Fallback Profile Used:")), 2, 2)
-        status_layout.addWidget(self._status_labels["fallback"], 2, 3)
+        status_rows = [
+            (QCoreApplication.translate("AutoDetectTuningDialog", "Detected White Keys:"), "white"),
+            (QCoreApplication.translate("AutoDetectTuningDialog", "Detected Black Keys:"), "black"),
+            (QCoreApplication.translate("AutoDetectTuningDialog", "Detected Total Keys:"), "total"),
+            (QCoreApplication.translate("AutoDetectTuningDialog", "Overlays Created:"), "overlays"),
+            (QCoreApplication.translate("AutoDetectTuningDialog", "Leftmost Note/Octave:"), "leftmost"),
+            (QCoreApplication.translate("AutoDetectTuningDialog", "Fallback Profile Used:"), "fallback"),
+        ]
+        for index, (label_text, key) in enumerate(status_rows):
+            row = index % 3
+            column = (index // 3) * 2
+            label = QLabel(label_text)
+            label.setMinimumHeight(label.sizeHint().height())
+            value_label = self._status_labels[key]
+            value_label.setMinimumHeight(value_label.sizeHint().height())
+            status_layout.addWidget(label, row, column)
+            status_layout.addWidget(value_label, row, column + 1)
+        status_layout.setColumnStretch(1, 1)
+        status_layout.setColumnStretch(3, 1)
         layout.addWidget(status_group)
 
         self._warning_label = QLabel("")
@@ -163,6 +192,7 @@ class AutoDetectTuningDialog(QDialog):
         save_btn.setIcon(self.style().standardIcon(QStyle.SP_DialogApplyButton))
         save_btn.setAutoDefault(True)
         save_btn.setDefault(True)
+        save_btn.setMinimumHeight(36)
         save_btn.setStyleSheet(
             "QPushButton {"
             "background-color: #2e7d32;"
@@ -177,10 +207,21 @@ class AutoDetectTuningDialog(QDialog):
         save_btn.clicked.connect(self.accept)
         cancel_btn = buttons.addButton(QDialogButtonBox.Cancel)
         if cancel_btn:
+            cancel_btn.setAutoDefault(False)
+            cancel_btn.setMinimumHeight(36)
             cancel_btn.clicked.connect(self.reject)
         layout.addWidget(buttons)
 
-    def _build_param_tab(self, param_keys: List[str]) -> QWidget:
+    def _build_param_tab(
+        self,
+        param_keys: List[str],
+        *,
+        expand_first: bool = True,
+        expert: bool = False,
+    ) -> QWidget:
+        if expert:
+            return self._build_expert_param_tab(param_keys)
+
         tab = QWidget()
         tab_layout = QVBoxLayout(tab)
         tab_layout.setContentsMargins(0, 0, 0, 0)
@@ -195,6 +236,17 @@ class AutoDetectTuningDialog(QDialog):
         sections_layout.setContentsMargins(0, 0, 0, 0)
         sections_layout.setSpacing(8)
 
+        section_registry = []
+        if expert:
+            self.expert_note = QLabel(
+                QCoreApplication.translate(
+                    "AutoDetectTuningDialog",
+                    "Use these controls only when Basic edge alignment cannot line the overlays up with the keys.",
+                )
+            )
+            self.expert_note.setWordWrap(True)
+            sections_layout.addWidget(self.expert_note)
+
         first_section = True
         param_key_set = set(param_keys)
         for category in AUTO_DETECT_PARAM_CATEGORIES:
@@ -206,8 +258,12 @@ class AutoDetectTuningDialog(QDialog):
             if not category_keys:
                 continue
 
-            section = CollapsibleSection(self._translate_category(category), expanded=first_section)
+            section = CollapsibleSection(
+                self._translate_category(category),
+                expanded=first_section and expand_first,
+            )
             first_section = False
+            section_registry.append(section)
             content_layout = section.content_layout()
 
             if category == "Edge Drift Correction":
@@ -257,11 +313,18 @@ class AutoDetectTuningDialog(QDialog):
                 content_layout.addLayout(grid)
 
             reset_section_btn = QPushButton(QCoreApplication.translate("AutoDetectTuningDialog", "Reset Section"))
+            reset_section_btn.setAutoDefault(False)
+            reset_section_btn.setMinimumHeight(36)
             reset_section_btn.clicked.connect(
                 lambda _checked=False, keys=tuple(category_keys): self._reset_keys_to_defaults(keys)
             )
             content_layout.addWidget(reset_section_btn)
             sections_layout.addWidget(section)
+
+        if expert:
+            self.expert_sections = section_registry
+        else:
+            self.basic_sections = section_registry
 
         if first_section:
             empty_label = QLabel(QCoreApplication.translate("AutoDetectTuningDialog", "No parameters available."))
@@ -270,7 +333,99 @@ class AutoDetectTuningDialog(QDialog):
 
         sections_layout.addStretch(1)
         scroll_area.setWidget(sections_container)
+        if not expert:
+            self.basic_scroll_area = scroll_area
+            content_height = sections_container.sizeHint().height()
+            scroll_area.setMinimumHeight(content_height + (2 * scroll_area.frameWidth()))
         tab_layout.addWidget(scroll_area)
+        return tab
+
+    def _build_expert_param_tab(self, param_keys: List[str]) -> QWidget:
+        tab = QWidget()
+        tab_layout = QVBoxLayout(tab)
+        tab_layout.setContentsMargins(0, 0, 0, 0)
+        tab_layout.setSpacing(8)
+
+        self.expert_note = QLabel(
+            QCoreApplication.translate(
+                "AutoDetectTuningDialog",
+                "Use these controls only when Basic edge alignment cannot line the overlays up with the keys.",
+            )
+        )
+        self.expert_note.setWordWrap(True)
+        tab_layout.addWidget(self.expert_note)
+
+        body = QHBoxLayout()
+        body.setContentsMargins(0, 0, 0, 0)
+        body.setSpacing(10)
+        self.expert_category_list = QListWidget()
+        self.expert_category_list.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.expert_category_stack = QStackedWidget()
+        self.expert_detail_scroll_areas: List[QScrollArea] = []
+
+        param_key_set = set(param_keys)
+        for category in AUTO_DETECT_PARAM_CATEGORIES:
+            category_keys = [
+                key
+                for key in get_category_param_keys(category)
+                if key in param_key_set
+            ]
+            if not category_keys:
+                continue
+
+            translated_category = self._translate_category(category)
+            self.expert_category_list.addItem(translated_category)
+            scroll_area = QScrollArea()
+            scroll_area.setWidgetResizable(True)
+            scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            content = QWidget()
+            content_layout = QVBoxLayout(content)
+            content_layout.setContentsMargins(8, 4, 8, 4)
+            content_layout.setSpacing(8)
+
+            title = QLabel(translated_category)
+            title_font = title.font()
+            title_font.setBold(True)
+            title.setFont(title_font)
+            content_layout.addWidget(title)
+            grid = QGridLayout()
+            grid.setContentsMargins(0, 0, 0, 0)
+            grid.setHorizontalSpacing(10)
+            grid.setVerticalSpacing(6)
+            row = 0
+            for param_key in category_keys:
+                row = self._add_parameter_control(grid, row, param_key)
+            content_layout.addLayout(grid)
+
+            reset_button = QPushButton(
+                QCoreApplication.translate("AutoDetectTuningDialog", "Reset Section")
+            )
+            reset_button.setAutoDefault(False)
+            reset_button.setMinimumHeight(36)
+            reset_button.clicked.connect(
+                lambda _checked=False, keys=tuple(category_keys): self._reset_keys_to_defaults(keys)
+            )
+            content_layout.addWidget(reset_button, alignment=Qt.AlignLeft)
+            content_layout.addStretch(1)
+            scroll_area.setWidget(content)
+            self.expert_detail_scroll_areas.append(scroll_area)
+            self.expert_category_stack.addWidget(scroll_area)
+
+        if self.expert_category_list.count():
+            metrics = self.expert_category_list.fontMetrics()
+            widest = max(
+                metrics.horizontalAdvance(self.expert_category_list.item(index).text())
+                for index in range(self.expert_category_list.count())
+            )
+            self.expert_category_list.setMinimumWidth(min(260, max(180, widest + 28)))
+            self.expert_category_list.currentRowChanged.connect(
+                self.expert_category_stack.setCurrentIndex
+            )
+            self.expert_category_list.setCurrentRow(0)
+
+        body.addWidget(self.expert_category_list)
+        body.addWidget(self.expert_category_stack, 1)
+        tab_layout.addLayout(body, 1)
         return tab
 
     def _add_directional_edge_control(

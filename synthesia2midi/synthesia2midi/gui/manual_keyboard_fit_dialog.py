@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Dict, Optional
 
-from PySide6.QtCore import QCoreApplication, QSignalBlocker, Qt, Signal
+from PySide6.QtCore import QCoreApplication, QSignalBlocker, Qt, QTimer, Signal
 from PySide6.QtWidgets import (
     QButtonGroup,
     QComboBox,
@@ -60,6 +60,10 @@ def _translate_param_label(label: str) -> str:
         "Tilt": QCoreApplication.translate("ManualKeyboardFitDialog", "Tilt"),
     }
     return translated.get(label, label)
+
+
+def _fit_spinbox_to_range(spinbox: QSpinBox) -> None:
+    spinbox.setMinimumWidth(max(78, spinbox.sizeHint().width()))
 
 
 class ManualKeyboardFitDialog(QDialog):
@@ -128,9 +132,17 @@ class ManualKeyboardFitDialog(QDialog):
         fine_tune_layout.setSpacing(10)
 
         self.mode_group = QGroupBox(QCoreApplication.translate("ManualKeyboardFitDialog", "Edit Mode"))
-        mode_layout = QHBoxLayout(self.mode_group)
-        self.mode_status_label = QLabel(QCoreApplication.translate("ManualKeyboardFitDialog", "Editing: Whole Keyboard"))
-        self.mode_status_label.hide()
+        mode_layout = QVBoxLayout(self.mode_group)
+        self.mode_choice_layout = QGridLayout()
+        self.mode_choice_layout.setContentsMargins(0, 0, 0, 0)
+        self.mode_choice_layout.setHorizontalSpacing(12)
+        self.mode_choice_layout.setVerticalSpacing(4)
+        self.mode_status_label = QLabel(
+            QCoreApplication.translate(
+                "ManualKeyboardFitDialog", "Move and resize every overlay together."
+            )
+        )
+        self.mode_status_label.setWordWrap(True)
         self.group_fit_radio = QRadioButton(QCoreApplication.translate("ManualKeyboardFitDialog", "All Overlays"))
         self.all_white_radio = QRadioButton(QCoreApplication.translate("ManualKeyboardFitDialog", "All Whites"))
         self.all_black_radio = QRadioButton(QCoreApplication.translate("ManualKeyboardFitDialog", "All Blacks"))
@@ -148,26 +160,33 @@ class ManualKeyboardFitDialog(QDialog):
         self.all_black_radio.toggled.connect(self._handle_mode_toggled)
         self.local_fit_radio.toggled.connect(self._handle_mode_toggled)
         self.single_overlay_radio.toggled.connect(self._handle_mode_toggled)
-        mode_layout.addWidget(self.group_fit_radio)
-        mode_layout.addWidget(self.all_white_radio)
-        mode_layout.addWidget(self.all_black_radio)
-        mode_layout.addWidget(self.local_fit_radio)
-        mode_layout.addWidget(self.single_overlay_radio)
-        mode_layout.addStretch()
+        self.mode_buttons = [
+            self.group_fit_radio,
+            self.all_white_radio,
+            self.all_black_radio,
+            self.local_fit_radio,
+            self.single_overlay_radio,
+        ]
+        self._mode_layout_columns = 3
+        self._reflow_grid(self.mode_choice_layout, self.mode_buttons, 3)
+        mode_layout.addLayout(self.mode_choice_layout)
+        mode_layout.addWidget(self.mode_status_label)
         fine_tune_layout.addWidget(self.mode_group)
 
-        octave_row = QHBoxLayout()
+        self.octave_widget = QWidget()
+        octave_row = QHBoxLayout(self.octave_widget)
+        octave_row.setContentsMargins(0, 0, 0, 0)
         octave_label = QLabel(QCoreApplication.translate("ManualKeyboardFitDialog", "Octave"))
         octave_label.setStyleSheet("font-weight: bold;")
         self.octave_spinbox = QSpinBox()
         self.octave_spinbox.setRange(-5, 5)
         self.octave_spinbox.setValue(self._initial_octave)
-        self.octave_spinbox.setFixedWidth(78)
+        _fit_spinbox_to_range(self.octave_spinbox)
         self.octave_spinbox.valueChanged.connect(self.octave_changed.emit)
         octave_row.addWidget(octave_label)
         octave_row.addWidget(self.octave_spinbox)
         octave_row.addStretch()
-        fine_tune_layout.addLayout(octave_row)
+        fine_tune_layout.addWidget(self.octave_widget)
 
         self.controls_group = QGroupBox("")
         controls_layout = QGridLayout(self.controls_group)
@@ -182,14 +201,17 @@ class ManualKeyboardFitDialog(QDialog):
             spinbox = QSpinBox()
             spinbox.setRange(minimum, maximum)
             spinbox.setValue(0)
-            spinbox.setFixedWidth(78)
+            _fit_spinbox_to_range(spinbox)
             reset_button = QPushButton("0")
-            reset_button.setFixedWidth(32)
-            reset_button.setToolTip(
-                QCoreApplication.translate("ManualKeyboardFitDialog", "Reset {label}").format(
-                    label=_translate_param_label(label)
-                )
+            reset_button.setFixedSize(36, 36)
+            reset_text = QCoreApplication.translate(
+                "ManualKeyboardFitDialog", "Reset {label}"
+            ).format(
+                label=_translate_param_label(label)
             )
+            reset_button.setToolTip(reset_text)
+            reset_button.setAccessibleName(reset_text)
+            reset_button.setAccessibleDescription(reset_text)
 
             slider.valueChanged.connect(
                 lambda value, param_name=name: self._handle_slider_changed(param_name, value)
@@ -235,14 +257,17 @@ class ManualKeyboardFitDialog(QDialog):
             spinbox = QSpinBox()
             spinbox.setRange(minimum, maximum)
             spinbox.setValue(0)
-            spinbox.setFixedWidth(78)
+            _fit_spinbox_to_range(spinbox)
             reset_button = QPushButton("0")
-            reset_button.setFixedWidth(32)
-            reset_button.setToolTip(
-                QCoreApplication.translate("ManualKeyboardFitDialog", "Reset {label}").format(
-                    label=_translate_param_label(label)
-                )
+            reset_button.setFixedSize(36, 36)
+            reset_text = QCoreApplication.translate(
+                "ManualKeyboardFitDialog", "Reset {label}"
+            ).format(
+                label=_translate_param_label(label)
             )
+            reset_button.setToolTip(reset_text)
+            reset_button.setAccessibleName(reset_text)
+            reset_button.setAccessibleDescription(reset_text)
 
             slider.valueChanged.connect(
                 lambda value, param_name=name: self._handle_local_slider_changed(param_name, value)
@@ -265,7 +290,6 @@ class ManualKeyboardFitDialog(QDialog):
         fine_tune_layout.addWidget(self.local_controls_group, 1)
         self.set_local_selection_count(0)
 
-        action_row = QHBoxLayout()
         self.reset_all_button = QPushButton(QCoreApplication.translate("ManualKeyboardFitDialog", "Reset All"))
         self.reset_position_button = QPushButton(QCoreApplication.translate("ManualKeyboardFitDialog", "Reset Position"))
         self.reset_local_button = QPushButton(QCoreApplication.translate("ManualKeyboardFitDialog", "Reset Local"))
@@ -282,15 +306,37 @@ class ManualKeyboardFitDialog(QDialog):
         self.cancel_button.clicked.connect(self.reject)
         self.apply_button.clicked.connect(self.accept)
 
-        action_row.addWidget(self.reset_all_button)
-        action_row.addWidget(self.reset_position_button)
-        action_row.addWidget(self.reset_local_button)
-        action_row.addWidget(self.edit_keyboard_box_button)
-        action_row.addWidget(self.clear_selected_override_button)
-        action_row.addStretch()
-        action_row.addWidget(self.cancel_button)
-        action_row.addWidget(self.apply_button)
-        fine_tune_layout.addLayout(action_row)
+        self.secondary_action_buttons = [
+            self.reset_all_button,
+            self.reset_position_button,
+            self.reset_local_button,
+            self.edit_keyboard_box_button,
+            self.clear_selected_override_button,
+        ]
+        for button in [
+            *self.secondary_action_buttons,
+            self.cancel_button,
+            self.apply_button,
+        ]:
+            button.setMinimumHeight(36)
+        self.secondary_actions_widget = QWidget()
+        self.secondary_actions_layout = QGridLayout(self.secondary_actions_widget)
+        self.secondary_actions_layout.setContentsMargins(0, 0, 0, 0)
+        self.secondary_actions_layout.setHorizontalSpacing(8)
+        self.secondary_actions_layout.setVerticalSpacing(6)
+        self._secondary_layout_columns = 3
+        self._reflow_grid(
+            self.secondary_actions_layout, self.secondary_action_buttons, 3
+        )
+        fine_tune_layout.addWidget(self.secondary_actions_widget)
+
+        self.action_footer = QWidget()
+        action_footer_layout = QHBoxLayout(self.action_footer)
+        action_footer_layout.setContentsMargins(0, 0, 0, 0)
+        action_footer_layout.addStretch()
+        action_footer_layout.addWidget(self.cancel_button)
+        action_footer_layout.addWidget(self.apply_button)
+        fine_tune_layout.addWidget(self.action_footer)
         layout.addWidget(self.fine_tune_widget, 1)
         self.finish_setup()
 
@@ -462,23 +508,38 @@ class ManualKeyboardFitDialog(QDialog):
     def _handle_mode_toggled(self) -> None:
         if self.group_fit_radio.isChecked():
             self.mode_status_label.setText(
-                QCoreApplication.translate("ManualKeyboardFitDialog", "Editing: Whole Keyboard")
+                QCoreApplication.translate(
+                    "ManualKeyboardFitDialog", "Move and resize every overlay together."
+                )
             )
             self.mode_changed.emit("manual_fit_group")
         elif self.all_white_radio.isChecked():
-            self.mode_status_label.setText(QCoreApplication.translate("ManualKeyboardFitDialog", "Editing: All Whites"))
+            self.mode_status_label.setText(
+                QCoreApplication.translate(
+                    "ManualKeyboardFitDialog", "Adjust all white-key overlays together."
+                )
+            )
             self.mode_changed.emit("manual_fit_all_white")
         elif self.all_black_radio.isChecked():
-            self.mode_status_label.setText(QCoreApplication.translate("ManualKeyboardFitDialog", "Editing: All Blacks"))
+            self.mode_status_label.setText(
+                QCoreApplication.translate(
+                    "ManualKeyboardFitDialog", "Adjust all black-key overlays together."
+                )
+            )
             self.mode_changed.emit("manual_fit_all_black")
         elif self.local_fit_radio.isChecked():
             self.mode_status_label.setText(
-                QCoreApplication.translate("ManualKeyboardFitDialog", "Editing: Local Cluster")
+                QCoreApplication.translate(
+                    "ManualKeyboardFitDialog",
+                    "Draw around the problem keys, then adjust that selected group.",
+                )
             )
             self.mode_changed.emit("manual_fit_local_select")
         elif self.single_overlay_radio.isChecked():
             self.mode_status_label.setText(
-                QCoreApplication.translate("ManualKeyboardFitDialog", "Editing: Single Overlay")
+                QCoreApplication.translate(
+                    "ManualKeyboardFitDialog", "Click one problem key, then adjust only that overlay."
+                )
             )
             self.mode_changed.emit("manual_fit_single")
         self._sync_mode_control_visibility()
@@ -490,12 +551,67 @@ class ManualKeyboardFitDialog(QDialog):
             or self.all_black_radio.isChecked()
         )
         self.controls_group.setVisible(group_controls_visible)
-        self.local_controls_group.setVisible(self.local_fit_radio.isChecked())
+        local_controls_visible = self.local_fit_radio.isChecked()
+        single_overlay_mode = self.single_overlay_radio.isChecked()
+        self.local_controls_group.setVisible(local_controls_visible)
+        self.octave_widget.setVisible(not single_overlay_mode)
+        self.reset_all_button.setVisible(not single_overlay_mode)
         self.reset_position_button.setVisible(group_controls_visible)
-        self.reset_local_button.setVisible(self.local_fit_radio.isChecked())
+        self.reset_local_button.setVisible(local_controls_visible)
+        self.edit_keyboard_box_button.setVisible(group_controls_visible)
+        self.clear_selected_override_button.setVisible(single_overlay_mode)
+        self.secondary_actions_widget.setVisible(
+            any(not button.isHidden() for button in self.secondary_action_buttons)
+        )
         self._set_param_row_visible("white_width_delta", not self.all_black_radio.isChecked())
         self._set_param_row_visible("black_width_delta", not self.all_white_radio.isChecked())
+        self.setMinimumSize(0, 0)
+        self.fine_tune_widget.layout().invalidate()
+        self.layout().invalidate()
+        self.layout().activate()
+        if single_overlay_mode:
+            QTimer.singleShot(0, self._apply_single_overlay_size)
+        elif self.fine_tune_widget.isVisible():
+            self.resize(max(self.width(), 760), 560)
 
     def _set_param_row_visible(self, name: str, visible: bool) -> None:
         for widget in self.param_row_widgets.get(name, []):
             widget.setVisible(visible)
+
+    @staticmethod
+    def _reflow_grid(layout: QGridLayout, widgets: list[QWidget], columns: int) -> None:
+        for widget in widgets:
+            layout.removeWidget(widget)
+        for index, widget in enumerate(widgets):
+            layout.addWidget(widget, index // columns, index % columns)
+        for column in range(columns):
+            layout.setColumnStretch(column, 1)
+
+    def resizeEvent(self, event) -> None:
+        super().resizeEvent(event)
+        columns = 3 if event.size().width() >= 700 else 2
+        if columns != getattr(self, "_mode_layout_columns", columns):
+            self._mode_layout_columns = columns
+            self._reflow_grid(self.mode_choice_layout, self.mode_buttons, columns)
+        if columns != getattr(self, "_secondary_layout_columns", columns):
+            self._secondary_layout_columns = columns
+            self._reflow_grid(
+                self.secondary_actions_layout,
+                self.secondary_action_buttons,
+                columns,
+            )
+
+    def showEvent(self, event) -> None:
+        super().showEvent(event)
+        if self.single_overlay_radio.isChecked():
+            QTimer.singleShot(0, self._apply_single_overlay_size)
+
+    def _apply_single_overlay_size(self) -> None:
+        if not self.single_overlay_radio.isChecked():
+            return
+        self.fine_tune_widget.layout().invalidate()
+        self.layout().invalidate()
+        self.layout().activate()
+        minimum_hint = self.minimumSizeHint()
+        self.setMinimumSize(minimum_hint)
+        self.resize(680, max(300, minimum_hint.height()))

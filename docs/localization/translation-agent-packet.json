@@ -48,13 +48,186 @@
   },
   "entries": [
     {
+      "context": "AssistedCalibrationDialog",
+      "source": "Assisted Calibration",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/assisted_calibration_dialog.py",
+          "line": 44
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AssistedCalibrationDialog",
+      "source": "{count} samples found across {families} Synthesia note color families.",
+      "placeholders": [
+        "{count}",
+        "{families}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/assisted_calibration_dialog.py",
+          "line": 55
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AssistedCalibrationDialog",
+      "source": "Left/Right refer to Synthesia note colors, not the physical side of the keyboard.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/assisted_calibration_dialog.py",
+          "line": 64
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AssistedCalibrationDialog",
+      "source": "Left White",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/assisted_calibration_dialog.py",
+          "line": 71
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AssistedCalibrationDialog",
+      "source": "Left Black",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/assisted_calibration_dialog.py",
+          "line": 72
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AssistedCalibrationDialog",
+      "source": "Right White",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/assisted_calibration_dialog.py",
+          "line": 73
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AssistedCalibrationDialog",
+      "source": "Right Black",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/assisted_calibration_dialog.py",
+          "line": 74
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AssistedCalibrationDialog",
+      "source": "{name} proposed color",
+      "placeholders": [
+        "{name}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/assisted_calibration_dialog.py",
+          "line": 86
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AssistedCalibrationDialog",
+      "source": "Found",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/assisted_calibration_dialog.py",
+          "line": 92
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AssistedCalibrationDialog",
+      "source": "Not used",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/assisted_calibration_dialog.py",
+          "line": 95
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AssistedCalibrationDialog",
+      "source": "Not found",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/assisted_calibration_dialog.py",
+          "line": 98
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AssistedCalibrationDialog",
+      "source": "Keep Current Examples",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/assisted_calibration_dialog.py",
+          "line": 107
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AssistedCalibrationDialog",
+      "source": "Try Another Frame",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/assisted_calibration_dialog.py",
+          "line": 111
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AssistedCalibrationDialog",
+      "source": "Use These Examples",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/assisted_calibration_dialog.py",
+          "line": 115
+        }
+      ],
+      "notes": ""
+    },
+    {
       "context": "AutoDetectTuningDialog",
       "source": "Auto-Detect Tuning",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 62
+          "line": 64
         }
       ],
       "notes": ""
@@ -66,19 +239,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 95
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "AutoDetectTuningDialog",
-      "source": "Reset All to Active Defaults",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 104
+          "line": 97
         }
       ],
       "notes": ""
@@ -90,62 +251,38 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 115
+          "line": 131
         }
       ],
       "notes": ""
     },
     {
       "context": "AutoDetectTuningDialog",
-      "source": "Advanced",
+      "source": "Check the overlays on the video. If they line up with the keys, click Save. If the edges are off, adjust the edge controls.",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 119
+          "line": 106
         }
       ],
       "notes": ""
     },
     {
       "context": "AutoDetectTuningDialog",
-      "source": "Preview Status",
+      "source": "Reset to Recommended Settings",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 123
+          "line": 117
         }
       ],
       "notes": ""
     },
     {
       "context": "AutoDetectTuningDialog",
-      "source": "Yes",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 134
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "AutoDetectTuningDialog",
-      "source": "No",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 136
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "AutoDetectTuningDialog",
-      "source": "Detected White Keys:",
+      "source": "Advanced (Expert)",
       "placeholders": [],
       "locations": [
         {
@@ -157,31 +294,7 @@
     },
     {
       "context": "AutoDetectTuningDialog",
-      "source": "Detected Black Keys:",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 141
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "AutoDetectTuningDialog",
-      "source": "Detected Total Keys:",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 143
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "AutoDetectTuningDialog",
-      "source": "Overlays Created:",
+      "source": "Preview Status",
       "placeholders": [],
       "locations": [
         {
@@ -193,12 +306,84 @@
     },
     {
       "context": "AutoDetectTuningDialog",
+      "source": "Yes",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 156
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "No",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 158
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Detected White Keys:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 162
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Detected Black Keys:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 163
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Detected Total Keys:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 164
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Overlays Created:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 165
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
       "source": "Leftmost Note/Octave:",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 147
+          "line": 166
         }
       ],
       "notes": ""
@@ -210,7 +395,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 149
+          "line": 167
         }
       ],
       "notes": ""
@@ -222,7 +407,23 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 160
+          "line": 189
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "AutoDetectTuningDialog",
+      "source": "Use these controls only when Basic edge alignment cannot line the overlays up with the keys.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 242
+        },
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 350
         }
       ],
       "notes": ""
@@ -234,7 +435,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 224
+          "line": 280
         }
       ],
       "notes": ""
@@ -246,7 +447,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 225
+          "line": 281
         }
       ],
       "notes": ""
@@ -258,7 +459,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 238
+          "line": 294
         }
       ],
       "notes": ""
@@ -270,7 +471,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 239
+          "line": 295
         }
       ],
       "notes": ""
@@ -282,7 +483,11 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 259
+          "line": 315
+        },
+        {
+          "filename": "../gui/auto_detect_tuning_dialog.py",
+          "line": 401
         }
       ],
       "notes": ""
@@ -294,7 +499,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 267
+          "line": 330
         }
       ],
       "notes": ""
@@ -306,7 +511,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 527
+          "line": 682
         }
       ],
       "notes": ""
@@ -318,7 +523,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 528
+          "line": 683
         }
       ],
       "notes": ""
@@ -330,7 +535,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 529
+          "line": 684
         }
       ],
       "notes": ""
@@ -342,7 +547,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 530
+          "line": 685
         }
       ],
       "notes": ""
@@ -354,7 +559,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 533
+          "line": 688
         }
       ],
       "notes": ""
@@ -366,7 +571,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 534
+          "line": 689
         }
       ],
       "notes": ""
@@ -378,7 +583,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 540
+          "line": 695
         }
       ],
       "notes": ""
@@ -390,7 +595,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 541
+          "line": 696
         }
       ],
       "notes": ""
@@ -402,7 +607,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 542
+          "line": 697
         }
       ],
       "notes": ""
@@ -414,7 +619,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 543
+          "line": 698
         }
       ],
       "notes": ""
@@ -426,7 +631,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 544
+          "line": 699
         }
       ],
       "notes": ""
@@ -438,7 +643,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 547
+          "line": 702
         }
       ],
       "notes": ""
@@ -450,7 +655,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 548
+          "line": 703
         }
       ],
       "notes": ""
@@ -462,7 +667,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 549
+          "line": 704
         }
       ],
       "notes": ""
@@ -474,7 +679,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 550
+          "line": 705
         }
       ],
       "notes": ""
@@ -486,7 +691,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 551
+          "line": 706
         }
       ],
       "notes": ""
@@ -498,7 +703,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 552
+          "line": 707
         }
       ],
       "notes": ""
@@ -510,7 +715,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 553
+          "line": 708
         }
       ],
       "notes": ""
@@ -522,7 +727,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 556
+          "line": 711
         }
       ],
       "notes": ""
@@ -534,7 +739,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 559
+          "line": 714
         }
       ],
       "notes": ""
@@ -546,7 +751,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 560
+          "line": 715
         }
       ],
       "notes": ""
@@ -558,7 +763,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 563
+          "line": 718
         }
       ],
       "notes": ""
@@ -570,7 +775,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 564
+          "line": 719
         }
       ],
       "notes": ""
@@ -582,7 +787,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 565
+          "line": 720
         }
       ],
       "notes": ""
@@ -594,7 +799,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 568
+          "line": 723
         }
       ],
       "notes": ""
@@ -606,7 +811,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 569
+          "line": 724
         }
       ],
       "notes": ""
@@ -618,7 +823,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 570
+          "line": 725
         }
       ],
       "notes": ""
@@ -630,7 +835,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 571
+          "line": 726
         }
       ],
       "notes": ""
@@ -642,7 +847,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 572
+          "line": 727
         }
       ],
       "notes": ""
@@ -654,7 +859,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 573
+          "line": 728
         }
       ],
       "notes": ""
@@ -666,7 +871,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 576
+          "line": 731
         }
       ],
       "notes": ""
@@ -678,7 +883,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 577
+          "line": 732
         }
       ],
       "notes": ""
@@ -690,7 +895,7 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 578
+          "line": 733
         }
       ],
       "notes": ""
@@ -702,7 +907,363 @@
       "locations": [
         {
           "filename": "../gui/auto_detect_tuning_dialog.py",
-          "line": 581
+          "line": 736
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Keyboard calibration example",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 118
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Done",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 149
+        },
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 180
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Next",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 181
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Needs review",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 182
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Not ready",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 183
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Start here",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 217
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Follow the next highlighted step. Your existing calibration is detected automatically.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 220
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "1. Open or download a video",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 229
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Use a clear Synthesia-style piano video with visible keys and falling notes.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 229
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Open Video",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 229
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "2. Find and check the keyboard overlays",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 230
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Draw around the full keyboard, then check that the boxes line up with the keys.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 230
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Find Keyboard",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 230
+        },
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 263
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "3. Capture a no-key frame",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 231
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Pause where the keyboard is visible and no keys are glowing.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 231
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Capture No-Key Frame",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 231
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "4. Find pressed-key colors",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 232
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Start from the no-key frame. The scan looks ahead for each enabled Left/Right color family.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 232
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Find Pressed-Key Colors",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 232
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "5. Create MIDI",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 233
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "When every required step is done, create the MIDI file.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 233
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Create MIDI",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 233
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Download from YouTube",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 244
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Review Alignment",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 261
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Scanning the video for pressed-key colors...",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 268
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Pressed-key colors updated.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 269
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "No pressed-key colors were found. Move to another no-key frame and try again.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 270
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Move to another no-key frame, then run the scan again.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 271
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationGuideWidget",
+      "source": "Your current pressed-key colors were kept.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_guide.py",
+          "line": 272
         }
       ],
       "notes": ""
@@ -939,7 +1500,7 @@
     },
     {
       "context": "CalibrationWizard",
-      "source": "Select Keyboard Region With Autodetector",
+      "source": "Pause on a clear frame where the full keyboard is visible.",
       "placeholders": [],
       "locations": [
         {
@@ -951,12 +1512,24 @@
     },
     {
       "context": "CalibrationWizard",
+      "source": "Draw Keyboard Box and Find Keys",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 66
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
       "source": "Automatically detect piano keys in a selected region",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 75
+          "line": 86
         }
       ],
       "notes": ""
@@ -968,7 +1541,7 @@
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 79
+          "line": 90
         }
       ],
       "notes": ""
@@ -980,7 +1553,19 @@
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 83
+          "line": 94
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizard",
+      "source": "Edit becomes available after you create key overlays.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/wizard.py",
+          "line": 101
         }
       ],
       "notes": ""
@@ -992,7 +1577,7 @@
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 90
+          "line": 111
         }
       ],
       "notes": ""
@@ -1004,7 +1589,7 @@
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 95
+          "line": 116
         }
       ],
       "notes": ""
@@ -1016,7 +1601,7 @@
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 110
+          "line": 131
         }
       ],
       "notes": ""
@@ -1028,7 +1613,7 @@
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 116
+          "line": 137
         }
       ],
       "notes": ""
@@ -1040,7 +1625,7 @@
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 121
+          "line": 142
         }
       ],
       "notes": ""
@@ -1052,7 +1637,7 @@
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 128
+          "line": 149
         }
       ],
       "notes": ""
@@ -1064,7 +1649,7 @@
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 149
+          "line": 177
         }
       ],
       "notes": ""
@@ -1076,7 +1661,7 @@
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 150
+          "line": 178
         }
       ],
       "notes": ""
@@ -1088,7 +1673,7 @@
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 205
+          "line": 233
         }
       ],
       "notes": ""
@@ -1100,7 +1685,7 @@
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 206
+          "line": 234
         }
       ],
       "notes": ""
@@ -1112,23 +1697,23 @@
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 234
+          "line": 262
         },
         {
           "filename": "../gui/wizard.py",
-          "line": 250
+          "line": 278
         },
         {
           "filename": "../gui/wizard.py",
-          "line": 282
+          "line": 310
         },
         {
           "filename": "../gui/wizard.py",
-          "line": 302
+          "line": 330
         },
         {
           "filename": "../gui/wizard.py",
-          "line": 317
+          "line": 345
         }
       ],
       "notes": ""
@@ -1140,7 +1725,7 @@
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 235
+          "line": 263
         }
       ],
       "notes": ""
@@ -1152,7 +1737,7 @@
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 251
+          "line": 279
         }
       ],
       "notes": ""
@@ -1164,7 +1749,7 @@
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 271
+          "line": 299
         }
       ],
       "notes": ""
@@ -1176,7 +1761,7 @@
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 276
+          "line": 304
         }
       ],
       "notes": ""
@@ -1188,7 +1773,7 @@
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 303
+          "line": 331
         }
       ],
       "notes": ""
@@ -1202,7 +1787,7 @@
       "locations": [
         {
           "filename": "../gui/wizard.py",
-          "line": 318
+          "line": 346
         }
       ],
       "notes": ""
@@ -1214,7 +1799,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 88
+          "line": 94
         }
       ],
       "notes": ""
@@ -1226,7 +1811,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 89
+          "line": 95
         }
       ],
       "notes": ""
@@ -1238,7 +1823,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 211
+          "line": 225
         }
       ],
       "notes": ""
@@ -1250,7 +1835,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 212
+          "line": 226
         }
       ],
       "notes": ""
@@ -1262,7 +1847,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 230
+          "line": 259
         }
       ],
       "notes": ""
@@ -1274,7 +1859,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 231
+          "line": 260
         }
       ],
       "notes": ""
@@ -1286,7 +1871,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 240
+          "line": 269
         }
       ],
       "notes": ""
@@ -1298,59 +1883,137 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 241
+          "line": 270
         }
       ],
       "notes": ""
     },
     {
       "context": "CalibrationWizardController",
-      "source": "Assisted calibration found {count} candidate samples.",
+      "source": "Left White",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 318
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Left Black",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 319
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Right White",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 320
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Right Black",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 321
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "Assisted calibration found {count} possible pressed-key samples.",
       "placeholders": [
         "{count}"
       ],
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 261
+          "line": 324
         }
       ],
       "notes": ""
     },
     {
       "context": "CalibrationWizardController",
-      "source": "Color families found: {count}",
+      "source": "Found {count} Synthesia note color families.",
       "placeholders": [
         "{count}"
       ],
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 265
+          "line": 328
         }
       ],
       "notes": ""
     },
     {
       "context": "CalibrationWizardController",
-      "source": "not present in this video",
+      "source": "Left/Right refer to Synthesia note colors, not the physical side of the keyboard.",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 277
+          "line": 332
         }
       ],
       "notes": ""
     },
     {
       "context": "CalibrationWizardController",
-      "source": "not found",
-      "placeholders": [],
+      "source": "{label}: not present in this video",
+      "placeholders": [
+        "{label}"
+      ],
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 287
+          "line": 344
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "{label}: found",
+      "placeholders": [
+        "{label}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 351
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CalibrationWizardController",
+      "source": "{label}: not found",
+      "placeholders": [
+        "{label}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/calibration_wizard_controller.py",
+          "line": 358
         }
       ],
       "notes": ""
@@ -1362,7 +2025,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 336
+          "line": 435
         }
       ],
       "notes": ""
@@ -1376,7 +2039,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 337
+          "line": 436
         }
       ],
       "notes": ""
@@ -1388,7 +2051,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 353
+          "line": 453
         }
       ],
       "notes": ""
@@ -1400,7 +2063,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 354
+          "line": 454
         }
       ],
       "notes": ""
@@ -1412,15 +2075,11 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 359
+          "line": 459
         },
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 384
-        },
-        {
-          "filename": "../gui/calibration_wizard_controller.py",
-          "line": 394
+          "line": 486
         }
       ],
       "notes": ""
@@ -1432,19 +2091,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 385
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "CalibrationWizardController",
-      "source": "Apply these calibration updates?",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/calibration_wizard_controller.py",
-          "line": 397
+          "line": 487
         }
       ],
       "notes": ""
@@ -1456,7 +2103,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 458
+          "line": 579
         }
       ],
       "notes": ""
@@ -1468,7 +2115,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 460
+          "line": 581
         }
       ],
       "notes": ""
@@ -1480,7 +2127,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 466
+          "line": 587
         }
       ],
       "notes": ""
@@ -1492,7 +2139,7 @@
       "locations": [
         {
           "filename": "../gui/calibration_wizard_controller.py",
-          "line": 471
+          "line": 592
         }
       ],
       "notes": ""
@@ -1524,29 +2171,301 @@
       "notes": ""
     },
     {
-      "context": "ControlPanelQt",
-      "source": "Convert",
+      "context": "CanvasInteraction",
+      "source": "Select Spark Region",
       "placeholders": [],
       "locations": [
         {
-          "filename": "../gui/controls_qt.py",
-          "line": 238
-        },
+          "filename": "../gui/canvas/interaction.py",
+          "line": 156
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "Select Shadow Region",
+      "placeholders": [],
+      "locations": [
         {
-          "filename": "../gui/controls_qt.py",
-          "line": 1614
+          "filename": "../gui/canvas/interaction.py",
+          "line": 157
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "Select White-Key Shadow Region",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 158
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "Select Black-Key Shadow Region",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 159
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "Select Region",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 162
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "Drag across the video to select the region.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 163
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "Select Local Keys",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 218
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "Drag a box around the keys to adjust together.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 219
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "Draw Keyboard Box",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 224
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "Drag a box around the full keyboard.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 225
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "Select Black-Key Region",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 230
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "Drag across the vertical area occupied by black keys.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 231
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "Select White-Key Region",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 236
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "Drag across the vertical area occupied by white keys.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 237
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "Set Black-Key Bottom",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 242
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "Click or drag the guide to the bottom of the black keys.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 243
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "Set White-Key Start",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 248
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "Click or drag the guide to the top of the white-key area.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 249
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "Find Keyboard",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 266
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "Drag a box around the full keyboard, from the first key to the last.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 267
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "That box is too small. Drag a larger box around the full keyboard.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 1182
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "CanvasInteraction",
+      "source": "The box could not be read. Try drawing it again inside the video.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/canvas/interaction.py",
+          "line": 1214
         }
       ],
       "notes": ""
     },
     {
       "context": "ControlPanelQt",
-      "source": "Ready to convert",
+      "source": "Convert",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 243
+          "line": 300
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1992
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Load a video to convert.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 306
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 2115
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 2121
         }
       ],
       "notes": ""
@@ -1558,7 +2477,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 246
+          "line": 310
         }
       ],
       "notes": ""
@@ -1570,7 +2489,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 251
+          "line": 315
         }
       ],
       "notes": ""
@@ -1582,11 +2501,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 252
+          "line": 316
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1629
+          "line": 2007
         }
       ],
       "notes": ""
@@ -1598,15 +2517,15 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 315
+          "line": 384
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 612
+          "line": 819
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 802
+          "line": 1021
         }
       ],
       "notes": ""
@@ -1618,43 +2537,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 318
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "1) Calibrate Key Overlays: create overlays that line up with the keyboard in your video.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 319
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "2) Unlit Key Calibration: pause on a frame where no notes are highlighted, then click Calibrate.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 323
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "3) Lit Key Exemplars: for each button you need (Left/Right x White/Black), pause on a frame where that kind of overlay is highlighted, click the button, then click that highlighted overlay in the video.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 327
+          "line": 387
         }
       ],
       "notes": ""
@@ -1666,7 +2549,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 331
+          "line": 400
         }
       ],
       "notes": ""
@@ -1678,7 +2561,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 332
+          "line": 401
         }
       ],
       "notes": ""
@@ -1690,27 +2573,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 348
-        },
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 603
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Calibrate",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 352
-        },
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 378
+          "line": 810
         }
       ],
       "notes": ""
@@ -1722,7 +2585,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 357
+          "line": 439
         }
       ],
       "notes": ""
@@ -1734,7 +2597,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 362
+          "line": 453
         }
       ],
       "notes": ""
@@ -1746,19 +2609,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 370
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Unlit",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 374
+          "line": 462
         }
       ],
       "notes": ""
@@ -1770,7 +2621,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 383
+          "line": 475
         }
       ],
       "notes": ""
@@ -1782,19 +2633,19 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 393
+          "line": 497
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 962
+          "line": 1185
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1579
+          "line": 1957
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1706
+          "line": 2084
         }
       ],
       "notes": ""
@@ -1806,7 +2657,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 402
+          "line": 529
         }
       ],
       "notes": ""
@@ -1820,7 +2671,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 416
+          "line": 543
         }
       ],
       "notes": ""
@@ -1832,7 +2683,418 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 421
+          "line": 548
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Before tuning detection: capture a no-key frame and at least one pressed-key example.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 823
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Detection Sensitivity: main setting for pressed vs unpressed keys.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 824
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Missing notes? Lower it. Extra notes? Raise it.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 825
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 865
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Histogram Detection helps when pressed colors have gradients or uneven lighting.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 826
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Delta Detection helps when pressed colors fade in or out instead of switching cleanly.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 830
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Black Key Filter reduces false black-key notes caused by nearby overlays.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 834
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Detection Sensitivity",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 843
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Detection Sensitivity:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 862
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Select the area above the keys where spark bars and flashes appear.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1089
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Show or hide the spark area overlay on the video.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1098
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Convert Only Part of the Video",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1264
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "This affects MIDI creation only. It does not trim or change the video session.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1268
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Permanently Trim Project",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1331
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1383
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1445
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1675
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Most users should use MIDI range instead. Trim changes the working video session, not the original video file.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1336
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Open the dedicated setup window when repeated presses merge into one long note.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1405
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Open Repeated Notes Tool",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1413
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Gradient or uneven pressed colors",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1425
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Pressed colors fade in or out",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1430
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "False black-key notes",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1435
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Repeated notes merge together",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1440
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Glossary",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1462
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Advanced",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1469
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Put each hand/color on a separate MIDI channel",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1483
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Use this only if the video uses different colors for left and right hand notes.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1489
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "<b>This will permanently trim the working video session.</b><br><br>Frames outside {start_frame} to {end_text} will be unavailable in this project session.<br><br>Most users should cancel and use the MIDI range controls instead.",
+      "placeholders": [
+        "{end_text}",
+        "{start_frame}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1684
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Trim Project",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1696
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Create key overlays first.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 2128
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Capture a no-key frame.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 2139
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 2151
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Capture at least one pressed-key example.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 2158
+        },
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 2166
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Check detection sensitivity.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 2173
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Check MIDI tempo.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 2179
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Ready to create MIDI.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 2184
         }
       ],
       "notes": ""
@@ -1844,7 +3106,163 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
+          "line": 560
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Guide",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 252
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "1) Find Keyboard Box: create overlays that line up with the keyboard in your video.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 388
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "2) Capture No-Key Frame: pause where no keys are glowing, then click Capture No-Key Frame.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 392
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "3) Capture Pressed-Key Examples: for each button you need (Left/Right x White/Black), pause where that kind of overlay is glowing, click the button, then click that overlay in the video. Left/Right refer to Synthesia note colors, not the physical side of the keyboard.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 396
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Draw Keyboard Box and Find Keys",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
           "line": 433
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Find the keyboard",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 446
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Pause on a clear frame where the full keyboard is visible.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 447
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Capture No-Key Frame",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 469
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Capture no-key frame",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 481
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Pause where no keys are glowing.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 485
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Capture pressed-key examples",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 504
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Pause where a key is glowing, then click that key.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 509
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Left/Right refer to Synthesia note colors, not the physical side of the keyboard.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 517
         }
       ],
       "notes": ""
@@ -1856,7 +3274,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 435
+          "line": 562
         }
       ],
       "notes": ""
@@ -1868,7 +3286,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 456
+          "line": 583
         }
       ],
       "notes": ""
@@ -1880,7 +3298,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 466
+          "line": 593
         }
       ],
       "notes": ""
@@ -1892,7 +3310,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 471
+          "line": 598
         }
       ],
       "notes": ""
@@ -1904,7 +3322,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 474
+          "line": 601
         }
       ],
       "notes": ""
@@ -1916,7 +3334,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 477
+          "line": 604
         }
       ],
       "notes": ""
@@ -1928,7 +3346,59 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 497
+          "line": 624
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Current:",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 641
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Reset",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 644
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Decrease {setting}",
+      "placeholders": [
+        "{setting}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 659
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Increase {setting}",
+      "placeholders": [
+        "{setting}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 662
         }
       ],
       "notes": ""
@@ -1940,7 +3410,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 518
+          "line": 677
         }
       ],
       "notes": ""
@@ -1952,7 +3422,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 527
+          "line": 694
         }
       ],
       "notes": ""
@@ -1964,7 +3434,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 536
+          "line": 711
         }
       ],
       "notes": ""
@@ -1976,7 +3446,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 545
+          "line": 728
         }
       ],
       "notes": ""
@@ -1988,7 +3458,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 554
+          "line": 745
         }
       ],
       "notes": ""
@@ -2000,7 +3470,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 563
+          "line": 762
         }
       ],
       "notes": ""
@@ -2012,7 +3482,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 577
+          "line": 784
         }
       ],
       "notes": ""
@@ -2024,91 +3494,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 582
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Before tuning detection: run Unlit Key Calibration + at least one Lit Key Exemplar.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 616
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Detection Threshold: main sensitivity setting for pressed vs unpressed.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 617
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "If notes are missed: lower the threshold. If you get false notes: raise the threshold.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 618
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Histogram Detection: uses a color-pattern match inside each overlay. Use when pressed overlays have strong gradients or uneven lighting.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 619
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Delta Detection: uses frame-to-frame change to confirm press/release. Use when the pressed color fades in/out gradually instead of switching cleanly.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 623
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Black Key Filter: reduces false black-key presses caused by nearby overlays.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 627
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Detection Threshold",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 636
+          "line": 789
         }
       ],
       "notes": ""
@@ -2120,35 +3506,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 647
+          "line": 854
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 652
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Detection Threshold:",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 655
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Detection Modes",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 662
+          "line": 859
         }
       ],
       "notes": ""
@@ -2160,7 +3522,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 681
+          "line": 897
         }
       ],
       "notes": ""
@@ -2172,7 +3534,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 685
+          "line": 901
         }
       ],
       "notes": ""
@@ -2184,11 +3546,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 697
+          "line": 913
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 702
+          "line": 918
         }
       ],
       "notes": ""
@@ -2200,7 +3562,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 704
+          "line": 920
         }
       ],
       "notes": ""
@@ -2212,7 +3574,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 707
+          "line": 923
         }
       ],
       "notes": ""
@@ -2224,7 +3586,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 711
+          "line": 927
         }
       ],
       "notes": ""
@@ -2236,11 +3598,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 722
+          "line": 938
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 727
+          "line": 943
         }
       ],
       "notes": ""
@@ -2252,7 +3614,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 729
+          "line": 945
         }
       ],
       "notes": ""
@@ -2264,11 +3626,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 738
+          "line": 954
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 743
+          "line": 959
         }
       ],
       "notes": ""
@@ -2280,7 +3642,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 745
+          "line": 961
         }
       ],
       "notes": ""
@@ -2292,7 +3654,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 748
+          "line": 964
         }
       ],
       "notes": ""
@@ -2304,7 +3666,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 752
+          "line": 968
         }
       ],
       "notes": ""
@@ -2316,11 +3678,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 764
+          "line": 980
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 769
+          "line": 985
         }
       ],
       "notes": ""
@@ -2332,7 +3694,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 771
+          "line": 987
         }
       ],
       "notes": ""
@@ -2344,7 +3706,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 775
+          "line": 996
         }
       ],
       "notes": ""
@@ -2356,7 +3718,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 777
+          "line": 998
         }
       ],
       "notes": ""
@@ -2368,7 +3730,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 786
+          "line": 1005
         }
       ],
       "notes": ""
@@ -2380,7 +3742,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 805
+          "line": 1024
         }
       ],
       "notes": ""
@@ -2392,7 +3754,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 806
+          "line": 1025
         }
       ],
       "notes": ""
@@ -2404,31 +3766,19 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 807
+          "line": 1026
         }
       ],
       "notes": ""
     },
     {
       "context": "ControlPanelQt",
-      "source": "Spark Detection",
+      "source": "Use this only if repeated notes merge into one long note.",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 817
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Enable Spark Detection",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 821
+          "line": 1041
         }
       ],
       "notes": ""
@@ -2440,7 +3790,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 825
+          "line": 1051
         }
       ],
       "notes": ""
@@ -2452,7 +3802,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 833
+          "line": 1059
         }
       ],
       "notes": ""
@@ -2464,47 +3814,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 840
+          "line": 1066
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 846
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Spark Calibration",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 853
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Select Spark ROI",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 860
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Select the region above the keys where spark bars and sparks appear.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 864
+          "line": 1072
         }
       ],
       "notes": ""
@@ -2516,27 +3830,15 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 869
+          "line": 1094
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1421
+          "line": 1797
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1598
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Show or hide the spark ROI overlay on the video.",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 874
+          "line": 1976
         }
       ],
       "notes": ""
@@ -2548,7 +3850,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 880
+          "line": 1104
         }
       ],
       "notes": ""
@@ -2560,7 +3862,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 885
+          "line": 1109
         }
       ],
       "notes": ""
@@ -2572,7 +3874,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 888
+          "line": 1112
         }
       ],
       "notes": ""
@@ -2584,7 +3886,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 892
+          "line": 1116
         }
       ],
       "notes": ""
@@ -2596,7 +3898,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 900
+          "line": 1124
         }
       ],
       "notes": ""
@@ -2608,7 +3910,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 903
+          "line": 1127
         }
       ],
       "notes": ""
@@ -2620,7 +3922,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 907
+          "line": 1131
         }
       ],
       "notes": ""
@@ -2632,7 +3934,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 915
+          "line": 1139
         }
       ],
       "notes": ""
@@ -2644,7 +3946,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 918
+          "line": 1142
         }
       ],
       "notes": ""
@@ -2656,7 +3958,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 922
+          "line": 1146
         }
       ],
       "notes": ""
@@ -2668,7 +3970,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 931
+          "line": 1155
         }
       ],
       "notes": ""
@@ -2682,7 +3984,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 947
+          "line": 1171
         }
       ],
       "notes": ""
@@ -2694,7 +3996,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 954
+          "line": 1177
         }
       ],
       "notes": ""
@@ -2706,7 +4008,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 974
+          "line": 1197
         }
       ],
       "notes": ""
@@ -2718,7 +4020,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 976
+          "line": 1199
         }
       ],
       "notes": ""
@@ -2730,19 +4032,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 980
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Spark",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 991
+          "line": 1203
         }
       ],
       "notes": ""
@@ -2754,7 +4044,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1001
+          "line": 1227
         }
       ],
       "notes": ""
@@ -2766,7 +4056,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1018
+          "line": 1244
         }
       ],
       "notes": ""
@@ -2778,23 +4068,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1032
+          "line": 1258
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1434
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Custom MIDI Processing Range",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1038
+          "line": 1810
         }
       ],
       "notes": ""
@@ -2806,11 +4084,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1047
+          "line": 1283
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1105
+          "line": 1351
         }
       ],
       "notes": ""
@@ -2822,19 +4100,19 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1058
+          "line": 1294
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1075
+          "line": 1311
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1116
+          "line": 1361
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1133
+          "line": 1376
         }
       ],
       "notes": ""
@@ -2846,11 +4124,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1064
+          "line": 1300
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1122
+          "line": 1366
         }
       ],
       "notes": ""
@@ -2862,43 +4140,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1086
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Video Processing Range",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1095
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Trim Video",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1141
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Trim",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1149
+          "line": 1322
         }
       ],
       "notes": ""
@@ -2910,7 +4152,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 289
+          "line": 358
         }
       ],
       "notes": ""
@@ -2922,19 +4164,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1158
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "Enable Hand Assignment (MIDI Channels)",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1162
+          "line": 1478
         }
       ],
       "notes": ""
@@ -2946,7 +4176,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1172
+          "line": 1504
         }
       ],
       "notes": ""
@@ -2958,15 +4188,63 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 286
+          "line": 355
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 306
+          "line": 375
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1182
+          "line": 1514
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Repeated Notes Fix",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1036
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Enable Repeated Notes Fix",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1047
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Repeated-Note Setup",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1079
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "ControlPanelQt",
+      "source": "Select Flash Area Above Keys",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/controls_qt.py",
+          "line": 1086
         }
       ],
       "notes": ""
@@ -2978,7 +4256,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1183
+          "line": 1515
         }
       ],
       "notes": ""
@@ -2990,7 +4268,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1188
+          "line": 1520
         }
       ],
       "notes": ""
@@ -3002,7 +4280,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1190
+          "line": 1522
         }
       ],
       "notes": ""
@@ -3014,7 +4292,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1336
+          "line": 1668
         }
       ],
       "notes": ""
@@ -3026,19 +4304,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1337
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "⚠️ Trim Video - Irreversible Action",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1343
+          "line": 1669
         }
       ],
       "notes": ""
@@ -3052,7 +4318,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1374
+          "line": 1679
         }
       ],
       "notes": ""
@@ -3064,34 +4330,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1376
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "\n<b>⚠️ WARNING: This action is IRREVERSIBLE</b><br><br>\nThis will permanently trim the video session to frames {start_frame} to {end_text}.<br><br>\n<b>After trimming:</b><br>\n• Frames outside this range will become inaccessible<br>\n• Video navigation will be restricted to this range<br>\n• MIDI processing will be limited to this range<br><br>\n<b>Are you sure you want to proceed?</b>\n        ",
-      "placeholders": [
-        "{end_text}",
-        "{start_frame}"
-      ],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1378
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "ControlPanelQt",
-      "source": "⚠️ YES, TRIM VIDEO",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/controls_qt.py",
-          "line": 1393
+          "line": 1681
         }
       ],
       "notes": ""
@@ -3103,11 +4342,11 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1423
+          "line": 1799
         },
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1600
+          "line": 1978
         }
       ],
       "notes": ""
@@ -3121,7 +4360,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1437
+          "line": 1813
         }
       ],
       "notes": ""
@@ -3136,7 +4375,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1456
+          "line": 1832
         }
       ],
       "notes": ""
@@ -3150,7 +4389,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1463
+          "line": 1839
         }
       ],
       "notes": ""
@@ -3162,7 +4401,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1576
+          "line": 1954
         }
       ],
       "notes": ""
@@ -3176,7 +4415,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1619
+          "line": 1997
         }
       ],
       "notes": ""
@@ -3190,7 +4429,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1623
+          "line": 2001
         }
       ],
       "notes": ""
@@ -3202,7 +4441,7 @@
       "locations": [
         {
           "filename": "../gui/controls_qt.py",
-          "line": 1703
+          "line": 2081
         }
       ],
       "notes": ""
@@ -3281,6 +4520,30 @@
         {
           "filename": "../workflows/conversion.py",
           "line": 402
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "KeyboardCanvas",
+      "source": "Esc cancels",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/keyboard_canvas.py",
+          "line": 175
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "KeyboardCanvas",
+      "source": "Cancel",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/keyboard_canvas.py",
+          "line": 179
         }
       ],
       "notes": ""
@@ -3526,7 +4789,7 @@
         },
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 398
+          "line": 440
         }
       ],
       "notes": ""
@@ -3554,11 +4817,11 @@
         },
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 389
+          "line": 431
         },
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 401
+          "line": 443
         }
       ],
       "notes": ""
@@ -3574,7 +4837,7 @@
         },
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 274
+          "line": 294
         }
       ],
       "notes": ""
@@ -3593,16 +4856,16 @@
     },
     {
       "context": "ManualKeyboardFitDialog",
-      "source": "Editing: Whole Keyboard",
+      "source": "Move and resize every overlay together.",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 132
+          "line": 137
         },
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 465
+          "line": 507
         }
       ],
       "notes": ""
@@ -3614,7 +4877,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 134
+          "line": 142
         }
       ],
       "notes": ""
@@ -3626,7 +4889,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 135
+          "line": 143
         }
       ],
       "notes": ""
@@ -3638,7 +4901,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 136
+          "line": 144
         }
       ],
       "notes": ""
@@ -3650,7 +4913,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 137
+          "line": 145
         }
       ],
       "notes": ""
@@ -3662,7 +4925,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 138
+          "line": 146
         }
       ],
       "notes": ""
@@ -3674,7 +4937,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 160
+          "line": 175
         }
       ],
       "notes": ""
@@ -3688,11 +4951,11 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 189
+          "line": 203
         },
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 242
+          "line": 259
         }
       ],
       "notes": ""
@@ -3704,7 +4967,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 220
+          "line": 238
         }
       ],
       "notes": ""
@@ -3716,7 +4979,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 222
+          "line": 240
         }
       ],
       "notes": ""
@@ -3728,7 +4991,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 223
+          "line": 241
         }
       ],
       "notes": ""
@@ -3740,7 +5003,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 224
+          "line": 242
         }
       ],
       "notes": ""
@@ -3752,11 +5015,11 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 225
+          "line": 243
         },
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 340
+          "line": 382
         }
       ],
       "notes": ""
@@ -3768,7 +5031,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 269
+          "line": 289
         }
       ],
       "notes": ""
@@ -3780,7 +5043,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 270
+          "line": 290
         }
       ],
       "notes": ""
@@ -3792,7 +5055,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 271
+          "line": 291
         }
       ],
       "notes": ""
@@ -3804,11 +5067,11 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 272
+          "line": 292
         },
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 357
+          "line": 399
         }
       ],
       "notes": ""
@@ -3820,7 +5083,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 273
+          "line": 293
         }
       ],
       "notes": ""
@@ -3832,7 +5095,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 275
+          "line": 295
         }
       ],
       "notes": ""
@@ -3846,7 +5109,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 344
+          "line": 386
         }
       ],
       "notes": ""
@@ -3858,7 +5121,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 350
+          "line": 392
         }
       ],
       "notes": ""
@@ -3870,7 +5133,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 351
+          "line": 393
         }
       ],
       "notes": ""
@@ -3882,7 +5145,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 358
+          "line": 400
         }
       ],
       "notes": ""
@@ -3894,7 +5157,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 364
+          "line": 406
         }
       ],
       "notes": ""
@@ -3906,7 +5169,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 365
+          "line": 407
         }
       ],
       "notes": ""
@@ -3918,7 +5181,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 371
+          "line": 413
         }
       ],
       "notes": ""
@@ -3930,7 +5193,7 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 372
+          "line": 414
         }
       ],
       "notes": ""
@@ -3942,59 +5205,59 @@
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 386
+          "line": 428
         },
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 407
+          "line": 449
         }
       ],
       "notes": ""
     },
     {
       "context": "ManualKeyboardFitDialog",
-      "source": "Editing: All Whites",
+      "source": "Adjust all white-key overlays together.",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 469
+          "line": 514
         }
       ],
       "notes": ""
     },
     {
       "context": "ManualKeyboardFitDialog",
-      "source": "Editing: All Blacks",
+      "source": "Adjust all black-key overlays together.",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 472
+          "line": 521
         }
       ],
       "notes": ""
     },
     {
       "context": "ManualKeyboardFitDialog",
-      "source": "Editing: Local Cluster",
+      "source": "Draw around the problem keys, then adjust that selected group.",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 476
+          "line": 528
         }
       ],
       "notes": ""
     },
     {
       "context": "ManualKeyboardFitDialog",
-      "source": "Editing: Single Overlay",
+      "source": "Click one problem key, then adjust only that overlay.",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/manual_keyboard_fit_dialog.py",
-          "line": 481
+          "line": 536
         }
       ],
       "notes": ""
@@ -4042,7 +5305,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 42
+          "line": 52
         }
       ],
       "notes": ""
@@ -4056,7 +5319,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 44
+          "line": 54
         }
       ],
       "notes": ""
@@ -4068,7 +5331,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 54
+          "line": 64
         }
       ],
       "notes": ""
@@ -4080,7 +5343,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 49
+          "line": 59
         }
       ],
       "notes": ""
@@ -4092,7 +5355,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 56
+          "line": 66
         }
       ],
       "notes": ""
@@ -4104,7 +5367,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 85
+          "line": 95
         }
       ],
       "notes": ""
@@ -4116,7 +5379,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 87
+          "line": 97
         }
       ],
       "notes": ""
@@ -4130,7 +5393,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 96
+          "line": 106
         }
       ],
       "notes": ""
@@ -4142,7 +5405,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 100
+          "line": 110
         }
       ],
       "notes": ""
@@ -4154,7 +5417,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 134
+          "line": 144
         }
       ],
       "notes": ""
@@ -4169,7 +5432,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 135
+          "line": 145
         }
       ],
       "notes": ""
@@ -4181,7 +5444,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 153
+          "line": 163
         }
       ],
       "notes": ""
@@ -4195,7 +5458,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 154
+          "line": 164
         }
       ],
       "notes": ""
@@ -4207,7 +5470,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 173
+          "line": 183
         }
       ],
       "notes": ""
@@ -4224,7 +5487,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 174
+          "line": 184
         }
       ],
       "notes": ""
@@ -4236,7 +5499,7 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 232
+          "line": 245
         }
       ],
       "notes": ""
@@ -4250,7 +5513,23 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 233
+          "line": 246
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "MidiTouchupController",
+      "source": "Exit code: {exit_code}\n\nStdout:\n{stdout_text}\n\nStderr:\n{stderr_text}",
+      "placeholders": [
+        "{exit_code}",
+        "{stderr_text}",
+        "{stdout_text}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/midi_touchup_controller.py",
+          "line": 260
         }
       ],
       "notes": ""
@@ -4262,24 +5541,21 @@
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 249
+          "line": 271
         }
       ],
       "notes": ""
     },
     {
       "context": "MidiTouchupController",
-      "source": "{failure_message}\n\nSource MIDI: {source_midi_path}\nStdout: {stdout_text}\nStderr: {stderr_text}",
+      "source": "Source MIDI: {source_midi_path}\nOpen Details for technical diagnostics.",
       "placeholders": [
-        "{failure_message}",
-        "{source_midi_path}",
-        "{stderr_text}",
-        "{stdout_text}"
+        "{source_midi_path}"
       ],
       "locations": [
         {
           "filename": "../gui/midi_touchup_controller.py",
-          "line": 250
+          "line": 277
         }
       ],
       "notes": ""
@@ -4291,7 +5567,7 @@
       "locations": [
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 128
+          "line": 138
         }
       ],
       "notes": ""
@@ -4307,7 +5583,7 @@
       "locations": [
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 129
+          "line": 139
         }
       ],
       "notes": ""
@@ -4319,7 +5595,7 @@
       "locations": [
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 144
+          "line": 154
         }
       ],
       "notes": ""
@@ -4333,7 +5609,7 @@
       "locations": [
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 145
+          "line": 155
         }
       ],
       "notes": ""
@@ -4345,19 +5621,19 @@
       "locations": [
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 156
+          "line": 166
         },
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 169
+          "line": 179
         },
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 184
+          "line": 194
         },
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 197
+          "line": 207
         }
       ],
       "notes": ""
@@ -4369,11 +5645,11 @@
       "locations": [
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 157
+          "line": 167
         },
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 185
+          "line": 195
         }
       ],
       "notes": ""
@@ -4387,11 +5663,35 @@
       "locations": [
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 170
+          "line": 180
         },
         {
           "filename": "../workflows/overlay_manager.py",
-          "line": 198
+          "line": 208
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "RepeatedNotesToolWindow",
+      "source": "Repeated Notes",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/repeated_notes_tool_window.py",
+          "line": 20
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "RepeatedNotesToolWindow",
+      "source": "Set up the repeated-notes fix, then close this window when the preview looks right.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/repeated_notes_tool_window.py",
+          "line": 29
         }
       ],
       "notes": ""
@@ -4403,7 +5703,7 @@
       "locations": [
         {
           "filename": "../gui/settings_tool_window.py",
-          "line": 17
+          "line": 19
         }
       ],
       "notes": ""
@@ -5371,7 +6671,7 @@
       "locations": [
         {
           "filename": "../gui/startup_dialog.py",
-          "line": 40
+          "line": 41
         }
       ],
       "notes": ""
@@ -5383,7 +6683,7 @@
       "locations": [
         {
           "filename": "../gui/startup_dialog.py",
-          "line": 52
+          "line": 53
         }
       ],
       "notes": ""
@@ -5395,7 +6695,7 @@
       "locations": [
         {
           "filename": "../gui/startup_dialog.py",
-          "line": 65
+          "line": 66
         }
       ],
       "notes": ""
@@ -5407,7 +6707,19 @@
       "locations": [
         {
           "filename": "../gui/startup_dialog.py",
-          "line": 82
+          "line": 83
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "StartupDialog",
+      "source": "Choose a Synthesia-style piano video with visible keys and falling notes.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/startup_dialog.py",
+          "line": 88
         }
       ],
       "notes": ""
@@ -5419,7 +6731,7 @@
       "locations": [
         {
           "filename": "../gui/startup_dialog.py",
-          "line": 94
+          "line": 105
         }
       ],
       "notes": ""
@@ -5431,7 +6743,7 @@
       "locations": [
         {
           "filename": "../gui/startup_dialog.py",
-          "line": 96
+          "line": 107
         }
       ],
       "notes": ""
@@ -5443,7 +6755,7 @@
       "locations": [
         {
           "filename": "../gui/startup_dialog.py",
-          "line": 101
+          "line": 112
         }
       ],
       "notes": ""
@@ -5455,7 +6767,7 @@
       "locations": [
         {
           "filename": "../gui/startup_dialog.py",
-          "line": 103
+          "line": 114
         }
       ],
       "notes": ""
@@ -5467,7 +6779,7 @@
       "locations": [
         {
           "filename": "../gui/startup_dialog.py",
-          "line": 115
+          "line": 126
         }
       ],
       "notes": ""
@@ -5479,7 +6791,7 @@
       "locations": [
         {
           "filename": "../gui/startup_dialog.py",
-          "line": 137
+          "line": 155
         }
       ],
       "notes": ""
@@ -5491,7 +6803,7 @@
       "locations": [
         {
           "filename": "../gui/startup_dialog.py",
-          "line": 166
+          "line": 187
         }
       ],
       "notes": ""
@@ -5503,7 +6815,96 @@
       "locations": [
         {
           "filename": "../gui/startup_dialog.py",
-          "line": 167
+          "line": 188
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "StartupDialog",
+      "source": "{filename} (missing)",
+      "placeholders": [
+        "{filename}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/startup_dialog.py",
+          "line": 195
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "StartupDialog",
+      "source": "{filename} — {folder}",
+      "placeholders": [
+        "{filename}",
+        "{folder}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/startup_dialog.py",
+          "line": 200
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "UiGlossary",
+      "source": "Keyboard box: the rectangle around the full visible keyboard.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/ui_glossary.py",
+          "line": 12
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "UiGlossary",
+      "source": "Overlay: a small box that follows one piano key.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/ui_glossary.py",
+          "line": 13
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "UiGlossary",
+      "source": "Left/Right color family: the two Synthesia note colors, not keyboard position.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/ui_glossary.py",
+          "line": 14
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "UiGlossary",
+      "source": "Detection sensitivity: how easily a key counts as pressed.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/ui_glossary.py",
+          "line": 15
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "UiGlossary",
+      "source": "Repeated-notes flashes: brief flashes above a key that separate repeated notes.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/ui_glossary.py",
+          "line": 16
         }
       ],
       "notes": ""
@@ -5515,43 +6916,7 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 144
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "Video2MidiApp",
-      "source": "Open Video (MP4)...",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../main.py",
-          "line": 145
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "Video2MidiApp",
-      "source": "Download Youtube Video...",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../main.py",
-          "line": 149
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "Video2MidiApp",
-      "source": "Save Settings (Ctrl+S)",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../main.py",
-          "line": 153
+          "line": 147
         }
       ],
       "notes": ""
@@ -5563,11 +6928,11 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 160
+          "line": 164
         },
         {
           "filename": "../main.py",
-          "line": 480
+          "line": 521
         }
       ],
       "notes": ""
@@ -5579,7 +6944,7 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 166
+          "line": 170
         }
       ],
       "notes": ""
@@ -5591,7 +6956,7 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 167
+          "line": 171
         }
       ],
       "notes": ""
@@ -5603,7 +6968,7 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 173
+          "line": 177
         }
       ],
       "notes": ""
@@ -5615,11 +6980,11 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 181
+          "line": 185
         },
         {
           "filename": "../main.py",
-          "line": 397
+          "line": 444
         }
       ],
       "notes": ""
@@ -5631,7 +6996,7 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 193
+          "line": 197
         }
       ],
       "notes": ""
@@ -5645,7 +7010,7 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 199
+          "line": 203
         }
       ],
       "notes": ""
@@ -5659,31 +7024,7 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 201
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "Video2MidiApp",
-      "source": "Visual Threshold Monitor",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../main.py",
-          "line": 210
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "Video2MidiApp",
-      "source": "Enable",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../main.py",
-          "line": 213
+          "line": 205
         }
       ],
       "notes": ""
@@ -5695,7 +7036,19 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 222
+          "line": 245
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Settings",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 279
         }
       ],
       "notes": ""
@@ -5707,11 +7060,11 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 255
+          "line": 281
         },
         {
           "filename": "../main.py",
-          "line": 363
+          "line": 403
         }
       ],
       "notes": ""
@@ -5723,7 +7076,7 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 311
+          "line": 352
         }
       ],
       "notes": ""
@@ -5735,7 +7088,7 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 361
+          "line": 401
         }
       ],
       "notes": ""
@@ -5747,7 +7100,7 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 393
+          "line": 440
         }
       ],
       "notes": ""
@@ -5759,15 +7112,91 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 456
+          "line": 157
         },
         {
           "filename": "../main.py",
-          "line": 465
+          "line": 497
         },
         {
           "filename": "../main.py",
-          "line": 472
+          "line": 506
+        },
+        {
+          "filename": "../main.py",
+          "line": 513
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Open Video File...",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 149
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Download YouTube Video...",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 153
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Advanced",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 214
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Open Image Sequence Folder...",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 218
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Diagnostics",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 228
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "Video2MidiApp",
+      "source": "Enable Visual Threshold Monitor",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../main.py",
+          "line": 234
         }
       ],
       "notes": ""
@@ -5779,7 +7208,7 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 457
+          "line": 498
         }
       ],
       "notes": ""
@@ -5791,7 +7220,7 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 466
+          "line": 507
         }
       ],
       "notes": ""
@@ -5803,7 +7232,7 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 473
+          "line": 514
         }
       ],
       "notes": ""
@@ -5815,7 +7244,7 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 481
+          "line": 522
         }
       ],
       "notes": ""
@@ -5827,7 +7256,7 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 539
+          "line": 580
         }
       ],
       "notes": ""
@@ -5841,7 +7270,7 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 540
+          "line": 581
         }
       ],
       "notes": ""
@@ -5853,7 +7282,7 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 546
+          "line": 587
         }
       ],
       "notes": ""
@@ -5867,7 +7296,7 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 547
+          "line": 588
         }
       ],
       "notes": ""
@@ -5879,7 +7308,7 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 554
+          "line": 595
         }
       ],
       "notes": ""
@@ -5893,7 +7322,67 @@
       "locations": [
         {
           "filename": "../main.py",
-          "line": 555
+          "line": 596
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoEmptyState",
+      "source": "Open a Synthesia-style video to begin",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/video_empty_state.py",
+          "line": 19
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoEmptyState",
+      "source": "Choose a Synthesia-style piano video with visible keys and falling notes.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/video_empty_state.py",
+          "line": 25
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoEmptyState",
+      "source": "Open Video",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/video_empty_state.py",
+          "line": 33
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoEmptyState",
+      "source": "Download from YouTube",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/video_empty_state.py",
+          "line": 37
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoEmptyState",
+      "source": "Settings",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/video_empty_state.py",
+          "line": 41
         }
       ],
       "notes": ""
@@ -6035,24 +7524,36 @@
     },
     {
       "context": "VideoSessionUiController",
-      "source": "Select Video File or Image Sequence Directory",
+      "source": "Open Video File",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/video_session_ui_controller.py",
-          "line": 37
+          "line": 36
         }
       ],
       "notes": ""
     },
     {
       "context": "VideoSessionUiController",
-      "source": "Video Files (*.mp4 *.avi *.mov *.mkv *.webm);;Image Sequence Directories (*)",
+      "source": "Video Files (*.mp4 *.avi *.mov *.mkv *.webm)",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/video_session_ui_controller.py",
-          "line": 42
+          "line": 39
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "VideoSessionUiController",
+      "source": "Open Image Sequence Folder",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/video_session_ui_controller.py",
+          "line": 66
         }
       ],
       "notes": ""
@@ -6299,7 +7800,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 90
+          "line": 96
         }
       ],
       "notes": ""
@@ -6311,7 +7812,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 99
+          "line": 105
         }
       ],
       "notes": ""
@@ -6323,19 +7824,31 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 108
+          "line": 114
         }
       ],
       "notes": ""
     },
     {
       "context": "YouTubeDownloadDialog",
-      "source": "YouTube Access Fallback",
+      "source": "If YouTube blocks the download",
       "placeholders": [],
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 137
+          "line": 144
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Synthesia2MIDI can retry using saved browser cookies only if YouTube blocks the normal download.",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 148
         }
       ],
       "notes": ""
@@ -6347,7 +7860,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 149
+          "line": 166
         }
       ],
       "notes": ""
@@ -6359,7 +7872,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 158
+          "line": 176
         }
       ],
       "notes": ""
@@ -6371,7 +7884,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 164
+          "line": 182
         }
       ],
       "notes": ""
@@ -6383,23 +7896,23 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 171
+          "line": 189
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 217
+          "line": 242
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 222
+          "line": 247
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 246
+          "line": 271
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 304
+          "line": 329
         }
       ],
       "notes": ""
@@ -6411,7 +7924,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 181
+          "line": 199
         }
       ],
       "notes": ""
@@ -6423,11 +7936,11 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 186
+          "line": 204
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 489
+          "line": 517
         }
       ],
       "notes": ""
@@ -6439,7 +7952,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 191
+          "line": 209
         }
       ],
       "notes": ""
@@ -6451,11 +7964,11 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 214
+          "line": 239
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 244
+          "line": 269
         }
       ],
       "notes": ""
@@ -6467,11 +7980,11 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 219
+          "line": 244
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 260
+          "line": 285
         }
       ],
       "notes": ""
@@ -6485,7 +7998,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 277
+          "line": 302
         }
       ],
       "notes": ""
@@ -6499,7 +8012,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 286
+          "line": 311
         }
       ],
       "notes": ""
@@ -6513,7 +8026,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 292
+          "line": 317
         }
       ],
       "notes": ""
@@ -6525,7 +8038,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 330
+          "line": 356
         }
       ],
       "notes": ""
@@ -6539,7 +8052,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 331
+          "line": 357
         }
       ],
       "notes": ""
@@ -6551,7 +8064,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 335
+          "line": 361
         }
       ],
       "notes": ""
@@ -6563,7 +8076,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 364
+          "line": 390
         }
       ],
       "notes": ""
@@ -6575,7 +8088,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 365
+          "line": 391
         }
       ],
       "notes": ""
@@ -6587,11 +8100,11 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 376
+          "line": 402
         },
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 416
+          "line": 442
         }
       ],
       "notes": ""
@@ -6603,7 +8116,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 395
+          "line": 421
         }
       ],
       "notes": ""
@@ -6615,7 +8128,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 401
+          "line": 427
         }
       ],
       "notes": ""
@@ -6627,7 +8140,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 442
+          "line": 469
         }
       ],
       "notes": ""
@@ -6639,7 +8152,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 448
+          "line": 475
         }
       ],
       "notes": ""
@@ -6651,7 +8164,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 456
+          "line": 483
         }
       ],
       "notes": ""
@@ -6663,7 +8176,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 457
+          "line": 484
         }
       ],
       "notes": ""
@@ -6675,7 +8188,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 474
+          "line": 501
         }
       ],
       "notes": ""
@@ -6687,7 +8200,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 477
+          "line": 505
         }
       ],
       "notes": ""
@@ -6701,31 +8214,59 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 478
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "YouTubeDownloadDialog",
-      "source": "720p - faster processing, higher calibration risk",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/youtube_download_dialog.py",
-          "line": 500
-        }
-      ],
-      "notes": ""
-    },
-    {
-      "context": "YouTubeDownloadDialog",
-      "source": "480p - fastest processing, highest calibration risk",
-      "placeholders": [],
-      "locations": [
-        {
-          "filename": "../gui/youtube_download_dialog.py",
           "line": 506
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "1080p - recommended for best MIDI detection",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 527
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "720p - faster, may be less accurate",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 533
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "480p - fastest, highest risk of bad calibration",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 539
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "Up to {preset} ({actual_height}p source) - {note}",
+      "placeholders": [
+        "{actual_height}",
+        "{note}",
+        "{preset}"
+      ],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 589
         }
       ],
       "notes": ""
@@ -6740,7 +8281,55 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 557
+          "line": 595
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "recommended for best MIDI detection",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 602
+        },
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 605
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "faster, may be less accurate",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 608
+        },
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 611
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "context": "YouTubeDownloadDialog",
+      "source": "fastest, highest risk of bad calibration",
+      "placeholders": [],
+      "locations": [
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 614
+        },
+        {
+          "filename": "../gui/youtube_download_dialog.py",
+          "line": 617
         }
       ],
       "notes": ""
@@ -6752,7 +8341,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 608
+          "line": 675
         }
       ],
       "notes": ""
@@ -6764,7 +8353,7 @@
       "locations": [
         {
           "filename": "../gui/youtube_download_dialog.py",
-          "line": 609
+          "line": 676
         }
       ],
       "notes": ""

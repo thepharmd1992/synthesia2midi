@@ -24,8 +24,8 @@ import sys
 from typing import Optional
 
 from PySide6.QtCore import QCoreApplication, Qt, QTimer
-from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QApplication, QDialog, QHBoxLayout, QLabel, QMainWindow, QMessageBox, QSizePolicy, QSlider, QToolButton, QVBoxLayout, QWidget
+from PySide6.QtGui import QAction, QKeySequence
+from PySide6.QtWidgets import QApplication, QDialog, QHBoxLayout, QLabel, QMainWindow, QMessageBox, QSizePolicy, QSlider, QStackedLayout, QToolButton, QVBoxLayout, QWidget
 
 from .app_config import APP_NAME, FRAME_NAV_INTERVALS
 from synthesia2midi.config_manager import ConfigManager
@@ -49,9 +49,11 @@ from synthesia2midi.gui.settings_tool_window import SettingsToolWindow
 from synthesia2midi.gui.signal_manager import ControlSignalManager
 from synthesia2midi.gui.startup_dialog import StartupDialog
 from synthesia2midi.gui.ui_update_interface import UIUpdateInterface
+from synthesia2midi.gui.video_empty_state import VideoEmptyState
 from synthesia2midi.gui.video_session_ui_controller import VideoSessionUiController
 from synthesia2midi.gui.video_controls import VideoControls
 from synthesia2midi.gui.window_manager import WindowManager
+from synthesia2midi.gui.wheel_safe_controls import install_wheel_safe_controls
 from synthesia2midi.runtime_paths import detect_runtime_paths
 from synthesia2midi.video_loader import VideoSession
 from synthesia2midi.workflows.detection_manager import DetectionManager
@@ -75,6 +77,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
 
     def __init__(self):
         super().__init__()
+        install_wheel_safe_controls(QApplication.instance())
         self.setWindowTitle(APP_NAME)
         # Set initial size from the available display; the window manager adjusts
         # splitter defaults after the UI is built.
@@ -141,17 +144,18 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         menubar = self.menuBar()
 
         # File menu
-        filemenu = menubar.addMenu(QCoreApplication.translate("Video2MidiApp", "File"))
-        open_action = QAction(QCoreApplication.translate("Video2MidiApp", "Open Video (MP4)..."), self)
+        self.file_menu = menubar.addMenu(QCoreApplication.translate("Video2MidiApp", "File"))
+        filemenu = self.file_menu
+        open_action = QAction(QCoreApplication.translate("Video2MidiApp", "Open Video File..."), self)
         open_action.triggered.connect(self.video_session_ui_controller.open_video_file)
         filemenu.addAction(open_action)
 
-        youtube_action = QAction(QCoreApplication.translate("Video2MidiApp", "Download Youtube Video..."), self)
+        youtube_action = QAction(QCoreApplication.translate("Video2MidiApp", "Download YouTube Video..."), self)
         youtube_action.triggered.connect(self.video_session_ui_controller.show_youtube_download_dialog)
         filemenu.addAction(youtube_action)
 
-        save_action = QAction(QCoreApplication.translate("Video2MidiApp", "Save Settings (Ctrl+S)"), self)
-        save_action.setShortcut("Ctrl+S")
+        save_action = QAction(QCoreApplication.translate("Video2MidiApp", "Save Settings"), self)
+        save_action.setShortcut(QKeySequence.StandardKey.Save)
         save_action.triggered.connect(self._save_settings)
         filemenu.addAction(save_action)
 
@@ -206,11 +210,30 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
             frame_nav_menu.addAction(action)
             self.frame_nav_actions[interval] = action
 
-        # Visual Threshold Monitor menu
-        debug_menu = menubar.addMenu(QCoreApplication.translate("Video2MidiApp", "Visual Threshold Monitor"))
+        self.advanced_menu = menubar.addMenu(
+            QCoreApplication.translate("Video2MidiApp", "Advanced")
+        )
+        advanced_menu = self.advanced_menu
+        image_sequence_action = QAction(
+            QCoreApplication.translate("Video2MidiApp", "Open Image Sequence Folder..."),
+            self,
+        )
+        image_sequence_action.triggered.connect(
+            self.video_session_ui_controller.open_image_sequence_folder
+        )
+        advanced_menu.addAction(image_sequence_action)
+        advanced_menu.addSeparator()
+
+        self.diagnostics_menu = advanced_menu.addMenu(
+            QCoreApplication.translate("Video2MidiApp", "Diagnostics")
+        )
+        debug_menu = self.diagnostics_menu
 
         # Visual Threshold Monitor toggle
-        self.visual_threshold_monitor_action = QAction(QCoreApplication.translate("Video2MidiApp", "Enable"), self)
+        self.visual_threshold_monitor_action = QAction(
+            QCoreApplication.translate("Video2MidiApp", "Enable Visual Threshold Monitor"),
+            self,
+        )
         self.visual_threshold_monitor_action.setCheckable(True)
         self.visual_threshold_monitor_action.setChecked(self.app_state.ui.visual_threshold_monitor_enabled)
         self.visual_threshold_monitor_action.triggered.connect(self.display_manager.set_visual_threshold_monitor_enabled)
@@ -251,14 +274,19 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.settings_toggle_button.setObjectName("settings_toggle_button")
         self.settings_toggle_button.setText("\u2699")
         self.settings_toggle_button.setCheckable(True)
-        self.settings_toggle_button.setFixedSize(32, 32)
-        self.settings_toggle_button.setToolTip(QCoreApplication.translate("Video2MidiApp", "Show settings"))
+        self.settings_toggle_button.setFixedSize(40, 40)
+        self.settings_toggle_button.setAccessibleName(
+            QCoreApplication.translate("Video2MidiApp", "Settings")
+        )
+        settings_description = QCoreApplication.translate("Video2MidiApp", "Show settings")
+        self.settings_toggle_button.setAccessibleDescription(settings_description)
+        self.settings_toggle_button.setToolTip(settings_description)
         self.settings_toggle_button.setStyleSheet(
             "QToolButton#settings_toggle_button {"
             "background-color: rgba(34, 38, 45, 0.82);"
             "color: white;"
             "border: 1px solid rgba(255, 255, 255, 0.45);"
-            "border-radius: 16px;"
+            "border-radius: 20px;"
             "font-size: 18px;"
             "font-weight: 600;"
             "}"
@@ -282,8 +310,21 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
                                               )
         # Set up additional callbacks
         self.keyboard_canvas.on_spark_roi_callback = self.calibration_effects_controller.spark.update_spark_roi_from_canvas
-        # Give canvas stretch factor so it expands to fill available vertical space
-        left_layout.addWidget(self.keyboard_canvas, 1)  # Stretch factor 1
+        self.video_surface = QWidget()
+        self.video_surface_stack = QStackedLayout(self.video_surface)
+        self.video_surface_stack.setContentsMargins(0, 0, 0, 0)
+        self.video_surface_stack.addWidget(self.keyboard_canvas)
+        self.video_empty_state = VideoEmptyState()
+        self.video_empty_state.open_video_requested.connect(
+            self.video_session_ui_controller.open_video_file
+        )
+        self.video_empty_state.youtube_requested.connect(
+            self.video_session_ui_controller.show_youtube_download_dialog
+        )
+        self.video_empty_state.settings_requested.connect(self._show_settings_tool_window)
+        self.video_surface_stack.addWidget(self.video_empty_state)
+        self.video_surface_stack.setCurrentWidget(self.video_empty_state)
+        left_layout.addWidget(self.video_surface, 1)
 
         # Frame slider with time display
         slider_layout = QHBoxLayout()
@@ -321,7 +362,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         content_layout.addWidget(left_widget, 1)
 
         self.settings_tool_window = SettingsToolWindow(self)
-        self.settings_scroll_area = self.settings_tool_window.scroll_area
         self.settings_tool_window.visibility_changed.connect(self._sync_settings_toggle_state)
         self._settings_tool_window_has_opened = False
 
@@ -383,6 +423,13 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
             self._settings_tool_window_has_opened = True
         self._sync_settings_toggle_state(True)
 
+    def set_video_loaded_state(self, loaded: bool) -> None:
+        """Switch the main surface after the session coordinator confirms load state."""
+        if not hasattr(self, "video_surface_stack"):
+            return
+        target = self.keyboard_canvas if loaded else self.video_empty_state
+        self.video_surface_stack.setCurrentWidget(target)
+
     def _toggle_focus_video_mode(self, enabled: bool) -> None:
         """Hide or restore the settings pane so calibration can prioritize video."""
         if enabled:
@@ -409,12 +456,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
 
     def _bind_hotkeys(self):
         # Control+S is already handled by the menu action
-        # Space key for conversion
-        space_action = QAction(self)
-        space_action.setShortcut(Qt.Key_Space)
-        space_action.triggered.connect(self.midi_conversion_controller.start_conversion_process)
-        self.addAction(space_action)
-
         # Page Up/Down and Left/Right for navigation
         pgup_action = QAction(self)
         pgup_action.setShortcut(Qt.Key_PageUp)

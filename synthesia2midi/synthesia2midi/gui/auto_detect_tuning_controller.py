@@ -1,12 +1,14 @@
 """Modeless auto-detect tuning dialog controller."""
 from __future__ import annotations
 
+import copy
 import logging
 from typing import Any, Callable, Dict, Optional
 
 import cv2
 import numpy as np
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QDialog
 
 from synthesia2midi.gui.auto_detect_tuning_dialog import AutoDetectTuningDialog
 from synthesia2midi.gui.dialog_positioning import move_to_top_center_safe_zone
@@ -29,6 +31,7 @@ class AutoDetectTuningController:
         self._apply_template_styles_callback = apply_template_styles_callback
         self._settings_tool_was_visible_before_tuning = False
         self._restore_settings_after_tuning = False
+        self._tuning_transaction_snapshot: Optional[Dict[str, Any]] = None
 
     @property
     def active_dialog(self):
@@ -53,6 +56,9 @@ class AutoDetectTuningController:
         keyboard_roi = context.get("keyboard_roi")
         if keyboard_roi is not None:
             cloned["keyboard_roi"] = tuple(int(v) for v in keyboard_roi)
+        detection_results = context.get("detection_results")
+        if detection_results is not None:
+            cloned["detection_results"] = copy.deepcopy(detection_results)
         cloned["fallback_used"] = bool(context.get("fallback_used", False))
         return cloned
 
@@ -200,11 +206,6 @@ class AutoDetectTuningController:
         if wizard is None:
             return False
 
-        context = self.resolve_context(wizard, use_wizard_context=use_wizard_context)
-        if not context:
-            logging.warning("Missing auto-detect tuning context; skipping tuning dialog")
-            return False
-
         if self._auto_detect_tuning_dialog is not None:
             try:
                 self._auto_detect_tuning_dialog.finished.disconnect(
@@ -212,11 +213,18 @@ class AutoDetectTuningController:
                 )
             except Exception:
                 pass
+            self._restore_tuning_transaction()
             self._auto_detect_tuning_dialog.close()
             self._auto_detect_tuning_dialog = None
-            self._restore_settings_after_tuning = False
+            self._restore_settings_tool_window_after_tuning()
+
+        context = self.resolve_context(wizard, use_wizard_context=use_wizard_context)
+        if not context:
+            logging.warning("Missing auto-detect tuning context; skipping tuning dialog")
+            return False
 
         self._active_wizard = wizard
+        self._capture_tuning_transaction(wizard)
         self._on_dialog_finished_callback = on_dialog_finished
         factory = dialog_factory or AutoDetectTuningDialog
         dialog = factory(
@@ -265,16 +273,104 @@ class AutoDetectTuningController:
             else:
                 settings_tool_window.show_near_parent()
 
-    def _on_auto_detect_tuning_dialog_finished(self, _result: int) -> None:
+    def _capture_tuning_transaction(self, wizard) -> None:
+        app_state = self.app.app_state
+        calibration = app_state.calibration
+        midi = app_state.midi
+        wizard_state: Dict[str, Any] = {}
+        for attribute in ("auto_detect_latest_detection_result", "detected_overlays"):
+            if hasattr(wizard, attribute):
+                wizard_state[attribute] = copy.deepcopy(getattr(wizard, attribute))
+
+        self._tuning_transaction_snapshot = {
+            "overlays": copy.deepcopy(app_state.overlays),
+            "auto_detect_params": copy.deepcopy(calibration.auto_detect_params),
+            "has_overlay_generation_source": hasattr(
+                calibration, "overlay_generation_source"
+            ),
+            "overlay_generation_source": copy.deepcopy(
+                getattr(calibration, "overlay_generation_source", None)
+            ),
+            "midi": (
+                int(midi.total_keys),
+                midi.leftmost_note_name,
+                int(midi.leftmost_note_octave),
+            ),
+            "show_overlays": bool(app_state.ui.show_overlays),
+            "unsaved_changes": bool(app_state.unsaved_changes),
+            "cached_context": (
+                self._clone_auto_detect_tuning_context(self._last_auto_detect_tuning_context)
+                if self._last_auto_detect_tuning_context is not None
+                else None
+            ),
+            "wizard_state": wizard_state,
+        }
+
+    def _restore_tuning_transaction(self) -> None:
+        snapshot = self._tuning_transaction_snapshot
+        if snapshot is None:
+            return
+
+        app_state = self.app.app_state
+        calibration = app_state.calibration
+        midi = app_state.midi
+        app_state.overlays = copy.deepcopy(snapshot["overlays"])
+        calibration.auto_detect_params = copy.deepcopy(snapshot["auto_detect_params"])
+        if snapshot["has_overlay_generation_source"]:
+            calibration.overlay_generation_source = copy.deepcopy(
+                snapshot["overlay_generation_source"]
+            )
+        elif hasattr(calibration, "overlay_generation_source"):
+            delattr(calibration, "overlay_generation_source")
+        (
+            midi.total_keys,
+            midi.leftmost_note_name,
+            midi.leftmost_note_octave,
+        ) = snapshot["midi"]
+        app_state.ui.show_overlays = snapshot["show_overlays"]
+        app_state.unsaved_changes = snapshot["unsaved_changes"]
+
+        cached_context = snapshot["cached_context"]
+        self._last_auto_detect_tuning_context = (
+            self._clone_auto_detect_tuning_context(cached_context)
+            if cached_context is not None
+            else None
+        )
+        if self._active_wizard is not None:
+            for attribute, value in snapshot["wizard_state"].items():
+                setattr(self._active_wizard, attribute, copy.deepcopy(value))
+
+        self.app.show_overlays_action.setChecked(app_state.ui.show_overlays)
+        self.app.control_panel.convert_button.setEnabled(
+            self.app.control_panel._can_convert()
+        )
+        current_frame = app_state.video.current_frame_index
+        if current_frame is not None:
+            self.app.keyboard_canvas.display_frame(current_frame)
+        else:
+            self.app.keyboard_canvas.update()
+        self.app.control_panel.update_controls_from_state()
+        self.app.control_panel.update_selected_overlay_display()
+        self._tuning_transaction_snapshot = None
+
+    def _on_auto_detect_tuning_dialog_finished(self, result: int) -> None:
         self._auto_detect_tuning_dialog = None
+        accepted = result == QDialog.Accepted
+        if not accepted:
+            self._restore_tuning_transaction()
+        else:
+            self._tuning_transaction_snapshot = None
         self._restore_settings_tool_window_after_tuning()
 
-        # Persist tuned params/overlays with the existing per-video save flow.
-        if self.app.app_state.unsaved_changes and self.app.video_loading_workflow:
+        if (
+            accepted
+            and self.app.app_state.unsaved_changes
+            and self.app.video_loading_workflow
+        ):
             self.app.video_loading_workflow.save_current_config()
 
         callback = self._on_dialog_finished_callback
         self._active_wizard = None
         self._on_dialog_finished_callback = None
         if callback is not None:
-            callback(_result)
+            callback(result)

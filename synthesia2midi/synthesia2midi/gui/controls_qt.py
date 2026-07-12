@@ -6,16 +6,20 @@ window connects to workflows/state updates.
 """
 
 import logging
+from dataclasses import dataclass
 from typing import Optional
 
 from PySide6.QtCore import QCoreApplication, QSettings, Qt, Signal
 from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QGridLayout, QGroupBox,
+    QAbstractScrollArea, QCheckBox, QComboBox, QFrame, QGridLayout, QGroupBox,
     QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QMessageBox, QPushButton, QScrollArea, QSizePolicy,
     QSlider, QSpinBox, QStackedWidget, QToolButton, QVBoxLayout, QWidget
 )
 
 from synthesia2midi.core.app_state import AppState
+from synthesia2midi.gui.calibration_guide import CalibrationGuideWidget, derive_guide_snapshot
+from synthesia2midi.gui.repeated_notes_tool_window import RepeatedNotesToolWindow
+from synthesia2midi.gui.ui_glossary import UiGlossary
 from synthesia2midi.localization import (
     load_preferred_locale,
     locale_display_name,
@@ -26,13 +30,19 @@ from synthesia2midi.localization import (
 # Key type constants
 KEY_TYPES = ["LW", "LB", "RW", "RB"]
 KEY_TYPE_LABELS = {
-    "LW": "Left Hand White",
-    "LB": "Left Hand Black", 
-    "RW": "Right Hand White",
-    "RB": "Right Hand Black"
+    "LW": "Left White",
+    "LB": "Left Black",
+    "RW": "Right White",
+    "RB": "Right Black",
 }
 
 translate = QCoreApplication.translate
+
+
+@dataclass(frozen=True)
+class ConversionReadiness:
+    can_convert: bool
+    status_text: str
 
 
 class CollapsibleSection(QWidget):
@@ -144,6 +154,7 @@ class ControlPanelQt(QWidget):
     DEFAULT_RISE_DELTA_THRESHOLD = 15
     DEFAULT_FALL_DELTA_THRESHOLD = 5
     DEFAULT_SIMILARITY_RATIO = 60
+    OVERLAY_ADJUSTMENT_INDETERMINATE = "--"
     
     def __init__(self, parent=None, app_state: AppState = None, state_manager=None, settings=None):
         super().__init__(parent)
@@ -153,6 +164,11 @@ class ControlPanelQt(QWidget):
         
         # Widget references for state updates
         self.widgets = {}
+        self._overlay_adjustment_values: dict[tuple[str, str], int | None] = {}
+        self._overlay_adjustment_value_labels: dict[tuple[str, str], QLabel] = {}
+        self._overlay_adjustment_reset_buttons: dict[tuple[str, str], QPushButton] = {}
+        self._overlay_adjustment_pending_previous_values: dict[tuple[str, str], int | None] = {}
+        self._overlay_adjustment_basis: tuple[tuple[int, float, float, float, float, float], ...] | None = None
         
         self._setup_ui()
         self.update_controls_from_state()
@@ -162,9 +178,10 @@ class ControlPanelQt(QWidget):
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(10, 2, 10, 10)  # Reduced top margin from 10 to 2
         main_layout.setSpacing(5)  # Reduce spacing between elements
-        main_layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)  # Align content to left side
 
         self._create_global_action_widgets()
+        self.settings_page_widgets: list[QWidget] = []
+        self.settings_page_scroll_areas: list[QScrollArea] = []
         
         settings_layout = QHBoxLayout()
         settings_layout.setContentsMargins(0, 0, 0, 0)
@@ -181,6 +198,7 @@ class ControlPanelQt(QWidget):
         self.settings_section_rail = QListWidget()
         self.settings_section_rail.setObjectName("settings_section_rail")
         self.settings_section_rail.setFixedWidth(98)
+        self.settings_section_rail.setWordWrap(True)
         self.settings_section_rail.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.settings_section_rail.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.settings_section_rail.currentRowChanged.connect(self._set_settings_section)
@@ -191,31 +209,64 @@ class ControlPanelQt(QWidget):
         self.tab_widget.currentChanged.connect(self.settings_section_rail.setCurrentRow)
         
         # Create all tabs
+        self._create_guide_tab()
         self._create_mandatory_calibration_tab()
         self._create_overlay_settings_tab()
         self._create_basic_detection_tab()
         self._create_spark_detection_tab()
         self._create_midi_settings_tab()
         self._create_video_trim_tab()
+        self._create_advanced_settings_tab()
         self._create_optional_settings_tab()
         self._create_language_settings_tab()
 
         self._fit_settings_section_rail_to_items()
         settings_rail_layout.addWidget(self.settings_section_rail)
         settings_rail_layout.addStretch(1)
-        self._create_settings_rail_actions(settings_rail_layout)
-        
+
+        self.settings_content_container = QWidget()
+        settings_content_layout = QVBoxLayout(self.settings_content_container)
+        settings_content_layout.setContentsMargins(0, 0, 0, 0)
+        settings_content_layout.setSpacing(8)
+        settings_content_layout.addWidget(self.tab_widget, 1)
+        self._create_settings_footer(settings_content_layout)
+
         settings_layout.addWidget(self.settings_section_rail_container)
-        settings_layout.addWidget(self.tab_widget, 1)
+        settings_layout.addWidget(self.settings_content_container, 1)
         main_layout.addLayout(settings_layout, 1)
 
         self.settings_section_rail.setCurrentRow(0)
+        QWidget.setTabOrder(
+            self.settings_section_rail,
+            self.guide_page.step_rows[0].primary_button,
+        )
+        guide_buttons = [row.primary_button for row in self.guide_page.step_rows]
+        QWidget.setTabOrder(guide_buttons[0], self.guide_page.youtube_button)
+        QWidget.setTabOrder(self.guide_page.youtube_button, guide_buttons[1])
+        for current_button, next_button in zip(guide_buttons[1:], guide_buttons[2:]):
+            QWidget.setTabOrder(current_button, next_button)
+        QWidget.setTabOrder(guide_buttons[-1], self.convert_button)
+        QWidget.setTabOrder(self.convert_button, self.midi_touchup_button)
+
+    def _create_guide_tab(self) -> None:
+        self.guide_page = CalibrationGuideWidget()
+        self._add_settings_section(self.guide_page, self.tr("Guide"))
 
     def _add_settings_section(self, widget: QWidget, label: str) -> None:
         item = QListWidgetItem(label)
         item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         self.settings_section_rail.addItem(item)
-        self.tab_widget.addWidget(widget)
+        scroll_area = QScrollArea()
+        scroll_area.setObjectName(f"settings_page_scroll_{len(self.settings_page_scroll_areas)}")
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll_area.setFrameShape(QFrame.NoFrame)
+        scroll_area.setSizeAdjustPolicy(QAbstractScrollArea.AdjustIgnored)
+        scroll_area.setWidget(widget)
+        self.settings_page_widgets.append(widget)
+        self.settings_page_scroll_areas.append(scroll_area)
+        self.tab_widget.addWidget(scroll_area)
 
     def _set_settings_section(self, index: int) -> None:
         if index >= 0:
@@ -225,56 +276,79 @@ class ControlPanelQt(QWidget):
         if self.settings_section_rail.count() == 0:
             return
 
-        row_height = self.settings_section_rail.sizeHintForRow(0)
-        if row_height <= 0:
-            row_height = 30
+        metrics = self.settings_section_rail.fontMetrics()
+        widest_text = max(
+            metrics.horizontalAdvance(self.settings_section_rail.item(index).text())
+            for index in range(self.settings_section_rail.count())
+        )
+        rail_width = min(144, max(98, widest_text + 28))
+        self.settings_section_rail.setFixedWidth(rail_width)
+        self.settings_section_rail_container.setFixedWidth(rail_width)
         frame = self.settings_section_rail.frameWidth() * 2
         self.settings_section_rail.setFixedHeight(
-            (row_height * self.settings_section_rail.count()) + frame + 4
+            sum(
+                max(30, self.settings_section_rail.sizeHintForRow(index))
+                for index in range(self.settings_section_rail.count())
+            )
+            + frame
+            + 4
         )
+
+    def fit_settings_section_rail(self) -> None:
+        """Recalculate rail geometry after a font or translation change."""
+        self._fit_settings_section_rail_to_items()
     
     def _create_global_action_widgets(self):
         """Create section-independent actions shown in the lower rail."""
         self.convert_button = QPushButton(QCoreApplication.translate("ControlPanelQt", "Convert"))
         self.convert_button.setObjectName("convert_button")
         self.convert_button.clicked.connect(self._handle_conversion_request)
-        self.convert_button.setMinimumHeight(34)
+        self.convert_button.setMinimumHeight(36)
 
-        self.conversion_status = QLabel(QCoreApplication.translate("ControlPanelQt", "Ready to convert"))
+        self.conversion_status = QLabel(
+            QCoreApplication.translate("ControlPanelQt", "Load a video to convert.")
+        )
         self.conversion_status.setWordWrap(True)
 
         self.midi_touchup_button = QPushButton(QCoreApplication.translate("ControlPanelQt", "Edit MIDI"))
         self.midi_touchup_button.setObjectName("midi_touchup_button")
-        self.midi_touchup_button.setMinimumHeight(34)
+        self.midi_touchup_button.setMinimumHeight(36)
         self.midi_touchup_button.clicked.connect(self.midi_touchup_requested.emit)
 
         self.selected_overlay_caption = QLabel(QCoreApplication.translate("ControlPanelQt", "Overlay"))
         self.selected_overlay_label = QLabel(QCoreApplication.translate("ControlPanelQt", "None"))
         self.selected_overlay_label.setWordWrap(True)
 
-    def _create_settings_rail_actions(self, parent_layout):
-        self.settings_rail_actions = QWidget()
-        self.settings_rail_actions.setObjectName("settings_rail_actions")
-        self.settings_rail_actions.setFixedWidth(self.settings_section_rail.width())
-        self.settings_rail_actions.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+    def _create_settings_footer(self, parent_layout: QVBoxLayout) -> None:
+        self.settings_footer = QWidget()
+        self.settings_footer.setObjectName("settings_footer")
+        self.settings_footer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.settings_footer.setStyleSheet(
+            "QWidget#settings_footer { border-top: 1px solid #b8b8b8; }"
+        )
 
-        actions_layout = QVBoxLayout(self.settings_rail_actions)
-        actions_layout.setContentsMargins(0, 0, 0, 0)
-        actions_layout.setSpacing(6)
-        actions_layout.addWidget(self.convert_button)
-        actions_layout.addWidget(self.conversion_status)
-        actions_layout.addSpacing(4)
-        actions_layout.addWidget(self.midi_touchup_button)
-        actions_layout.addSpacing(4)
+        footer_layout = QGridLayout(self.settings_footer)
+        footer_layout.setContentsMargins(0, 8, 0, 0)
+        footer_layout.setHorizontalSpacing(8)
+        footer_layout.setVerticalSpacing(6)
+        footer_layout.addWidget(self.conversion_status, 0, 0)
         overlay_row = QHBoxLayout()
         overlay_row.setContentsMargins(0, 0, 0, 0)
         overlay_row.setSpacing(4)
         overlay_row.addWidget(self.selected_overlay_caption)
         overlay_row.addWidget(self.selected_overlay_label)
         overlay_row.addStretch()
-        actions_layout.addLayout(overlay_row)
-
-        parent_layout.addWidget(self.settings_rail_actions, alignment=Qt.AlignBottom)
+        footer_layout.addLayout(overlay_row, 1, 0)
+        action_row = QHBoxLayout()
+        action_row.setContentsMargins(0, 0, 0, 0)
+        action_row.setSpacing(8)
+        action_row.addStretch()
+        action_row.addWidget(self.midi_touchup_button)
+        action_row.addWidget(self.convert_button)
+        footer_layout.addLayout(action_row, 2, 0)
+        footer_layout.setColumnStretch(0, 1)
+        parent_layout.addWidget(self.settings_footer)
+        self.settings_footer.setMinimumHeight(self.settings_footer.sizeHint().height())
 
     def _create_language_settings_tab(self):
         """Language settings shown as a first-class settings section."""
@@ -318,15 +392,15 @@ class ControlPanelQt(QWidget):
             translate("ControlPanelQt", "Initial calibration directions (recommended order):"),
             translate(
                 "ControlPanelQt",
-                "1) Calibrate Key Overlays: create overlays that line up with the keyboard in your video.",
+                "1) Find Keyboard Box: create overlays that line up with the keyboard in your video.",
             ),
             translate(
                 "ControlPanelQt",
-                "2) Unlit Key Calibration: pause on a frame where no notes are highlighted, then click Calibrate.",
+                "2) Capture No-Key Frame: pause where no keys are glowing, then click Capture No-Key Frame.",
             ),
             translate(
                 "ControlPanelQt",
-                "3) Lit Key Exemplars: for each button you need (Left/Right x White/Black), pause on a frame where that kind of overlay is highlighted, click the button, then click that highlighted overlay in the video.",
+                "3) Capture Pressed-Key Examples: for each button you need (Left/Right x White/Black), pause where that kind of overlay is glowing, click the button, then click that overlay in the video. Left/Right refer to Synthesia note colors, not the physical side of the keyboard.",
             ),
             translate("ControlPanelQt", "If a key type is not present in this video, uncheck its 'Present in Video' box."),
             translate("ControlPanelQt", "Octave Transpose: shifts the generated MIDI up/down by octaves."),
@@ -338,46 +412,73 @@ class ControlPanelQt(QWidget):
             help_layout.addWidget(label)
         layout.addWidget(help_section)
         
-        # Key Overlay Calibration - compact grid. Avoid fixed-width rows that
-        # overlap when the settings pane is at its 300px minimum.
-        calibration_grid = QGridLayout()
-        calibration_grid.setHorizontalSpacing(8)
-        calibration_grid.setVerticalSpacing(8)
-        calibration_grid.setColumnStretch(1, 1)
+        self.calibration_instruction_labels = {}
 
-        overlay_label = QLabel(translate("ControlPanelQt", "Overlays"))
-        overlay_label.setStyleSheet("font-weight: bold; font-size: 11pt;")
-        calibration_grid.addWidget(overlay_label, 0, 0)
-        
-        self.calibration_wizard_button = QPushButton(translate("ControlPanelQt", "Calibrate"))
-        self.calibration_wizard_button.setMinimumWidth(88)
-        # Center-aligned text (default for QPushButton)
+        def add_instruction_row(row_key: str, title: str, instruction: str, action_widget: QWidget) -> None:
+            row_widget = QWidget()
+            row_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            row = QVBoxLayout(row_widget)
+            row.setContentsMargins(0, 0, 0, 0)
+            row.setSpacing(4)
+
+            title_label = QLabel(title)
+            title_label.setStyleSheet("font-weight: bold; font-size: 11pt;")
+            row.addWidget(title_label)
+
+            instruction_label = QLabel(instruction)
+            instruction_label.setWordWrap(True)
+            instruction_label.setStyleSheet("color: #555;")
+            self.calibration_instruction_labels[row_key] = instruction_label
+            row.addWidget(instruction_label)
+            row.addWidget(action_widget)
+
+            layout.addWidget(row_widget)
+
+        self.calibration_wizard_button = QPushButton(
+            translate("ControlPanelQt", "Draw Keyboard Box and Find Keys")
+        )
+        self.calibration_wizard_button.setMinimumWidth(
+            max(180, self.calibration_wizard_button.sizeHint().width())
+        )
+        self.calibration_wizard_button.setMinimumHeight(
+            max(36, self.calibration_wizard_button.sizeHint().height())
+        )
         self.calibration_wizard_button.clicked.connect(self.calibration_wizard_requested.emit)
         self.calibration_wizard_button.setToolTip(
-            translate("ControlPanelQt", "Creates overlays for the keyboard in your video. Re-run if overlays don't line up.")
+            translate(
+                "ControlPanelQt",
+                "Creates overlays for the keyboard in your video. Re-run if overlays don't line up.",
+            )
         )
-        calibration_grid.addWidget(self.calibration_wizard_button, 0, 1)
-        
-        # Octave transpose control
+        add_instruction_row(
+            "keyboard",
+            translate("ControlPanelQt", "Find the keyboard"),
+            translate("ControlPanelQt", "Pause on a clear frame where the full keyboard is visible."),
+            self.calibration_wizard_button,
+        )
+
+        octave_grid = QGridLayout()
+        octave_grid.setHorizontalSpacing(8)
         octave_label = QLabel(translate("ControlPanelQt", "Octave"))
         octave_label.setStyleSheet("font-weight: bold; font-size: 11pt;")
-        calibration_grid.addWidget(octave_label, 1, 0)
+        octave_grid.addWidget(octave_label, 0, 0)
         self.octave_transpose_spin = QSpinBox()
         self.octave_transpose_spin.setRange(-5, 5)
         self.octave_transpose_spin.setValue(0)
         self.octave_transpose_spin.setFixedWidth(64)
         self.octave_transpose_spin.valueChanged.connect(self.octave_transpose_changed.emit)
-        self.octave_transpose_spin.setToolTip(translate("ControlPanelQt", "Shifts the MIDI output up/down by octaves."))
-        calibration_grid.addWidget(self.octave_transpose_spin, 1, 1)
-        
-        # Unlit key calibration with status
-        unlit_label = QLabel(translate("ControlPanelQt", "Unlit"))
-        unlit_label.setStyleSheet("font-weight: bold; font-size: 11pt;")
-        calibration_grid.addWidget(unlit_label, 2, 0)
-        
-        self.calibrate_unlit_button = QPushButton(translate("ControlPanelQt", "Calibrate"))
-        self.calibrate_unlit_button.setMinimumWidth(88)
-        # Center-aligned text (default for QPushButton)
+        self.octave_transpose_spin.setToolTip(
+            translate("ControlPanelQt", "Shifts the MIDI output up/down by octaves.")
+        )
+        octave_grid.addWidget(self.octave_transpose_spin, 0, 1)
+        octave_grid.setColumnStretch(2, 1)
+        layout.addLayout(octave_grid)
+
+        self.calibrate_unlit_button = QPushButton(
+            translate("ControlPanelQt", "Capture No-Key Frame")
+        )
+        self.calibrate_unlit_button.setMinimumWidth(180)
+        self.calibrate_unlit_button.setMinimumHeight(36)
         self.calibrate_unlit_button.clicked.connect(self.calibrate_unlit_requested.emit)
         self.calibrate_unlit_button.setToolTip(
             translate(
@@ -385,17 +486,52 @@ class ControlPanelQt(QWidget):
                 "Captures what unpressed overlays look like from the current frame. Pause on a frame with no highlighted notes first.",
             )
         )
-        unlit_value_layout = QVBoxLayout()
-        unlit_value_layout.setContentsMargins(0, 0, 0, 0)
-        unlit_value_layout.setSpacing(3)
-        unlit_value_layout.addWidget(self.calibrate_unlit_button)
+
+        unlit_title = QLabel(translate("ControlPanelQt", "Capture no-key frame"))
+        unlit_title.setStyleSheet("font-weight: bold; font-size: 11pt;")
+        layout.addWidget(unlit_title)
+
+        unlit_instruction = QLabel(translate("ControlPanelQt", "Pause where no keys are glowing."))
+        unlit_instruction.setWordWrap(True)
+        unlit_instruction.setStyleSheet("color: #555;")
+        self.calibration_instruction_labels["unlit"] = unlit_instruction
+        layout.addWidget(unlit_instruction)
+
+        unlit_stack = QVBoxLayout()
+        unlit_stack.setContentsMargins(0, 0, 0, 0)
+        unlit_stack.setSpacing(0)
+        unlit_stack.addWidget(self.calibrate_unlit_button)
+        unlit_stack.addSpacing(8)
 
         self.unlit_status_label = QLabel(translate("ControlPanelQt", "Not Set"))
-        self.unlit_status_label.setStyleSheet("font-style: italic; color: #888;")
-        unlit_value_layout.addWidget(self.unlit_status_label)
-        calibration_grid.addLayout(unlit_value_layout, 2, 1)
-        
-        layout.addLayout(calibration_grid)
+        self.unlit_status_label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        self.unlit_status_label.setFixedHeight(20)
+        self.unlit_status_label.setStyleSheet("font-style: italic; color: #595959;")
+        unlit_stack.addWidget(self.unlit_status_label)
+        layout.addLayout(unlit_stack)
+
+        pressed_title = QLabel(translate("ControlPanelQt", "Capture pressed-key examples"))
+        pressed_title.setStyleSheet("font-weight: bold; font-size: 11pt;")
+        layout.addWidget(pressed_title)
+
+        pressed_instruction = QLabel(
+            translate("ControlPanelQt", "Pause where a key is glowing, then click that key.")
+        )
+        pressed_instruction.setWordWrap(True)
+        pressed_instruction.setStyleSheet("color: #555;")
+        self.calibration_instruction_labels["pressed"] = pressed_instruction
+        layout.addWidget(pressed_instruction)
+
+        self.left_right_color_family_note = QLabel(
+            translate(
+                "ControlPanelQt",
+                "Left/Right refer to Synthesia note colors, not the physical side of the keyboard.",
+            )
+        )
+        self.left_right_color_family_note.setWordWrap(True)
+        self.left_right_color_family_note.setStyleSheet("color: #555; font-style: italic;")
+        layout.addWidget(self.left_right_color_family_note)
+
         layout.addSpacing(10)  # Extra space before next section
         
         # Lit exemplar calibration - plain text label
@@ -438,15 +574,14 @@ class ControlPanelQt(QWidget):
             )
             self.exemplar_presence_checkboxes[key_type] = presence_cb
             
-            # Add to right column
-            button_layout = QHBoxLayout()
+            button_layout = QGridLayout()
             button_layout.setContentsMargins(0, 0, 0, 0)
-            button_layout.addWidget(button, 1)
-            button_layout.addSpacing(4)
-            button_layout.addWidget(color_swatch)
-            button_layout.addSpacing(4)
-            button_layout.addWidget(presence_cb)
-            button_layout.addStretch()
+            button_layout.setHorizontalSpacing(8)
+            button_layout.setVerticalSpacing(4)
+            button_layout.addWidget(button, 0, 0, 1, 3)
+            button_layout.addWidget(color_swatch, 1, 0)
+            button_layout.addWidget(presence_cb, 1, 1)
+            button_layout.setColumnStretch(2, 1)
             exemplar_container.addLayout(button_layout)
         
         layout.addLayout(exemplar_container)
@@ -467,28 +602,21 @@ class ControlPanelQt(QWidget):
         alignment_group.setObjectName("first_in_tab")  # For CSS styling
         alignment_layout = QVBoxLayout(alignment_group)
         
-        align_layout = QHBoxLayout()
+        align_layout = QVBoxLayout()
+        align_layout.setSpacing(6)
         self.align_white_button = QPushButton(translate("ControlPanelQt", "Align White Keys"))
-        self.align_white_button.setMaximumWidth(432)  # Increased by 20% from 360
+        self.align_white_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.align_white_button.clicked.connect(self.align_white_keys_requested.emit)
         self.align_black_button = QPushButton(translate("ControlPanelQt", "Align Black Keys"))
-        self.align_black_button.setMaximumWidth(432)  # Increased by 20% from 360
+        self.align_black_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.align_black_button.clicked.connect(self.align_black_keys_requested.emit)
         self.manual_fit_button = QPushButton(translate("ControlPanelQt", "Manual Fit"))
-        self.manual_fit_button.setMaximumWidth(432)
+        self.manual_fit_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.manual_fit_button.clicked.connect(self.manual_fit_requested.emit)
-        
-        # Place buttons side by side
-        button_row = QHBoxLayout()
-        button_row.addWidget(self.align_white_button)
-        button_row.addSpacing(15)  # Move align black keys button to the right
-        button_row.addWidget(self.align_black_button)
-        button_row.addStretch()
-        align_layout.addLayout(button_row)
-        fit_row = QHBoxLayout()
-        fit_row.addWidget(self.manual_fit_button)
-        fit_row.addStretch()
-        align_layout.addLayout(fit_row)
+
+        align_layout.addWidget(self.align_white_button)
+        align_layout.addWidget(self.align_black_button)
+        align_layout.addWidget(self.manual_fit_button)
         alignment_layout.addLayout(align_layout)
         
         layout.addWidget(alignment_group)
@@ -501,73 +629,153 @@ class ControlPanelQt(QWidget):
         size_grid.setHorizontalSpacing(14)
         size_grid.setVerticalSpacing(10)
 
-        def add_size_control(row, column, label, dec_button, inc_button):
+        def add_size_control(row, column, label, dec_button, inc_button, key_color, dimension):
+            key = self._overlay_adjustment_key(key_color, dimension)
             cell = QVBoxLayout()
             cell.setContentsMargins(0, 0, 0, 0)
             cell.setSpacing(4)
             cell.addWidget(label)
+
+            value_row = QHBoxLayout()
+            value_row.setContentsMargins(0, 0, 0, 0)
+            value_row.setSpacing(6)
+            value_caption = QLabel(translate("ControlPanelQt", "Current:"))
+            value_label = QLabel("0")
+            value_label.setMinimumWidth(24)
+            reset_button = QPushButton(translate("ControlPanelQt", "Reset"))
+            reset_button.clicked.connect(
+                lambda checked=False, kc=key_color, dim=dimension: self._reset_overlay_adjustment(kc, dim)
+            )
+            value_row.addWidget(value_caption)
+            value_row.addWidget(value_label)
+            value_row.addWidget(reset_button)
+            value_row.addStretch()
+            cell.addLayout(value_row)
+
             button_row = QHBoxLayout()
             button_row.setContentsMargins(0, 0, 0, 0)
             button_row.setSpacing(4)
             button_row.addWidget(dec_button)
             button_row.addWidget(inc_button)
+            decrease_text = translate("ControlPanelQt", "Decrease {setting}").format(
+                setting=label.text()
+            )
+            increase_text = translate("ControlPanelQt", "Increase {setting}").format(
+                setting=label.text()
+            )
+            dec_button.setAccessibleName(decrease_text)
+            dec_button.setAccessibleDescription(decrease_text)
+            inc_button.setAccessibleName(increase_text)
+            inc_button.setAccessibleDescription(increase_text)
             button_row.addStretch()
             cell.addLayout(button_row)
+            self._overlay_adjustment_value_labels[key] = value_label
+            self._overlay_adjustment_reset_buttons[key] = reset_button
+            self._set_overlay_adjustment_value(key_color, dimension, 0)
             size_grid.addLayout(cell, row, column)
+            return value_label, reset_button
 
         self.white_height_label = QLabel(translate("ControlPanelQt", "White Key Height"))
         self.white_height_dec_button = QPushButton("-")
-        self.white_height_dec_button.setFixedSize(30, 30)
-        self.white_height_dec_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("white", "height", -2))
+        self.white_height_dec_button.setFixedSize(36, 36)
+        self.white_height_dec_button.clicked.connect(lambda: self._apply_overlay_adjustment("white", "height", -2))
         self.white_height_inc_button = QPushButton("+")
-        self.white_height_inc_button.setFixedSize(30, 30)
-        self.white_height_inc_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("white", "height", 2))
-        add_size_control(0, 0, self.white_height_label, self.white_height_dec_button, self.white_height_inc_button)
+        self.white_height_inc_button.setFixedSize(36, 36)
+        self.white_height_inc_button.clicked.connect(lambda: self._apply_overlay_adjustment("white", "height", 2))
+        self.white_height_value_label, self.white_height_reset_button = add_size_control(
+            0,
+            0,
+            self.white_height_label,
+            self.white_height_dec_button,
+            self.white_height_inc_button,
+            "white",
+            "height",
+        )
 
         self.white_width_label = QLabel(translate("ControlPanelQt", "White Key Width"))
         self.white_width_dec_button = QPushButton("-")
-        self.white_width_dec_button.setFixedSize(30, 30)
-        self.white_width_dec_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("white", "width", -2))
+        self.white_width_dec_button.setFixedSize(36, 36)
+        self.white_width_dec_button.clicked.connect(lambda: self._apply_overlay_adjustment("white", "width", -2))
         self.white_width_inc_button = QPushButton("+")
-        self.white_width_inc_button.setFixedSize(30, 30)
-        self.white_width_inc_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("white", "width", 2))
-        add_size_control(0, 1, self.white_width_label, self.white_width_dec_button, self.white_width_inc_button)
+        self.white_width_inc_button.setFixedSize(36, 36)
+        self.white_width_inc_button.clicked.connect(lambda: self._apply_overlay_adjustment("white", "width", 2))
+        self.white_width_value_label, self.white_width_reset_button = add_size_control(
+            0,
+            1,
+            self.white_width_label,
+            self.white_width_dec_button,
+            self.white_width_inc_button,
+            "white",
+            "width",
+        )
 
         self.black_height_label = QLabel(translate("ControlPanelQt", "Black Key Height"))
         self.black_height_dec_button = QPushButton("-")
-        self.black_height_dec_button.setFixedSize(30, 30)
-        self.black_height_dec_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("black", "height", -2))
+        self.black_height_dec_button.setFixedSize(36, 36)
+        self.black_height_dec_button.clicked.connect(lambda: self._apply_overlay_adjustment("black", "height", -2))
         self.black_height_inc_button = QPushButton("+")
-        self.black_height_inc_button.setFixedSize(30, 30)
-        self.black_height_inc_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("black", "height", 2))
-        add_size_control(1, 0, self.black_height_label, self.black_height_dec_button, self.black_height_inc_button)
+        self.black_height_inc_button.setFixedSize(36, 36)
+        self.black_height_inc_button.clicked.connect(lambda: self._apply_overlay_adjustment("black", "height", 2))
+        self.black_height_value_label, self.black_height_reset_button = add_size_control(
+            1,
+            0,
+            self.black_height_label,
+            self.black_height_dec_button,
+            self.black_height_inc_button,
+            "black",
+            "height",
+        )
 
         self.black_width_label = QLabel(translate("ControlPanelQt", "Black Key Width"))
         self.black_width_dec_button = QPushButton("-")
-        self.black_width_dec_button.setFixedSize(30, 30)
-        self.black_width_dec_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("black", "width", -2))
+        self.black_width_dec_button.setFixedSize(36, 36)
+        self.black_width_dec_button.clicked.connect(lambda: self._apply_overlay_adjustment("black", "width", -2))
         self.black_width_inc_button = QPushButton("+")
-        self.black_width_inc_button.setFixedSize(30, 30)
-        self.black_width_inc_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("black", "width", 2))
-        add_size_control(1, 1, self.black_width_label, self.black_width_dec_button, self.black_width_inc_button)
+        self.black_width_inc_button.setFixedSize(36, 36)
+        self.black_width_inc_button.clicked.connect(lambda: self._apply_overlay_adjustment("black", "width", 2))
+        self.black_width_value_label, self.black_width_reset_button = add_size_control(
+            1,
+            1,
+            self.black_width_label,
+            self.black_width_dec_button,
+            self.black_width_inc_button,
+            "black",
+            "width",
+        )
 
         self.left_slant_label = QLabel(translate("ControlPanelQt", "Left Slant"))
         self.left_slant_dec_button = QPushButton("-")
-        self.left_slant_dec_button.setFixedSize(30, 30)
-        self.left_slant_dec_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("all", "left_slant", -1))
+        self.left_slant_dec_button.setFixedSize(36, 36)
+        self.left_slant_dec_button.clicked.connect(lambda: self._apply_overlay_adjustment("all", "left_slant", -1))
         self.left_slant_inc_button = QPushButton("+")
-        self.left_slant_inc_button.setFixedSize(30, 30)
-        self.left_slant_inc_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("all", "left_slant", 1))
-        add_size_control(2, 0, self.left_slant_label, self.left_slant_dec_button, self.left_slant_inc_button)
+        self.left_slant_inc_button.setFixedSize(36, 36)
+        self.left_slant_inc_button.clicked.connect(lambda: self._apply_overlay_adjustment("all", "left_slant", 1))
+        self.left_slant_value_label, self.left_slant_reset_button = add_size_control(
+            2,
+            0,
+            self.left_slant_label,
+            self.left_slant_dec_button,
+            self.left_slant_inc_button,
+            "all",
+            "left_slant",
+        )
 
         self.right_slant_label = QLabel(translate("ControlPanelQt", "Right Slant"))
         self.right_slant_dec_button = QPushButton("-")
-        self.right_slant_dec_button.setFixedSize(30, 30)
-        self.right_slant_dec_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("all", "right_slant", -1))
+        self.right_slant_dec_button.setFixedSize(36, 36)
+        self.right_slant_dec_button.clicked.connect(lambda: self._apply_overlay_adjustment("all", "right_slant", -1))
         self.right_slant_inc_button = QPushButton("+")
-        self.right_slant_inc_button.setFixedSize(30, 30)
-        self.right_slant_inc_button.clicked.connect(lambda: self.overlay_size_adjustment_requested.emit("all", "right_slant", 1))
-        add_size_control(2, 1, self.right_slant_label, self.right_slant_dec_button, self.right_slant_inc_button)
+        self.right_slant_inc_button.setFixedSize(36, 36)
+        self.right_slant_inc_button.clicked.connect(lambda: self._apply_overlay_adjustment("all", "right_slant", 1))
+        self.right_slant_value_label, self.right_slant_reset_button = add_size_control(
+            2,
+            1,
+            self.right_slant_label,
+            self.right_slant_dec_button,
+            self.right_slant_inc_button,
+            "all",
+            "right_slant",
+        )
 
         size_layout.addLayout(size_grid)
 
@@ -613,18 +821,18 @@ class ControlPanelQt(QWidget):
         help_section.setStyleSheet("QLabel { font-size: 9pt; }")  # shrink detection help text
         help_layout = help_section.content_layout()
         help_lines = [
-            translate("ControlPanelQt", "Before tuning detection: run Unlit Key Calibration + at least one Lit Key Exemplar."),
-            translate("ControlPanelQt", "Detection Threshold: main sensitivity setting for pressed vs unpressed."),
-            translate("ControlPanelQt", "If notes are missed: lower the threshold. If you get false notes: raise the threshold."),
+            translate("ControlPanelQt", "Before tuning detection: capture a no-key frame and at least one pressed-key example."),
+            translate("ControlPanelQt", "Detection Sensitivity: main setting for pressed vs unpressed keys."),
+            translate("ControlPanelQt", "Missing notes? Lower it. Extra notes? Raise it."),
             translate(
                 "ControlPanelQt",
-                "Histogram Detection: uses a color-pattern match inside each overlay. Use when pressed overlays have strong gradients or uneven lighting.",
+                "Histogram Detection helps when pressed colors have gradients or uneven lighting.",
             ),
             translate(
                 "ControlPanelQt",
-                "Delta Detection: uses frame-to-frame change to confirm press/release. Use when the pressed color fades in/out gradually instead of switching cleanly.",
+                "Delta Detection helps when pressed colors fade in or out instead of switching cleanly.",
             ),
-            translate("ControlPanelQt", "Black Key Filter: reduces false black-key presses caused by nearby overlays."),
+            translate("ControlPanelQt", "Black Key Filter reduces false black-key notes caused by nearby overlays."),
         ]
         for line in help_lines:
             label = QLabel(line)
@@ -633,7 +841,7 @@ class ControlPanelQt(QWidget):
         layout.addWidget(help_section)
         
         # Detection threshold
-        threshold_group = QGroupBox(translate("ControlPanelQt", "Detection Threshold"))
+        threshold_group = QGroupBox(translate("ControlPanelQt", "Detection Sensitivity"))
         threshold_group.setObjectName("first_in_tab")  # For CSS styling
         threshold_layout = QVBoxLayout(threshold_group)
         threshold_layout.setContentsMargins(15, 10, 15, 10)
@@ -652,30 +860,39 @@ class ControlPanelQt(QWidget):
             translate("ControlPanelQt", "Main sensitivity. Lower = detects more; higher = fewer false notes.")
         )
         
-        threshold_layout.addWidget(QLabel(translate("ControlPanelQt", "Detection Threshold:")))
+        threshold_layout.addWidget(QLabel(translate("ControlPanelQt", "Detection Sensitivity:")))
         threshold_layout.addWidget(self.detection_threshold_slider)
         threshold_layout.addWidget(self.detection_threshold_label)
+        threshold_layout.addWidget(QLabel(translate("ControlPanelQt", "Missing notes? Lower it. Extra notes? Raise it.")))
         
         layout.addWidget(threshold_group)
         
-        # Detection modes
-        modes_group = QGroupBox(translate("ControlPanelQt", "Detection Modes"))
-        modes_layout = QVBoxLayout(modes_group)
-        modes_layout.setContentsMargins(15, 10, 15, 10)
-        
-        slider_label_width = 62
+        # Specialist modes are composed into the collapsed Advanced page.
+        self.histogram_advanced_widget = QWidget()
+        histogram_layout = QVBoxLayout(self.histogram_advanced_widget)
+        histogram_layout.setContentsMargins(0, 0, 0, 0)
+        self.delta_advanced_widget = QWidget()
+        delta_layout = QVBoxLayout(self.delta_advanced_widget)
+        delta_layout.setContentsMargins(0, 0, 0, 0)
+        self.black_key_advanced_widget = QWidget()
+        black_key_layout = QVBoxLayout(self.black_key_advanced_widget)
+        black_key_layout.setContentsMargins(0, 0, 0, 0)
 
-        def add_slider_row(label_text, slider, value_label, *, indent=0):
+        self.advanced_slider_labels = []
+        advanced_slider_label_specs = []
+
+        def add_slider_row(target_layout, label_text, slider, value_label, *, indent=0):
             row = QHBoxLayout()
             row.setContentsMargins(indent, 0, 0, 0)
             row.setSpacing(6)
             label = QLabel(label_text)
-            label.setFixedWidth(max(1, slider_label_width - indent))
+            self.advanced_slider_labels.append(label)
+            advanced_slider_label_specs.append((label, indent))
             row.addWidget(label)
             row.addWidget(slider)
             row.addWidget(value_label)
             row.addStretch()
-            modes_layout.addLayout(row)
+            target_layout.addLayout(row)
 
         # Histogram detection with sensitivity slider
         self.histogram_detection_cb = QCheckBox(translate("ControlPanelQt", "Enable Histogram Detection"))
@@ -684,7 +901,7 @@ class ControlPanelQt(QWidget):
         self.histogram_detection_cb.setToolTip(
             translate("ControlPanelQt", "Uses a color-pattern match inside the overlay. Helpful with gradients/uneven lighting.")
         )
-        modes_layout.addWidget(self.histogram_detection_cb)
+        histogram_layout.addWidget(self.histogram_detection_cb)
         
         # Add histogram threshold slider
         self.histogram_threshold_slider = QSlider(Qt.Horizontal)
@@ -701,7 +918,7 @@ class ControlPanelQt(QWidget):
         self.histogram_threshold_label.setToolTip(
             translate("ControlPanelQt", "How strong the histogram match must be (only used when Histogram Detection is enabled).")
         )
-        add_slider_row(translate("ControlPanelQt", "Strength:"), self.histogram_threshold_slider, self.histogram_threshold_label)
+        add_slider_row(histogram_layout, translate("ControlPanelQt", "Strength:"), self.histogram_threshold_slider, self.histogram_threshold_label)
         
         # Delta detection with rise/fall sliders
         self.delta_detection_cb = QCheckBox(translate("ControlPanelQt", "Enable Delta Detection"))
@@ -710,7 +927,7 @@ class ControlPanelQt(QWidget):
         self.delta_detection_cb.setToolTip(
             translate("ControlPanelQt", "Uses frame-to-frame change to confirm press/release (helps when color fades).")
         )
-        modes_layout.addWidget(self.delta_detection_cb)
+        delta_layout.addWidget(self.delta_detection_cb)
         
         self.rise_delta_slider = QSlider(Qt.Horizontal)
         self.rise_delta_slider.setFixedWidth(110)
@@ -726,7 +943,7 @@ class ControlPanelQt(QWidget):
         self.rise_delta_label.setToolTip(
             translate("ControlPanelQt", "How big the change must be to count as a press (only used when Delta Detection is enabled).")
         )
-        add_slider_row(translate("ControlPanelQt", "Rise:"), self.rise_delta_slider, self.rise_delta_label, indent=16)
+        add_slider_row(delta_layout, translate("ControlPanelQt", "Rise:"), self.rise_delta_slider, self.rise_delta_label, indent=16)
         
         self.fall_delta_slider = QSlider(Qt.Horizontal)
         self.fall_delta_slider.setFixedWidth(110)
@@ -742,7 +959,7 @@ class ControlPanelQt(QWidget):
         self.fall_delta_label.setToolTip(
             translate("ControlPanelQt", "How big the change must be to count as a release (only used when Delta Detection is enabled).")
         )
-        add_slider_row(translate("ControlPanelQt", "Fall:"), self.fall_delta_slider, self.fall_delta_label, indent=16)
+        add_slider_row(delta_layout, translate("ControlPanelQt", "Fall:"), self.fall_delta_slider, self.fall_delta_label, indent=16)
         
         # Black key filter with similarity ratio slider
         self.black_key_filter_cb = QCheckBox(translate("ControlPanelQt", "Enable Black Key Filter"))
@@ -751,7 +968,7 @@ class ControlPanelQt(QWidget):
         self.black_key_filter_cb.setToolTip(
             translate("ControlPanelQt", "Reduces false black-key presses from nearby overlays.")
         )
-        modes_layout.addWidget(self.black_key_filter_cb)
+        black_key_layout.addWidget(self.black_key_filter_cb)
         
         # Add similarity ratio slider
         self.similarity_ratio_slider = QSlider(Qt.Horizontal)
@@ -768,9 +985,14 @@ class ControlPanelQt(QWidget):
         self.similarity_ratio_label.setToolTip(
             translate("ControlPanelQt", "Controls how strict black-key filtering is (only used when Black Key Filter is enabled).")
         )
-        add_slider_row(translate("ControlPanelQt", "Similarity:"), self.similarity_ratio_slider, self.similarity_ratio_label)
-        
-        layout.addWidget(modes_group)
+        add_slider_row(black_key_layout, translate("ControlPanelQt", "Similarity:"), self.similarity_ratio_slider, self.similarity_ratio_label)
+
+        slider_label_width = max(
+            62,
+            *(label.sizeHint().width() + indent for label, indent in advanced_slider_label_specs),
+        )
+        for label, indent in advanced_slider_label_specs:
+            label.setFixedWidth(max(1, slider_label_width - indent))
 
         self.restore_detection_defaults_button = QPushButton(translate("ControlPanelQt", "Restore Defaults"))
         self.restore_detection_defaults_button.setToolTip(
@@ -780,8 +1002,6 @@ class ControlPanelQt(QWidget):
             )
         )
         self.restore_detection_defaults_button.clicked.connect(self._restore_detection_defaults)
-        layout.addWidget(self.restore_detection_defaults_button, alignment=Qt.AlignLeft)
-        
         layout.addStretch()
         self._add_settings_section(tab, translate("ControlPanelQt", "Detection"))
     
@@ -814,11 +1034,18 @@ class ControlPanelQt(QWidget):
         layout.addWidget(help_section)
 
         # Spark detection toggle
-        main_group = QGroupBox(translate("ControlPanelQt", "Spark Detection"))
+        main_group = QGroupBox(translate("ControlPanelQt", "Repeated Notes Fix"))
         main_group.setObjectName("first_in_tab")  # For CSS styling
         main_layout = QVBoxLayout(main_group)
 
-        self.spark_detection_cb = QCheckBox(translate("ControlPanelQt", "Enable Spark Detection"))
+        spark_guidance_label = QLabel(
+            translate("ControlPanelQt", "Use this only if repeated notes merge into one long note.")
+        )
+        spark_guidance_label.setWordWrap(True)
+        spark_guidance_label.setStyleSheet("color: #555;")
+        main_layout.addWidget(spark_guidance_label)
+
+        self.spark_detection_cb = QCheckBox(translate("ControlPanelQt", "Enable Repeated Notes Fix"))
         self.spark_detection_cb.toggled.connect(self.spark_detection_toggled.emit)
         self.spark_detection_cb.toggled.connect(self._update_spark_controls_state)
         self.spark_detection_cb.setToolTip(
@@ -850,28 +1077,26 @@ class ControlPanelQt(QWidget):
         layout.addWidget(main_group)
 
         # Spark calibration
-        calibration_group = QGroupBox(translate("ControlPanelQt", "Spark Calibration"))
+        calibration_group = QGroupBox(translate("ControlPanelQt", "Repeated-Note Setup"))
         calibration_layout = QVBoxLayout(calibration_group)
 
         # ROI selection
         roi_layout = QVBoxLayout()
         roi_layout.setContentsMargins(0, 0, 0, 0)
         roi_layout.setSpacing(6)
-        self.spark_roi_select_button = QPushButton(translate("ControlPanelQt", "Select Spark ROI"))
-        self.spark_roi_select_button.setMaximumWidth(264)
+        self.spark_roi_select_button = QPushButton(translate("ControlPanelQt", "Select Flash Area Above Keys"))
         self.spark_roi_select_button.clicked.connect(self.spark_roi_selection_requested.emit)
         self.spark_roi_select_button.setToolTip(
-            translate("ControlPanelQt", "Select the region above the keys where spark bars and sparks appear.")
+            translate("ControlPanelQt", "Select the area above the keys where spark bars and flashes appear.")
         )
         roi_layout.addWidget(self.spark_roi_select_button)
 
         # Add toggle button for showing/hiding spark overlays
         self.spark_roi_toggle_button = QPushButton(translate("ControlPanelQt", "Hide Spark Overlays"))
-        self.spark_roi_toggle_button.setMaximumWidth(264)
         self.spark_roi_toggle_button.setCheckable(True)
         self.spark_roi_toggle_button.clicked.connect(self._toggle_spark_roi_visibility)
         self.spark_roi_toggle_button.setToolTip(
-            translate("ControlPanelQt", "Show or hide the spark ROI overlay on the video.")
+            translate("ControlPanelQt", "Show or hide the spark area overlay on the video.")
         )
         roi_layout.addWidget(self.spark_roi_toggle_button)
 
@@ -948,7 +1173,6 @@ class ControlPanelQt(QWidget):
                     key_type_label=KEY_TYPE_LABELS[key_type]
                 )
             )
-            button.setMaximumWidth(210)
             button.clicked.connect(lambda checked=False, kt=key_type: self.auto_spark_calibration_requested.emit(kt))
             button.setToolTip(
                 translate(
@@ -960,7 +1184,7 @@ class ControlPanelQt(QWidget):
             row.addWidget(button)
 
             status = QLabel(translate("ControlPanelQt", "Not Set"))
-            status.setStyleSheet("color: grey; font-style: italic;")
+            status.setStyleSheet("color: #595959; font-style: italic;")
             self.auto_calib_status_labels[key_type] = status
             row.addWidget(status)
 
@@ -979,7 +1203,7 @@ class ControlPanelQt(QWidget):
 
         self.spark_status_label = QLabel(translate("ControlPanelQt", "Preview not available yet."))
         self.spark_status_label.setWordWrap(True)
-        self.spark_status_label.setStyleSheet("color: grey; font-style: italic;")
+        self.spark_status_label.setStyleSheet("color: #595959; font-style: italic;")
         preview_layout.addWidget(self.spark_status_label)
 
         layout.addWidget(preview_group)
@@ -988,7 +1212,10 @@ class ControlPanelQt(QWidget):
 
         scroll_area.setWidget(content)
         tab_layout.addWidget(scroll_area)
-        self._add_settings_section(tab, translate("ControlPanelQt", "Spark"))
+        self.spark_settings_page = tab
+        self.repeated_notes_tool_window = RepeatedNotesToolWindow(
+            self, self.spark_settings_page
+        )
     
     def _create_midi_settings_tab(self):
         """Tab 5: MIDI Settings"""
@@ -1006,17 +1233,17 @@ class ControlPanelQt(QWidget):
         fps_button_layout.setSpacing(5)  # Minimal spacing between buttons
         
         self.fps_30_button = QPushButton("30 FPS")
-        self.fps_30_button.setMaximumWidth(132)
+        self.fps_30_button.setMinimumWidth(self.fps_30_button.sizeHint().width())
         self.fps_30_button.setCheckable(True)
         self.fps_30_button.clicked.connect(lambda: self._set_fps_override(30))
         
         self.fps_60_button = QPushButton("60 FPS")
-        self.fps_60_button.setMaximumWidth(132)
+        self.fps_60_button.setMinimumWidth(self.fps_60_button.sizeHint().width())
         self.fps_60_button.setCheckable(True)
         self.fps_60_button.clicked.connect(lambda: self._set_fps_override(60))
         
         self.fps_auto_button = QPushButton(translate("ControlPanelQt", "Auto"))
-        self.fps_auto_button.setMaximumWidth(132)
+        self.fps_auto_button.setMinimumWidth(self.fps_auto_button.sizeHint().width())
         self.fps_auto_button.setCheckable(True)
         self.fps_auto_button.setChecked(True)
         self.fps_auto_button.clicked.connect(lambda: self._set_fps_override(None))
@@ -1035,8 +1262,18 @@ class ControlPanelQt(QWidget):
         layout.addWidget(fps_group)
         
         # Custom MIDI Processing Range
-        processing_range_group = QGroupBox(translate("ControlPanelQt", "Custom MIDI Processing Range"))
+        processing_range_group = QGroupBox(translate("ControlPanelQt", "Convert Only Part of the Video"))
         processing_range_layout = QVBoxLayout(processing_range_group)
+
+        processing_hint = QLabel(
+            translate(
+                "ControlPanelQt",
+                "This affects MIDI creation only. It does not trim or change the video session.",
+            )
+        )
+        processing_hint.setWordWrap(True)
+        processing_hint.setStyleSheet("color: #555;")
+        processing_range_layout.addWidget(processing_hint)
         
         # Frame controls in grid for alignment
         processing_grid = QGridLayout()
@@ -1046,6 +1283,7 @@ class ControlPanelQt(QWidget):
         # Processing start frame
         processing_start_label = QLabel(translate("ControlPanelQt", "Start Frame:"))
         processing_start_label.setFixedWidth(144)
+        processing_start_label.setWordWrap(True)
         processing_grid.addWidget(processing_start_label, 0, 0)
         
         self.processing_start_frame_spin = QSpinBox()
@@ -1056,13 +1294,16 @@ class ControlPanelQt(QWidget):
         processing_grid.addWidget(self.processing_start_frame_spin, 0, 1)
         
         self.processing_start_set_button = QPushButton(translate("ControlPanelQt", "Set to Current"))
-        self.processing_start_set_button.setMaximumWidth(240)  # Increased by 20% from 200
+        self.processing_start_set_button.setMinimumWidth(
+            self.processing_start_set_button.sizeHint().width()
+        )
         self.processing_start_set_button.clicked.connect(self._set_processing_start_to_current)
         processing_grid.addWidget(self.processing_start_set_button, 0, 2)
         
         # Processing end frame
         processing_end_label = QLabel(translate("ControlPanelQt", "End Frame:"))
         processing_end_label.setFixedWidth(144)
+        processing_end_label.setWordWrap(True)
         processing_grid.addWidget(processing_end_label, 1, 0)
         
         self.processing_end_frame_spin = QSpinBox()
@@ -1073,7 +1314,9 @@ class ControlPanelQt(QWidget):
         processing_grid.addWidget(self.processing_end_frame_spin, 1, 1)
         
         self.processing_end_set_button = QPushButton(translate("ControlPanelQt", "Set to Current"))
-        self.processing_end_set_button.setMaximumWidth(240)  # Increased by 20% from 200
+        self.processing_end_set_button.setMinimumWidth(
+            self.processing_end_set_button.sizeHint().width()
+        )
         self.processing_end_set_button.clicked.connect(self._set_processing_end_to_current)
         processing_grid.addWidget(self.processing_end_set_button, 1, 2)
         
@@ -1092,9 +1335,19 @@ class ControlPanelQt(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)  # Make grey containers flush with tab header
         layout.setSpacing(5)  # Minimal spacing between grey containers
         
-        trim_group = QGroupBox(translate("ControlPanelQt", "Video Processing Range"))
+        trim_group = QGroupBox(translate("ControlPanelQt", "Permanently Trim Project"))
         trim_group.setObjectName("first_in_tab")  # For CSS styling
         trim_layout = QVBoxLayout(trim_group)
+
+        trim_warning = QLabel(
+            translate(
+                "ControlPanelQt",
+                "Most users should use MIDI range instead. Trim changes the working video session, not the original video file.",
+            )
+        )
+        trim_warning.setWordWrap(True)
+        trim_warning.setStyleSheet("color: #8a4b00; font-weight: 600;")
+        trim_layout.addWidget(trim_warning)
         
         # Frame controls in grid for alignment
         frame_grid = QGridLayout()
@@ -1103,50 +1356,134 @@ class ControlPanelQt(QWidget):
         
         # Start frame
         start_label = QLabel(translate("ControlPanelQt", "Start Frame:"))
-        start_label.setFixedWidth(144)  # Scaled for 14pt font
+        start_label.setWordWrap(True)
+        start_label.setMinimumWidth(120)
         frame_grid.addWidget(start_label, 0, 0)
         
         self.start_frame_spin = QSpinBox()
-        self.start_frame_spin.setMaximumWidth(60)  # 1/10 of default width
         self.start_frame_spin.setRange(0, 999999)
+        self.start_frame_spin.setMinimumWidth(self.start_frame_spin.sizeHint().width())
         self.start_frame_spin.setValue(0)
         self.start_frame_spin.valueChanged.connect(self.start_frame_changed.emit)
         frame_grid.addWidget(self.start_frame_spin, 0, 1)
         
         self.trim_start_set_button = QPushButton(translate("ControlPanelQt", "Set to Current"))
-        self.trim_start_set_button.setMaximumWidth(200)
+        self.trim_start_set_button.setMinimumWidth(
+            self.trim_start_set_button.sizeHint().width()
+        )
         self.trim_start_set_button.clicked.connect(self._set_trim_start_to_current)
         frame_grid.addWidget(self.trim_start_set_button, 0, 2)
         
         # End frame
         end_label = QLabel(translate("ControlPanelQt", "End Frame:"))
-        end_label.setFixedWidth(144)  # Scaled for 14pt font
+        end_label.setWordWrap(True)
+        end_label.setMinimumWidth(120)
         frame_grid.addWidget(end_label, 1, 0)
         
         self.end_frame_spin = QSpinBox()
-        self.end_frame_spin.setMaximumWidth(60)  # 1/10 of default width
         self.end_frame_spin.setRange(-1, 999999)
+        self.end_frame_spin.setMinimumWidth(self.end_frame_spin.sizeHint().width())
         self.end_frame_spin.setValue(-1)
         self.end_frame_spin.valueChanged.connect(self.end_frame_changed.emit)
         frame_grid.addWidget(self.end_frame_spin, 1, 1)
         
         self.trim_end_set_button = QPushButton(translate("ControlPanelQt", "Set to Current"))
-        self.trim_end_set_button.setMaximumWidth(200)
+        self.trim_end_set_button.setMinimumWidth(
+            self.trim_end_set_button.sizeHint().width()
+        )
         self.trim_end_set_button.clicked.connect(self._set_trim_end_to_current)
         frame_grid.addWidget(self.trim_end_set_button, 1, 2)
         
         trim_layout.addLayout(frame_grid)
         
         # Trim Video button
-        self.trim_video_button = QPushButton(translate("ControlPanelQt", "Trim Video"))
-        self.trim_video_button.setMaximumWidth(200)
+        self.trim_video_button = QPushButton(translate("ControlPanelQt", "Permanently Trim Project"))
         self.trim_video_button.clicked.connect(self._handle_trim_video_request)
         trim_layout.addWidget(self.trim_video_button)
         
         layout.addWidget(trim_group)
+        self.trim_settings_group = trim_group
         
         layout.addStretch()
-        self._add_settings_section(tab, translate("ControlPanelQt", "Trim"))
+        self.trim_settings_page = tab
+
+    def _create_advanced_settings_tab(self):
+        """Compose specialist recovery controls under symptom-led sections."""
+        tab = QWidget()
+        layout = QVBoxLayout(tab)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(6)
+
+        repeated_notes_launcher = QWidget()
+        repeated_notes_layout = QVBoxLayout(repeated_notes_launcher)
+        repeated_notes_layout.setContentsMargins(0, 0, 0, 0)
+        repeated_notes_layout.setSpacing(6)
+        repeated_notes_summary = QLabel(
+            translate(
+                "ControlPanelQt",
+                "Open the dedicated setup window when repeated presses merge into one long note.",
+            )
+        )
+        repeated_notes_summary.setWordWrap(True)
+        repeated_notes_layout.addWidget(repeated_notes_summary)
+        self.open_repeated_notes_tool_button = QPushButton(
+            translate("ControlPanelQt", "Open Repeated Notes Tool")
+        )
+        self.open_repeated_notes_tool_button.clicked.connect(
+            self.repeated_notes_tool_window.show_near_parent
+        )
+        repeated_notes_layout.addWidget(
+            self.open_repeated_notes_tool_button, alignment=Qt.AlignLeft
+        )
+
+        section_specs = [
+            (
+                "histogram",
+                translate("ControlPanelQt", "Gradient or uneven pressed colors"),
+                self.histogram_advanced_widget,
+            ),
+            (
+                "delta",
+                translate("ControlPanelQt", "Pressed colors fade in or out"),
+                self.delta_advanced_widget,
+            ),
+            (
+                "black_keys",
+                translate("ControlPanelQt", "False black-key notes"),
+                self.black_key_advanced_widget,
+            ),
+            (
+                "repeated_notes",
+                translate("ControlPanelQt", "Repeated notes merge together"),
+                repeated_notes_launcher,
+            ),
+            (
+                "trim",
+                translate("ControlPanelQt", "Permanently Trim Project"),
+                self.trim_settings_group,
+            ),
+        ]
+        self.advanced_sections = {}
+        for key, title, content in section_specs:
+            section = CollapsibleSection(title, expanded=False)
+            section.content_layout().addWidget(content)
+            layout.addWidget(section)
+            self.advanced_sections[key] = section
+
+        self.advanced_sections["black_keys"].content_layout().addWidget(
+            self.restore_detection_defaults_button,
+            alignment=Qt.AlignLeft,
+        )
+
+        glossary_section = CollapsibleSection(
+            translate("ControlPanelQt", "Glossary"), expanded=False
+        )
+        self.ui_glossary = UiGlossary()
+        glossary_section.content_layout().addWidget(self.ui_glossary)
+        layout.addWidget(glossary_section)
+        self.advanced_sections["glossary"] = glossary_section
+        layout.addStretch(1)
+        self._add_settings_section(tab, translate("ControlPanelQt", "Advanced"))
     
     def _create_optional_settings_tab(self):
         """Tab 7: Optional Settings"""
@@ -1159,10 +1496,22 @@ class ControlPanelQt(QWidget):
         optional_layout = QVBoxLayout(optional_group)
         
         # Hand assignment
-        self.hand_assignment_cb = QCheckBox(translate("ControlPanelQt", "Enable Hand Assignment (MIDI Channels)"))
+        self.hand_assignment_cb = QCheckBox(
+            translate("ControlPanelQt", "Put each hand/color on a separate MIDI channel")
+        )
         self.hand_assignment_cb.toggled.connect(self.hand_assignment_toggled.emit)
         optional_layout.addWidget(self.hand_assignment_cb)
-        
+
+        hand_assignment_hint = QLabel(
+            translate(
+                "ControlPanelQt",
+                "Use this only if the video uses different colors for left and right hand notes.",
+            )
+        )
+        hand_assignment_hint.setWordWrap(True)
+        hand_assignment_hint.setStyleSheet("color: #555;")
+        optional_layout.addWidget(hand_assignment_hint)
+
         
         # Add more optional settings here as needed
         
@@ -1211,7 +1560,7 @@ class ControlPanelQt(QWidget):
             color_tuple = self.app_state.detection.exemplar_lit_colors.get(key_type)
 
         if not is_enabled:
-            swatch.setStyleSheet("border: 1px dashed #888; background-color: #d0d0d0;")
+            swatch.setStyleSheet("border: 1px dashed #595959; background-color: #d0d0d0;")
             return
 
         if color_tuple is None:
@@ -1338,59 +1687,30 @@ class ControlPanelQt(QWidget):
             )
             return
         
-        # Create red warning dialog
+        # Keep the platform warning style so contrast and keyboard behavior remain native.
         msg_box = QMessageBox(self)
-        msg_box.setWindowTitle(translate("ControlPanelQt", "⚠️ Trim Video - Irreversible Action"))
+        msg_box.setWindowTitle(translate("ControlPanelQt", "Permanently Trim Project"))
         msg_box.setIcon(QMessageBox.Warning)
-        
-        # Red styling for the dialog
-        msg_box.setStyleSheet("""
-            QMessageBox {
-                background-color: #2b2b2b;
-                color: white;
-            }
-            QMessageBox QLabel {
-                color: #ff6b6b;
-                font-weight: bold;
-                font-size: 14px;
-            }
-            QMessageBox QPushButton {
-                background-color: #ff4757;
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 4px;
-                font-weight: bold;
-            }
-            QMessageBox QPushButton:hover {
-                background-color: #ff3742;
-            }
-            QMessageBox QPushButton:pressed {
-                background-color: #ff2731;
-            }
-        """)
         
         end_text = (
             translate("ControlPanelQt", "frame {end_frame}").format(end_frame=end_frame)
             if end_frame != -1
             else translate("ControlPanelQt", "end of video")
         )
-        msg_box.setText(translate("ControlPanelQt", """
-<b>⚠️ WARNING: This action is IRREVERSIBLE</b><br><br>
-This will permanently trim the video session to frames {start_frame} to {end_text}.<br><br>
-<b>After trimming:</b><br>
-• Frames outside this range will become inaccessible<br>
-• Video navigation will be restricted to this range<br>
-• MIDI processing will be limited to this range<br><br>
-<b>Are you sure you want to proceed?</b>
-        """).format(start_frame=start_frame, end_text=end_text))
+        msg_box.setText(
+            translate(
+                "ControlPanelQt",
+                "<b>This will permanently trim the working video session.</b><br><br>"
+                "Frames outside {start_frame} to {end_text} will be unavailable in this project session.<br><br>"
+                "Most users should cancel and use the MIDI range controls instead.",
+            ).format(start_frame=start_frame, end_text=end_text)
+        )
         
         msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
         msg_box.setDefaultButton(QMessageBox.Cancel)
         
-        # Make the Yes button red too
         yes_button = msg_box.button(QMessageBox.Yes)
-        yes_button.setText(translate("ControlPanelQt", "⚠️ YES, TRIM VIDEO"))
+        yes_button.setText(translate("ControlPanelQt", "Trim Project"))
         
         result = msg_box.exec()
         
@@ -1411,6 +1731,79 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
         }
         color_hex = color_map.get(color_name, "#FF0000")
         self.color_square.setStyleSheet(f"background-color: {color_hex}; border: 1px solid black;")
+
+    def _overlay_adjustment_key(self, key_color: str, dimension: str) -> tuple[str, str]:
+        return key_color, dimension
+
+    def _current_overlay_adjustment_basis(self) -> tuple[tuple[int, float, float, float, float, float], ...] | None:
+        overlays = getattr(self.app_state, "overlays", None)
+        if not overlays:
+            return None
+        ordered_overlays = sorted(overlays, key=lambda overlay: int(getattr(overlay, "key_id", 0)))
+        return tuple(
+            (
+                int(getattr(overlay, "key_id", 0)),
+                float(getattr(overlay, "x", 0.0)),
+                float(getattr(overlay, "y", 0.0)),
+                float(getattr(overlay, "width", 0.0)),
+                float(getattr(overlay, "height", 0.0)),
+                float(getattr(overlay, "rotation_degrees", 0.0) or 0.0),
+            )
+            for overlay in ordered_overlays
+        )
+
+    def _set_overlay_adjustment_value(self, key_color: str, dimension: str, value: int | None) -> None:
+        key = self._overlay_adjustment_key(key_color, dimension)
+        self._overlay_adjustment_values[key] = value
+        label = self._overlay_adjustment_value_labels.get(key)
+        if label is not None:
+            label.setText(self.OVERLAY_ADJUSTMENT_INDETERMINATE if value is None else str(value))
+        reset_button = self._overlay_adjustment_reset_buttons.get(key)
+        if reset_button is not None:
+            reset_button.setEnabled(isinstance(value, int) and value != 0)
+
+    def clear_overlay_adjustments(self) -> None:
+        self._overlay_adjustment_pending_previous_values.clear()
+        for key_color, dimension in self._overlay_adjustment_value_labels:
+            self._set_overlay_adjustment_value(key_color, dimension, 0)
+
+    def _sync_overlay_adjustment_state(self) -> None:
+        current_basis = self._current_overlay_adjustment_basis()
+        if current_basis is None:
+            self.clear_overlay_adjustments()
+            self._overlay_adjustment_basis = None
+            return
+        if self._overlay_adjustment_basis != current_basis:
+            self.clear_overlay_adjustments()
+            self._overlay_adjustment_basis = current_basis
+
+    def _apply_overlay_adjustment(self, key_color: str, dimension: str, delta: int) -> None:
+        key = self._overlay_adjustment_key(key_color, dimension)
+        current_value = self._overlay_adjustment_values.get(key, 0)
+        self._overlay_adjustment_pending_previous_values[key] = current_value
+        requested_value = (current_value if isinstance(current_value, int) else 0) + delta
+        self._set_overlay_adjustment_value(key_color, dimension, requested_value)
+        self.overlay_size_adjustment_requested.emit(key_color, dimension, delta)
+        self._overlay_adjustment_pending_previous_values.pop(key, None)
+        self._overlay_adjustment_basis = self._current_overlay_adjustment_basis()
+
+    def apply_overlay_adjustment_result(self, result) -> None:
+        key = self._overlay_adjustment_key(result.key_color, result.dimension)
+        previous_value = self._overlay_adjustment_pending_previous_values.pop(key, 0)
+        if result.status == "none":
+            self._set_overlay_adjustment_value(result.key_color, result.dimension, previous_value)
+        elif result.status == "mixed":
+            self._set_overlay_adjustment_value(result.key_color, result.dimension, None)
+        self._overlay_adjustment_basis = self._current_overlay_adjustment_basis()
+
+    def _reset_overlay_adjustment(self, key_color: str, dimension: str) -> None:
+        key = self._overlay_adjustment_key(key_color, dimension)
+        current_value = self._overlay_adjustment_values.get(key, 0)
+        if not isinstance(current_value, int) or current_value == 0:
+            return
+        self._set_overlay_adjustment_value(key_color, dimension, 0)
+        self.overlay_size_adjustment_requested.emit(key_color, dimension, -current_value)
+        self._overlay_adjustment_basis = self._current_overlay_adjustment_basis()
     
     def _toggle_spark_roi_visibility(self):
         """Toggle spark ROI overlay visibility."""
@@ -1471,6 +1864,8 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
             return
         
         try:
+            self._sync_overlay_adjustment_state()
+
             # Update detection settings
             if hasattr(self.app_state, 'detection'):
                 threshold_percent = int(self.app_state.detection.detection_threshold * 100)
@@ -1574,10 +1969,10 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
                 
                 if has_unlit_calibration:
                     self.unlit_status_label.setText(translate("ControlPanelQt", "Unlit State Calibrated"))
-                    self.unlit_status_label.setStyleSheet("color: #4CAF50; font-style: italic;")
+                    self.unlit_status_label.setStyleSheet("color: #2e7d32; font-style: italic;")
                 else:
                     self.unlit_status_label.setText(translate("ControlPanelQt", "Not Set"))
-                    self.unlit_status_label.setStyleSheet("color: #888; font-style: italic;")
+                    self.unlit_status_label.setStyleSheet("color: #595959; font-style: italic;")
             
             # Update exemplar availability controls and swatches
             if hasattr(self.app_state, 'detection') and hasattr(self.app_state.detection, 'exemplar_lit_colors'):
@@ -1604,7 +1999,7 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
 
             # Update convert button availability based on prerequisites
             if hasattr(self, "convert_button"):
-                self.convert_button.setEnabled(self._can_convert())
+                self._update_conversion_readiness_display()
 
         except Exception as e:
             logging.warning(f"Error updating controls from state: {e}")
@@ -1612,7 +2007,7 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
     def set_conversion_result(self, success: bool, message: str):
         """Update the conversion status."""
         self.convert_button.setText(translate("ControlPanelQt", "Convert"))
-        self.convert_button.setEnabled(True)
+        self.convert_button.setEnabled(self._can_convert())
         
         if success:
             self.conversion_status.setText(
@@ -1701,10 +2096,10 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
                 
                 if is_calibrated:
                     label.setText(translate("ControlPanelQt", "Calibrated"))
-                    label.setStyleSheet("color: green; font-style: italic; font-size: 12px;")
+                    label.setStyleSheet("color: #2e7d32; font-style: italic; font-size: 12px;")
                 else:
                     label.setText(translate("ControlPanelQt", "Not Set"))
-                    label.setStyleSheet("color: grey; font-style: italic;")
+                    label.setStyleSheet("color: #595959; font-style: italic;")
 
     def update_selected_overlay_display(self):
         """Update selected overlay display (compatibility wrapper)."""
@@ -1729,52 +2124,93 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
         # This control panel does not require additional handling for this update.
         pass
 
-    def _can_convert(self) -> bool:
-        """Return True if MIDI conversion prerequisites are satisfied."""
-        if not self.app_state or not hasattr(self.app_state, 'video'):
-            return False
+    def _conversion_readiness(self) -> ConversionReadiness:
+        """Return conversion availability plus the first user-actionable missing step."""
+        if not self.app_state or not hasattr(self.app_state, "video"):
+            return ConversionReadiness(
+                False,
+                translate("ControlPanelQt", "Load a video to convert."),
+            )
 
-        if not getattr(self.app_state.video, 'filepath', None):
-            return False
+        if not getattr(self.app_state.video, "filepath", None):
+            return ConversionReadiness(
+                False,
+                translate("ControlPanelQt", "Load a video to convert."),
+            )
 
-        overlays = getattr(self.app_state, 'overlays', None) or []
+        overlays = getattr(self.app_state, "overlays", None) or []
         if not overlays:
-            return False
+            return ConversionReadiness(
+                False,
+                translate("ControlPanelQt", "Create key overlays first."),
+            )
 
         missing_unlit = [
             overlay.key_id
             for overlay in overlays
-            if getattr(overlay, 'unlit_reference_color', None) is None
+            if getattr(overlay, "unlit_reference_color", None) is None
         ]
         if missing_unlit:
-            return False
+            return ConversionReadiness(
+                False,
+                translate("ControlPanelQt", "Capture a no-key frame."),
+            )
 
-        if getattr(self.app_state.detection, 'use_histogram_detection', False):
+        if getattr(self.app_state.detection, "use_histogram_detection", False):
             missing_hist = [
                 overlay.key_id
                 for overlay in overlays
-                if getattr(overlay, 'unlit_hist', None) is None
+                if getattr(overlay, "unlit_hist", None) is None
             ]
             if missing_hist:
-                return False
+                return ConversionReadiness(
+                    False,
+                    translate("ControlPanelQt", "Capture a no-key frame."),
+                )
 
         required_exemplars = self.app_state.detection.get_required_base_exemplar_types()
         if not required_exemplars:
-            return False
+            return ConversionReadiness(
+                False,
+                translate("ControlPanelQt", "Capture at least one pressed-key example."),
+            )
 
         exemplar_colors = self.app_state.detection.get_effective_exemplar_lit_colors()
         for exemplar in required_exemplars:
             if exemplar_colors.get(exemplar) is None:
-                return False
+                return ConversionReadiness(
+                    False,
+                    translate("ControlPanelQt", "Capture at least one pressed-key example."),
+                )
 
-        detection_threshold = getattr(self.app_state.detection, 'detection_threshold', 0.0)
+        detection_threshold = getattr(self.app_state.detection, "detection_threshold", 0.0)
         if not 0.1 <= detection_threshold <= 0.99:
-            return False
+            return ConversionReadiness(
+                False,
+                translate("ControlPanelQt", "Check detection sensitivity."),
+            )
 
-        if getattr(self.app_state.midi, 'tempo', 0) <= 0:
-            return False
+        if getattr(self.app_state.midi, "tempo", 0) <= 0:
+            return ConversionReadiness(
+                False,
+                translate("ControlPanelQt", "Check MIDI tempo."),
+            )
 
-        return True
+        return ConversionReadiness(
+            True,
+            translate("ControlPanelQt", "Ready to create MIDI."),
+        )
+
+    def _update_conversion_readiness_display(self) -> None:
+        readiness = self._conversion_readiness()
+        self.convert_button.setEnabled(readiness.can_convert)
+        self.conversion_status.setText(readiness.status_text)
+        if hasattr(self, "guide_page"):
+            self.guide_page.update_snapshot(derive_guide_snapshot(self.app_state, readiness.can_convert))
+
+    def _can_convert(self) -> bool:
+        """Return True if MIDI conversion prerequisites are satisfied."""
+        return self._conversion_readiness().can_convert
     
     # Compatibility properties that the main window expects to exist
     @property

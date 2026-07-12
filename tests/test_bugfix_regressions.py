@@ -360,12 +360,37 @@ def _make_assisted_calibration_controller(*, save_log):
     return CalibrationWizardController(app, DummyAutoDetectTuningControllerForRestore())
 
 
+def _patch_assisted_dialog(monkeypatch, decision):
+    class FakeAssistedDialog:
+        def __init__(self, proposal, parent=None):
+            self.proposal = proposal
+            self.parent = parent
+            self.decision = decision
+
+        def exec(self):
+            return QDialog.Accepted if decision.value == "use" else QDialog.Rejected
+
+    monkeypatch.setattr(
+        "synthesia2midi.gui.calibration_wizard_controller.AssistedCalibrationDialog",
+        FakeAssistedDialog,
+    )
+    monkeypatch.setattr(
+        QMessageBox,
+        "question",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            AssertionError("legacy assisted-calibration question dialog was used")
+        ),
+    )
+
+
 def test_calibration_wizard_controller_keeps_wizard_for_keyboard_region_selection():
     wizard = DummyWizardForController("keyboard_region_selection_requested")
     workflow = DummyCalibrationWorkflowForController(wizard)
     selected_signal = RecordingSignal()
+    cancelled_signal = RecordingSignal()
     interaction = SimpleNamespace(
         keyboard_region_selected=selected_signal,
+        selection_cancelled=cancelled_signal,
         enter_keyboard_region_selection_mode=lambda: setattr(interaction, "entered", True),
         entered=False,
     )
@@ -393,6 +418,14 @@ def test_calibration_wizard_controller_keeps_wizard_for_keyboard_region_selectio
     assert interaction.entered is True
     assert selected_signal.connected == [controller._handle_keyboard_region_selected]
     assert cursor_changes == [Qt.CrossCursor]
+    assert cancelled_signal.connected == [controller._handle_canvas_selection_cancelled]
+
+    cancelled_signal.emit("keyboard_region")
+
+    assert controller.calibration_wizard is None
+    assert controller._keyboard_region_requested is False
+    assert selected_signal.connected == []
+    assert cursor_changes == [Qt.CrossCursor, Qt.ArrowCursor]
 
 
 def test_calibration_wizard_controller_places_wizard_in_upper_left_safe_zone():
@@ -669,7 +702,9 @@ def test_keyboard_region_selection_defers_assisted_calibration_until_tuning_save
             family_count=1,
         ),
     )
-    monkeypatch.setattr(QMessageBox, "question", lambda *args, **kwargs: QMessageBox.StandardButton.Yes)
+    from synthesia2midi.gui.assisted_calibration_dialog import AssistedCalibrationDecision
+
+    _patch_assisted_dialog(monkeypatch, AssistedCalibrationDecision.USE)
 
     controller._handle_keyboard_region_selected(1, 2, 3, 4)
 
@@ -868,7 +903,9 @@ def test_assisted_calibration_decline_does_not_apply_or_save(monkeypatch):
         "synthesia2midi.gui.calibration_wizard_controller.apply_assisted_calibration_proposal",
         lambda *_args, **_kwargs: applied.append("applied"),
     )
-    monkeypatch.setattr(QMessageBox, "question", lambda *args, **kwargs: QMessageBox.StandardButton.No)
+    from synthesia2midi.gui.assisted_calibration_dialog import AssistedCalibrationDecision
+
+    _patch_assisted_dialog(monkeypatch, AssistedCalibrationDecision.KEEP)
 
     result = controller._run_assisted_auto_calibration(
         np.full((8, 8, 3), 245, dtype=np.uint8),
@@ -880,6 +917,88 @@ def test_assisted_calibration_decline_does_not_apply_or_save(monkeypatch):
     assert save_log == []
     assert overlay.unlit_reference_color == (9, 8, 7)
     assert np.array_equal(overlay.unlit_hist, np.array([0.6, 0.4], dtype=np.float32))
+
+
+def test_assisted_calibration_retry_restores_complete_prior_calibration(monkeypatch):
+    from synthesia2midi.gui.assisted_calibration_dialog import AssistedCalibrationDecision
+
+    QApplication.instance() or QApplication([])
+    save_log = []
+    controller = _make_assisted_calibration_controller(save_log=save_log)
+    state = controller.app_state
+    overlay = state.overlays[0]
+    overlay.unlit_reference_color = (9, 8, 7)
+    overlay.unlit_hist = np.array([0.6, 0.4], dtype=np.float32)
+    state.detection.exemplar_key_type_enabled.update({"LW": True, "LB": False})
+    state.detection.exemplar_lit_colors.update({"LW": (1, 2, 3), "LB": None})
+    state.detection.exemplar_lit_histograms.update(
+        {"LW": np.array([0.2, 0.8], dtype=np.float32), "LB": None}
+    )
+
+    monkeypatch.setattr(
+        "synthesia2midi.gui.calibration_wizard_controller.build_assisted_calibration_proposal",
+        lambda *_args, **_kwargs: _make_assisted_proposal(
+            candidate_count=1,
+            assignments={"LW": _make_assigned_exemplar("LW", rgb=(100, 110, 120))},
+            family_count=1,
+        ),
+    )
+    _patch_assisted_dialog(monkeypatch, AssistedCalibrationDecision.RETRY)
+
+    assert controller._run_assisted_auto_calibration(
+        np.full((8, 8, 3), 245, dtype=np.uint8), 3
+    ) is False
+    assert overlay.unlit_reference_color == (9, 8, 7)
+    assert np.array_equal(overlay.unlit_hist, np.array([0.6, 0.4], dtype=np.float32))
+    assert state.detection.exemplar_key_type_enabled["LB"] is False
+    assert state.detection.exemplar_lit_colors["LW"] == (1, 2, 3)
+    assert np.array_equal(
+        state.detection.exemplar_lit_histograms["LW"],
+        np.array([0.2, 0.8], dtype=np.float32),
+    )
+    assert save_log == []
+
+
+def test_assisted_calibration_accept_preserves_prior_slots_not_found_by_scan(monkeypatch):
+    from synthesia2midi.gui.assisted_calibration_dialog import AssistedCalibrationDecision
+
+    QApplication.instance() or QApplication([])
+    save_log = []
+    controller = _make_assisted_calibration_controller(save_log=save_log)
+    refresh_calls = []
+    controller.app.control_panel = SimpleNamespace(
+        _update_conversion_readiness_display=lambda: refresh_calls.append("refresh")
+    )
+    state = controller.app_state
+    state.detection.exemplar_key_type_enabled["LB"] = True
+    state.detection.exemplar_lit_colors["LB"] = (4, 5, 6)
+    state.detection.exemplar_lit_histograms["LB"] = np.array([0.3, 0.7], dtype=np.float32)
+    proposal = _make_assisted_proposal(
+        candidate_count=1,
+        assignments={
+            "LW": _make_assigned_exemplar("LW", rgb=(100, 110, 120)),
+            "LB": _make_assigned_exemplar("LB", rgb=None, enabled=False),
+        },
+        family_count=1,
+    )
+    monkeypatch.setattr(
+        "synthesia2midi.gui.calibration_wizard_controller.build_assisted_calibration_proposal",
+        lambda *_args, **_kwargs: proposal,
+    )
+    _patch_assisted_dialog(monkeypatch, AssistedCalibrationDecision.USE)
+
+    assert controller._run_assisted_auto_calibration(
+        np.full((8, 8, 3), 245, dtype=np.uint8), 3
+    ) is True
+    assert state.detection.exemplar_lit_colors["LW"] == (100, 110, 120)
+    assert state.detection.exemplar_key_type_enabled["LB"] is True
+    assert state.detection.exemplar_lit_colors["LB"] == (4, 5, 6)
+    assert np.array_equal(
+        state.detection.exemplar_lit_histograms["LB"],
+        np.array([0.3, 0.7], dtype=np.float32),
+    )
+    assert save_log == ["save"]
+    assert refresh_calls == ["refresh"]
 
 
 def test_main_action_controller_delegates_histogram_and_similarity_thresholds():

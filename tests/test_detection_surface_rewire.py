@@ -108,6 +108,27 @@ def test_signal_manager_wires_detection_signals_directly_to_detection_manager():
     assert connections["manual_fit_requested"] is main_window.main_action_controller.handle_manual_fit_request
 
 
+def test_signal_manager_wires_guide_actions_to_existing_owners():
+    connections = {}
+    control_panel = DynamicSignalPanel(connections)
+    control_panel.guide_page = DynamicSignalPanel(connections)
+    main_window = _signal_manager_window(connections)
+    main_window.video_session_ui_controller.open_video_file = lambda: None
+    main_window.video_session_ui_controller.show_youtube_download_dialog = lambda: None
+    main_window.calibration_wizard_controller.review_current_alignment = lambda: None
+    main_window.calibration_wizard_controller.run_assisted_calibration_from_current_frame = lambda: None
+
+    ControlSignalManager(control_panel, main_window)
+
+    assert connections["open_video_requested"] is main_window.video_session_ui_controller.open_video_file
+    assert connections["youtube_requested"] is main_window.video_session_ui_controller.show_youtube_download_dialog
+    assert connections["find_keyboard_requested"] is main_window.calibration_wizard_controller.run_calibration_wizard
+    assert connections["review_alignment_requested"] is main_window.calibration_wizard_controller.review_current_alignment
+    assert connections["capture_unlit_requested"] is main_window.main_action_controller.handle_calibrate_unlit_all_keys
+    assert connections["assisted_scan_requested"] is main_window.calibration_wizard_controller.run_assisted_calibration_from_current_frame
+    assert connections["convert_requested"] is main_window.midi_conversion_controller.start_conversion_process
+
+
 def test_detection_manager_toggle_setters_use_emitted_boolean_values():
     app_state = AppState()
     app_state.detection.use_histogram_detection = False

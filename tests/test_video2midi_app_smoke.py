@@ -86,8 +86,8 @@ def test_main_window_video_entrypoints_delegate_to_video_session_controller(monk
     window = Video2MidiApp()
 
     try:
-        _trigger_menu_action(window, "Open Video (MP4)...")
-        _trigger_menu_action(window, "Download Youtube Video...")
+        _trigger_menu_action(window, "Open Video File...")
+        _trigger_menu_action(window, "Download YouTube Video...")
         window._show_startup_dialog()
 
         assert calls == [

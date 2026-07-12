@@ -5,7 +5,7 @@ import logging
 import os
 
 from PySide6.QtCore import QCoreApplication
-from PySide6.QtWidgets import QAbstractItemView, QDialog, QFileDialog, QListView, QTreeView
+from PySide6.QtWidgets import QDialog, QFileDialog
 
 from synthesia2midi.gui.youtube_download_dialog import YouTubeDownloadDialog
 from synthesia2midi.runtime_paths import detect_runtime_paths
@@ -33,23 +33,15 @@ class VideoSessionUiController:
         app = self.app
         logging.info("_open_video_file: Method started.")
         dialog = QFileDialog(app)
-        dialog.setWindowTitle(
-            translate("VideoSessionUiController", "Select Video File or Image Sequence Directory")
-        )
-        dialog.setFileMode(QFileDialog.AnyFile)
-        dialog.setOption(QFileDialog.DontUseNativeDialog, True)
+        dialog.setWindowTitle(translate("VideoSessionUiController", "Open Video File"))
+        dialog.setFileMode(QFileDialog.ExistingFile)
         dialog.setNameFilter(
             translate(
                 "VideoSessionUiController",
-                "Video Files (*.mp4 *.avi *.mov *.mkv *.webm);;Image Sequence Directories (*)",
+                "Video Files (*.mp4 *.avi *.mov *.mkv *.webm)",
             )
         )
         dialog.setDirectory(str(detect_runtime_paths().default_video_dir()))
-
-        for view_type in (QListView, QTreeView):
-            file_view = dialog.findChild(view_type)
-            if file_view:
-                file_view.setSelectionMode(QAbstractItemView.SingleSelection)
 
         if dialog.exec() == QDialog.Accepted:
             selected_paths = dialog.selectedFiles()
@@ -66,6 +58,25 @@ class VideoSessionUiController:
             return
 
         logging.info("_open_video_file: User cancelled file dialog, continuing with empty application.")
+
+    def open_image_sequence_folder(self) -> None:
+        """Open a directory picker for an extracted frame sequence."""
+        filepath = QFileDialog.getExistingDirectory(
+            self.app,
+            translate("VideoSessionUiController", "Open Image Sequence Folder"),
+            str(detect_runtime_paths().default_video_dir()),
+        )
+        if not filepath:
+            logging.info("Image sequence folder selection cancelled")
+            return
+
+        loaded = self.app.video_session_coordinator.load_path(
+            filepath,
+            log_prefix="_open_image_sequence_folder",
+            update_fps_display=True,
+        )
+        if loaded:
+            self._record_recent_video(filepath)
 
     def open_recent_video_file(self, filepath: str) -> None:
         logging.info("_open_recent_video_file: Loading recent video %s", filepath)

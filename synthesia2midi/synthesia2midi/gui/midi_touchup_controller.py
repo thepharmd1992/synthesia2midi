@@ -16,6 +16,16 @@ from PySide6.QtWidgets import QFileDialog, QMessageBox
 from synthesia2midi.runtime_paths import detect_runtime_paths
 
 translate = QCoreApplication.translate
+PROCESS_DETAILS_LIMIT = 12_000
+PROCESS_LOG_LIMIT = 4_000
+PROCESS_SUMMARY_LIMIT = 500
+
+
+def _bounded_text(value: str, limit: int) -> str:
+    text = str(value or "").strip()
+    if len(text) <= limit:
+        return text
+    return text[: max(0, limit - 2)].rstrip() + "…"
 
 
 class MidiTouchupController(QObject):
@@ -56,7 +66,7 @@ class MidiTouchupController(QObject):
             translate("MidiTouchupController", "Show MIDI in Folder"),
             QMessageBox.AcceptRole,
         )
-        msg_box.setDefaultButton(open_btn)
+        msg_box.setDefaultButton(show_folder_btn)
         msg_box.exec()
 
         clicked_button = msg_box.clickedButton()
@@ -206,7 +216,10 @@ class MidiTouchupController(QObject):
             return
 
         if stderr_text.strip():
-            logging.warning("[TOUCHUP-RUST-STDERR] %s", stderr_text.strip())
+            logging.warning(
+                "[TOUCHUP-RUST-STDERR] %s",
+                _bounded_text(stderr_text, PROCESS_LOG_LIMIT),
+            )
 
         result_payload: Dict[str, Any] = {}
         for line in reversed(stdout_text.splitlines()):
@@ -244,19 +257,34 @@ class MidiTouchupController(QObject):
         failure_message = message or f"Rust touch-up editor exited with code {exit_code}."
         if not app._is_closing:
             self.editor_failed.emit(source_midi_path, failure_message)
-            QMessageBox.critical(
-                app,
-                translate("MidiTouchupController", "Touch-Up Editor Error"),
+            details = translate(
+                "MidiTouchupController",
+                "Exit code: {exit_code}\n\nStdout:\n{stdout_text}\n\nStderr:\n{stderr_text}",
+            ).format(
+                exit_code=exit_code,
+                stdout_text=stdout_text.strip() or "(empty)",
+                stderr_text=stderr_text.strip() or "(empty)",
+            )
+            message_box = QMessageBox(app)
+            message_box.setIcon(QMessageBox.Critical)
+            message_box.setWindowTitle(
+                translate("MidiTouchupController", "Touch-Up Editor Error")
+            )
+            message_box.setText(
+                _bounded_text(str(failure_message), PROCESS_SUMMARY_LIMIT)
+            )
+            message_box.setInformativeText(
                 translate(
                     "MidiTouchupController",
-                    "{failure_message}\n\nSource MIDI: {source_midi_path}\nStdout: {stdout_text}\nStderr: {stderr_text}",
+                    "Source MIDI: {source_midi_path}\nOpen Details for technical diagnostics.",
                 ).format(
-                    failure_message=failure_message,
                     source_midi_path=source_midi_path,
-                    stdout_text=stdout_text.strip() or "(empty)",
-                    stderr_text=stderr_text.strip() or "(empty)",
-                ),
+                )
             )
+            message_box.setDetailedText(
+                _bounded_text(details, PROCESS_DETAILS_LIMIT)
+            )
+            message_box.exec()
 
     def _retain_process(self, process: QProcess) -> None:
         """Own a QProcess reference until it finishes or is destroyed."""

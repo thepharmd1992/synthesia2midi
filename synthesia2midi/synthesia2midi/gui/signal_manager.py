@@ -21,6 +21,7 @@ class ControlSignalManager(QObject):
         self.logger = logging.getLogger(f"{__name__}.ControlSignalManager")
         
         # Connect all signals in organized groups
+        self._connect_guide_signals()
         self._connect_video_signals()
         self._connect_detection_signals()
         self._connect_calibration_signals()
@@ -28,6 +29,22 @@ class ControlSignalManager(QObject):
         self._connect_ui_signals()
         
         self.logger.info("All control signals connected")
+
+    def _connect_guide_signals(self):
+        guide = getattr(self.control_panel, "__dict__", {}).get("guide_page")
+        if guide is None:
+            return
+
+        mw = self.main_window
+        guide.open_video_requested.connect(mw.video_session_ui_controller.open_video_file)
+        guide.youtube_requested.connect(mw.video_session_ui_controller.show_youtube_download_dialog)
+        guide.find_keyboard_requested.connect(mw.calibration_wizard_controller.run_calibration_wizard)
+        guide.review_alignment_requested.connect(mw.calibration_wizard_controller.review_current_alignment)
+        guide.capture_unlit_requested.connect(mw.main_action_controller.handle_calibrate_unlit_all_keys)
+        guide.assisted_scan_requested.connect(
+            mw.calibration_wizard_controller.run_assisted_calibration_from_current_frame
+        )
+        guide.convert_requested.connect(mw.midi_conversion_controller.start_conversion_process)
     
     def _connect_video_signals(self):
         """Video-related control signals"""

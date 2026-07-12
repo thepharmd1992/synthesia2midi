@@ -2,281 +2,528 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ru">
 <context>
+    <name>AssistedCalibrationDialog</name>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="44"/>
+        <source>Assisted Calibration</source>
+        <translation>Помощник калибровки</translation>
+    </message>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="55"/>
+        <source>{count} samples found across {families} Synthesia note color families.</source>
+        <translation>Найдено образцов: {count}; цветовых групп нот Synthesia: {families}.</translation>
+    </message>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="64"/>
+        <source>Left/Right refer to Synthesia note colors, not the physical side of the keyboard.</source>
+        <translation>Left/Right означают цвета нот Synthesia, а не сторону клавиатуры.</translation>
+    </message>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="71"/>
+        <source>Left White</source>
+        <translation>Левые белые</translation>
+    </message>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="72"/>
+        <source>Left Black</source>
+        <translation>Левые черные</translation>
+    </message>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="73"/>
+        <source>Right White</source>
+        <translation>Правые белые</translation>
+    </message>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="74"/>
+        <source>Right Black</source>
+        <translation>Правые черные</translation>
+    </message>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="86"/>
+        <source>{name} proposed color</source>
+        <translation>{name}: предложенный цвет</translation>
+    </message>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="92"/>
+        <source>Found</source>
+        <translation>Найдено</translation>
+    </message>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="95"/>
+        <source>Not used</source>
+        <translation>Не используется</translation>
+    </message>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="98"/>
+        <source>Not found</source>
+        <translation>Не найдено</translation>
+    </message>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="107"/>
+        <source>Keep Current Examples</source>
+        <translation>Оставить текущие примеры</translation>
+    </message>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="111"/>
+        <source>Try Another Frame</source>
+        <translation>Попробовать другой кадр</translation>
+    </message>
+    <message>
+        <location filename="../gui/assisted_calibration_dialog.py" line="115"/>
+        <source>Use These Examples</source>
+        <translation>Использовать эти примеры</translation>
+    </message>
+</context>
+<context>
     <name>AutoDetectTuningDialog</name>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="62"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="64"/>
         <source>Auto-Detect Tuning</source>
         <translation>Настройка автоопределения</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="95"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="97"/>
         <source>Initial auto-detect needed a fallback profile (not the default profile). Tune parameters if you want to refine this result.</source>
         <translation>При первичном автоопределении был использован резервный профиль (не профиль по умолчанию). Настройте параметры, если хотите уточнить результат.</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="104"/>
         <source>Reset All to Active Defaults</source>
-        <translation>Сбросить всё к активным значениям по умолчанию</translation>
+        <translation type="vanished">Сбросить всё к активным значениям по умолчанию</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="115"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="131"/>
         <source>Basic</source>
         <translation>Основные</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="119"/>
         <source>Advanced</source>
-        <translation>Расширенные</translation>
+        <translation type="vanished">Расширенные</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="123"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="106"/>
+        <source>Check the overlays on the video. If they line up with the keys, click Save. If the edges are off, adjust the edge controls.</source>
+        <translation>Проверьте наложения на видео. Если они совпадают с клавишами, нажмите «Сохранить». Если края смещены, настройте параметры краев.</translation>
+    </message>
+    <message>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="117"/>
+        <source>Reset to Recommended Settings</source>
+        <translation>Сбросить к рекомендуемым настройкам</translation>
+    </message>
+    <message>
+        <source>Advanced Detector Settings</source>
+        <translation type="vanished">Расширенные настройки детектора</translation>
+    </message>
+    <message>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="139"/>
+        <source>Advanced (Expert)</source>
+        <translation>Расширенные (экспертные)</translation>
+    </message>
+    <message>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="145"/>
         <source>Preview Status</source>
         <translation>Статус предпросмотра</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="134"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="156"/>
         <source>Yes</source>
         <translation>Да</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="136"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="158"/>
         <source>No</source>
         <translation>Нет</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="139"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="162"/>
         <source>Detected White Keys:</source>
         <translation>Обнаружено белых клавиш:</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="141"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="163"/>
         <source>Detected Black Keys:</source>
         <translation>Обнаружено чёрных клавиш:</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="143"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="164"/>
         <source>Detected Total Keys:</source>
         <translation>Всего обнаружено клавиш:</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="145"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="165"/>
         <source>Overlays Created:</source>
         <translation>Создано оверлеев:</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="147"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="166"/>
         <source>Leftmost Note/Octave:</source>
         <translation>Левая нота/октава:</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="149"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="167"/>
         <source>Fallback Profile Used:</source>
         <translation>Использован резервный профиль:</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="160"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="189"/>
         <source>Save</source>
         <translation>Сохранить</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="224"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="242"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="350"/>
+        <source>Use these controls only when Basic edge alignment cannot line the overlays up with the keys.</source>
+        <translation>Используйте эти настройки, только если базовое выравнивание краёв не совмещает оверлеи с клавишами.</translation>
+    </message>
+    <message>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="280"/>
         <source>Left Edge Outward</source>
         <translation>Левая граница наружу</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="225"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="281"/>
         <source>outward &lt;-</source>
         <translation>наружу &lt;-</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="238"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="294"/>
         <source>Right Edge Outward</source>
         <translation>Правая граница наружу</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="239"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="295"/>
         <source>-&gt; outward</source>
         <translation>-&gt; наружу</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="259"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="315"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="401"/>
         <source>Reset Section</source>
         <translation>Сбросить раздел</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="267"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="330"/>
         <source>No parameters available.</source>
         <translation>Нет доступных параметров.</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="527"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="682"/>
         <source>Edge Drift Correction</source>
         <translation>Коррекция дрейфа краёв</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="528"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="683"/>
         <source>Black Key Detection</source>
         <translation>Обнаружение чёрных клавиш</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="529"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="684"/>
         <source>White Strip Selection</source>
         <translation>Выбор белой полосы</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="530"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="685"/>
         <source>White Separator Extraction</source>
         <translation>Извлечение разделителей белых клавиш</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="533"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="688"/>
         <source>Assignment and Recovery</source>
         <translation>Назначение и восстановление</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="534"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="689"/>
         <source>Geometry and Padding</source>
         <translation>Геометрия и отступы</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="540"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="695"/>
         <source>Black Upper Ratio</source>
         <translation>Верхнее соотношение чёрных</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="541"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="696"/>
         <source>Black Bottom Ratio</source>
         <translation>Нижнее соотношение чёрных</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="542"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="697"/>
         <source>Black Threshold Method</source>
         <translation>Метод порога чёрных</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="543"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="698"/>
         <source>Black Threshold</source>
         <translation>Порог чёрных</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="544"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="699"/>
         <source>Black Adaptive Block Size</source>
         <translation>Блок адаптации чёрных</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="547"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="702"/>
         <source>Black Adaptive C</source>
         <translation>Адаптивный C чёрных</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="548"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="703"/>
         <source>Black Column Ratio</source>
         <translation>Соотношение столбцов чёрных</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="549"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="704"/>
         <source>Black Min Width</source>
         <translation>Мин. ширина чёрных</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="550"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="705"/>
         <source>Black Max Width</source>
         <translation>Макс. ширина чёрных</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="551"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="706"/>
         <source>White Bottom Ratio</source>
         <translation>Нижнее соотношение белых</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="552"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="707"/>
         <source>White Initial Top Ratio</source>
         <translation>Начальное верхнее соотношение белых</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="553"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="708"/>
         <source>White Strip Dark Threshold</source>
         <translation>Порог темноты белой полосы</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="556"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="711"/>
         <source>White Strip Dark Fraction</source>
         <translation>Доля темноты белой полосы</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="559"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="714"/>
         <source>White Strip Min Run</source>
         <translation>Мин. серия белой полосы</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="560"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="715"/>
         <source>White Strip Allow Failures</source>
         <translation>Допустимые сбои белой полосы</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="563"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="718"/>
         <source>White Sep Ratio</source>
         <translation>Соотношение разделителей белых</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="564"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="719"/>
         <source>White Sep Dyn Min</source>
         <translation>Дин. мин. разделителей белых</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="565"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="720"/>
         <source>White Sep Close Kernel</source>
         <translation>Ядро закрытия разделителей белых</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="568"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="723"/>
         <source>White Sep Open Kernel</source>
         <translation>Ядро открытия разделителей белых</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="569"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="724"/>
         <source>White Sep Min Width</source>
         <translation>Мин. ширина разделителей белых</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="570"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="725"/>
         <source>Type Aware Assignment</source>
         <translation>Назначение с учётом типа</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="571"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="726"/>
         <source>Black Recovery Enabled</source>
         <translation>Восстановление чёрных включено</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="572"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="727"/>
         <source>Black Recovery Ratio</source>
         <translation>Соотношение восстановления чёрных</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="573"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="728"/>
         <source>Black Recovery Column Ratio Scale</source>
         <translation>Масштаб соотношения столбцов для восстановления чёрных</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="576"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="731"/>
         <source>Black Split Max Factor</source>
         <translation>Макс. фактор разделения чёрных</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="577"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="732"/>
         <source>Padding Percent</source>
         <translation>Процент отступа</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="578"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="733"/>
         <source>White Edge Left Shift Ticks</source>
         <translation>Тики сдвига левого края белых</translation>
     </message>
     <message>
-        <location filename="../gui/auto_detect_tuning_dialog.py" line="581"/>
+        <location filename="../gui/auto_detect_tuning_dialog.py" line="736"/>
         <source>White Edge Right Shift Ticks</source>
         <translation>Тики сдвига правого края белых</translation>
+    </message>
+</context>
+<context>
+    <name>CalibrationGuideWidget</name>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="118"/>
+        <source>Keyboard calibration example</source>
+        <translation>Пример калибровки клавиатуры</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="149"/>
+        <location filename="../gui/calibration_guide.py" line="180"/>
+        <source>Done</source>
+        <translation>Готово</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="181"/>
+        <source>Next</source>
+        <translation>Далее</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="182"/>
+        <source>Needs review</source>
+        <translation>Нужно проверить</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="183"/>
+        <source>Not ready</source>
+        <translation>Не готово</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="217"/>
+        <source>Start here</source>
+        <translation>Начните здесь</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="220"/>
+        <source>Follow the next highlighted step. Your existing calibration is detected automatically.</source>
+        <translation>Выполните следующий подсвеченный шаг. Текущая калибровка определяется автоматически.</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="229"/>
+        <source>1. Open or download a video</source>
+        <translation>1. Откройте или скачайте видео</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="229"/>
+        <source>Use a clear Synthesia-style piano video with visible keys and falling notes.</source>
+        <translation>Используйте чёткое видео в стиле Synthesia, где видны клавиши и падающие ноты.</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="229"/>
+        <source>Open Video</source>
+        <translation>Открыть видео</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="230"/>
+        <source>2. Find and check the keyboard overlays</source>
+        <translation>2. Найдите и проверьте оверлеи клавиш</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="230"/>
+        <source>Draw around the full keyboard, then check that the boxes line up with the keys.</source>
+        <translation>Обведите всю клавиатуру, затем проверьте, что рамки совпадают с клавишами.</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="230"/>
+        <location filename="../gui/calibration_guide.py" line="263"/>
+        <source>Find Keyboard</source>
+        <translation>Найти клавиатуру</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="231"/>
+        <source>3. Capture a no-key frame</source>
+        <translation>3. Захватите кадр без нажатых клавиш</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="231"/>
+        <source>Pause where the keyboard is visible and no keys are glowing.</source>
+        <translation>Остановитесь на кадре, где видна клавиатура и ни одна клавиша не светится.</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="231"/>
+        <source>Capture No-Key Frame</source>
+        <translation>Захватить кадр без нажатых клавиш</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="232"/>
+        <source>4. Find pressed-key colors</source>
+        <translation>4. Найдите цвета нажатых клавиш</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="232"/>
+        <source>Start from the no-key frame. The scan looks ahead for each enabled Left/Right color family.</source>
+        <translation>Начните с кадра без нажатых клавиш. Сканирование проверит следующие кадры для каждой включённой цветовой группы Left/Right.</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="232"/>
+        <source>Find Pressed-Key Colors</source>
+        <translation>Найти цвета нажатых клавиш</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="233"/>
+        <source>5. Create MIDI</source>
+        <translation>5. Создайте MIDI</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="233"/>
+        <source>When every required step is done, create the MIDI file.</source>
+        <translation>Когда все обязательные шаги выполнены, создайте MIDI-файл.</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="233"/>
+        <source>Create MIDI</source>
+        <translation>Создать MIDI</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="244"/>
+        <source>Download from YouTube</source>
+        <translation>Скачать с YouTube</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="261"/>
+        <source>Review Alignment</source>
+        <translation>Проверить выравнивание</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="268"/>
+        <source>Scanning the video for pressed-key colors...</source>
+        <translation>Сканирование видео для поиска цветов нажатых клавиш...</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="269"/>
+        <source>Pressed-key colors updated.</source>
+        <translation>Цвета нажатых клавиш обновлены.</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="270"/>
+        <source>No pressed-key colors were found. Move to another no-key frame and try again.</source>
+        <translation>Цвета нажатых клавиш не найдены. Перейдите к другому кадру без нажатых клавиш и повторите попытку.</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="271"/>
+        <source>Move to another no-key frame, then run the scan again.</source>
+        <translation>Перейдите к другому кадру без нажатых клавиш, затем снова запустите сканирование.</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_guide.py" line="272"/>
+        <source>Your current pressed-key colors were kept.</source>
+        <translation>Текущие цвета нажатых клавиш сохранены.</translation>
     </message>
 </context>
 <context>
@@ -379,71 +626,81 @@ Move to a frame where the key is lit, then click the lit key overlay again.</sou
     </message>
     <message>
         <location filename="../gui/wizard.py" line="56"/>
-        <source>Select Keyboard Region With Autodetector</source>
-        <translation>Выбрать область клавиатуры автоопределителем</translation>
+        <source>Pause on a clear frame where the full keyboard is visible.</source>
+        <translation>Сделайте паузу на чётком кадре, где полностью видна клавиатура.</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="75"/>
+        <location filename="../gui/wizard.py" line="66"/>
+        <source>Draw Keyboard Box and Find Keys</source>
+        <translation>Нарисуйте рамку клавиатуры и найдите клавиши.</translation>
+    </message>
+    <message>
+        <location filename="../gui/wizard.py" line="86"/>
         <source>Automatically detect piano keys in a selected region</source>
         <translation>Автоматически определить клавиши пианино в выбранной области</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="79"/>
+        <location filename="../gui/wizard.py" line="90"/>
         <source>Edit Current Calibration</source>
         <translation>Изменить текущую калибровку</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="83"/>
+        <location filename="../gui/wizard.py" line="94"/>
         <source>Open the auto-detect tuning panel using your current calibration.</source>
         <translation>Открыть панель настройки автоопределения с текущей калибровкой.</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="90"/>
+        <location filename="../gui/wizard.py" line="101"/>
+        <source>Edit becomes available after you create key overlays.</source>
+        <translation>Редактирование станет доступно после создания оверлеев клавиш.</translation>
+    </message>
+    <message>
+        <location filename="../gui/wizard.py" line="111"/>
         <source>Or use manual calibration:</source>
         <translation>Или используйте ручную калибровку:</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="95"/>
+        <location filename="../gui/wizard.py" line="116"/>
         <source>Leftmost Key:</source>
         <translation>Крайняя левая клавиша:</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="110"/>
+        <location filename="../gui/wizard.py" line="131"/>
         <source>Total Keys:</source>
         <translation>Всего клавиш:</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="116"/>
+        <location filename="../gui/wizard.py" line="137"/>
         <source>Number of keys on the keyboard</source>
         <translation>Количество клавиш на клавиатуре</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="121"/>
+        <location filename="../gui/wizard.py" line="142"/>
         <source>Generate Manual Overlays</source>
         <translation>Создать ручные оверлеи</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="128"/>
+        <location filename="../gui/wizard.py" line="149"/>
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="149"/>
+        <location filename="../gui/wizard.py" line="177"/>
         <source>Error</source>
         <translation>Ошибка</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="150"/>
+        <location filename="../gui/wizard.py" line="178"/>
         <source>Please select keyboard region first.</source>
         <translation>Сначала выберите область клавиатуры.</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="205"/>
+        <location filename="../gui/wizard.py" line="233"/>
         <source>Select Keyboard Region</source>
         <translation>Выбрать область клавиатуры</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="206"/>
+        <location filename="../gui/wizard.py" line="234"/>
         <source>Please navigate to a frame where the keyboard is fully visible.
 
 After clicking OK:
@@ -458,41 +715,41 @@ After clicking OK:
 3. Щёлкните правой кнопкой, чтобы отменить выделение</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="234"/>
-        <location filename="../gui/wizard.py" line="250"/>
-        <location filename="../gui/wizard.py" line="282"/>
-        <location filename="../gui/wizard.py" line="302"/>
-        <location filename="../gui/wizard.py" line="317"/>
+        <location filename="../gui/wizard.py" line="262"/>
+        <location filename="../gui/wizard.py" line="278"/>
+        <location filename="../gui/wizard.py" line="310"/>
+        <location filename="../gui/wizard.py" line="330"/>
+        <location filename="../gui/wizard.py" line="345"/>
         <source>Detection Error</source>
         <translation>Ошибка обнаружения</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="235"/>
+        <location filename="../gui/wizard.py" line="263"/>
         <source>No video frame available. Please ensure a video is loaded.</source>
         <translation>Нет доступного кадра видео. Убедитесь, что видео загружено.</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="251"/>
+        <location filename="../gui/wizard.py" line="279"/>
         <source>Selected region is empty. Please draw a valid keyboard region.</source>
         <translation>Выбранная область пуста. Нарисуйте корректную область клавиатуры.</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="271"/>
+        <location filename="../gui/wizard.py" line="299"/>
         <source>Video quality is too blurry for autodetector. Please assign overlays manually.</source>
         <translation>Качество видео слишком размытое для автоопределителя. Назначьте оверлеи вручную.</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="276"/>
+        <location filename="../gui/wizard.py" line="304"/>
         <source>Failed to detect keys in the selected region. Please try again.</source>
         <translation>Не удалось обнаружить клавиши в выбранной области. Попробуйте ещё раз.</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="303"/>
+        <location filename="../gui/wizard.py" line="331"/>
         <source>Autodetection produced no overlays. Please try another region.</source>
         <translation>Автообнаружение не создало оверлеев. Попробуйте другую область.</translation>
     </message>
     <message>
-        <location filename="../gui/wizard.py" line="318"/>
+        <location filename="../gui/wizard.py" line="346"/>
         <source>Key detection failed: {error}</source>
         <translation>Обнаружение клавиш не удалось: {error}</translation>
     </message>
@@ -500,72 +757,118 @@ After clicking OK:
 <context>
     <name>CalibrationWizardController</name>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="88"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="94"/>
         <source>Wizard Error</source>
         <translation>Ошибка мастера</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="89"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="95"/>
         <source>Please open a video file first.</source>
         <translation>Сначала откройте видеофайл.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="211"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="225"/>
         <source>Canvas Error</source>
         <translation>Ошибка холста</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="212"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="226"/>
         <source>Canvas interaction system not available.</source>
         <translation>Система взаимодействия с холстом недоступна.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="230"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="259"/>
         <source>Manual Fit</source>
         <translation>Ручная подгонка</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="231"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="260"/>
         <source>No reusable manual calibration is available yet.</source>
         <translation>Повторно используемая ручная калибровка пока недоступна.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="240"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="269"/>
         <source>Auto-Detect Tuning</source>
         <translation>Настройка автоопределения</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="241"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="270"/>
         <source>No reusable auto-detect calibration context is available yet. Run autodetect once with ROI selection first.</source>
         <translation>Повторно используемый контекст автоопределения пока недоступен. Сначала один раз запустите автоопределение с выбором ROI.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="261"/>
         <source>Assisted calibration found {count} candidate samples.</source>
-        <translation>Помощник калибровки нашел кандидатов: {count}.</translation>
+        <translation type="vanished">Помощник калибровки нашел кандидатов: {count}.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="265"/>
         <source>Color families found: {count}</source>
-        <translation>Найдено цветовых групп: {count}</translation>
+        <translation type="vanished">Найдено цветовых групп: {count}</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="277"/>
         <source>not present in this video</source>
-        <translation>отсутствует в этом видео</translation>
+        <translation type="vanished">отсутствует в этом видео</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="287"/>
         <source>not found</source>
-        <translation>не найдено</translation>
+        <translation type="vanished">не найдено</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="336"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="318"/>
+        <source>Left White</source>
+        <translation>Левые белые</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="319"/>
+        <source>Left Black</source>
+        <translation>Левые черные</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="320"/>
+        <source>Right White</source>
+        <translation>Правые белые</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="321"/>
+        <source>Right Black</source>
+        <translation>Правые черные</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="324"/>
+        <source>Assisted calibration found {count} possible pressed-key samples.</source>
+        <translation>Помощник калибровки нашел {count} возможных образцов нажатых клавиш.</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="328"/>
+        <source>Found {count} Synthesia note color families.</source>
+        <translation>Найдено цветовых семейств нот Synthesia: {count}.</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="332"/>
+        <source>Left/Right refer to Synthesia note colors, not the physical side of the keyboard.</source>
+        <translation>Left/Right относятся к цветам нот Synthesia, а не к физической стороне клавиатуры.</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="344"/>
+        <source>{label}: not present in this video</source>
+        <translation>{label}: отсутствует в этом видео</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="351"/>
+        <source>{label}: found</source>
+        <translation>{label}: найдено</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="358"/>
+        <source>{label}: not found</source>
+        <translation>{label}: не найдено</translation>
+    </message>
+    <message>
+        <location filename="../gui/calibration_wizard_controller.py" line="435"/>
         <source>Unlit Frame May Contain Lit Keys</source>
         <translation>В кадре без подсветки могут быть подсвеченные клавиши</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="337"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="436"/>
         <source>It looks like these keys may be lit: {notes}.
 
 Move to a frame where no keys are lit, or continue if this is expected.</source>
@@ -574,49 +877,47 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
 Перейдите к кадру без подсвеченных клавиш или продолжите, если это ожидаемо.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="353"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="453"/>
         <source>Scanning for lit key examples...</source>
         <translation>Поиск примеров подсвеченных клавиш...</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="354"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="454"/>
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="359"/>
-        <location filename="../gui/calibration_wizard_controller.py" line="384"/>
-        <location filename="../gui/calibration_wizard_controller.py" line="394"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="459"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="486"/>
         <source>Assisted Calibration</source>
         <translation>Помощник калибровки</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="385"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="487"/>
         <source>No lit examples were found for assisted calibration. Existing calibration samples were left unchanged.</source>
         <translation>Для помощника калибровки не найдено подсвеченных примеров. Существующие образцы калибровки оставлены без изменений.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="397"/>
         <source>Apply these calibration updates?</source>
-        <translation>Применить эти обновления калибровки?</translation>
+        <translation type="vanished">Применить эти обновления калибровки?</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="458"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="579"/>
         <source>Open Manual Fit for the current manual calibration.</source>
         <translation>Открыть ручную подгонку для текущей ручной калибровки.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="460"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="581"/>
         <source>Edit Current Calibration becomes available after manual overlays exist.</source>
         <translation>Изменение текущей калибровки станет доступно после создания ручных оверлеев.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="466"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="587"/>
         <source>Open the auto-detect tuning panel for the current calibration.</source>
         <translation>Открыть панель настройки автоопределения для текущей калибровки.</translation>
     </message>
     <message>
-        <location filename="../gui/calibration_wizard_controller.py" line="471"/>
+        <location filename="../gui/calibration_wizard_controller.py" line="592"/>
         <source>Edit Current Calibration becomes available after an auto-detect run.</source>
         <translation>Изменение текущей калибровки станет доступно после запуска автоопределения.</translation>
     </message>
@@ -639,634 +940,979 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
     </message>
 </context>
 <context>
+    <name>CanvasInteraction</name>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="156"/>
+        <source>Select Spark Region</source>
+        <translation>Выбрать область вспышек</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="157"/>
+        <source>Select Shadow Region</source>
+        <translation>Выбрать область тени</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="158"/>
+        <source>Select White-Key Shadow Region</source>
+        <translation>Выбрать область тени белых клавиш</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="159"/>
+        <source>Select Black-Key Shadow Region</source>
+        <translation>Выбрать область тени черных клавиш</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="162"/>
+        <source>Select Region</source>
+        <translation>Выбрать область</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="163"/>
+        <source>Drag across the video to select the region.</source>
+        <translation>Проведите по видео, чтобы выбрать область.</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="218"/>
+        <source>Select Local Keys</source>
+        <translation>Выбрать соседние клавиши</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="219"/>
+        <source>Drag a box around the keys to adjust together.</source>
+        <translation>Обведите рамкой клавиши, которые нужно настраивать вместе.</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="224"/>
+        <source>Draw Keyboard Box</source>
+        <translation>Нарисовать рамку клавиатуры</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="225"/>
+        <source>Drag a box around the full keyboard.</source>
+        <translation>Обведите рамкой всю клавиатуру.</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="230"/>
+        <source>Select Black-Key Region</source>
+        <translation>Выбрать область черных клавиш</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="231"/>
+        <source>Drag across the vertical area occupied by black keys.</source>
+        <translation>Проведите по вертикальной области, занятой черными клавишами.</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="236"/>
+        <source>Select White-Key Region</source>
+        <translation>Выбрать область белых клавиш</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="237"/>
+        <source>Drag across the vertical area occupied by white keys.</source>
+        <translation>Проведите по вертикальной области, занятой белыми клавишами.</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="242"/>
+        <source>Set Black-Key Bottom</source>
+        <translation>Задать нижнюю границу черных клавиш</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="243"/>
+        <source>Click or drag the guide to the bottom of the black keys.</source>
+        <translation>Щелкните или перетащите направляющую к нижнему краю черных клавиш.</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="248"/>
+        <source>Set White-Key Start</source>
+        <translation>Задать начало белых клавиш</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="249"/>
+        <source>Click or drag the guide to the top of the white-key area.</source>
+        <translation>Щелкните или перетащите направляющую к верхней границе области белых клавиш.</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="266"/>
+        <source>Find Keyboard</source>
+        <translation>Найти клавиатуру</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="267"/>
+        <source>Drag a box around the full keyboard, from the first key to the last.</source>
+        <translation>Обведите рамкой всю клавиатуру, от первой клавиши до последней.</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="1182"/>
+        <source>That box is too small. Drag a larger box around the full keyboard.</source>
+        <translation>Эта рамка слишком мала. Обведите всю клавиатуру рамкой большего размера.</translation>
+    </message>
+    <message>
+        <location filename="../gui/canvas/interaction.py" line="1214"/>
+        <source>The box could not be read. Try drawing it again inside the video.</source>
+        <translation>Не удалось распознать рамку. Попробуйте нарисовать ее еще раз внутри видео.</translation>
+    </message>
+</context>
+<context>
     <name>ControlPanelQt</name>
     <message>
-        <location filename="../gui/controls_qt.py" line="238"/>
-        <location filename="../gui/controls_qt.py" line="1614"/>
+        <location filename="../gui/controls_qt.py" line="300"/>
+        <location filename="../gui/controls_qt.py" line="1992"/>
         <source>Convert</source>
         <translation>Конвертировать</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="243"/>
-        <source>Ready to convert</source>
-        <translation>Готово к конвертации</translation>
+        <location filename="../gui/controls_qt.py" line="306"/>
+        <location filename="../gui/controls_qt.py" line="2115"/>
+        <location filename="../gui/controls_qt.py" line="2121"/>
+        <source>Load a video to convert.</source>
+        <translation>Загрузите видео для конвертации.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="246"/>
+        <location filename="../gui/controls_qt.py" line="310"/>
         <source>Edit MIDI</source>
         <translation>Редактировать MIDI</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="251"/>
+        <location filename="../gui/controls_qt.py" line="315"/>
         <source>Overlay</source>
         <translation>Оверлей</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="252"/>
-        <location filename="../gui/controls_qt.py" line="1629"/>
+        <location filename="../gui/controls_qt.py" line="316"/>
+        <location filename="../gui/controls_qt.py" line="2007"/>
         <source>None</source>
         <translation>Нет</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="286"/>
-        <location filename="../gui/controls_qt.py" line="306"/>
-        <location filename="../gui/controls_qt.py" line="1182"/>
+        <location filename="../gui/controls_qt.py" line="355"/>
+        <location filename="../gui/controls_qt.py" line="375"/>
+        <location filename="../gui/controls_qt.py" line="1514"/>
         <source>Language</source>
         <translation>Язык</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="289"/>
+        <location filename="../gui/controls_qt.py" line="358"/>
         <source>Language:</source>
         <translation>Язык:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="315"/>
-        <location filename="../gui/controls_qt.py" line="612"/>
-        <location filename="../gui/controls_qt.py" line="802"/>
+        <location filename="../gui/controls_qt.py" line="384"/>
+        <location filename="../gui/controls_qt.py" line="819"/>
+        <location filename="../gui/controls_qt.py" line="1021"/>
         <source>Help</source>
         <translation>Справка</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="318"/>
+        <location filename="../gui/controls_qt.py" line="387"/>
         <source>Initial calibration directions (recommended order):</source>
         <translation>Начальные шаги калибровки (рекомендуемый порядок):</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="319"/>
-        <source>1) Calibrate Key Overlays: create overlays that line up with the keyboard in your video.</source>
-        <translation>1) Калибровка оверлеев клавиш: создайте оверлеи, совпадающие с клавиатурой в видео.</translation>
-    </message>
-    <message>
-        <location filename="../gui/controls_qt.py" line="323"/>
-        <source>2) Unlit Key Calibration: pause on a frame where no notes are highlighted, then click Calibrate.</source>
-        <translation>2) Калибровка ненажатых клавиш: остановитесь на кадре без подсвеченных нот, затем нажмите «Калибровать».</translation>
-    </message>
-    <message>
-        <location filename="../gui/controls_qt.py" line="327"/>
-        <source>3) Lit Key Exemplars: for each button you need (Left/Right x White/Black), pause on a frame where that kind of overlay is highlighted, click the button, then click that highlighted overlay in the video.</source>
-        <translation>3) Образцы подсвеченных клавиш: для каждой нужной кнопки (Left/Right x White/Black) остановитесь на кадре, где такой оверлей подсвечен, нажмите кнопку, затем щёлкните этот подсвеченный оверлей в видео.</translation>
-    </message>
-    <message>
-        <location filename="../gui/controls_qt.py" line="331"/>
+        <location filename="../gui/controls_qt.py" line="400"/>
         <source>If a key type is not present in this video, uncheck its &apos;Present in Video&apos; box.</source>
         <translation>Если тип клавиш отсутствует в этом видео, снимите флажок «Есть в видео».</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="332"/>
+        <location filename="../gui/controls_qt.py" line="401"/>
         <source>Octave Transpose: shifts the generated MIDI up/down by octaves.</source>
         <translation>Транспонирование октавы: сдвигает созданный MIDI вверх/вниз на октавы.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="348"/>
-        <location filename="../gui/controls_qt.py" line="603"/>
+        <location filename="../gui/controls_qt.py" line="810"/>
         <source>Overlays</source>
         <translation>Оверлеи</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="352"/>
-        <location filename="../gui/controls_qt.py" line="378"/>
-        <source>Calibrate</source>
-        <translation>Калибровать</translation>
-    </message>
-    <message>
-        <location filename="../gui/controls_qt.py" line="357"/>
+        <location filename="../gui/controls_qt.py" line="439"/>
         <source>Creates overlays for the keyboard in your video. Re-run if overlays don&apos;t line up.</source>
         <translation>Создаёт оверлеи для клавиатуры в видео. Запустите снова, если оверлеи не совпадают.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="362"/>
+        <location filename="../gui/controls_qt.py" line="453"/>
         <source>Octave</source>
         <translation>Октава</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="370"/>
+        <location filename="../gui/controls_qt.py" line="462"/>
         <source>Shifts the MIDI output up/down by octaves.</source>
         <translation>Сдвигает выходной MIDI вверх/вниз на октавы.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="374"/>
-        <source>Unlit</source>
-        <translation>Ненажатые</translation>
-    </message>
-    <message>
-        <location filename="../gui/controls_qt.py" line="383"/>
+        <location filename="../gui/controls_qt.py" line="475"/>
         <source>Captures what unpressed overlays look like from the current frame. Pause on a frame with no highlighted notes first.</source>
         <translation>Захватывает вид ненажатых оверлеев из текущего кадра. Сначала остановитесь на кадре без подсвеченных нот.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="393"/>
-        <location filename="../gui/controls_qt.py" line="962"/>
-        <location filename="../gui/controls_qt.py" line="1579"/>
-        <location filename="../gui/controls_qt.py" line="1706"/>
+        <location filename="../gui/controls_qt.py" line="497"/>
+        <location filename="../gui/controls_qt.py" line="1185"/>
+        <location filename="../gui/controls_qt.py" line="1957"/>
+        <location filename="../gui/controls_qt.py" line="2084"/>
         <source>Not Set</source>
         <translation>Не задано</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="402"/>
+        <location filename="../gui/controls_qt.py" line="529"/>
         <source>Lit Key Exemplars</source>
         <translation>Образцы подсвеченных клавиш</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="416"/>
+        <location filename="../gui/controls_qt.py" line="543"/>
         <source>Set {label}</source>
         <translation>Задать {label}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="421"/>
+        <location filename="../gui/controls_qt.py" line="548"/>
         <source>Captures a pressed-overlay example for this type. Pause on a frame where that type is highlighted, click the button, then click that highlighted overlay.</source>
         <translation>Захватывает образец нажатого оверлея для этого типа. Остановитесь на кадре, где этот тип подсвечен, нажмите кнопку, затем щёлкните этот подсвеченный оверлей.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="433"/>
+        <location filename="../gui/controls_qt.py" line="823"/>
+        <source>Before tuning detection: capture a no-key frame and at least one pressed-key example.</source>
+        <translation>Перед настройкой распознавания: захватите кадр без подсвеченных клавиш и хотя бы один пример нажатой клавиши.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="824"/>
+        <source>Detection Sensitivity: main setting for pressed vs unpressed keys.</source>
+        <translation>Чувствительность распознавания: основной параметр для различения нажатых и ненажатых клавиш.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="825"/>
+        <location filename="../gui/controls_qt.py" line="865"/>
+        <source>Missing notes? Lower it. Extra notes? Raise it.</source>
+        <translation>Пропадают ноты? Уменьшите. Лишние ноты? Увеличьте.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="826"/>
+        <source>Histogram Detection helps when pressed colors have gradients or uneven lighting.</source>
+        <translation>Распознавание по гистограмме помогает, если цвета нажатых клавиш имеют градиенты или неравномерное освещение.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="830"/>
+        <source>Delta Detection helps when pressed colors fade in or out instead of switching cleanly.</source>
+        <translation>Дельта-распознавание помогает, если цвета нажатых клавиш плавно появляются или исчезают, а не переключаются резко.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="834"/>
+        <source>Black Key Filter reduces false black-key notes caused by nearby overlays.</source>
+        <translation>Фильтр черных клавиш уменьшает ложные ноты черных клавиш, вызванные соседними оверлеями.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="843"/>
+        <source>Detection Sensitivity</source>
+        <translation>Чувствительность распознавания</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="862"/>
+        <source>Detection Sensitivity:</source>
+        <translation>Чувствительность распознавания:</translation>
+    </message>
+    <message>
+        <source>Select Spark Area Above Keys</source>
+        <translation type="vanished">Выбрать область искр над клавишами</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1089"/>
+        <source>Select the area above the keys where spark bars and flashes appear.</source>
+        <translation>Выберите область над клавишами, где появляются полосы и вспышки искр.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1098"/>
+        <source>Show or hide the spark area overlay on the video.</source>
+        <translation>Показать или скрыть оверлей области искр на видео.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1264"/>
+        <source>Convert Only Part of the Video</source>
+        <translation>Конвертировать только часть видео</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1268"/>
+        <source>This affects MIDI creation only. It does not trim or change the video session.</source>
+        <translation>Это влияет только на создание MIDI. Видео-сессия не обрезается и не изменяется.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1331"/>
+        <location filename="../gui/controls_qt.py" line="1383"/>
+        <location filename="../gui/controls_qt.py" line="1445"/>
+        <location filename="../gui/controls_qt.py" line="1675"/>
+        <source>Permanently Trim Project</source>
+        <translation>Навсегда обрезать проект</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1336"/>
+        <source>Most users should use MIDI range instead. Trim changes the working video session, not the original video file.</source>
+        <translation>Большинству пользователей лучше использовать диапазон MIDI. Обрезка изменяет рабочую видео-сессию, а не исходный видеофайл.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1405"/>
+        <source>Open the dedicated setup window when repeated presses merge into one long note.</source>
+        <translation>Откройте отдельное окно настройки, если повторные нажатия сливаются в одну длинную ноту.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1413"/>
+        <source>Open Repeated Notes Tool</source>
+        <translation>Открыть инструмент повторяющихся нот</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1425"/>
+        <source>Gradient or uneven pressed colors</source>
+        <translation>Градиентные или неровные цвета нажатий</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1430"/>
+        <source>Pressed colors fade in or out</source>
+        <translation>Цвета нажатий плавно появляются или исчезают</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1435"/>
+        <source>False black-key notes</source>
+        <translation>Ложные ноты чёрных клавиш</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1440"/>
+        <source>Repeated notes merge together</source>
+        <translation>Повторяющиеся ноты сливаются</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1462"/>
+        <source>Glossary</source>
+        <translation>Глоссарий</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1469"/>
+        <source>Advanced</source>
+        <translation>Расширенные</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1483"/>
+        <source>Put each hand/color on a separate MIDI channel</source>
+        <translation>Поместить каждую руку/цвет в отдельный MIDI-канал</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1489"/>
+        <source>Use this only if the video uses different colors for left and right hand notes.</source>
+        <translation>Используйте это только если в видео используются разные цвета для нот левой и правой руки.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1684"/>
+        <source>&lt;b&gt;This will permanently trim the working video session.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Frames outside {start_frame} to {end_text} will be unavailable in this project session.&lt;br&gt;&lt;br&gt;Most users should cancel and use the MIDI range controls instead.</source>
+        <translation>&lt;b&gt;Это навсегда обрежет рабочую видео-сессию.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Кадры вне диапазона от {start_frame} до {end_text} будут недоступны в этой сессии проекта.&lt;br&gt;&lt;br&gt;Большинству пользователей следует отменить действие и вместо этого использовать элементы управления диапазоном MIDI.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1696"/>
+        <source>Trim Project</source>
+        <translation>Обрезать проект</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="2128"/>
+        <source>Create key overlays first.</source>
+        <translation>Сначала создайте наложения клавиш.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="2139"/>
+        <location filename="../gui/controls_qt.py" line="2151"/>
+        <source>Capture a no-key frame.</source>
+        <translation>Захватите кадр без нажатых клавиш.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="2158"/>
+        <location filename="../gui/controls_qt.py" line="2166"/>
+        <source>Capture at least one pressed-key example.</source>
+        <translation>Захватите хотя бы один пример нажатой клавиши.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="2173"/>
+        <source>Check detection sensitivity.</source>
+        <translation>Проверьте чувствительность обнаружения.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="2179"/>
+        <source>Check MIDI tempo.</source>
+        <translation>Проверьте темп MIDI.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="2184"/>
+        <source>Ready to create MIDI.</source>
+        <translation>Готово к созданию MIDI.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="560"/>
         <source>Present</source>
         <translation>Присутствует</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="435"/>
+        <location filename="../gui/controls_qt.py" line="252"/>
+        <source>Guide</source>
+        <translation>Руководство</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="388"/>
+        <source>1) Find Keyboard Box: create overlays that line up with the keyboard in your video.</source>
+        <translation>1) Найдите рамку клавиатуры: создайте оверлеи, которые совпадают с клавиатурой в видео.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="392"/>
+        <source>2) Capture No-Key Frame: pause where no keys are glowing, then click Capture No-Key Frame.</source>
+        <translation>2) Захватить кадр без клавиш: остановитесь на кадре, где клавиши не светятся, затем нажмите «Захватить кадр без клавиш».</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="396"/>
+        <source>3) Capture Pressed-Key Examples: for each button you need (Left/Right x White/Black), pause where that kind of overlay is glowing, click the button, then click that overlay in the video. Left/Right refer to Synthesia note colors, not the physical side of the keyboard.</source>
+        <translation>3) Захватить примеры нажатых клавиш: для каждой нужной кнопки (Left/Right x White/Black) остановитесь на кадре, где такой оверлей светится, нажмите кнопку, затем щёлкните этот оверлей в видео. Left/Right относятся к цветам нот Synthesia, а не к физической стороне клавиатуры.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="433"/>
+        <source>Draw Keyboard Box and Find Keys</source>
+        <translation>Нарисуйте рамку клавиатуры и найдите клавиши.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="446"/>
+        <source>Find the keyboard</source>
+        <translation>Найдите клавиатуру</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="447"/>
+        <source>Pause on a clear frame where the full keyboard is visible.</source>
+        <translation>Сделайте паузу на чётком кадре, где полностью видна клавиатура.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="469"/>
+        <source>Capture No-Key Frame</source>
+        <translation>Захватить кадр без клавиш</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="481"/>
+        <source>Capture no-key frame</source>
+        <translation>Захватить кадр без клавиш</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="485"/>
+        <source>Pause where no keys are glowing.</source>
+        <translation>Остановитесь там, где клавиши не светятся.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="504"/>
+        <source>Capture pressed-key examples</source>
+        <translation>Захватить примеры нажатых клавиш</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="509"/>
+        <source>Pause where a key is glowing, then click that key.</source>
+        <translation>Остановитесь там, где клавиша светится, затем щёлкните эту клавишу.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="517"/>
+        <source>Left/Right refer to Synthesia note colors, not the physical side of the keyboard.</source>
+        <translation>Left/Right относятся к цветам нот Synthesia, а не к физической стороне клавиатуры.</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="562"/>
         <source>Uncheck if this key type never appears in this video.</source>
         <translation>Снимите флажок, если этот тип клавиш никогда не появляется в видео.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="456"/>
+        <location filename="../gui/controls_qt.py" line="583"/>
         <source>Calibration</source>
         <translation>Калибровка</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="466"/>
+        <location filename="../gui/controls_qt.py" line="593"/>
         <source>Key Alignment</source>
         <translation>Выравнивание клавиш</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="471"/>
+        <location filename="../gui/controls_qt.py" line="598"/>
         <source>Align White Keys</source>
         <translation>Выровнять белые клавиши</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="474"/>
+        <location filename="../gui/controls_qt.py" line="601"/>
         <source>Align Black Keys</source>
         <translation>Выровнять чёрные клавиши</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="477"/>
+        <location filename="../gui/controls_qt.py" line="604"/>
         <source>Manual Fit</source>
         <translation>Ручная подгонка</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="497"/>
+        <location filename="../gui/controls_qt.py" line="624"/>
         <source>Overlay Size Adjustment</source>
         <translation>Настройка размера оверлеев</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="518"/>
+        <location filename="../gui/controls_qt.py" line="641"/>
+        <source>Current:</source>
+        <translation>Текущее:</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="644"/>
+        <source>Reset</source>
+        <translation>Сбросить</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="659"/>
+        <source>Decrease {setting}</source>
+        <translation>Уменьшить {setting}</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="662"/>
+        <source>Increase {setting}</source>
+        <translation>Увеличить {setting}</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="677"/>
         <source>White Key Height</source>
         <translation>Высота белых клавиш</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="527"/>
+        <location filename="../gui/controls_qt.py" line="694"/>
         <source>White Key Width</source>
         <translation>Ширина белых клавиш</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="536"/>
+        <location filename="../gui/controls_qt.py" line="711"/>
         <source>Black Key Height</source>
         <translation>Высота чёрных клавиш</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="545"/>
+        <location filename="../gui/controls_qt.py" line="728"/>
         <source>Black Key Width</source>
         <translation>Ширина чёрных клавиш</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="554"/>
+        <location filename="../gui/controls_qt.py" line="745"/>
         <source>Left Slant</source>
         <translation>Левый наклон</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="563"/>
+        <location filename="../gui/controls_qt.py" line="762"/>
         <source>Right Slant</source>
         <translation>Правый наклон</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="577"/>
+        <location filename="../gui/controls_qt.py" line="784"/>
         <source>Overlay Appearance</source>
         <translation>Внешний вид оверлеев</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="582"/>
+        <location filename="../gui/controls_qt.py" line="789"/>
         <source>Overlay Color:</source>
         <translation>Цвет оверлея:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="616"/>
+        <location filename="../gui/controls_qt.py" line="1036"/>
+        <source>Repeated Notes Fix</source>
+        <translation>Исправление повторяющихся нот</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1047"/>
+        <source>Enable Repeated Notes Fix</source>
+        <translation>Включить исправление повторяющихся нот</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1079"/>
+        <source>Repeated-Note Setup</source>
+        <translation>Настройка повторяющихся нот</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="1086"/>
+        <source>Select Flash Area Above Keys</source>
+        <translation>Выбрать область вспышек над клавишами</translation>
+    </message>
+    <message>
         <source>Before tuning detection: run Unlit Key Calibration + at least one Lit Key Exemplar.</source>
-        <translation>Перед настройкой обнаружения: выполните калибровку ненажатых клавиш + минимум один образец подсвеченной клавиши.</translation>
+        <translation type="vanished">Перед настройкой обнаружения: выполните калибровку ненажатых клавиш + минимум один образец подсвеченной клавиши.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="617"/>
         <source>Detection Threshold: main sensitivity setting for pressed vs unpressed.</source>
-        <translation>Порог обнаружения: главный параметр чувствительности для нажатых и ненажатых.</translation>
+        <translation type="vanished">Порог обнаружения: главный параметр чувствительности для нажатых и ненажатых.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="618"/>
         <source>If notes are missed: lower the threshold. If you get false notes: raise the threshold.</source>
-        <translation>Если ноты пропускаются: снизьте порог. Если появляются ложные ноты: повысьте порог.</translation>
+        <translation type="vanished">Если ноты пропускаются: снизьте порог. Если появляются ложные ноты: повысьте порог.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="619"/>
         <source>Histogram Detection: uses a color-pattern match inside each overlay. Use when pressed overlays have strong gradients or uneven lighting.</source>
-        <translation>Обнаружение по гистограмме: использует совпадение цветового шаблона внутри каждого оверлея. Используйте, если нажатые оверлеи имеют сильные градиенты или неравномерное освещение.</translation>
+        <translation type="vanished">Обнаружение по гистограмме: использует совпадение цветового шаблона внутри каждого оверлея. Используйте, если нажатые оверлеи имеют сильные градиенты или неравномерное освещение.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="623"/>
         <source>Delta Detection: uses frame-to-frame change to confirm press/release. Use when the pressed color fades in/out gradually instead of switching cleanly.</source>
-        <translation>Дельта-обнаружение: использует покадровое изменение для подтверждения нажатия/отпускания. Используйте, если цвет нажатия появляется/исчезает постепенно, а не переключается резко.</translation>
+        <translation type="vanished">Дельта-обнаружение: использует покадровое изменение для подтверждения нажатия/отпускания. Используйте, если цвет нажатия появляется/исчезает постепенно, а не переключается резко.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="627"/>
         <source>Black Key Filter: reduces false black-key presses caused by nearby overlays.</source>
-        <translation>Фильтр чёрных клавиш: снижает ложные нажатия чёрных клавиш из-за соседних оверлеев.</translation>
+        <translation type="vanished">Фильтр чёрных клавиш: снижает ложные нажатия чёрных клавиш из-за соседних оверлеев.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="636"/>
         <source>Detection Threshold</source>
-        <translation>Порог обнаружения</translation>
+        <translation type="vanished">Порог обнаружения</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="647"/>
-        <location filename="../gui/controls_qt.py" line="652"/>
+        <location filename="../gui/controls_qt.py" line="854"/>
+        <location filename="../gui/controls_qt.py" line="859"/>
         <source>Main sensitivity. Lower = detects more; higher = fewer false notes.</source>
         <translation>Главная чувствительность. Ниже = обнаруживает больше; выше = меньше ложных нот.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="655"/>
         <source>Detection Threshold:</source>
-        <translation>Порог обнаружения:</translation>
+        <translation type="vanished">Порог обнаружения:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="662"/>
         <source>Detection Modes</source>
-        <translation>Режимы обнаружения</translation>
+        <translation type="vanished">Режимы обнаружения</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="681"/>
+        <location filename="../gui/controls_qt.py" line="897"/>
         <source>Enable Histogram Detection</source>
         <translation>Включить обнаружение по гистограмме</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="685"/>
+        <location filename="../gui/controls_qt.py" line="901"/>
         <source>Uses a color-pattern match inside the overlay. Helpful with gradients/uneven lighting.</source>
         <translation>Использует совпадение цветового шаблона внутри оверлея. Помогает при градиентах/неравномерном освещении.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="697"/>
-        <location filename="../gui/controls_qt.py" line="702"/>
+        <location filename="../gui/controls_qt.py" line="913"/>
+        <location filename="../gui/controls_qt.py" line="918"/>
         <source>How strong the histogram match must be (only used when Histogram Detection is enabled).</source>
         <translation>Насколько сильным должно быть совпадение гистограммы (используется только при включённом обнаружении по гистограмме).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="704"/>
+        <location filename="../gui/controls_qt.py" line="920"/>
         <source>Strength:</source>
         <translation>Сила:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="707"/>
+        <location filename="../gui/controls_qt.py" line="923"/>
         <source>Enable Delta Detection</source>
         <translation>Включить дельта-обнаружение</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="711"/>
+        <location filename="../gui/controls_qt.py" line="927"/>
         <source>Uses frame-to-frame change to confirm press/release (helps when color fades).</source>
         <translation>Использует покадровое изменение для подтверждения нажатия/отпускания (помогает, когда цвет затухает).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="722"/>
-        <location filename="../gui/controls_qt.py" line="727"/>
+        <location filename="../gui/controls_qt.py" line="938"/>
+        <location filename="../gui/controls_qt.py" line="943"/>
         <source>How big the change must be to count as a press (only used when Delta Detection is enabled).</source>
         <translation>Насколько большим должно быть изменение, чтобы считаться нажатием (используется только при включённом дельта-обнаружении).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="729"/>
+        <location filename="../gui/controls_qt.py" line="945"/>
         <source>Rise:</source>
         <translation>Нарастание:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="738"/>
-        <location filename="../gui/controls_qt.py" line="743"/>
+        <location filename="../gui/controls_qt.py" line="954"/>
+        <location filename="../gui/controls_qt.py" line="959"/>
         <source>How big the change must be to count as a release (only used when Delta Detection is enabled).</source>
         <translation>Насколько большим должно быть изменение, чтобы считаться отпусканием (используется только при включённом дельта-обнаружении).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="745"/>
+        <location filename="../gui/controls_qt.py" line="961"/>
         <source>Fall:</source>
         <translation>Спад:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="748"/>
+        <location filename="../gui/controls_qt.py" line="964"/>
         <source>Enable Black Key Filter</source>
         <translation>Включить фильтр чёрных клавиш</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="752"/>
+        <location filename="../gui/controls_qt.py" line="968"/>
         <source>Reduces false black-key presses from nearby overlays.</source>
         <translation>Снижает ложные нажатия чёрных клавиш от соседних оверлеев.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="764"/>
-        <location filename="../gui/controls_qt.py" line="769"/>
+        <location filename="../gui/controls_qt.py" line="980"/>
+        <location filename="../gui/controls_qt.py" line="985"/>
         <source>Controls how strict black-key filtering is (only used when Black Key Filter is enabled).</source>
         <translation>Управляет строгостью фильтрации чёрных клавиш (используется только при включённом фильтре чёрных клавиш).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="771"/>
+        <location filename="../gui/controls_qt.py" line="987"/>
         <source>Similarity:</source>
         <translation>Схожесть:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="775"/>
+        <location filename="../gui/controls_qt.py" line="996"/>
         <source>Restore Defaults</source>
         <translation>Восстановить по умолчанию</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="777"/>
+        <location filename="../gui/controls_qt.py" line="998"/>
         <source>Reset detection threshold and detection mode parameter sliders to their defaults. Detection mode checkboxes stay unchanged.</source>
         <translation>Сбрасывает порог обнаружения и ползунки параметров режимов обнаружения к значениям по умолчанию. Флажки режимов обнаружения не меняются.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="786"/>
+        <location filename="../gui/controls_qt.py" line="1005"/>
         <source>Detection</source>
         <translation>Обнаружение</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="805"/>
+        <location filename="../gui/controls_qt.py" line="1024"/>
         <source>Use Spark Detection only when:</source>
         <translation>Используйте обнаружение вспышек только когда:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="806"/>
+        <location filename="../gui/controls_qt.py" line="1025"/>
         <source>1) Key overlays stay ON across repeated notes (false continuous press).</source>
         <translation>1) Оверлеи клавиш остаются ВКЛ. между повторными нотами (ложное непрерывное нажатие).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="807"/>
+        <location filename="../gui/controls_qt.py" line="1026"/>
         <source>2) Key overlays are solid color (no fading or gradients).</source>
         <translation>2) Оверлеи клавиш залиты сплошным цветом (без затухания и градиентов).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="817"/>
         <source>Spark Detection</source>
-        <translation>Обнаружение вспышек</translation>
+        <translation type="vanished">Обнаружение вспышек</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="821"/>
+        <location filename="../gui/controls_qt.py" line="1041"/>
+        <source>Use this only if repeated notes merge into one long note.</source>
+        <translation>Используйте это только если повторяющиеся ноты сливаются в одну длинную ноту.</translation>
+    </message>
+    <message>
         <source>Enable Spark Detection</source>
-        <translation>Включить обнаружение вспышек</translation>
+        <translation type="vanished">Включить обнаружение вспышек</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="825"/>
+        <location filename="../gui/controls_qt.py" line="1051"/>
         <source>Use only when key overlays stay ON across repeated notes (false continuous press), and the overlays are solid color (no fading or gradients).</source>
         <translation>Используйте только когда оверлеи клавиш остаются ВКЛ. между повторными нотами (ложное непрерывное нажатие), а оверлеи залиты сплошным цветом (без затухания и градиентов).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="833"/>
+        <location filename="../gui/controls_qt.py" line="1059"/>
         <source>Sensitivity:</source>
         <translation>Чувствительность:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="840"/>
-        <location filename="../gui/controls_qt.py" line="846"/>
+        <location filename="../gui/controls_qt.py" line="1066"/>
+        <location filename="../gui/controls_qt.py" line="1072"/>
         <source>Controls how aggressively Spark Detection splits false continuous notes.</source>
         <translation>Управляет тем, насколько агрессивно обнаружение вспышек разделяет ложные непрерывные ноты.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="853"/>
         <source>Spark Calibration</source>
-        <translation>Калибровка вспышек</translation>
+        <translation type="vanished">Калибровка вспышек</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="860"/>
         <source>Select Spark ROI</source>
-        <translation>Выбрать ROI вспышек</translation>
+        <translation type="vanished">Выбрать ROI вспышек</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="864"/>
         <source>Select the region above the keys where spark bars and sparks appear.</source>
-        <translation>Выберите область над клавишами, где появляются полосы и вспышки.</translation>
+        <translation type="vanished">Выберите область над клавишами, где появляются полосы и вспышки.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="869"/>
-        <location filename="../gui/controls_qt.py" line="1421"/>
-        <location filename="../gui/controls_qt.py" line="1598"/>
+        <location filename="../gui/controls_qt.py" line="1094"/>
+        <location filename="../gui/controls_qt.py" line="1797"/>
+        <location filename="../gui/controls_qt.py" line="1976"/>
         <source>Hide Spark Overlays</source>
         <translation>Скрыть оверлеи вспышек</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="874"/>
         <source>Show or hide the spark ROI overlay on the video.</source>
-        <translation>Показать или скрыть ROI вспышек на видео.</translation>
+        <translation type="vanished">Показать или скрыть ROI вспышек на видео.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="880"/>
+        <location filename="../gui/controls_qt.py" line="1104"/>
         <source>Manual Calibration</source>
         <translation>Ручная калибровка</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="885"/>
+        <location filename="../gui/controls_qt.py" line="1109"/>
         <source>Step 1)</source>
         <translation>Шаг 1)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="888"/>
+        <location filename="../gui/controls_qt.py" line="1112"/>
         <source>Calibrate Background</source>
         <translation>Калибровать фон</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="892"/>
+        <location filename="../gui/controls_qt.py" line="1116"/>
         <source>Manual calibration: capture baseline brightness when there are no bars or sparks.</source>
         <translation>Ручная калибровка: захват базовой яркости, когда нет полос и вспышек.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="900"/>
+        <location filename="../gui/controls_qt.py" line="1124"/>
         <source>Step 2)</source>
         <translation>Шаг 2)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="903"/>
+        <location filename="../gui/controls_qt.py" line="1127"/>
         <source>Calibrate Bar Only</source>
         <translation>Калибровать только полосы</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="907"/>
+        <location filename="../gui/controls_qt.py" line="1131"/>
         <source>Manual calibration: click an overlay showing colored bars with no sparks.</source>
         <translation>Ручная калибровка: щёлкните оверлей с цветными полосами без вспышек.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="915"/>
+        <location filename="../gui/controls_qt.py" line="1139"/>
         <source>Step 3)</source>
         <translation>Шаг 3)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="918"/>
+        <location filename="../gui/controls_qt.py" line="1142"/>
         <source>Calibrate Dimmest Sparks</source>
         <translation>Калибровать самые тусклые вспышки</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="922"/>
+        <location filename="../gui/controls_qt.py" line="1146"/>
         <source>Manual calibration: click an overlay where sparks are just barely visible.</source>
         <translation>Ручная калибровка: щёлкните оверлей, где вспышки едва видны.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="931"/>
+        <location filename="../gui/controls_qt.py" line="1155"/>
         <source>Auto Calibration:</source>
         <translation>Автокалибровка:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="947"/>
+        <location filename="../gui/controls_qt.py" line="1171"/>
         <source>Auto {key_type_label}</source>
         <translation>Авто {key_type_label}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="954"/>
+        <location filename="../gui/controls_qt.py" line="1177"/>
         <source>Recommended: auto-calibrate spark detection for this key type. Navigate to the frame where a key first turns ON, then click that overlay.</source>
         <translation>Рекомендуется: автокалибровать обнаружение вспышек для этого типа клавиш. Перейдите к кадру, где клавиша впервые включается, затем щёлкните этот оверлей.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="974"/>
+        <location filename="../gui/controls_qt.py" line="1197"/>
         <source>Spark Preview / Status</source>
         <translation>Предпросмотр / статус вспышек</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="976"/>
+        <location filename="../gui/controls_qt.py" line="1199"/>
         <source>Preview will show spark calibration status here.</source>
         <translation>Здесь будет показан статус калибровки вспышек.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="980"/>
+        <location filename="../gui/controls_qt.py" line="1203"/>
         <source>Preview not available yet.</source>
         <translation>Предпросмотр пока недоступен.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="991"/>
         <source>Spark</source>
-        <translation>Вспышки</translation>
+        <translation type="vanished">Вспышки</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1001"/>
+        <location filename="../gui/controls_qt.py" line="1227"/>
         <source>Frame Rate Override</source>
         <translation>Переопределение частоты кадров</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1018"/>
+        <location filename="../gui/controls_qt.py" line="1244"/>
         <source>Auto</source>
         <translation>Авто</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1032"/>
-        <location filename="../gui/controls_qt.py" line="1434"/>
+        <location filename="../gui/controls_qt.py" line="1258"/>
+        <location filename="../gui/controls_qt.py" line="1810"/>
         <source>Current FPS: Auto-detected</source>
         <translation>Текущий FPS: автоопределён</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1038"/>
         <source>Custom MIDI Processing Range</source>
-        <translation>Пользовательский диапазон обработки MIDI</translation>
+        <translation type="vanished">Пользовательский диапазон обработки MIDI</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1047"/>
-        <location filename="../gui/controls_qt.py" line="1105"/>
+        <location filename="../gui/controls_qt.py" line="1283"/>
+        <location filename="../gui/controls_qt.py" line="1351"/>
         <source>Start Frame:</source>
         <translation>Начальный кадр:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1058"/>
-        <location filename="../gui/controls_qt.py" line="1075"/>
-        <location filename="../gui/controls_qt.py" line="1116"/>
-        <location filename="../gui/controls_qt.py" line="1133"/>
+        <location filename="../gui/controls_qt.py" line="1294"/>
+        <location filename="../gui/controls_qt.py" line="1311"/>
+        <location filename="../gui/controls_qt.py" line="1361"/>
+        <location filename="../gui/controls_qt.py" line="1376"/>
         <source>Set to Current</source>
         <translation>Установить текущий</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1064"/>
-        <location filename="../gui/controls_qt.py" line="1122"/>
+        <location filename="../gui/controls_qt.py" line="1300"/>
+        <location filename="../gui/controls_qt.py" line="1366"/>
         <source>End Frame:</source>
         <translation>Конечный кадр:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1086"/>
+        <location filename="../gui/controls_qt.py" line="1322"/>
         <source>MIDI</source>
         <translation>MIDI</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1095"/>
         <source>Video Processing Range</source>
-        <translation>Диапазон обработки видео</translation>
+        <translation type="vanished">Диапазон обработки видео</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1141"/>
         <source>Trim Video</source>
-        <translation>Обрезать видео</translation>
+        <translation type="vanished">Обрезать видео</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1149"/>
         <source>Trim</source>
-        <translation>Обрезать</translation>
+        <translation type="vanished">Обрезать</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1158"/>
+        <location filename="../gui/controls_qt.py" line="1478"/>
         <source>Optional Features</source>
         <translation>Дополнительные функции</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1162"/>
         <source>Enable Hand Assignment (MIDI Channels)</source>
-        <translation>Включить назначение рук (каналы MIDI)</translation>
+        <translation type="vanished">Включить назначение рук (каналы MIDI)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1172"/>
+        <location filename="../gui/controls_qt.py" line="1504"/>
         <source>Optional</source>
         <translation>Дополнительно</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1183"/>
+        <location filename="../gui/controls_qt.py" line="1515"/>
         <source>Restart Synthesia2MIDI to apply the selected language.</source>
         <translation>Перезапустите Synthesia2MIDI, чтобы применить выбранный язык.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1188"/>
+        <location filename="../gui/controls_qt.py" line="1520"/>
         <source>Converting...</source>
         <translation>Конвертация...</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1190"/>
+        <location filename="../gui/controls_qt.py" line="1522"/>
         <source>Converting video to MIDI...</source>
         <translation>Конвертация видео в MIDI...</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1336"/>
+        <location filename="../gui/controls_qt.py" line="1668"/>
         <source>Invalid Trim Range</source>
         <translation>Недопустимый диапазон обрезки</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1337"/>
+        <location filename="../gui/controls_qt.py" line="1669"/>
         <source>Start frame must be less than end frame.</source>
         <translation>Начальный кадр должен быть меньше конечного.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1343"/>
         <source>⚠️ Trim Video - Irreversible Action</source>
-        <translation>⚠️ Обрезка видео - необратимое действие</translation>
+        <translation type="vanished">⚠️ Обрезка видео - необратимое действие</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1374"/>
+        <location filename="../gui/controls_qt.py" line="1679"/>
         <source>frame {end_frame}</source>
         <translation>кадр {end_frame}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1376"/>
+        <location filename="../gui/controls_qt.py" line="1681"/>
         <source>end of video</source>
         <translation>конец видео</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1378"/>
         <source>
 &lt;b&gt;⚠️ WARNING: This action is IRREVERSIBLE&lt;/b&gt;&lt;br&gt;&lt;br&gt;
 This will permanently trim the video session to frames {start_frame} to {end_text}.&lt;br&gt;&lt;br&gt;
@@ -1276,7 +1922,7 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
 • MIDI processing will be limited to this range&lt;br&gt;&lt;br&gt;
 &lt;b&gt;Are you sure you want to proceed?&lt;/b&gt;
         </source>
-        <translation>
+        <translation type="vanished">
 &lt;b&gt;⚠️ ВНИМАНИЕ: это действие НЕОБРАТИМО&lt;/b&gt;&lt;br&gt;&lt;br&gt;
 Сеанс видео будет навсегда обрезан до кадров с {start_frame} по {end_text}.&lt;br&gt;&lt;br&gt;
 &lt;b&gt;После обрезки:&lt;/b&gt;&lt;br&gt;
@@ -1287,48 +1933,47 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
         </translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1393"/>
         <source>⚠️ YES, TRIM VIDEO</source>
-        <translation>⚠️ ДА, ОБРЕЗАТЬ ВИДЕО</translation>
+        <translation type="vanished">⚠️ ДА, ОБРЕЗАТЬ ВИДЕО</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1423"/>
-        <location filename="../gui/controls_qt.py" line="1600"/>
+        <location filename="../gui/controls_qt.py" line="1799"/>
+        <location filename="../gui/controls_qt.py" line="1978"/>
         <source>Show Spark Overlays</source>
         <translation>Показать оверлеи вспышек</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1437"/>
+        <location filename="../gui/controls_qt.py" line="1813"/>
         <source>Current FPS: {fps} (override)</source>
         <translation>Текущий FPS: {fps} (переопределён)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1456"/>
+        <location filename="../gui/controls_qt.py" line="1832"/>
         <source>Current FPS: {fps_override} (override, detected: {detected_fps})</source>
         <translation>Текущий FPS: {fps_override} (переопределён, обнаружено: {detected_fps})</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1463"/>
+        <location filename="../gui/controls_qt.py" line="1839"/>
         <source>Current FPS: {detected_fps} (auto-detected)</source>
         <translation>Текущий FPS: {detected_fps} (автоопределён)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1576"/>
+        <location filename="../gui/controls_qt.py" line="1954"/>
         <source>Unlit State Calibrated</source>
         <translation>Состояние ненажатых откалибровано</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1619"/>
+        <location filename="../gui/controls_qt.py" line="1997"/>
         <source>Success: {message}</source>
         <translation>Успешно: {message}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1623"/>
+        <location filename="../gui/controls_qt.py" line="2001"/>
         <source>Error: {message}</source>
         <translation>Ошибка: {message}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1703"/>
+        <location filename="../gui/controls_qt.py" line="2081"/>
         <source>Calibrated</source>
         <translation>Откалибровано</translation>
     </message>
@@ -1364,6 +2009,19 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
         <location filename="../workflows/conversion.py" line="402"/>
         <source>{phase_label}... {frame_count}/{total_frames} ({percent}%) (frame {actual_frame_idx})</source>
         <translation>{phase_label}... {frame_count}/{total_frames} ({percent}%) (кадр {actual_frame_idx})</translation>
+    </message>
+</context>
+<context>
+    <name>KeyboardCanvas</name>
+    <message>
+        <location filename="../gui/keyboard_canvas.py" line="175"/>
+        <source>Esc cancels</source>
+        <translation>Esc отменяет действие</translation>
+    </message>
+    <message>
+        <location filename="../gui/keyboard_canvas.py" line="179"/>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
     </message>
 </context>
 <context>
@@ -1472,7 +2130,7 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
     </message>
     <message>
         <location filename="../gui/manual_keyboard_fit_dialog.py" line="105"/>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="398"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="440"/>
         <source>Fine Tune Overlays</source>
         <translation>Точная настройка оверлеев</translation>
     </message>
@@ -1483,14 +2141,14 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
     </message>
     <message>
         <location filename="../gui/manual_keyboard_fit_dialog.py" line="110"/>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="389"/>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="401"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="431"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="443"/>
         <source>Use Suggested</source>
         <translation>Использовать предложенное</translation>
     </message>
     <message>
         <location filename="../gui/manual_keyboard_fit_dialog.py" line="111"/>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="274"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="294"/>
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
@@ -1500,169 +2158,189 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
         <translation>Режим редактирования</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="132"/>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="465"/>
         <source>Editing: Whole Keyboard</source>
-        <translation>Редактирование: вся клавиатура</translation>
+        <translation type="vanished">Редактирование: вся клавиатура</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="134"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="137"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="507"/>
+        <source>Move and resize every overlay together.</source>
+        <translation>Перемещайте и меняйте размер всех оверлеев вместе.</translation>
+    </message>
+    <message>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="142"/>
         <source>All Overlays</source>
         <translation>Все оверлеи</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="135"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="143"/>
         <source>All Whites</source>
         <translation>Все белые</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="136"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="144"/>
         <source>All Blacks</source>
         <translation>Все чёрные</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="137"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="145"/>
         <source>Select Overlays</source>
         <translation>Выбрать оверлеи</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="138"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="146"/>
         <source>Single Overlay</source>
         <translation>Один оверлей</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="160"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="175"/>
         <source>Octave</source>
         <translation>Октава</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="189"/>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="242"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="203"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="259"/>
         <source>Reset {label}</source>
         <translation>Сбросить {label}</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="220"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="238"/>
         <source>Select</source>
         <translation>Выбрать</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="222"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="240"/>
         <source>Black Keys</source>
         <translation>Чёрные клавиши</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="223"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="241"/>
         <source>White Keys</source>
         <translation>Белые клавиши</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="224"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="242"/>
         <source>All Keys</source>
         <translation>Все клавиши</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="225"/>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="340"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="243"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="382"/>
         <source>Draw a box around problem keys</source>
         <translation>Нарисуйте рамку вокруг проблемных клавиш</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="269"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="289"/>
         <source>Reset All</source>
         <translation>Сбросить всё</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="270"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="290"/>
         <source>Reset Position</source>
         <translation>Сбросить положение</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="271"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="291"/>
         <source>Reset Local</source>
         <translation>Сбросить локально</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="272"/>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="357"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="292"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="399"/>
         <source>Edit Keyboard Box</source>
         <translation>Изменить рамку клавиатуры</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="273"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="293"/>
         <source>Clear Selected Override</source>
         <translation>Очистить выбранное переопределение</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="275"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="295"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="344"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="386"/>
         <source>{count} selected</source>
         <translation>Выбрано: {count}</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="350"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="392"/>
         <source>Step 1 of 3: Draw Keyboard Area</source>
         <translation>Шаг 1 из 3: нарисуйте область клавиатуры</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="351"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="393"/>
         <source>Draw one rectangle around the visible keyboard area.</source>
         <translation>Нарисуйте один прямоугольник вокруг видимой области клавиатуры.</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="358"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="400"/>
         <source>Adjust the green boundary bars, or draw a replacement box around the visible keyboard area.</source>
         <translation>Отрегулируйте зелёные граничные полосы или нарисуйте новую рамку вокруг видимой области клавиатуры.</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="364"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="406"/>
         <source>Step 2 of 3: Set Black Key Bottom</source>
         <translation>Шаг 2 из 3: задайте низ чёрных клавиш</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="365"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="407"/>
         <source>Drag the orange line to slightly above the bottom of black keys.</source>
         <translation>Перетащите оранжевую линию немного выше нижнего края чёрных клавиш.</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="371"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="413"/>
         <source>Step 3 of 3: Set White Key Start</source>
         <translation>Шаг 3 из 3: задайте начало белых клавиш</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="372"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="414"/>
         <source>Drag the blue line to a bit under the black keys.</source>
         <translation>Перетащите синюю линию немного ниже чёрных клавиш.</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="386"/>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="407"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="428"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="449"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="469"/>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="514"/>
+        <source>Adjust all white-key overlays together.</source>
+        <translation>Настраивайте все оверлеи белых клавиш вместе.</translation>
+    </message>
+    <message>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="521"/>
+        <source>Adjust all black-key overlays together.</source>
+        <translation>Настраивайте все оверлеи чёрных клавиш вместе.</translation>
+    </message>
+    <message>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="528"/>
+        <source>Draw around the problem keys, then adjust that selected group.</source>
+        <translation>Обведите проблемные клавиши, затем настройте выбранную группу.</translation>
+    </message>
+    <message>
+        <location filename="../gui/manual_keyboard_fit_dialog.py" line="536"/>
+        <source>Click one problem key, then adjust only that overlay.</source>
+        <translation>Щёлкните одну проблемную клавишу, затем настройте только её оверлей.</translation>
+    </message>
+    <message>
         <source>Editing: All Whites</source>
-        <translation>Редактирование: все белые</translation>
+        <translation type="vanished">Редактирование: все белые</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="472"/>
         <source>Editing: All Blacks</source>
-        <translation>Редактирование: все чёрные</translation>
+        <translation type="vanished">Редактирование: все чёрные</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="476"/>
         <source>Editing: Local Cluster</source>
-        <translation>Редактирование: локальная группа</translation>
+        <translation type="vanished">Редактирование: локальная группа</translation>
     </message>
     <message>
-        <location filename="../gui/manual_keyboard_fit_dialog.py" line="481"/>
         <source>Editing: Single Overlay</source>
-        <translation>Редактирование: один оверлей</translation>
+        <translation type="vanished">Редактирование: один оверлей</translation>
     </message>
 </context>
 <context>
@@ -1686,69 +2364,61 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
 <context>
     <name>MidiTouchupController</name>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="42"/>
+        <location filename="../gui/midi_touchup_controller.py" line="52"/>
         <source>Conversion Complete</source>
         <translation>Конвертация завершена</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="44"/>
+        <location filename="../gui/midi_touchup_controller.py" line="54"/>
         <source>MIDI file saved to:
 {midi_output_path}</source>
         <translation>MIDI-файл сохранён в:
 {midi_output_path}</translation>
     </message>
     <message>
-        <source>You can open the Touch-Up Editor now, or finish.</source>
-        <translation type="vanished">Можно открыть редактор правки или завершить.</translation>
-    </message>
-    <message>
-        <location filename="../gui/midi_touchup_controller.py" line="54"/>
+        <location filename="../gui/midi_touchup_controller.py" line="64"/>
         <source>Open Touch-Up Editor</source>
         <translation>Открыть редактор правки</translation>
     </message>
     <message>
-        <source>Done</source>
-        <translation type="vanished">Готово</translation>
-    </message>
-    <message>
-        <location filename="../gui/midi_touchup_controller.py" line="49"/>
+        <location filename="../gui/midi_touchup_controller.py" line="59"/>
         <source>You can open the Touch-Up Editor now, or show the saved MIDI in its folder.</source>
         <translation>Можно открыть редактор правки сейчас или показать сохранённый MIDI в его папке.</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="56"/>
+        <location filename="../gui/midi_touchup_controller.py" line="66"/>
         <source>Show MIDI in Folder</source>
         <translation>Показать MIDI в папке</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="85"/>
+        <location filename="../gui/midi_touchup_controller.py" line="95"/>
         <source>Open MIDI for Touch-Up</source>
         <translation>Открыть MIDI для правки</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="87"/>
+        <location filename="../gui/midi_touchup_controller.py" line="97"/>
         <source>MIDI Files (*.mid *.midi)</source>
         <translation>MIDI-файлы (*.mid *.midi)</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="96"/>
+        <location filename="../gui/midi_touchup_controller.py" line="106"/>
         <source>MIDI file not found:
 {midi_path}</source>
         <translation>MIDI-файл не найден:
 {midi_path}</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="100"/>
+        <location filename="../gui/midi_touchup_controller.py" line="110"/>
         <source>Touch-Up Editor</source>
         <translation>Редактор правки</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="134"/>
+        <location filename="../gui/midi_touchup_controller.py" line="144"/>
         <source>Touch-Up Editor Launch Failed</source>
         <translation>Не удалось запустить редактор правки</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="135"/>
+        <location filename="../gui/midi_touchup_controller.py" line="145"/>
         <source>Failed to start Rust touch-up editor.
 
 Binary: {binary_path}
@@ -1759,12 +2429,12 @@ Error: {error_msg}</source>
 Ошибка: {error_msg}</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="153"/>
+        <location filename="../gui/midi_touchup_controller.py" line="163"/>
         <source>Touch-Up Editor Missing</source>
         <translation>Редактор правки отсутствует</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="154"/>
+        <location filename="../gui/midi_touchup_controller.py" line="164"/>
         <source>Bundled Rust touch-up editor files were not found.
 
 MIDI requested: {midi_path}
@@ -1777,12 +2447,12 @@ Re-download the app build or use the repository developer setup if you are runni
 Скачайте сборку приложения заново или используйте настройку разработчика репозитория, если запускаете из исходников.</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="173"/>
+        <location filename="../gui/midi_touchup_controller.py" line="183"/>
         <source>Touch-Up Editor Not Built</source>
         <translation>Редактор правки не собран</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="174"/>
+        <location filename="../gui/midi_touchup_controller.py" line="184"/>
         <source>Rust touch-up editor binary was not found.
 
 MIDI requested: {midi_path}
@@ -1809,30 +2479,53 @@ Then retry Edit MIDI.</source>
 Затем повторите «Редактировать MIDI».</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="232"/>
+        <location filename="../gui/midi_touchup_controller.py" line="245"/>
         <source>Touch-Up Saved</source>
         <translation>Правка сохранена</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="233"/>
+        <location filename="../gui/midi_touchup_controller.py" line="246"/>
         <source>Touch-up MIDI saved to:
 {shown_path}</source>
         <translation>MIDI после правки сохранён в:
 {shown_path}</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="249"/>
+        <location filename="../gui/midi_touchup_controller.py" line="260"/>
+        <source>Exit code: {exit_code}
+
+Stdout:
+{stdout_text}
+
+Stderr:
+{stderr_text}</source>
+        <translation>Код выхода: {exit_code}
+
+Стандартный вывод:
+{stdout_text}
+
+Стандартный вывод ошибок:
+{stderr_text}</translation>
+    </message>
+    <message>
+        <location filename="../gui/midi_touchup_controller.py" line="271"/>
         <source>Touch-Up Editor Error</source>
         <translation>Ошибка редактора правки</translation>
     </message>
     <message>
-        <location filename="../gui/midi_touchup_controller.py" line="250"/>
+        <location filename="../gui/midi_touchup_controller.py" line="277"/>
+        <source>Source MIDI: {source_midi_path}
+Open Details for technical diagnostics.</source>
+        <translation>Исходный MIDI: {source_midi_path}
+Откройте «Подробности», чтобы просмотреть техническую диагностику.</translation>
+    </message>
+    <message>
         <source>{failure_message}
 
 Source MIDI: {source_midi_path}
 Stdout: {stdout_text}
 Stderr: {stderr_text}</source>
-        <translation>{failure_message}
+        <translation type="vanished">{failure_message}
 
 Исходный MIDI: {source_midi_path}
 Stdout: {stdout_text}
@@ -1842,50 +2535,63 @@ Stderr: {stderr_text}</translation>
 <context>
     <name>OverlayManager</name>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="128"/>
+        <location filename="../workflows/overlay_manager.py" line="138"/>
         <source>Alignment Complete</source>
         <translation>Выравнивание завершено</translation>
     </message>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="129"/>
+        <location filename="../workflows/overlay_manager.py" line="139"/>
         <source>{modified_count} &apos;{target_key_color_type}&apos; keys aligned vertically to overlay {master_overlay_key_id}.</source>
         <translation>{modified_count} клавиш типа &apos;{target_key_color_type}&apos; выровнено вертикально по оверлею {master_overlay_key_id}.</translation>
     </message>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="144"/>
+        <location filename="../workflows/overlay_manager.py" line="154"/>
         <source>Alignment Info</source>
         <translation>Информация о выравнивании</translation>
     </message>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="145"/>
+        <location filename="../workflows/overlay_manager.py" line="155"/>
         <source>No other &apos;{target_key_color_type}&apos; keys needed vertical alignment.</source>
         <translation>Другим клавишам типа &apos;{target_key_color_type}&apos; вертикальное выравнивание не требовалось.</translation>
     </message>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="156"/>
-        <location filename="../workflows/overlay_manager.py" line="169"/>
-        <location filename="../workflows/overlay_manager.py" line="184"/>
-        <location filename="../workflows/overlay_manager.py" line="197"/>
+        <location filename="../workflows/overlay_manager.py" line="166"/>
+        <location filename="../workflows/overlay_manager.py" line="179"/>
+        <location filename="../workflows/overlay_manager.py" line="194"/>
+        <location filename="../workflows/overlay_manager.py" line="207"/>
         <source>Alignment Error</source>
         <translation>Ошибка выравнивания</translation>
     </message>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="157"/>
-        <location filename="../workflows/overlay_manager.py" line="185"/>
+        <location filename="../workflows/overlay_manager.py" line="167"/>
+        <location filename="../workflows/overlay_manager.py" line="195"/>
         <source>No overlay selected to act as master.</source>
         <translation>Не выбран оверлей, который будет образцом.</translation>
     </message>
     <message>
-        <location filename="../workflows/overlay_manager.py" line="170"/>
-        <location filename="../workflows/overlay_manager.py" line="198"/>
+        <location filename="../workflows/overlay_manager.py" line="180"/>
+        <location filename="../workflows/overlay_manager.py" line="208"/>
         <source>Selected overlay ID {selected_overlay_id} not found.</source>
         <translation>Выбранный ID оверлея {selected_overlay_id} не найден.</translation>
     </message>
 </context>
 <context>
+    <name>RepeatedNotesToolWindow</name>
+    <message>
+        <location filename="../gui/repeated_notes_tool_window.py" line="20"/>
+        <source>Repeated Notes</source>
+        <translation>Повторяющиеся ноты</translation>
+    </message>
+    <message>
+        <location filename="../gui/repeated_notes_tool_window.py" line="29"/>
+        <source>Set up the repeated-notes fix, then close this window when the preview looks right.</source>
+        <translation>Настройте исправление повторяющихся нот и закройте окно, когда предварительный просмотр будет выглядеть правильно.</translation>
+    </message>
+</context>
+<context>
     <name>SettingsToolWindow</name>
     <message>
-        <location filename="../gui/settings_tool_window.py" line="17"/>
+        <location filename="../gui/settings_tool_window.py" line="19"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
@@ -2383,228 +3089,330 @@ Sparks should be just barely noticeable as bright flashes in the ROI.</source>
 <context>
     <name>StartupDialog</name>
     <message>
-        <location filename="../gui/startup_dialog.py" line="40"/>
+        <location filename="../gui/startup_dialog.py" line="41"/>
         <source>Synthesia to MIDI - Select Video Source</source>
         <translation>Synthesia to MIDI - выбор источника видео</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="52"/>
+        <location filename="../gui/startup_dialog.py" line="53"/>
         <source>Welcome to Synthesia to MIDI</source>
         <translation>Добро пожаловать в Synthesia to MIDI</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="65"/>
+        <location filename="../gui/startup_dialog.py" line="66"/>
         <source>Language:</source>
         <translation>Язык:</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="82"/>
+        <location filename="../gui/startup_dialog.py" line="83"/>
         <source>How would you like to load a video?</source>
         <translation>Как вы хотите загрузить видео?</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="94"/>
+        <location filename="../gui/startup_dialog.py" line="88"/>
+        <source>Choose a Synthesia-style piano video with visible keys and falling notes.</source>
+        <translation>Выберите видео в стиле Synthesia, где видны клавиши и падающие ноты.</translation>
+    </message>
+    <message>
+        <location filename="../gui/startup_dialog.py" line="105"/>
         <source>Open Video File</source>
         <translation>Открыть видеофайл</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="96"/>
+        <location filename="../gui/startup_dialog.py" line="107"/>
         <source>Browse for a video file on your computer</source>
         <translation>Выбрать видеофайл на компьютере</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="101"/>
+        <location filename="../gui/startup_dialog.py" line="112"/>
         <source>Download from YouTube</source>
         <translation>Скачать с YouTube</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="103"/>
+        <location filename="../gui/startup_dialog.py" line="114"/>
         <source>Download a video from YouTube</source>
         <translation>Скачать видео с YouTube</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="115"/>
+        <location filename="../gui/startup_dialog.py" line="126"/>
         <source>Recent Videos</source>
         <translation>Недавние видео</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="137"/>
+        <location filename="../gui/startup_dialog.py" line="155"/>
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="166"/>
+        <location filename="../gui/startup_dialog.py" line="187"/>
         <source>Language</source>
         <translation>Язык</translation>
     </message>
     <message>
-        <location filename="../gui/startup_dialog.py" line="167"/>
+        <location filename="../gui/startup_dialog.py" line="188"/>
         <source>Restart Synthesia2MIDI to apply the selected language.</source>
         <translation>Перезапустите Synthesia2MIDI, чтобы применить выбранный язык.</translation>
+    </message>
+    <message>
+        <location filename="../gui/startup_dialog.py" line="195"/>
+        <source>{filename} (missing)</source>
+        <translation>{filename} (отсутствует)</translation>
+    </message>
+    <message>
+        <location filename="../gui/startup_dialog.py" line="200"/>
+        <source>{filename} — {folder}</source>
+        <translation>{filename} — {folder}</translation>
+    </message>
+</context>
+<context>
+    <name>UiGlossary</name>
+    <message>
+        <location filename="../gui/ui_glossary.py" line="12"/>
+        <source>Keyboard box: the rectangle around the full visible keyboard.</source>
+        <translation>Рамка клавиатуры: прямоугольник вокруг всей видимой клавиатуры.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui_glossary.py" line="13"/>
+        <source>Overlay: a small box that follows one piano key.</source>
+        <translation>Оверлей: маленькая рамка для одной клавиши пианино.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui_glossary.py" line="14"/>
+        <source>Left/Right color family: the two Synthesia note colors, not keyboard position.</source>
+        <translation>Цветовая группа Left/Right: два цвета нот Synthesia, а не положение на клавиатуре.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui_glossary.py" line="15"/>
+        <source>Detection sensitivity: how easily a key counts as pressed.</source>
+        <translation>Чувствительность распознавания: насколько легко клавиша считается нажатой.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui_glossary.py" line="16"/>
+        <source>Repeated-notes flashes: brief flashes above a key that separate repeated notes.</source>
+        <translation>Вспышки повторяющихся нот: короткие вспышки над клавишей, которые разделяют повторяющиеся ноты.</translation>
     </message>
 </context>
 <context>
     <name>Video2MidiApp</name>
     <message>
-        <location filename="../main.py" line="144"/>
+        <location filename="../main.py" line="147"/>
         <source>File</source>
         <translation>Файл</translation>
     </message>
     <message>
-        <location filename="../main.py" line="145"/>
         <source>Open Video (MP4)...</source>
-        <translation>Открыть видео (MP4)...</translation>
+        <translation type="vanished">Открыть видео (MP4)...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="149"/>
         <source>Download Youtube Video...</source>
-        <translation>Скачать видео с YouTube...</translation>
+        <translation type="vanished">Скачать видео с YouTube...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="153"/>
         <source>Save Settings (Ctrl+S)</source>
-        <translation>Сохранить настройки (Ctrl+S)</translation>
+        <translation type="vanished">Сохранить настройки (Ctrl+S)</translation>
     </message>
     <message>
-        <location filename="../main.py" line="160"/>
-        <location filename="../main.py" line="480"/>
+        <location filename="../main.py" line="164"/>
+        <location filename="../main.py" line="521"/>
         <source>Exit</source>
         <translation>Выход</translation>
     </message>
     <message>
-        <location filename="../main.py" line="166"/>
+        <location filename="../main.py" line="170"/>
         <source>View</source>
         <translation>Вид</translation>
     </message>
     <message>
-        <location filename="../main.py" line="167"/>
+        <location filename="../main.py" line="171"/>
         <source>Show Overlays</source>
         <translation>Показать оверлеи</translation>
     </message>
     <message>
-        <location filename="../main.py" line="173"/>
+        <location filename="../main.py" line="177"/>
         <source>Live Detection Feedback</source>
         <translation>Обратная связь детекции в реальном времени</translation>
     </message>
     <message>
-        <location filename="../main.py" line="181"/>
-        <location filename="../main.py" line="397"/>
+        <location filename="../main.py" line="185"/>
+        <location filename="../main.py" line="444"/>
         <source>Focus Video (Hide Settings)</source>
         <translation>Фокус на видео (скрыть настройки)</translation>
     </message>
     <message>
-        <location filename="../main.py" line="193"/>
+        <location filename="../main.py" line="197"/>
         <source>Frame Navigation</source>
         <translation>Навигация по кадрам</translation>
     </message>
     <message>
-        <location filename="../main.py" line="199"/>
+        <location filename="../main.py" line="203"/>
         <source>{count} frame</source>
         <translation>{count} кадр</translation>
     </message>
     <message>
-        <location filename="../main.py" line="201"/>
+        <location filename="../main.py" line="205"/>
         <source>{count} frames</source>
         <translation>{count} кадров</translation>
     </message>
     <message>
-        <location filename="../main.py" line="210"/>
         <source>Visual Threshold Monitor</source>
-        <translation>Визуальный монитор порога</translation>
+        <translation type="vanished">Визуальный монитор порога</translation>
     </message>
     <message>
-        <location filename="../main.py" line="213"/>
         <source>Enable</source>
-        <translation>Включить</translation>
+        <translation type="vanished">Включить</translation>
     </message>
     <message>
-        <location filename="../main.py" line="222"/>
+        <location filename="../main.py" line="245"/>
         <source>Capture Window Screenshot</source>
         <translation>Снимок окна</translation>
     </message>
     <message>
-        <location filename="../main.py" line="255"/>
-        <location filename="../main.py" line="363"/>
+        <location filename="../main.py" line="279"/>
+        <source>Settings</source>
+        <translation>Настройки</translation>
+    </message>
+    <message>
+        <location filename="../main.py" line="281"/>
+        <location filename="../main.py" line="403"/>
         <source>Show settings</source>
         <translation>Показать настройки</translation>
     </message>
     <message>
-        <location filename="../main.py" line="311"/>
+        <location filename="../main.py" line="352"/>
         <source>PgUp/PgDn or ←/→</source>
         <translation>PgUp/PgDn или ←/→</translation>
     </message>
     <message>
-        <location filename="../main.py" line="361"/>
+        <location filename="../main.py" line="401"/>
         <source>Hide settings</source>
         <translation>Скрыть настройки</translation>
     </message>
     <message>
-        <location filename="../main.py" line="393"/>
+        <location filename="../main.py" line="440"/>
         <source>Show Settings Panel</source>
         <translation>Показать панель настроек</translation>
     </message>
     <message>
-        <location filename="../main.py" line="456"/>
-        <location filename="../main.py" line="465"/>
-        <location filename="../main.py" line="472"/>
+        <location filename="../main.py" line="157"/>
+        <location filename="../main.py" line="497"/>
+        <location filename="../main.py" line="506"/>
+        <location filename="../main.py" line="513"/>
         <source>Save Settings</source>
         <translation>Сохранить настройки</translation>
     </message>
     <message>
-        <location filename="../main.py" line="457"/>
+        <location filename="../main.py" line="149"/>
+        <source>Open Video File...</source>
+        <translation>Открыть видеофайл...</translation>
+    </message>
+    <message>
+        <location filename="../main.py" line="153"/>
+        <source>Download YouTube Video...</source>
+        <translation>Скачать видео с YouTube...</translation>
+    </message>
+    <message>
+        <location filename="../main.py" line="214"/>
+        <source>Advanced</source>
+        <translation>Расширенные</translation>
+    </message>
+    <message>
+        <location filename="../main.py" line="218"/>
+        <source>Open Image Sequence Folder...</source>
+        <translation>Открыть папку последовательности изображений...</translation>
+    </message>
+    <message>
+        <location filename="../main.py" line="228"/>
+        <source>Diagnostics</source>
+        <translation>Диагностика</translation>
+    </message>
+    <message>
+        <location filename="../main.py" line="234"/>
+        <source>Enable Visual Threshold Monitor</source>
+        <translation>Включить визуальный монитор порога</translation>
+    </message>
+    <message>
+        <location filename="../main.py" line="498"/>
         <source>No video file is open. Open a video first.</source>
         <translation>Сначала откройте видеофайл.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="466"/>
+        <location filename="../main.py" line="507"/>
         <source>Settings saved successfully.</source>
         <translation>Настройки успешно сохранены.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="473"/>
+        <location filename="../main.py" line="514"/>
         <source>Failed to save settings.</source>
         <translation>Не удалось сохранить настройки.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="481"/>
+        <location filename="../main.py" line="522"/>
         <source>You have unsaved changes. Save before exiting?</source>
         <translation>Есть несохранённые изменения. Сохранить перед выходом?</translation>
     </message>
     <message>
-        <location filename="../main.py" line="539"/>
+        <location filename="../main.py" line="580"/>
         <source>Screenshot Saved</source>
         <translation>Снимок сохранён</translation>
     </message>
     <message>
-        <location filename="../main.py" line="540"/>
+        <location filename="../main.py" line="581"/>
         <source>Window screenshot saved to:
 {filepath}</source>
         <translation>Снимок окна сохранён в:
 {filepath}</translation>
     </message>
     <message>
-        <location filename="../main.py" line="546"/>
+        <location filename="../main.py" line="587"/>
         <source>Screenshot Failed</source>
         <translation>Снимок не сохранён</translation>
     </message>
     <message>
-        <location filename="../main.py" line="547"/>
+        <location filename="../main.py" line="588"/>
         <source>Failed to save screenshot to:
 {filepath}</source>
         <translation>Не удалось сохранить снимок в:
 {filepath}</translation>
     </message>
     <message>
-        <location filename="../main.py" line="554"/>
+        <location filename="../main.py" line="595"/>
         <source>Screenshot Error</source>
         <translation>Ошибка снимка</translation>
     </message>
     <message>
-        <location filename="../main.py" line="555"/>
+        <location filename="../main.py" line="596"/>
         <source>Error capturing window screenshot:
 {error}</source>
         <translation>Ошибка при создании снимка окна:
 {error}</translation>
+    </message>
+</context>
+<context>
+    <name>VideoEmptyState</name>
+    <message>
+        <location filename="../gui/video_empty_state.py" line="19"/>
+        <source>Open a Synthesia-style video to begin</source>
+        <translation>Откройте видео в стиле Synthesia, чтобы начать</translation>
+    </message>
+    <message>
+        <location filename="../gui/video_empty_state.py" line="25"/>
+        <source>Choose a Synthesia-style piano video with visible keys and falling notes.</source>
+        <translation>Выберите видео в стиле Synthesia, где видны клавиши и падающие ноты.</translation>
+    </message>
+    <message>
+        <location filename="../gui/video_empty_state.py" line="33"/>
+        <source>Open Video</source>
+        <translation>Открыть видео</translation>
+    </message>
+    <message>
+        <location filename="../gui/video_empty_state.py" line="37"/>
+        <source>Download from YouTube</source>
+        <translation>Скачать с YouTube</translation>
+    </message>
+    <message>
+        <location filename="../gui/video_empty_state.py" line="41"/>
+        <source>Settings</source>
+        <translation>Настройки</translation>
     </message>
 </context>
 <context>
@@ -2682,14 +3490,27 @@ The video will be loaded directly instead.</source>
 <context>
     <name>VideoSessionUiController</name>
     <message>
-        <location filename="../gui/video_session_ui_controller.py" line="37"/>
         <source>Select Video File or Image Sequence Directory</source>
-        <translation>Выберите видеофайл или папку последовательности изображений</translation>
+        <translation type="vanished">Выберите видеофайл или папку последовательности изображений</translation>
     </message>
     <message>
-        <location filename="../gui/video_session_ui_controller.py" line="42"/>
         <source>Video Files (*.mp4 *.avi *.mov *.mkv *.webm);;Image Sequence Directories (*)</source>
-        <translation>Видеофайлы (*.mp4 *.avi *.mov *.mkv *.webm);;Папки последовательностей изображений (*)</translation>
+        <translation type="vanished">Видеофайлы (*.mp4 *.avi *.mov *.mkv *.webm);;Папки последовательностей изображений (*)</translation>
+    </message>
+    <message>
+        <location filename="../gui/video_session_ui_controller.py" line="36"/>
+        <source>Open Video File</source>
+        <translation>Открыть видеофайл</translation>
+    </message>
+    <message>
+        <location filename="../gui/video_session_ui_controller.py" line="39"/>
+        <source>Video Files (*.mp4 *.avi *.mov *.mkv *.webm)</source>
+        <translation>Видеофайлы (*.mp4 *.avi *.mov *.mkv *.webm)</translation>
+    </message>
+    <message>
+        <location filename="../gui/video_session_ui_controller.py" line="66"/>
+        <source>Open Image Sequence Folder</source>
+        <translation>Открыть папку последовательности изображений</translation>
     </message>
 </context>
 <context>
@@ -2854,190 +3675,235 @@ You can now load the frame series for faster playback.</source>
 <context>
     <name>YouTubeDownloadDialog</name>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="90"/>
+        <location filename="../gui/youtube_download_dialog.py" line="96"/>
         <source>Download YouTube Video</source>
         <translation>Скачать видео с YouTube</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="99"/>
+        <location filename="../gui/youtube_download_dialog.py" line="105"/>
         <source>YouTube URL</source>
         <translation>URL YouTube</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="108"/>
+        <location filename="../gui/youtube_download_dialog.py" line="114"/>
         <source>Video Information</source>
         <translation>Информация о видео</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="137"/>
         <source>YouTube Access Fallback</source>
-        <translation>Резервный доступ к YouTube</translation>
+        <translation type="vanished">Резервный доступ к YouTube</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="149"/>
+        <location filename="../gui/youtube_download_dialog.py" line="144"/>
+        <source>If YouTube blocks the download</source>
+        <translation>Если YouTube заблокирует загрузку</translation>
+    </message>
+    <message>
+        <location filename="../gui/youtube_download_dialog.py" line="148"/>
+        <source>Synthesia2MIDI can retry using saved browser cookies only if YouTube blocks the normal download.</source>
+        <translation>Synthesia2MIDI может повторить попытку с сохраненными cookie браузера, только если YouTube блокирует обычную загрузку.</translation>
+    </message>
+    <message>
+        <location filename="../gui/youtube_download_dialog.py" line="166"/>
         <source>Auto-retry with saved browser cookies if YouTube blocks access</source>
         <translation>Автоповтор с сохранёнными cookie браузера, если YouTube заблокирует доступ</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="158"/>
+        <location filename="../gui/youtube_download_dialog.py" line="176"/>
         <source>Refresh Info</source>
         <translation>Обновить информацию</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="164"/>
+        <location filename="../gui/youtube_download_dialog.py" line="182"/>
         <source>Download Progress</source>
         <translation>Ход скачивания</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="171"/>
-        <location filename="../gui/youtube_download_dialog.py" line="217"/>
-        <location filename="../gui/youtube_download_dialog.py" line="222"/>
-        <location filename="../gui/youtube_download_dialog.py" line="246"/>
-        <location filename="../gui/youtube_download_dialog.py" line="304"/>
+        <location filename="../gui/youtube_download_dialog.py" line="189"/>
+        <location filename="../gui/youtube_download_dialog.py" line="242"/>
+        <location filename="../gui/youtube_download_dialog.py" line="247"/>
+        <location filename="../gui/youtube_download_dialog.py" line="271"/>
+        <location filename="../gui/youtube_download_dialog.py" line="329"/>
         <source>Ready to download</source>
         <translation>Готово к скачиванию</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="181"/>
+        <location filename="../gui/youtube_download_dialog.py" line="199"/>
         <source>Download Video</source>
         <translation>Скачать видео</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="186"/>
-        <location filename="../gui/youtube_download_dialog.py" line="489"/>
+        <location filename="../gui/youtube_download_dialog.py" line="204"/>
+        <location filename="../gui/youtube_download_dialog.py" line="517"/>
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="191"/>
+        <location filename="../gui/youtube_download_dialog.py" line="209"/>
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="214"/>
-        <location filename="../gui/youtube_download_dialog.py" line="244"/>
+        <location filename="../gui/youtube_download_dialog.py" line="239"/>
+        <location filename="../gui/youtube_download_dialog.py" line="269"/>
         <source>Invalid YouTube URL</source>
         <translation>Недопустимый YouTube URL</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="219"/>
-        <location filename="../gui/youtube_download_dialog.py" line="260"/>
+        <location filename="../gui/youtube_download_dialog.py" line="244"/>
+        <location filename="../gui/youtube_download_dialog.py" line="285"/>
         <source>Fetching video information...</source>
         <translation>Получение информации о видео...</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="277"/>
+        <location filename="../gui/youtube_download_dialog.py" line="302"/>
         <source>&lt;b&gt;Title:&lt;/b&gt; {title}</source>
         <translation>&lt;b&gt;Название:&lt;/b&gt; {title}</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="286"/>
+        <location filename="../gui/youtube_download_dialog.py" line="311"/>
         <source>&lt;b&gt;Duration:&lt;/b&gt; {duration}</source>
         <translation>&lt;b&gt;Длительность:&lt;/b&gt; {duration}</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="292"/>
+        <location filename="../gui/youtube_download_dialog.py" line="317"/>
         <source>&lt;b&gt;Uploader:&lt;/b&gt; {uploader}</source>
         <translation>&lt;b&gt;Автор:&lt;/b&gt; {uploader}</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="330"/>
+        <location filename="../gui/youtube_download_dialog.py" line="356"/>
         <source>Error</source>
         <translation>Ошибка</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="331"/>
+        <location filename="../gui/youtube_download_dialog.py" line="357"/>
         <source>Failed to fetch video info: {error}</source>
         <translation>Не удалось получить информацию о видео: {error}</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="335"/>
+        <location filename="../gui/youtube_download_dialog.py" line="361"/>
         <source>Failed to fetch video info</source>
         <translation>Не удалось получить информацию о видео</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="364"/>
+        <location filename="../gui/youtube_download_dialog.py" line="390"/>
         <source>Video Already Downloaded</source>
         <translation>Видео уже скачано</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="365"/>
+        <location filename="../gui/youtube_download_dialog.py" line="391"/>
         <source>This quality is already downloaded. Use existing file?</source>
         <translation>Это качество уже скачано. Использовать существующий файл?</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="376"/>
-        <location filename="../gui/youtube_download_dialog.py" line="416"/>
+        <location filename="../gui/youtube_download_dialog.py" line="402"/>
+        <location filename="../gui/youtube_download_dialog.py" line="442"/>
         <source>Download cancelled</source>
         <translation>Скачивание отменено</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="395"/>
+        <location filename="../gui/youtube_download_dialog.py" line="421"/>
         <source>Cancel Download</source>
         <translation>Отменить скачивание</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="401"/>
+        <location filename="../gui/youtube_download_dialog.py" line="427"/>
         <source>Starting download...</source>
         <translation>Начало скачивания...</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="442"/>
+        <location filename="../gui/youtube_download_dialog.py" line="469"/>
         <source>Still waiting for YouTube...</source>
         <translation>Ожидание YouTube...</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="448"/>
+        <location filename="../gui/youtube_download_dialog.py" line="475"/>
         <source>Download complete!</source>
         <translation>Скачивание завершено!</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="456"/>
+        <location filename="../gui/youtube_download_dialog.py" line="483"/>
         <source>Download Complete</source>
         <translation>Скачивание завершено</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="457"/>
+        <location filename="../gui/youtube_download_dialog.py" line="484"/>
         <source>Video downloaded successfully. Load it now?</source>
         <translation>Видео успешно скачано. Загрузить его сейчас?</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="474"/>
+        <location filename="../gui/youtube_download_dialog.py" line="501"/>
         <source>Download failed</source>
         <translation>Скачивание не удалось</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="477"/>
+        <location filename="../gui/youtube_download_dialog.py" line="505"/>
         <source>Download Error</source>
         <translation>Ошибка скачивания</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="478"/>
+        <location filename="../gui/youtube_download_dialog.py" line="506"/>
         <source>Failed to download video: {error}</source>
         <translation>Не удалось скачать видео: {error}</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="500"/>
+        <location filename="../gui/youtube_download_dialog.py" line="527"/>
+        <source>1080p - recommended for best MIDI detection</source>
+        <translation>1080p - рекомендуется для лучшего распознавания MIDI</translation>
+    </message>
+    <message>
+        <location filename="../gui/youtube_download_dialog.py" line="533"/>
+        <source>720p - faster, may be less accurate</source>
+        <translation>720p - быстрее, но может быть менее точным</translation>
+    </message>
+    <message>
+        <location filename="../gui/youtube_download_dialog.py" line="539"/>
+        <source>480p - fastest, highest risk of bad calibration</source>
+        <translation>480p - самый быстрый, самый высокий риск плохой калибровки</translation>
+    </message>
+    <message>
+        <location filename="../gui/youtube_download_dialog.py" line="589"/>
+        <source>Up to {preset} ({actual_height}p source) - {note}</source>
+        <translation>До {preset} (источник {actual_height}p) - {note}</translation>
+    </message>
+    <message>
         <source>720p - faster processing, higher calibration risk</source>
-        <translation>720p - быстрее обработка, выше риск калибровки</translation>
+        <translation type="vanished">720p - быстрее обработка, выше риск калибровки</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="506"/>
         <source>480p - fastest processing, highest calibration risk</source>
-        <translation>480p - самая быстрая обработка, самый высокий риск калибровки</translation>
+        <translation type="vanished">480p - самая быстрая обработка, самый высокий риск калибровки</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="557"/>
+        <location filename="../gui/youtube_download_dialog.py" line="595"/>
         <source>Up to {target_height}p ({actual_height}p source)</source>
         <translation>До {target_height}p (источник {actual_height}p)</translation>
     </message>
     <message>
+        <location filename="../gui/youtube_download_dialog.py" line="602"/>
+        <location filename="../gui/youtube_download_dialog.py" line="605"/>
+        <source>recommended for best MIDI detection</source>
+        <translation>рекомендуется для лучшего распознавания MIDI</translation>
+    </message>
+    <message>
         <location filename="../gui/youtube_download_dialog.py" line="608"/>
+        <location filename="../gui/youtube_download_dialog.py" line="611"/>
+        <source>faster, may be less accurate</source>
+        <translation>быстрее, но может быть менее точным</translation>
+    </message>
+    <message>
+        <location filename="../gui/youtube_download_dialog.py" line="614"/>
+        <location filename="../gui/youtube_download_dialog.py" line="617"/>
+        <source>fastest, highest risk of bad calibration</source>
+        <translation>самый быстрый, самый высокий риск плохой калибровки</translation>
+    </message>
+    <message>
+        <location filename="../gui/youtube_download_dialog.py" line="675"/>
         <source>Download in Progress</source>
         <translation>Идёт скачивание</translation>
     </message>
     <message>
-        <location filename="../gui/youtube_download_dialog.py" line="609"/>
+        <location filename="../gui/youtube_download_dialog.py" line="676"/>
         <source>A download is in progress. Cancel and close?</source>
         <translation>Скачивание выполняется. Отменить и закрыть?</translation>
     </message>

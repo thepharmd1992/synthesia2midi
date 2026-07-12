@@ -1,4 +1,4 @@
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import json
 
 
@@ -57,14 +57,27 @@ def test_static_extractor_includes_qcoreapplication_translate_calls(tmp_path):
     assert candidates[0].classification == "translate"
 
 
-def test_runtime_widget_crawler_collects_visible_text():
+def test_static_extractor_normalizes_windows_source_paths():
+    from synthesia2midi.tools.audit_ui_strings import _manifest_source
+
+    root = PureWindowsPath("C:/repo")
+    source = root / "synthesia2midi" / "synthesia2midi" / "gui" / "controls_qt.py"
+
+    assert _manifest_source(source, root) == (
+        "synthesia2midi/synthesia2midi/gui/controls_qt.py"
+    )
+
+
+def test_runtime_widget_crawler_collects_visible_text(tmp_path):
     from PySide6.QtWidgets import QApplication
 
     from synthesia2midi.gui.startup_dialog import StartupDialog
     from synthesia2midi.tools.audit_ui_strings import collect_widget_text
 
     app = QApplication.instance() or QApplication([])
-    dialog = StartupDialog(recent_video_paths=["/tmp/example.mp4"])
+    recent_video = tmp_path / "example.mp4"
+    recent_video.write_text("video")
+    dialog = StartupDialog(recent_video_paths=[str(recent_video)])
 
     try:
         candidates = collect_widget_text(dialog)
@@ -73,7 +86,7 @@ def test_runtime_widget_crawler_collects_visible_text():
         assert by_text["Open Video File"].origin == "runtime"
         assert by_text["Recent Videos"].classification == "translate"
         assert by_text["example.mp4"].classification == "dynamic_user_data"
-        assert by_text["/tmp/example.mp4"].classification == "dynamic_user_data"
+        assert by_text[str(recent_video)].classification == "dynamic_user_data"
     finally:
         dialog.close()
         dialog.deleteLater()

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import cv2
+import copy
 import logging
 from typing import Any, Dict, Optional
 
@@ -18,6 +19,10 @@ from synthesia2midi.detection.assisted_calibration import (
 )
 
 from synthesia2midi.gui.auto_detect_tuning_controller import AutoDetectTuningController
+from synthesia2midi.gui.assisted_calibration_dialog import (
+    AssistedCalibrationDecision,
+    AssistedCalibrationDialog,
+)
 from synthesia2midi.gui.dialog_positioning import move_to_upper_left_safe_zone
 
 translate = QCoreApplication.translate
@@ -37,6 +42,7 @@ class CalibrationWizardController:
         self._edit_current_calibration_requested = False
         self._manual_edit_current_calibration_requested = False
         self._pending_assisted_calibration_context: Optional[tuple[np.ndarray, int]] = None
+        self._canvas_selection_cancel_connected = False
 
     @property
     def app_state(self):
@@ -198,6 +204,14 @@ class CalibrationWizardController:
             self.keyboard_canvas.interaction.keyboard_region_selected.connect(
                 self._handle_keyboard_region_selected
             )
+            if (
+                hasattr(self.keyboard_canvas.interaction, "selection_cancelled")
+                and not self._canvas_selection_cancel_connected
+            ):
+                self.keyboard_canvas.interaction.selection_cancelled.connect(
+                    self._handle_canvas_selection_cancelled
+                )
+                self._canvas_selection_cancel_connected = True
             logging.info("Signal connected successfully")
 
             # Enter selection mode
@@ -212,6 +226,21 @@ class CalibrationWizardController:
                 translate("CalibrationWizardController", "Canvas interaction system not available."),
             )
             logging.error("Canvas interaction system not available")
+
+    def _handle_canvas_selection_cancelled(self, selection_type: str) -> None:
+        if selection_type != "keyboard_region" or not self._keyboard_region_requested:
+            return
+        try:
+            self.keyboard_canvas.interaction.keyboard_region_selected.disconnect(
+                self._handle_keyboard_region_selected
+            )
+        except TypeError:
+            self.keyboard_canvas.interaction.keyboard_region_selected.disconnect()
+        except RuntimeError:
+            pass
+        self.keyboard_canvas.setCursor(Qt.ArrowCursor)
+        self._clear_calibration_wizard()
+        logging.info("Keyboard region selection cancelled; calibration wizard cleaned up")
 
     def _handle_edit_current_calibration_request(self):
         """Open tuning dialog for the currently loaded calibration without redrawing ROI."""
@@ -244,6 +273,34 @@ class CalibrationWizardController:
                 ),
             )
 
+    def review_current_alignment(self) -> bool:
+        """Open the existing alignment editor appropriate for the loaded calibration."""
+        if self._current_overlay_generation_source() == "manual":
+            manual_fit_controller = getattr(self.app, "manual_keyboard_fit_controller", None)
+            if manual_fit_controller is None:
+                return False
+            return manual_fit_controller.open(start_setup=False) is not False
+
+        if self._has_editable_auto_detect_tuning_context():
+            if self.calibration_wizard is None and self.calibration_workflow is not None:
+                self._reset_wizard_lifecycle_flags()
+                self.calibration_wizard = self.calibration_workflow.run_calibration_wizard()
+            if self.calibration_wizard is not None:
+                if self._open_auto_detect_tuning_dialog(use_wizard_context=False):
+                    return True
+                self._clear_calibration_wizard()
+
+        self.run_calibration_wizard()
+        return self.calibration_wizard is not None
+
+    def run_assisted_calibration_from_current_frame(self) -> bool:
+        """Use the currently displayed frame as the assisted scan baseline."""
+        frame_index = int(getattr(self.app_state.video, "current_frame_index", 0) or 0)
+        frame_rgb = self._frame_provider_rgb(frame_index)
+        if frame_rgb is None or not isinstance(frame_rgb, np.ndarray) or frame_rgb.size == 0:
+            return False
+        return self._run_assisted_auto_calibration(frame_rgb, frame_index)
+
     def _cache_auto_detect_tuning_context(self, context: Dict[str, Any]) -> None:
         """Wizard callback adapter that keeps tuning state owned by the tuning controller."""
         self.auto_detect_tuning_controller.cache_context(context)
@@ -257,37 +314,51 @@ class CalibrationWizardController:
         return cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
 
     def _proposal_summary_text(self, proposal) -> str:
+        slot_labels = {
+            "LW": translate("CalibrationWizardController", "Left White"),
+            "LB": translate("CalibrationWizardController", "Left Black"),
+            "RW": translate("CalibrationWizardController", "Right White"),
+            "RB": translate("CalibrationWizardController", "Right Black"),
+        }
         lines = [
             translate(
                 "CalibrationWizardController",
-                "Assisted calibration found {count} candidate samples.",
+                "Assisted calibration found {count} possible pressed-key samples.",
             ).format(count=proposal.candidate_count),
             translate(
                 "CalibrationWizardController",
-                "Color families found: {count}",
+                "Found {count} Synthesia note color families.",
             ).format(count=proposal.assignment_result.family_count),
+            translate(
+                "CalibrationWizardController",
+                "Left/Right refer to Synthesia note colors, not the physical side of the keyboard.",
+            ),
         ]
         for slot in ("LW", "LB", "RW", "RB"):
             assignment = proposal.assignment_result.assignments.get(slot)
             if assignment is None:
                 continue
+            label = slot_labels[slot]
             if not assignment.enabled:
                 lines.append(
-                    f"{slot}: "
-                    + translate(
+                    translate(
                         "CalibrationWizardController",
-                        "not present in this video",
-                    )
+                        "{label}: not present in this video",
+                    ).format(label=label)
                 )
             elif assignment.rgb is not None:
-                lines.append(f"{slot}: {assignment.rgb}")
+                lines.append(
+                    translate(
+                        "CalibrationWizardController",
+                        "{label}: found",
+                    ).format(label=label)
+                )
             else:
                 lines.append(
-                    f"{slot}: "
-                    + translate(
+                    translate(
                         "CalibrationWizardController",
-                        "not found",
-                    )
+                        "{label}: not found",
+                    ).format(label=label)
                 )
         return "\n".join(lines)
 
@@ -299,20 +370,47 @@ class CalibrationWizardController:
             for assignment in proposal.assignment_result.assignments.values()
         )
 
-    def _snapshot_overlay_unlit_state(self):
-        return [
-            (
-                overlay,
-                overlay.unlit_reference_color,
-                overlay.unlit_hist.copy() if overlay.unlit_hist is not None else None,
-            )
-            for overlay in self.app_state.overlays
-        ]
+    def _snapshot_calibration_state(self):
+        return {
+            "overlays": [
+                (
+                    overlay,
+                    overlay.unlit_reference_color,
+                    overlay.unlit_hist.copy() if overlay.unlit_hist is not None else None,
+                )
+                for overlay in self.app_state.overlays
+            ],
+            "enabled": dict(self.app_state.detection.exemplar_key_type_enabled),
+            "colors": copy.deepcopy(self.app_state.detection.exemplar_lit_colors),
+            "histograms": {
+                key: value.copy() if value is not None else None
+                for key, value in self.app_state.detection.exemplar_lit_histograms.items()
+            },
+            "unsaved_changes": self.app_state.unsaved_changes,
+        }
 
-    def _restore_overlay_unlit_state(self, overlay_unlit_state) -> None:
-        for overlay, unlit_reference_color, unlit_hist in overlay_unlit_state:
+    def _restore_calibration_state(self, snapshot) -> None:
+        for overlay, unlit_reference_color, unlit_hist in snapshot["overlays"]:
             overlay.unlit_reference_color = unlit_reference_color
             overlay.unlit_hist = unlit_hist.copy() if unlit_hist is not None else None
+        self.app_state.detection.exemplar_key_type_enabled.clear()
+        self.app_state.detection.exemplar_key_type_enabled.update(snapshot["enabled"])
+        self.app_state.detection.exemplar_lit_colors.clear()
+        self.app_state.detection.exemplar_lit_colors.update(copy.deepcopy(snapshot["colors"]))
+        self.app_state.detection.exemplar_lit_histograms.clear()
+        self.app_state.detection.exemplar_lit_histograms.update(
+            {
+                key: value.copy() if value is not None else None
+                for key, value in snapshot["histograms"].items()
+            }
+        )
+        self.app_state.unsaved_changes = snapshot["unsaved_changes"]
+
+    def _set_assisted_calibration_guide_state(self, state: str) -> None:
+        panel = getattr(self.app, "control_panel", None)
+        guide = getattr(panel, "guide_page", None) if panel is not None else None
+        if guide is not None and hasattr(guide, "set_assisted_state"):
+            guide.set_assisted_state(state)
 
     def _run_assisted_auto_calibration(
         self,
@@ -327,7 +425,8 @@ class CalibrationWizardController:
         ):
             return False
 
-        overlay_unlit_state = self._snapshot_overlay_unlit_state()
+        calibration_snapshot = self._snapshot_calibration_state()
+        self._set_assisted_calibration_guide_state("scanning")
         assessment = assess_unlit_frame(baseline_frame_rgb, self.app_state.overlays)
         if assessment.should_warn:
             note_list = ", ".join(item.note_label for item in assessment.likely_lit)
@@ -342,6 +441,7 @@ class CalibrationWizardController:
                 QMessageBox.StandardButton.Cancel,
             )
             if response == QMessageBox.StandardButton.Cancel:
+                self._set_assisted_calibration_guide_state("kept")
                 return False
         capture_unlit_references_from_frame(baseline_frame_rgb, self.app_state.overlays)
 
@@ -375,10 +475,12 @@ class CalibrationWizardController:
         )
         progress.close()
         if proposal.canceled:
-            self._restore_overlay_unlit_state(overlay_unlit_state)
+            self._restore_calibration_state(calibration_snapshot)
+            self._set_assisted_calibration_guide_state("kept")
             return False
         if not self._proposal_has_usable_assignments(proposal):
-            self._restore_overlay_unlit_state(overlay_unlit_state)
+            self._restore_calibration_state(calibration_snapshot)
+            self._set_assisted_calibration_guide_state("none_found")
             QMessageBox.information(
                 self.app if isinstance(self.app, QWidget) else None,
                 translate("CalibrationWizardController", "Assisted Calibration"),
@@ -389,22 +491,41 @@ class CalibrationWizardController:
             )
             return False
 
-        response = QMessageBox.question(
+        dialog = AssistedCalibrationDialog(
+            proposal,
             self.app if isinstance(self.app, QWidget) else None,
-            translate("CalibrationWizardController", "Assisted Calibration"),
-            self._proposal_summary_text(proposal)
-            + "\n\n"
-            + translate("CalibrationWizardController", "Apply these calibration updates?"),
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.Yes,
         )
-        if response != QMessageBox.StandardButton.Yes:
-            self._restore_overlay_unlit_state(overlay_unlit_state)
+        dialog.exec()
+        if dialog.decision is not AssistedCalibrationDecision.USE:
+            self._restore_calibration_state(calibration_snapshot)
+            self._set_assisted_calibration_guide_state(
+                "retry" if dialog.decision is AssistedCalibrationDecision.RETRY else "kept"
+            )
             return False
 
         apply_assisted_calibration_proposal(self.app_state, proposal)
+        for slot, assignment in proposal.assignment_result.assignments.items():
+            if assignment.rgb is None:
+                self.app_state.detection.exemplar_key_type_enabled[slot] = calibration_snapshot[
+                    "enabled"
+                ].get(slot, True)
+                self.app_state.detection.exemplar_lit_colors[slot] = copy.deepcopy(
+                    calibration_snapshot["colors"].get(slot)
+                )
+                old_histogram = calibration_snapshot["histograms"].get(slot)
+                self.app_state.detection.exemplar_lit_histograms[slot] = (
+                    old_histogram.copy() if old_histogram is not None else None
+                )
         if self.video_loading_workflow:
             self.video_loading_workflow.save_current_config()
+        self._set_assisted_calibration_guide_state("applied")
+        refresh_readiness = getattr(
+            getattr(self.app, "control_panel", None),
+            "_update_conversion_readiness_display",
+            None,
+        )
+        if callable(refresh_readiness):
+            refresh_readiness()
         return True
 
     def _queue_assisted_auto_calibration(

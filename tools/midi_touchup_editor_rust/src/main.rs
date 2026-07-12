@@ -30,6 +30,33 @@ const MAX_VERTICAL_ZOOM: f32 = 6.0;
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 const DEFAULT_SF2_FILENAME: &str = "TouchUpPiano.sf2";
 
+#[derive(Clone, Copy, Debug)]
+struct ToolbarMetrics {
+    font_size: f32,
+    button_width: f32,
+    button_height: f32,
+}
+
+fn toolbar_metrics(available_width: f32) -> ToolbarMetrics {
+    if available_width < 1100.0 {
+        ToolbarMetrics {
+            font_size: 18.0,
+            button_width: 110.0,
+            button_height: 38.0,
+        }
+    } else {
+        ToolbarMetrics {
+            font_size: 20.0,
+            button_width: 150.0,
+            button_height: 44.0,
+        }
+    }
+}
+
+fn pointer_targets_canvas(pointer_pos: Option<Pos2>, canvas_rect: Rect) -> bool {
+    pointer_pos.is_some_and(|position| canvas_rect.contains(position))
+}
+
 #[derive(Parser, Debug)]
 #[command(name = "midi-touchup-editor")]
 #[command(about = "Standalone MIDI touch-up editor (falling bars only)")]
@@ -1468,32 +1495,12 @@ impl App for MidiTouchupApp {
             self.step_playhead(1);
         }
 
-        let (smooth_scroll_y, raw_scroll_y, shift_down, zoom_modifier_down) = ctx.input(|i| {
-            (
-                i.smooth_scroll_delta.y,
-                i.raw_scroll_delta.y,
-                i.modifiers.shift,
-                i.modifiers.ctrl || i.modifiers.command,
-            )
-        });
-        let (scroll_y, smooth_input) = if smooth_scroll_y.abs() > f32::EPSILON {
-            (smooth_scroll_y, true)
-        } else {
-            (raw_scroll_y, false)
-        };
-        if scroll_y.abs() > f32::EPSILON {
-            if zoom_modifier_down {
-                self.zoom_vertical_with_scroll(scroll_y, smooth_input);
-            } else {
-                self.scrub_playhead_with_wheel(scroll_y, shift_down, smooth_input);
-            }
-        }
-
         egui::TopBottomPanel::top("touchup_top_bar").show(ctx, |ui| {
-            let control_font_size = 24.0;
-            let button_height = 50.0;
-            let button_width = 180.0;
-            ui.spacing_mut().item_spacing = Vec2::new(12.0, 10.0);
+            let metrics = toolbar_metrics(ui.available_width());
+            let control_font_size = metrics.font_size;
+            let button_height = metrics.button_height;
+            let button_width = metrics.button_width;
+            ui.spacing_mut().item_spacing = Vec2::new(8.0, 8.0);
             ui.add_space(8.0);
 
             ui.horizontal_wrapped(|ui| {
@@ -1646,19 +1653,23 @@ impl App for MidiTouchupApp {
                 });
 
                 if ui
-                    .add_sized(
-                        [button_width * 0.8, button_height],
-                        egui::Button::new(RichText::new("Undo").size(control_font_size)),
+                    .add_enabled(
+                        !self.undo_stack.is_empty(),
+                        egui::Button::new(RichText::new("Undo").size(control_font_size))
+                            .min_size(Vec2::new(button_width * 0.8, button_height)),
                     )
+                    .on_hover_text("Undo the last edit")
                     .clicked()
                 {
                     self.undo();
                 }
                 if ui
-                    .add_sized(
-                        [button_width * 0.8, button_height],
-                        egui::Button::new(RichText::new("Redo").size(control_font_size)),
+                    .add_enabled(
+                        !self.redo_stack.is_empty(),
+                        egui::Button::new(RichText::new("Redo").size(control_font_size))
+                            .min_size(Vec2::new(button_width * 0.8, button_height)),
                     )
+                    .on_hover_text("Redo the last undone edit")
                     .clicked()
                 {
                     self.redo();
@@ -1772,25 +1783,56 @@ impl App for MidiTouchupApp {
                     }
                 });
 
-            ui.add_space(4.0);
-            ui.horizontal_wrapped(|ui| {
-                ui.label(
-                    RichText::new(format!(
-                        "Source: {}",
-                        self.document
-                            .source_path
-                            .file_name()
-                            .map(|n| n.to_string_lossy().to_string())
-                            .unwrap_or_else(|| self.document.source_path.display().to_string())
-                    ))
-                    .size(control_font_size - 6.0),
-                );
-            });
             ui.add_space(6.0);
         });
 
+        egui::TopBottomPanel::bottom("touchup_status_bar")
+            .exact_height(34.0)
+            .show(ctx, |ui| {
+                ui.horizontal(|ui| {
+                    ui.label(RichText::new(&self.status_line).size(14.0).strong());
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        ui.label(
+                            RichText::new(format!(
+                                "Source: {}",
+                                self.document
+                                    .source_path
+                                    .file_name()
+                                    .map(|name| name.to_string_lossy().to_string())
+                                    .unwrap_or_else(|| self.document.source_path.display().to_string())
+                            ))
+                            .size(13.0),
+                        );
+                    });
+                });
+            });
+
         egui::CentralPanel::default().show(ctx, |ui| {
             let available = ui.available_rect_before_wrap();
+            let pointer_over_canvas = ui.rect_contains_pointer(available)
+                && pointer_targets_canvas(ui.input(|input| input.pointer.hover_pos()), available);
+            if pointer_over_canvas {
+                let (smooth_scroll_y, raw_scroll_y, shift_down, zoom_modifier_down) = ui.input(|input| {
+                    (
+                        input.smooth_scroll_delta.y,
+                        input.raw_scroll_delta.y,
+                        input.modifiers.shift,
+                        input.modifiers.ctrl || input.modifiers.command,
+                    )
+                });
+                let (scroll_y, smooth_input) = if smooth_scroll_y.abs() > f32::EPSILON {
+                    (smooth_scroll_y, true)
+                } else {
+                    (raw_scroll_y, false)
+                };
+                if scroll_y.abs() > f32::EPSILON {
+                    if zoom_modifier_down {
+                        self.zoom_vertical_with_scroll(scroll_y, smooth_input);
+                    } else {
+                        self.scrub_playhead_with_wheel(scroll_y, shift_down, smooth_input);
+                    }
+                }
+            }
             self.draw_falling_area(ui, available);
         });
     }
@@ -2859,8 +2901,8 @@ fn run(cli: Cli) -> (EditorResult, i32) {
 
     let native_options = NativeOptions {
         viewport: egui::ViewportBuilder::default()
-            .with_inner_size([1560.0, 920.0])
-            .with_min_inner_size([1080.0, 720.0]),
+            .with_inner_size([1280.0, 800.0])
+            .with_min_inner_size([800.0, 600.0]),
         ..Default::default()
     };
 
@@ -2905,4 +2947,29 @@ fn main() {
     }
 
     std::process::exit(exit_code);
+}
+
+#[cfg(test)]
+mod ui_policy_tests {
+    use super::*;
+
+    #[test]
+    fn wheel_input_only_targets_the_canvas() {
+        let canvas = Rect::from_min_max(Pos2::new(100.0, 200.0), Pos2::new(900.0, 700.0));
+
+        assert!(pointer_targets_canvas(Some(Pos2::new(400.0, 400.0)), canvas));
+        assert!(!pointer_targets_canvas(Some(Pos2::new(400.0, 100.0)), canvas));
+        assert!(!pointer_targets_canvas(None, canvas));
+    }
+
+    #[test]
+    fn toolbar_metrics_contract_for_laptop_widths() {
+        let compact = toolbar_metrics(900.0);
+        let wide = toolbar_metrics(1500.0);
+
+        assert!(compact.button_width < wide.button_width);
+        assert!(compact.button_height < wide.button_height);
+        assert!(compact.font_size <= 18.0);
+        assert!(compact.button_width <= 120.0);
+    }
 }

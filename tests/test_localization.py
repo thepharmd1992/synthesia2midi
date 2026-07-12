@@ -21,6 +21,45 @@ EXPECTED_USER_LOCALE_DISPLAY_NAMES = [
     ("pt_BR", "Português (Brasil)"),
 ]
 
+TASK_5_PRODUCTION_LOCALE_STRINGS = [
+    "Before tuning detection: capture a no-key frame and at least one pressed-key example.",
+    "Detection Sensitivity: main setting for pressed vs unpressed keys.",
+    "Missing notes? Lower it. Extra notes? Raise it.",
+    "Histogram Detection helps when pressed colors have gradients or uneven lighting.",
+    "Delta Detection helps when pressed colors fade in or out instead of switching cleanly.",
+    "Black Key Filter reduces false black-key notes caused by nearby overlays.",
+    "Detection Sensitivity",
+    "Detection Sensitivity:",
+    "Select Spark Area Above Keys",
+    "Select the area above the keys where spark bars and flashes appear.",
+    "Show or hide the spark area overlay on the video.",
+    "Convert Only Part of the Video",
+    "This affects MIDI creation only. It does not trim or change the video session.",
+    "Permanently Trim Project",
+    "Most users should use MIDI range instead. Trim changes the working video session, not the original video file.",
+    "Put each hand/color on a separate MIDI channel",
+    "Use this only if the video uses different colors for left and right hand notes.",
+    (
+        "<b>This will permanently trim the working video session.</b><br><br>"
+        "Frames outside {start_frame} to {end_text} will be unavailable in this project session.<br><br>"
+        "Most users should cancel and use the MIDI range controls instead."
+    ),
+    "Trim Project",
+    "Use this only if repeated notes merge into one long note.",
+]
+
+TASK_6_PRODUCTION_LOCALE_STRINGS = [
+    "If YouTube blocks the download",
+    "Synthesia2MIDI can retry using saved browser cookies only if YouTube blocks the normal download.",
+    "1080p - recommended for best MIDI detection",
+    "720p - faster, may be less accurate",
+    "480p - fastest, highest risk of bad calibration",
+    "recommended for best MIDI detection",
+    "faster, may be less accurate",
+    "fastest, highest risk of bad calibration",
+    "Up to {preset} ({actual_height}p source) - {note}",
+]
+
 
 def _production_translation_locales():
     from synthesia2midi.localization import supported_user_locales
@@ -98,6 +137,12 @@ def test_production_translators_load_known_source_texts():
 
             assert selected == locale_name
             assert translated != "File"
+            assert QCoreApplication.translate(
+                "AssistedCalibrationDialog", "Left White"
+            ) != "Left White"
+            assert QCoreApplication.translate(
+                "CalibrationGuideWidget", "Download from YouTube"
+            ) != "Download from YouTube"
     finally:
         install_translator(app, "en")
 
@@ -170,6 +215,52 @@ def test_production_translation_sources_are_complete_and_preserve_placeholders()
 
     assert unfinished == []
     assert placeholder_mismatches == []
+
+
+def test_task_5_production_strings_are_localized_in_non_english_catalogs():
+    identical_english = []
+
+    for locale_name in _production_translation_locales():
+        ts_path = Path(f"synthesia2midi/synthesia2midi/translations/synthesia2midi_{locale_name}.ts")
+        tree = ET.parse(ts_path)
+        translations_by_source = {}
+
+        for message in tree.findall(".//message"):
+            source = message.findtext("source") or ""
+            translation = message.findtext("translation") or ""
+            if source:
+                translations_by_source[source] = translation
+
+        for source in TASK_5_PRODUCTION_LOCALE_STRINGS:
+            translated = translations_by_source.get(source)
+            assert translated is not None, f"{locale_name} missing Task 5 source: {source}"
+            if translated == source:
+                identical_english.append((locale_name, source))
+
+    assert identical_english == []
+
+
+def test_task_6_production_strings_are_localized_in_non_english_catalogs():
+    identical_english = []
+
+    for locale_name in _production_translation_locales():
+        ts_path = Path(f"synthesia2midi/synthesia2midi/translations/synthesia2midi_{locale_name}.ts")
+        tree = ET.parse(ts_path)
+        translations_by_source = {}
+
+        for message in tree.findall(".//message"):
+            source = message.findtext("source") or ""
+            translation = message.findtext("translation") or ""
+            if source:
+                translations_by_source[source] = translation
+
+        for source in TASK_6_PRODUCTION_LOCALE_STRINGS:
+            translated = translations_by_source.get(source)
+            assert translated is not None, f"{locale_name} missing Task 6 source: {source}"
+            if translated == source:
+                identical_english.append((locale_name, source))
+
+    assert identical_english == []
 
 
 def test_translation_agent_packet_matches_source_catalog():

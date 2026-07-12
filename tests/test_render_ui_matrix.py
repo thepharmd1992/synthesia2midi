@@ -44,7 +44,8 @@ def test_settings_matrix_surface_uses_real_production_window():
     window = render_ui_matrix._settings_surface("Language")
     try:
         assert isinstance(window, SettingsToolWindow)
-        assert window.size() == QSize(800, 680)
+        assert window.width() >= max(800, window.sizeHint().width())
+        assert window.height() >= 680
         panel = window.settings_widget
         assert panel is not None
         assert panel.settings_section_rail.currentRow() == 7
@@ -69,7 +70,7 @@ def test_ui_matrix_writes_nonblank_screenshots_and_stable_report(tmp_path):
     assert [entry["surface"] for entry in report["surfaces"]] == render_ui_matrix.surface_names()
     assert all(entry["nonblank"] for entry in report["surfaces"])
     assert all(entry["clipping"] == [] for entry in report["surfaces"])
-    assert all(entry["width"] <= 800 and entry["height"] <= 720 for entry in report["surfaces"])
+    assert all(entry["width"] <= 1000 and entry["height"] <= 720 for entry in report["surfaces"])
     by_surface = {entry["surface"]: entry for entry in report["surfaces"]}
     assert by_surface["manual-fit-single"]["height"] < by_surface["manual-fit"]["height"]
     assert all((tmp_path / f"{name}.png").is_file() for name in render_ui_matrix.surface_names())
@@ -86,7 +87,7 @@ def test_ui_matrix_handles_wide_platform_font_metrics(tmp_path):
     app = QApplication.instance() or QApplication([])
     original_font = app.font()
     wide_font = app.font()
-    wide_font.setStretch(135)
+    wide_font.setStretch(145)
     app.setFont(wide_font)
     try:
         exit_code = render_ui_matrix.render_matrix(

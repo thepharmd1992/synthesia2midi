@@ -124,7 +124,10 @@ def _settings_surface(
     panel.settings_section_rail.setCurrentRow(index)
     if advanced_section is not None:
         panel.advanced_sections[advanced_section]._toggle.setChecked(True)
-    window.resize(800, 680)
+    window.resize(
+        max(800, window.sizeHint().width()),
+        max(680, window.sizeHint().height()),
+    )
     return window
 
 

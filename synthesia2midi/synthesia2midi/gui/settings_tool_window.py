@@ -35,12 +35,13 @@ class SettingsToolWindow(QDialog):
     def fit_to_available_screen(self) -> None:
         """Keep the pop-out usable on laptop-sized displays."""
         screen = screen_for_widget(self.parentWidget(), self)
+        desired_width = max(800, self.sizeHint().width())
         if not screen:
-            self.resize(800, 640)
+            self.resize(desired_width, 640)
             return
 
         rect = screen.availableGeometry()
-        width = min(800, max(380, rect.width() - 80))
+        width = min(desired_width, max(380, rect.width() - 80))
         height = min(680, max(420, rect.height() - 120))
         self.resize(width, height)
 

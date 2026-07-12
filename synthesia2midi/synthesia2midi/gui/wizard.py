@@ -163,7 +163,11 @@ class CalibrationWizard(QDialog):
         QWidget.setTabOrder(self.total_keys_spin, self.manual_submit_button)
         QWidget.setTabOrder(self.manual_submit_button, self.cancel_button)
         layout.activate()
-        self.adjustSize()
+        opening_hint = self.sizeHint()
+        self.resize(
+            max(self.width(), opening_hint.width()),
+            max(self.height(), opening_hint.height()),
+        )
 
     def set_edit_current_calibration_enabled(self, enabled: bool, tooltip: Optional[str] = None) -> None:
         self.edit_current_calibration_button.setEnabled(enabled)

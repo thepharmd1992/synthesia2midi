@@ -170,7 +170,11 @@ class StartupDialog(QDialog):
         if self.recent_video_buttons:
             QWidget.setTabOrder(self.youtube_btn, self.recent_video_buttons[0])
         layout.activate()
-        self.adjustSize()
+        opening_hint = self.sizeHint()
+        self.resize(
+            max(self.width(), opening_hint.width()),
+            max(self.height(), opening_hint.height()),
+        )
         
     def _on_local_file_clicked(self):
         """Handle local file button click"""

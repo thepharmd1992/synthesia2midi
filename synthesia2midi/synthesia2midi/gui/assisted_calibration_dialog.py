@@ -119,7 +119,11 @@ class AssistedCalibrationDialog(QDialog):
         button_layout.addWidget(self.use_button, 2, 0)
         layout.addLayout(button_layout)
         layout.activate()
-        self.adjustSize()
+        opening_hint = self.sizeHint()
+        self.resize(
+            max(self.width(), opening_hint.width()),
+            max(self.height(), opening_hint.height()),
+        )
 
     def _use(self) -> None:
         self.decision = AssistedCalibrationDecision.USE

@@ -696,7 +696,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 336,
+      "line": 340,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
@@ -1749,7 +1749,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 267,
+      "line": 271,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
@@ -2181,7 +2181,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 182,
+      "line": 186,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
@@ -2271,7 +2271,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 309,
+      "line": 313,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
@@ -2757,7 +2757,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 351,
+      "line": 355,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
@@ -2811,7 +2811,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 193,
+      "line": 197,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/startup_dialog.py",
@@ -3351,7 +3351,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 268,
+      "line": 272,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
@@ -3747,7 +3747,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 239,
+      "line": 243,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
@@ -3765,7 +3765,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 183,
+      "line": 187,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
@@ -4035,7 +4035,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 194,
+      "line": 198,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/startup_dialog.py",
@@ -4233,7 +4233,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 238,
+      "line": 242,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
@@ -4323,7 +4323,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 284,
+      "line": 288,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
@@ -5115,7 +5115,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 304,
+      "line": 308,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/wizard.py",
@@ -5439,7 +5439,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 201,
+      "line": 205,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/startup_dialog.py",
@@ -5448,7 +5448,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 206,
+      "line": 210,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/startup_dialog.py",

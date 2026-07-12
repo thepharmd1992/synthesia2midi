@@ -8,6 +8,7 @@ from synthesia2midi.app_config import OverlayConfig
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.detection.assisted_calibration import (
     AssistedCalibrationProposal,
+    ExemplarScanDiagnostics,
     ExemplarScanSettings,
     ExemplarCandidate,
     _BoundedFrameCache,
@@ -104,6 +105,61 @@ def _build_proposal_from_candidates(monkeypatch, candidates, *, saved_anchors=No
         baseline_frame_index=0,
         end_frame=100,
         saved_anchors=saved_anchors,
+    )
+
+
+_SCANNER_FAMILY_COLORS = (
+    ((70, 130, 230), (45, 95, 185)),
+    ((235, 65, 65), (185, 35, 35)),
+    ((235, 215, 45), (185, 165, 25)),
+    ((45, 210, 70), (25, 160, 50)),
+)
+
+
+def _four_family_scanner_fixture(events):
+    overlays = []
+    for family_index in range(4):
+        for morphology_index, key_color in enumerate(("W", "B")):
+            overlay_index = (family_index * 2) + morphology_index
+            overlay = _overlay(
+                key_id=overlay_index + 1,
+                note="C" if key_color == "W" else "C#",
+                x=overlay_index * 5,
+                y=0,
+                width=4,
+                height=4,
+                key_type=f"L{key_color}",
+            )
+            overlay.unlit_reference_color = (
+                (245, 245, 235) if key_color == "W" else (25, 25, 25)
+            )
+            overlays.append(overlay)
+
+    def frame_provider(frame_index):
+        frame = np.zeros((6, 40, 3), dtype=np.uint8)
+        for overlay in overlays:
+            x1 = int(overlay.x)
+            x2 = x1 + int(overlay.width)
+            frame[0:4, x1:x2] = overlay.unlit_reference_color
+        for family_index, start_frame, end_frame in events:
+            if start_frame <= frame_index <= end_frame:
+                for morphology_index in range(2):
+                    overlay_index = (family_index * 2) + morphology_index
+                    overlay = overlays[overlay_index]
+                    x1 = int(overlay.x)
+                    x2 = x1 + int(overlay.width)
+                    frame[0:4, x1:x2] = _SCANNER_FAMILY_COLORS[family_index][
+                        morphology_index
+                    ]
+        return frame
+
+    return overlays, frame_provider
+
+
+def _two_bursts(family_index, first_frame):
+    return (
+        (family_index, first_frame, first_frame + 10),
+        (family_index, first_frame + 30, first_frame + 40),
     )
 
 
@@ -206,6 +262,204 @@ def test_capture_unlit_references_sets_rgb_and_histogram():
     assert overlay.unlit_hist is not None
 
 
+def test_scanner_continues_after_two_complete_families_and_finds_third_at_frame_900():
+    events = (
+        *_two_bursts(0, 100),
+        *_two_bursts(1, 200),
+        *_two_bursts(2, 900),
+    )
+    overlays, frame_provider = _four_family_scanner_fixture(events)
+    diagnostics = ExemplarScanDiagnostics()
+
+    candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        0,
+        1000,
+        diagnostics=diagnostics,
+    )
+
+    assignment = assign_exemplar_slots(candidates)
+    assert canceled is False
+    assert scanned == 101
+    assert assignment.family_count == 3
+    assert any(candidate.frame_index == 900 for candidate in candidates)
+
+
+def test_scanner_quiesces_refinement_during_long_two_family_video():
+    events = (*_two_bursts(0, 100), *_two_bursts(1, 200))
+    overlays, frame_provider = _four_family_scanner_fixture(events)
+    diagnostics = ExemplarScanDiagnostics()
+
+    candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        0,
+        1200,
+        diagnostics=diagnostics,
+    )
+
+    assert canceled is False
+    assert scanned == diagnostics.discovery_frames == 121
+    assert assign_exemplar_slots(candidates).family_count == 2
+    assert diagnostics.refined_frames < diagnostics.discovery_frames
+    assert diagnostics.refined_events <= 4
+
+
+def test_scanner_reactivates_refinement_for_late_third_family():
+    events = (
+        *_two_bursts(0, 100),
+        *_two_bursts(1, 200),
+        *_two_bursts(2, 900),
+    )
+    overlays, frame_provider = _four_family_scanner_fixture(events)
+    diagnostics = ExemplarScanDiagnostics()
+
+    candidates, _scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        0,
+        1200,
+        diagnostics=diagnostics,
+    )
+
+    assert canceled is False
+    assert assign_exemplar_slots(candidates).family_count == 3
+    assert diagnostics.refined_events == 6
+
+
+def test_scanner_stop_before_requested_end_after_four_complete_families():
+    events = (
+        *_two_bursts(0, 100),
+        *_two_bursts(1, 200),
+        *_two_bursts(2, 900),
+        *_two_bursts(3, 1100),
+    )
+    overlays, frame_provider = _four_family_scanner_fixture(events)
+    diagnostics = ExemplarScanDiagnostics()
+
+    candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        0,
+        5000,
+        diagnostics=diagnostics,
+    )
+
+    assignment = assign_exemplar_slots(candidates)
+    assert canceled is False
+    assert assignment.family_count == 4
+    assert all(
+        assignment.assignments[slot].hist is not None
+        for slot in (
+            "LW",
+            "LB",
+            "RW",
+            "RB",
+            "COLOR_3_W",
+            "COLOR_3_B",
+            "COLOR_4_W",
+            "COLOR_4_B",
+        )
+    )
+    assert scanned == diagnostics.discovery_frames < 501
+
+
+def test_scanner_rejects_one_frame_intro_flash_as_unstable():
+    overlays, frame_provider = _four_family_scanner_fixture(
+        tuple((family_index, 0, 0) for family_index in range(4))
+    )
+    diagnostics = ExemplarScanDiagnostics()
+
+    candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        0,
+        100,
+        diagnostics=diagnostics,
+    )
+
+    assert canceled is False
+    assert scanned == 11
+    assert assign_exemplar_slots(candidates).family_count == 0
+    assert diagnostics.refined_events == 0
+
+
+def test_scanner_collapses_sustained_note_into_one_discovery_event():
+    overlay = _overlay(key_id=1, x=0, y=0, width=4, height=4, key_type="LW")
+    overlay.unlit_reference_color = (245, 245, 235)
+
+    def frame_provider(frame_index):
+        frame = np.full((6, 6, 3), (245, 245, 235), dtype=np.uint8)
+        if 100 <= frame_index <= 200:
+            frame[0:4, 0:4] = (70, 130, 230)
+        return frame
+
+    candidates, _scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        [overlay],
+        0,
+        300,
+    )
+
+    assert canceled is False
+    assert len(candidates) == 1
+    assert candidates[0].frame_index == 100
+
+
+def test_scanner_merges_nearby_hues_into_one_stable_family():
+    overlays, base_provider = _four_family_scanner_fixture(())
+    overlays = overlays[:2]
+
+    def frame_provider(frame_index):
+        frame = base_provider(frame_index)
+        burst_colors = None
+        if 100 <= frame_index <= 110:
+            burst_colors = ((70, 130, 230), (45, 95, 185))
+        elif 140 <= frame_index <= 150:
+            burst_colors = ((75, 145, 225), (50, 105, 180))
+        if burst_colors is not None:
+            for overlay, rgb in zip(overlays, burst_colors):
+                x1 = int(overlay.x)
+                x2 = x1 + int(overlay.width)
+                frame[0:4, x1:x2] = rgb
+        return frame
+
+    candidates, _scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        overlays,
+        0,
+        200,
+    )
+
+    assignment = assign_exemplar_slots(candidates)
+    assert canceled is False
+    assert assignment.family_count == 1
+    assert assignment.missing_slots == ()
+
+
+def test_scanner_discovers_event_on_ten_frame_checkpoint():
+    overlay = _overlay(key_id=1, x=0, y=0, width=4, height=4, key_type="LW")
+    overlay.unlit_reference_color = (245, 245, 235)
+
+    def frame_provider(frame_index):
+        frame = np.full((6, 6, 3), (245, 245, 235), dtype=np.uint8)
+        if frame_index == 20:
+            frame[0:4, 0:4] = (70, 130, 230)
+        return frame
+
+    candidates, scanned, canceled = scan_lit_exemplar_candidates(
+        frame_provider,
+        [overlay],
+        0,
+        30,
+    )
+
+    assert canceled is False
+    assert scanned == 4
+    assert [candidate.frame_index for candidate in candidates] == [20]
+
+
 def test_scanner_finds_lit_candidates_from_overlay_deltas():
     overlays = [
         _overlay(key_id=1, note="C", octave=4, x=0, y=0, width=4, height=4, key_type="LW"),
@@ -222,7 +476,7 @@ def test_scanner_finds_lit_candidates_from_overlay_deltas():
         frame[0:4, 5:9] = (25, 25, 25)
         frames[index] = frame
     frames[20][0:4, 0:4] = (130, 165, 205)
-    frames[21][0:4, 5:9] = (70, 110, 170)
+    frames[20][0:4, 5:9] = (70, 110, 170)
 
     candidates, scanned, canceled = scan_lit_exemplar_candidates(
         lambda index: frames.get(index),
@@ -269,9 +523,9 @@ def test_scanner_collapses_overlapping_hits_into_one_event_per_lit_burst():
     assert scanned > 0
     assert len(candidates) == 2
     by_frame = {candidate.frame_index: candidate for candidate in candidates}
-    assert set(by_frame) == {12, 26}
+    assert set(by_frame) == {12, 25}
     assert by_frame[12].rgb == (50, 70, 90)
-    assert by_frame[26].rgb == (45, 65, 85)
+    assert by_frame[25].rgb == (175, 195, 215)
 
 
 def test_scanner_bounds_completed_candidates_while_scanning(monkeypatch):
@@ -324,7 +578,7 @@ def test_scanner_bounds_completed_candidates_while_scanning(monkeypatch):
     assert [candidate.frame_index for candidate in candidates] == [1, 3, 5]
 
 
-def test_scanner_recomputes_early_stop_evidence_only_after_completed_bursts(monkeypatch):
+def test_scanner_does_not_refine_single_completed_burst():
     overlay = _overlay(key_id=1, note="C", x=0, y=0, width=4, height=4, key_type="LW")
     overlay.unlit_reference_color = (245, 245, 235)
 
@@ -335,19 +589,7 @@ def test_scanner_recomputes_early_stop_evidence_only_after_completed_bursts(monk
             frame[0:4, 0:4] = (130, 165, 205)
         frames[frame_index] = frame
 
-    evidence_checks = 0
-    original_complete_evidence = assisted_calibration._complete_two_family_evidence
-
-    def count_evidence_checks(candidates, settings, stride):
-        nonlocal evidence_checks
-        evidence_checks += 1
-        return original_complete_evidence(candidates, settings, stride)
-
-    monkeypatch.setattr(
-        assisted_calibration,
-        "_complete_two_family_evidence",
-        count_evidence_checks,
-    )
+    diagnostics = ExemplarScanDiagnostics()
     candidates, scanned, canceled = scan_lit_exemplar_candidates(
         lambda index: frames[index],
         [overlay],
@@ -358,16 +600,20 @@ def test_scanner_recomputes_early_stop_evidence_only_after_completed_bursts(monk
             refine_radius=0,
             min_rgb_delta=30.0,
         ),
+        diagnostics=diagnostics,
     )
 
     assert canceled is False
     assert scanned == 21
     assert len(candidates) == 1
-    assert evidence_checks == 1
+    assert candidates[0].hist is None
+    assert diagnostics.refined_events == 0
 
 
-def test_scanner_reuses_frame_provider_reads_across_refinement_window():
-    overlay = _overlay(key_id=1, note="C", octave=4, x=0, y=0, width=4, height=4, key_type="LW")
+def test_scanner_skips_refinement_when_discovery_evidence_is_not_stable():
+    overlay = _overlay(
+        key_id=1, note="C", octave=4, x=0, y=0, width=4, height=4, key_type="LW"
+    )
     overlay.unlit_reference_color = (245, 245, 235)
 
     frames = {}
@@ -376,7 +622,7 @@ def test_scanner_reuses_frame_provider_reads_across_refinement_window():
         frame[:, :] = (25, 25, 25)
         frame[0:4, 0:4] = (245, 245, 235)
         frames[index] = frame
-    frames[1][0:4, 0:4] = (130, 165, 205)
+    frames[0][0:4, 0:4] = (130, 165, 205)
 
     calls: list[int] = []
 
@@ -384,22 +630,27 @@ def test_scanner_reuses_frame_provider_reads_across_refinement_window():
         calls.append(index)
         return frames.get(index)
 
+    diagnostics = ExemplarScanDiagnostics()
     candidates, scanned, canceled = scan_lit_exemplar_candidates(
         frame_provider,
         [overlay],
         0,
         5,
-        settings=ExemplarScanSettings(coarse_stride=5, refine_radius=1, min_rgb_delta=30.0),
+        settings=ExemplarScanSettings(
+            coarse_stride=5, refine_radius=1, min_rgb_delta=30.0
+        ),
+        diagnostics=diagnostics,
     )
 
     assert canceled is False
     assert scanned == 2
     assert len(candidates) == 1
-    assert candidates[0].frame_index == 1
-    assert calls == [0, 1, 5, 4]
+    assert candidates[0].frame_index == 0
+    assert diagnostics.refined_frames == 0
+    assert calls == [0, 5]
 
 
-def test_scanner_stops_after_confirmed_two_family_exemplars():
+def test_scanner_continues_to_end_after_confirmed_two_family_exemplars():
     overlays = [
         _overlay(key_id=1, note="C", x=0, y=0, width=4, height=4, key_type="LW"),
         _overlay(key_id=2, note="C#", x=5, y=0, width=4, height=4, key_type="LB"),
@@ -444,6 +695,7 @@ def test_scanner_stops_after_confirmed_two_family_exemplars():
         calls.append(index)
         return frames[index]
 
+    diagnostics = ExemplarScanDiagnostics()
     candidates, scanned, canceled = scan_lit_exemplar_candidates(
         frame_provider,
         overlays,
@@ -454,14 +706,16 @@ def test_scanner_stops_after_confirmed_two_family_exemplars():
             refine_radius=0,
             min_rgb_delta=30.0,
         ),
+        diagnostics=diagnostics,
     )
 
     assignment = assign_exemplar_slots(candidates)
     assert canceled is False
     assert assignment.family_count == 2
     assert assignment.missing_slots == ()
-    assert scanned == 20
-    assert calls == list(range(20))
+    assert scanned == 41
+    assert diagnostics.refined_events == 4
+    assert set(range(41)).issubset(calls)
 
 
 def test_scanner_uses_fresh_evidence_after_output_candidate_bucket_is_full():
@@ -517,8 +771,8 @@ def test_scanner_uses_fresh_evidence_after_output_candidate_bucket_is_full():
 
     assert canceled is False
     assert assign_exemplar_slots(candidates).missing_slots == ()
-    assert scanned == 25
-    assert calls == list(range(25))
+    assert scanned == 41
+    assert set(range(41)).issubset(calls)
 
 
 def test_scanner_does_not_treat_reordered_color_families_as_fresh_evidence():
@@ -570,7 +824,7 @@ def test_scanner_does_not_treat_reordered_color_families_as_fresh_evidence():
     assert canceled is False
     assert assign_exemplar_slots(candidates).family_count == 2
     assert scanned == 31
-    assert calls == list(range(31))
+    assert set(range(31)).issubset(calls)
 
 
 def test_scanner_does_not_stop_for_two_transient_animation_pulses():
@@ -676,7 +930,7 @@ def test_scanner_scans_to_end_for_one_complete_color_family():
     assert canceled is False
     assert assign_exemplar_slots(candidates).family_count == 1
     assert scanned == 21
-    assert calls == list(range(21))
+    assert set(range(21)).issubset(calls)
 
 
 def test_scanner_scans_to_end_when_second_family_is_incomplete():
@@ -727,7 +981,7 @@ def test_scanner_scans_to_end_when_second_family_is_incomplete():
     assert assignment.family_count == 2
     assert assignment.missing_slots == ("RB",)
     assert scanned == 21
-    assert calls == list(range(21))
+    assert set(range(21)).issubset(calls)
 
 
 def test_bounded_frame_cache_evicts_old_frames():

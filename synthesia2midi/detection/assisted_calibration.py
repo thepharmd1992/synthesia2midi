@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Callable, Dict, Iterable, Literal, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Callable, Dict, Literal, Optional, Sequence, Tuple
 
 import cv2
 import numpy as np
@@ -107,11 +107,16 @@ class ExemplarScanSettings:
     early_stop_confirmation_steps: int = 6
 
 
-@dataclass(frozen=True)
-class _FamilyEarlyStopEvidence:
-    hue: float
-    white_events: frozenset[tuple[int, int]]
-    black_events: frozenset[tuple[int, int]]
+@dataclass
+class ExemplarScanDiagnostics:
+    discovery_frames: int = 0
+    refined_frames: int = 0
+    refined_events: int = 0
+
+
+@dataclass
+class _DiscoveryEvent:
+    candidate: ExemplarCandidate
 
 
 class _BoundedFrameCache:
@@ -328,7 +333,25 @@ def _frame_candidate_for_overlay(
     return _candidate_from_sample(frame_index, overlay, rgb, get_hist_feature(bgr))
 
 
-def _candidate_is_better(candidate: ExemplarCandidate, current: ExemplarCandidate) -> bool:
+def _discovery_candidate_for_overlay(
+    frame_rgb: np.ndarray,
+    frame_index: int,
+    overlay: OverlayConfig,
+    settings: ExemplarScanSettings,
+) -> Optional[ExemplarCandidate]:
+    rgb = sample_overlay_rgb(frame_rgb, overlay)
+    if rgb is None or overlay.unlit_reference_color is None:
+        return None
+    delta = _rgb_distance(rgb, overlay.unlit_reference_color)
+    hsv = _rgb_to_hsv_tuple(rgb)
+    if delta < settings.min_rgb_delta or hsv[1] < settings.min_saturation:
+        return None
+    return _candidate_from_sample(frame_index, overlay, rgb, None)
+
+
+def _candidate_is_better(
+    candidate: ExemplarCandidate, current: ExemplarCandidate
+) -> bool:
     if candidate.delta_from_unlit != current.delta_from_unlit:
         return candidate.delta_from_unlit > current.delta_from_unlit
     if candidate.confidence != current.confidence:
@@ -341,56 +364,8 @@ def _circular_hue_distance(a: float, b: float) -> float:
     return min(delta, 180.0 - delta)
 
 
-def _circular_mean_hue(candidates: Sequence[ExemplarCandidate]) -> float:
-    angles = np.array([_family_hue(candidate) for candidate in candidates]) * (2.0 * np.pi / 180.0)
-    mean_angle = float(np.arctan2(np.sin(angles).mean(), np.cos(angles).mean()))
-    if mean_angle < 0:
-        mean_angle += 2.0 * np.pi
-    return mean_angle * (180.0 / (2.0 * np.pi))
-
-
 def _family_hue(candidate: ExemplarCandidate) -> float:
     return candidate.hsv[0] if candidate.hsv[1] > 0 else _rgb_to_hsv_tuple(candidate.rgb)[0]
-
-
-def _family_sort_key(bucket: list[ExemplarCandidate]) -> tuple[int, int, float]:
-    mean_hue = float(np.mean([_family_hue(item) for item in bucket]))
-    cool_family = 60.0 <= mean_hue <= 140.0
-    first_frame = min(item.frame_index for item in bucket)
-    return (0 if cool_family else 1, first_frame, mean_hue)
-
-
-def _best_candidate(candidates: Iterable[ExemplarCandidate]) -> Optional[ExemplarCandidate]:
-    ordered = sorted(candidates, key=lambda item: (-item.confidence, item.frame_index, item.key_id))
-    return ordered[0] if ordered else None
-
-
-def _cluster_exemplar_families(
-    candidates: Sequence[ExemplarCandidate],
-    family_hue_threshold: float,
-) -> list[list[ExemplarCandidate]]:
-    family_buckets: list[list[ExemplarCandidate]] = []
-    ordered_candidates = sorted(
-        candidates,
-        key=lambda item: (-item.confidence, item.frame_index, item.key_id),
-    )
-    for candidate in ordered_candidates:
-        hue = _family_hue(candidate)
-        target_bucket: Optional[list[ExemplarCandidate]] = None
-        for bucket in family_buckets:
-            bucket_hue = float(np.mean([_family_hue(item) for item in bucket]))
-            if _circular_hue_distance(hue, bucket_hue) <= family_hue_threshold:
-                target_bucket = bucket
-                break
-        if target_bucket is None:
-            if len(family_buckets) >= 2:
-                continue
-            target_bucket = []
-            family_buckets.append(target_bucket)
-        target_bucket.append(candidate)
-
-    family_buckets.sort(key=_family_sort_key)
-    return family_buckets
 
 
 def _assign_exemplar_slots_with_warnings(
@@ -590,80 +565,6 @@ def _store_completed_candidate(
     del bucket[max_candidates_per_key:]
 
 
-def _store_recent_candidate(
-    recent_candidates_by_key: dict[int, list[ExemplarCandidate]],
-    candidate: ExemplarCandidate,
-    history_size: int,
-) -> None:
-    bucket = recent_candidates_by_key.setdefault(candidate.key_id, [])
-    bucket.append(candidate)
-    if len(bucket) > history_size:
-        del bucket[:-history_size]
-
-
-def _complete_two_family_evidence(
-    candidates: Sequence[ExemplarCandidate],
-    settings: ExemplarScanSettings,
-    stride: int,
-) -> Optional[tuple[_FamilyEarlyStopEvidence, _FamilyEarlyStopEvidence]]:
-    family_buckets = _cluster_exemplar_families(candidates, 22.0)
-    if len(family_buckets) != 2:
-        return None
-
-    required_events = max(1, settings.early_stop_min_slot_events)
-    required_span = stride * max(0, settings.early_stop_min_slot_span_steps)
-    family_evidence: list[_FamilyEarlyStopEvidence] = []
-    for family in family_buckets:
-        events_by_color: dict[KeyColor, frozenset[tuple[int, int]]] = {}
-        for key_color in ("W", "B"):
-            supporting_candidates = [
-                candidate
-                for candidate in family
-                if candidate.slot_color == key_color
-                and candidate.confidence >= settings.early_stop_min_confidence
-            ]
-            supporting_frames = sorted({candidate.frame_index for candidate in supporting_candidates})
-            if len(supporting_frames) < required_events:
-                return None
-            if supporting_frames[-1] - supporting_frames[0] < required_span:
-                return None
-            events_by_color[key_color] = frozenset(
-                (candidate.key_id, candidate.frame_index)
-                for candidate in supporting_candidates
-            )
-        family_evidence.append(
-            _FamilyEarlyStopEvidence(
-                hue=_circular_mean_hue(family),
-                white_events=events_by_color["W"],
-                black_events=events_by_color["B"],
-            )
-        )
-    return family_evidence[0], family_evidence[1]
-
-
-def _match_family_evidence(
-    current: tuple[_FamilyEarlyStopEvidence, _FamilyEarlyStopEvidence],
-    initial: tuple[_FamilyEarlyStopEvidence, _FamilyEarlyStopEvidence],
-    family_hue_threshold: float = 22.0,
-) -> Optional[tuple[tuple[_FamilyEarlyStopEvidence, _FamilyEarlyStopEvidence], ...]]:
-    direct = ((current[0], initial[0]), (current[1], initial[1]))
-    swapped = ((current[1], initial[0]), (current[0], initial[1]))
-    matched = min(
-        (direct, swapped),
-        key=lambda pairs: sum(
-            _circular_hue_distance(current_family.hue, initial_family.hue)
-            for current_family, initial_family in pairs
-        ),
-    )
-    if any(
-        _circular_hue_distance(current_family.hue, initial_family.hue)
-        > family_hue_threshold
-        for current_family, initial_family in matched
-    ):
-        return None
-    return matched
-
-
 def scan_lit_exemplar_candidates(
     frame_provider: FrameProvider,
     overlays: Sequence[OverlayConfig],
@@ -672,22 +573,134 @@ def scan_lit_exemplar_candidates(
     *,
     settings: ExemplarScanSettings = ExemplarScanSettings(),
     progress_callback: Optional[ProgressCallback] = None,
+    diagnostics: Optional[ExemplarScanDiagnostics] = None,
 ) -> Tuple[list[ExemplarCandidate], int, bool]:
+    diagnostics = diagnostics or ExemplarScanDiagnostics()
+    return _scan_candidates_with_diagnostics(
+        frame_provider=frame_provider,
+        overlays=overlays,
+        start_frame=start_frame,
+        end_frame=end_frame,
+        settings=settings,
+        progress_callback=progress_callback,
+        diagnostics=diagnostics,
+    )
+
+
+def _scan_event_candidates(
+    completed_events: Sequence[_DiscoveryEvent],
+    active_events_by_key: dict[int, _DiscoveryEvent],
+    max_candidates_per_key: int,
+) -> list[ExemplarCandidate]:
     candidates_by_key: dict[int, list[ExemplarCandidate]] = {}
-    recent_candidates_by_key: dict[int, list[ExemplarCandidate]] = {}
-    active_candidates_by_key: dict[int, ExemplarCandidate] = {}
+    for event in completed_events:
+        _store_completed_candidate(
+            candidates_by_key,
+            event.candidate,
+            max_candidates_per_key,
+        )
+    return _flatten_scan_candidates(
+        candidates_by_key,
+        {key_id: event.candidate for key_id, event in active_events_by_key.items()},
+        max_candidates_per_key,
+    )
+
+def _stable_family_assignments(
+    completed_events: Sequence[_DiscoveryEvent],
+):
+    evidence: list[FamilyEvidence] = []
+    event_by_evidence_id: dict[int, _DiscoveryEvent] = {}
+    for event in completed_events:
+        candidate = event.candidate
+        item = FamilyEvidence(
+            frame_index=candidate.frame_index,
+            key_id=candidate.key_id,
+            morphology="natural" if candidate.slot_color == "W" else "accidental",
+            rgb=candidate.rgb,
+            score=candidate.confidence,
+        )
+        evidence.append(item)
+        event_by_evidence_id[id(item)] = event
+    assignments, _warnings = assign_family_slots(evidence)
+    return assignments, event_by_evidence_id
+
+
+def _refine_new_stable_slots(
+    completed_events: Sequence[_DiscoveryEvent],
+    overlays_by_key: dict[int, OverlayConfig],
+    frame_provider: FrameProvider,
+    frame_cache: _BoundedFrameCache,
+    start_frame: int,
+    end_frame: int,
+    settings: ExemplarScanSettings,
+    diagnostics: ExemplarScanDiagnostics,
+    refined_hues_by_color: dict[KeyColor, list[float]],
+) -> bool:
+    assignments, event_by_evidence_id = _stable_family_assignments(completed_events)
+    for assignment in assignments:
+        for key_color, item in (
+            ("W", assignment.natural),
+            ("B", assignment.accidental),
+        ):
+            if item is None:
+                continue
+            hue = _rgb_to_hsv_tuple(item.rgb)[0]
+            if any(
+                _circular_hue_distance(hue, refined_hue) <= 22.0
+                for refined_hue in refined_hues_by_color[key_color]
+            ):
+                continue
+
+            event = event_by_evidence_id[id(item)]
+            overlay = overlays_by_key.get(item.key_id)
+            if overlay is None:
+                continue
+            diagnostics.refined_events += 1
+            best: Optional[ExemplarCandidate] = None
+            refine_start = max(start_frame, item.frame_index - settings.refine_radius)
+            refine_end = min(end_frame, item.frame_index + settings.refine_radius)
+            for refined_index in range(refine_start, refine_end + 1):
+                refined_frame = frame_cache.get(refined_index, frame_provider)
+                if refined_frame is None:
+                    continue
+                diagnostics.refined_frames += 1
+                candidate = _frame_candidate_for_overlay(
+                    refined_frame,
+                    refined_index,
+                    overlay,
+                    settings,
+                )
+                if candidate is not None and (
+                    best is None or _candidate_is_better(candidate, best)
+                ):
+                    best = candidate
+            if best is not None:
+                event.candidate = best
+            refined_hues_by_color[key_color].append(hue)
+
+    assignments, _event_by_evidence_id = _stable_family_assignments(completed_events)
+    return len(assignments) == 4 and all(
+        assignment.complete for assignment in assignments
+    )
+
+
+def _scan_candidates_with_diagnostics(
+    frame_provider: FrameProvider,
+    overlays: Sequence[OverlayConfig],
+    start_frame: int,
+    end_frame: int,
+    settings: ExemplarScanSettings,
+    progress_callback: Optional[ProgressCallback],
+    diagnostics: ExemplarScanDiagnostics,
+) -> Tuple[list[ExemplarCandidate], int, bool]:
+    completed_events: list[_DiscoveryEvent] = []
+    active_events_by_key: dict[int, _DiscoveryEvent] = {}
+    overlays_by_key = {overlay.key_id: overlay for overlay in overlays}
+    refined_hues_by_color: dict[KeyColor, list[float]] = {"W": [], "B": []}
     scanned = 0
     end_frame = max(start_frame, end_frame)
     stride = max(1, settings.coarse_stride)
     frame_cache = _BoundedFrameCache(stride + (2 * settings.refine_radius) + 1)
-    complete_since_frame: Optional[int] = None
-    confirmation_evidence: Optional[
-        tuple[_FamilyEarlyStopEvidence, _FamilyEarlyStopEvidence]
-    ] = None
-    complete_evidence: Optional[
-        tuple[_FamilyEarlyStopEvidence, _FamilyEarlyStopEvidence]
-    ] = None
-    recent_history_size = max(2, settings.early_stop_min_slot_events + 1)
 
     for frame_index in range(start_frame, end_frame + 1, stride):
         if progress_callback is not None and not progress_callback(frame_index, end_frame):
@@ -697,112 +710,80 @@ def scan_lit_exemplar_candidates(
         if frame is None:
             continue
         scanned += 1
-        recent_history_changed = False
+        diagnostics.discovery_frames += 1
+        completed_changed = False
 
         coarse_candidates: dict[int, ExemplarCandidate] = {}
         for overlay in overlays:
-            coarse_candidate = _frame_candidate_for_overlay(frame, frame_index, overlay, settings)
+            coarse_candidate = _discovery_candidate_for_overlay(
+                frame,
+                frame_index,
+                overlay,
+                settings,
+            )
             if coarse_candidate is None:
                 continue
             coarse_candidates[overlay.key_id] = coarse_candidate
 
         for overlay in overlays:
             key_id = overlay.key_id
-            best = coarse_candidates.get(key_id)
-            active = active_candidates_by_key.get(key_id)
-
-            refine_start = max(start_frame, frame_index - settings.refine_radius)
-            refine_end = min(end_frame, frame_index + settings.refine_radius)
-            for refined_index in range(refine_start, refine_end + 1):
-                refined_frame = frame_cache.get(refined_index, frame_provider)
-                if refined_frame is None:
-                    continue
-                refined_candidate = _frame_candidate_for_overlay(
-                    refined_frame,
-                    refined_index,
-                    overlay,
-                    settings,
-                    )
-                if refined_candidate is not None and (
-                    best is None or _candidate_is_better(refined_candidate, best)
-                ):
-                    best = refined_candidate
-
-            if best is None:
-                if active is not None:
-                    _store_completed_candidate(
-                        candidates_by_key,
-                        active,
-                        settings.max_candidates_per_key,
-                    )
-                    _store_recent_candidate(
-                        recent_candidates_by_key,
-                        active,
-                        recent_history_size,
-                    )
-                    recent_history_changed = True
-                    del active_candidates_by_key[key_id]
+            current = coarse_candidates.get(key_id)
+            active_event = active_events_by_key.get(key_id)
+            if current is None:
+                if active_event is not None:
+                    completed_events.append(active_event)
+                    del active_events_by_key[key_id]
+                    completed_changed = True
                 continue
 
-            if active is None:
-                active_candidates_by_key[key_id] = best
-            elif _candidate_is_better(best, active):
-                active_candidates_by_key[key_id] = best
-
-        if recent_history_changed:
-            recent_completed_candidates = _flatten_scan_candidates(
-                recent_candidates_by_key,
-                {},
-                0,
-            )
-            complete_evidence = _complete_two_family_evidence(
-                recent_completed_candidates,
-                settings,
-                stride,
-            )
-        if complete_evidence is not None:
-            if complete_since_frame is None:
-                complete_since_frame = frame_index
-                confirmation_evidence = complete_evidence
-            elif confirmation_evidence is not None:
-                matched_evidence = _match_family_evidence(
-                    complete_evidence,
-                    confirmation_evidence,
+            if active_event is None:
+                active_events_by_key[key_id] = _DiscoveryEvent(current)
+                continue
+            if (
+                _circular_hue_distance(
+                    _family_hue(current),
+                    _family_hue(active_event.candidate),
                 )
-                if matched_evidence is None:
-                    complete_since_frame = frame_index
-                    confirmation_evidence = complete_evidence
-                else:
-                    confirmation_span = stride * max(
-                        0,
-                        settings.early_stop_confirmation_steps,
-                    )
-                    has_fresh_slot_evidence = all(
-                        current.white_events - initial.white_events
-                        and current.black_events - initial.black_events
-                        for current, initial in matched_evidence
-                    )
-                    if (
-                        frame_index - complete_since_frame >= confirmation_span
-                        and has_fresh_slot_evidence
-                    ):
-                        return (
-                            _flatten_scan_candidates(
-                                candidates_by_key,
-                                active_candidates_by_key,
-                                settings.max_candidates_per_key,
-                            ),
-                            scanned,
-                            False,
-                        )
-        else:
-            complete_since_frame = None
-            confirmation_evidence = None
+                > 22.0
+            ):
+                completed_events.append(active_event)
+                active_events_by_key[key_id] = _DiscoveryEvent(current)
+                completed_changed = True
+            elif _candidate_is_better(current, active_event.candidate):
+                active_event.candidate = current
+
+        if completed_changed and _refine_new_stable_slots(
+            completed_events,
+            overlays_by_key,
+            frame_provider,
+            frame_cache,
+            start_frame,
+            end_frame,
+            settings,
+            diagnostics,
+            refined_hues_by_color,
+        ):
+            break
+
+    if active_events_by_key:
+        completed_events.extend(active_events_by_key.values())
+        active_events_by_key = {}
+        _refine_new_stable_slots(
+            completed_events,
+            overlays_by_key,
+            frame_provider,
+            frame_cache,
+            start_frame,
+            end_frame,
+            settings,
+            diagnostics,
+            refined_hues_by_color,
+        )
 
     return (
-        _flatten_scan_candidates(
-            candidates_by_key,
-            active_candidates_by_key,
+        _scan_event_candidates(
+            completed_events,
+            active_events_by_key,
             settings.max_candidates_per_key,
         ),
         scanned,

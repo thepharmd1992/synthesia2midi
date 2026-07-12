@@ -24,6 +24,7 @@ import numpy as np
 
 from synthesia2midi.app_config import NOTE_NAMES_SHARP, OverlayConfig
 from synthesia2midi.core.app_state import AppState
+from synthesia2midi.core.color_families import SUPPORTED_EXEMPLAR_SLOTS
 from synthesia2midi.detection.auto_detect_param_specs import (
     ACTIVE_AUTO_DETECT_PARAM_KEYS,
     coerce_auto_detect_params,
@@ -343,6 +344,13 @@ class ConfigManager:
                 logging.debug(f"[CONFIG-LOAD]   hand_detection_calibrated: {self.app_state.detection.hand_detection_calibrated}")
                 # Add other AppState fields here if they need to be loaded
 
+            if config.has_section("ExemplarEnabled"):
+                for slot in SUPPORTED_EXEMPLAR_SLOTS:
+                    if config.has_option("ExemplarEnabled", slot):
+                        self.app_state.detection.exemplar_key_type_enabled[slot] = (
+                            config.getboolean("ExemplarEnabled", slot)
+                        )
+
             # Try to load overlay data from the JSON file next to this INI first.
             # Extract the base path from the INI file path (remove .ini extension)
             base_path = config_filepath[:-4] if config_filepath.endswith('.ini') else config_filepath
@@ -625,6 +633,13 @@ class ConfigManager:
         self.app_state.calibration.auto_detect_params = normalized_auto_detect_params
         for param_key, param_value in normalized_auto_detect_params.items():
             config['Settings'][f"autodetect_{param_key}"] = str(param_value)
+
+        config["ExemplarEnabled"] = {
+            slot: str(
+                bool(self.app_state.detection.exemplar_key_type_enabled.get(slot, False))
+            ).lower()
+            for slot in SUPPORTED_EXEMPLAR_SLOTS
+        }
         
         # Log hand detection values being saved
         logging.debug(f"[CONFIG-SAVE] Saving hand detection calibration:")

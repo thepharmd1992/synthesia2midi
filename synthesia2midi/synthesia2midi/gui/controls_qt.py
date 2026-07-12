@@ -437,7 +437,9 @@ class ControlPanelQt(QWidget):
         self.calibration_wizard_button = QPushButton(
             translate("ControlPanelQt", "Draw Keyboard Box and Find Keys")
         )
-        self.calibration_wizard_button.setMinimumWidth(180)
+        self.calibration_wizard_button.setMinimumWidth(
+            max(180, self.calibration_wizard_button.sizeHint().width())
+        )
         self.calibration_wizard_button.setMinimumHeight(
             max(36, self.calibration_wizard_button.sizeHint().height())
         )

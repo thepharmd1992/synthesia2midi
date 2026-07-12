@@ -198,6 +198,10 @@ def test_calibration_section_shows_visible_step_instructions():
     panel = ControlPanelQt()
     try:
         assert panel.calibration_wizard_button.text() == "Draw Keyboard Box and Find Keys"
+        assert (
+            panel.calibration_wizard_button.minimumWidth()
+            >= panel.calibration_wizard_button.sizeHint().width()
+        )
         assert panel.calibrate_unlit_button.text() == "Capture No-Key Frame"
         assert panel.calibration_instruction_labels["keyboard"].text() == (
             "Pause on a clear frame where the full keyboard is visible."

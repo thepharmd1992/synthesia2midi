@@ -1,3 +1,4 @@
+mod channel_layout;
 mod color_map;
 
 use std::collections::HashMap;
@@ -23,6 +24,7 @@ use rfd::{FileDialog, MessageButtons, MessageDialog, MessageDialogResult, Messag
 use rustysynth::{SoundFont, Synthesizer, SynthesizerSettings};
 use serde::Serialize;
 
+use channel_layout::{active_channels_at_tick, compute_lane_assignments, LaneAssignment, NoteSpan};
 use color_map::{note_color, parse_color_map_text, ChannelColorMap};
 
 const DEFAULT_TEMPO_US_PER_BEAT: u32 = 500_000;
@@ -182,6 +184,19 @@ struct EditableNote {
     velocity_on: u8,
     velocity_off: u8,
     key_lane_unlocked: bool,
+}
+
+fn note_spans_for(notes: &[EditableNote]) -> Vec<NoteSpan> {
+    notes
+        .iter()
+        .map(|note| NoteSpan {
+            note_id: note.note_id,
+            pitch: note.pitch,
+            channel: note.channel,
+            start_tick: note.start_tick,
+            end_tick: note.end_tick,
+        })
+        .collect()
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -554,6 +569,8 @@ struct AudioEngineHandle {
 
 struct MidiTouchupApp {
     document: MidiDocument,
+    note_spans: Vec<NoteSpan>,
+    note_lanes: HashMap<u64, LaneAssignment>,
     selected_note_id: Option<u64>,
     context_menu_note_id: Option<u64>,
     drag_state: Option<DragState>,
@@ -591,9 +608,13 @@ impl MidiTouchupApp {
         let document = load_midi_document(midi_path)?;
         let audio_engine = AudioEngineHandle::new(sf2_override, &document).ok();
         let status_line = "Ready".to_string();
+        let note_spans = note_spans_for(&document.notes);
+        let note_lanes = compute_lane_assignments(&note_spans);
 
         Ok(Self {
             document,
+            note_spans,
+            note_lanes,
             selected_note_id: None,
             context_menu_note_id: None,
             drag_state: None,
@@ -622,18 +643,14 @@ impl MidiTouchupApp {
         })
     }
 
-    fn active_note_channels_at_playhead(&self) -> HashMap<u8, u8> {
+    fn active_note_channels_at_playhead(&self) -> std::collections::BTreeMap<u8, Vec<u8>> {
         let t = self.playhead_tick.max(0.0) as u64;
-        let mut active: HashMap<u8, u8> = HashMap::new();
-        for note in self
-            .document
-            .notes
-            .iter()
-            .filter(|n| n.start_tick <= t && t < n.end_tick)
-        {
-            active.entry(note.pitch).or_insert(note.channel);
-        }
-        active
+        active_channels_at_tick(&self.note_spans, t)
+    }
+
+    fn recompute_channel_layout(&mut self) {
+        self.note_spans = note_spans_for(&self.document.notes);
+        self.note_lanes = compute_lane_assignments(&self.note_spans);
     }
 
     fn grid_ticks(&self) -> u64 {
@@ -705,6 +722,7 @@ impl MidiTouchupApp {
         match load_midi_document(midi_path) {
             Ok(doc) => {
                 self.document = doc;
+                self.recompute_channel_layout();
                 self.selected_note_id = None;
                 self.context_menu_note_id = None;
                 self.drag_state = None;
@@ -892,6 +910,7 @@ impl MidiTouchupApp {
         self.redo_stack.clear();
         self.document.dirty = true;
         self.recompute_max_tick();
+        self.recompute_channel_layout();
         self.refresh_audio_song_data();
     }
 
@@ -927,6 +946,7 @@ impl MidiTouchupApp {
             self.redo_stack.push(cmd);
             self.document.dirty = true;
             self.recompute_max_tick();
+            self.recompute_channel_layout();
             self.refresh_audio_song_data();
             self.status_line = "Undo".to_string();
         }
@@ -938,6 +958,7 @@ impl MidiTouchupApp {
             self.undo_stack.push(cmd);
             self.document.dirty = true;
             self.recompute_max_tick();
+            self.recompute_channel_layout();
             self.refresh_audio_song_data();
             self.status_line = "Redo".to_string();
         }
@@ -1108,6 +1129,13 @@ impl MidiTouchupApp {
 
     fn note_rect(&self, note: &EditableNote, layout: &FallingViewLayout) -> Rect {
         let (x, w) = pitch_xw(layout.rect, note.pitch);
+        let lane = self
+            .note_lanes
+            .get(&note.note_id)
+            .copied()
+            .unwrap_or(LaneAssignment { index: 0, count: 1 });
+        let lane_width = w / lane.count.max(1) as f32;
+        let lane_x = x + lane.index as f32 * lane_width;
 
         let y_start = layout.strike_y
             - ((note.start_tick as f64 - self.playhead_tick) * layout.px_per_tick) as f32;
@@ -1117,8 +1145,8 @@ impl MidiTouchupApp {
         let top = y_end.min(y_start);
         let bottom = y_end.max(y_start);
         Rect::from_min_max(
-            Pos2::new(x, top),
-            Pos2::new((x + w).min(layout.rect.right()), bottom),
+            Pos2::new(lane_x, top),
+            Pos2::new((lane_x + lane_width).min(layout.rect.right()), bottom),
         )
     }
 
@@ -1382,11 +1410,26 @@ impl MidiTouchupApp {
                 continue;
             }
             let rect = piano_key_rect(layout.keyboard_rect, pitch);
-            let mut fill = Color32::from_rgb(232, 232, 224);
-            if let Some(channel) = active_channels.get(&pitch) {
-                fill = note_color(&self.document.channel_colors, *channel, pitch);
+            painter.rect_filled(rect, 0.0, Color32::from_rgb(232, 232, 224));
+            if let Some(channels) = active_channels.get(&pitch) {
+                let band_width = rect.width() / channels.len().max(1) as f32;
+                for (index, channel) in channels.iter().enumerate() {
+                    let left = rect.left() + index as f32 * band_width;
+                    let right = if index + 1 == channels.len() {
+                        rect.right()
+                    } else {
+                        left + band_width
+                    };
+                    painter.rect_filled(
+                        Rect::from_min_max(
+                            Pos2::new(left, rect.top()),
+                            Pos2::new(right, rect.bottom()),
+                        ),
+                        0.0,
+                        note_color(&self.document.channel_colors, *channel, pitch),
+                    );
+                }
             }
-            painter.rect_filled(rect, 0.0, fill);
             painter.rect_stroke(rect, 0.0, Stroke::new(0.8, Color32::from_rgb(50, 50, 50)));
         }
 
@@ -1396,11 +1439,26 @@ impl MidiTouchupApp {
             }
             let mut rect = piano_key_rect(layout.keyboard_rect, pitch);
             rect.max.y = rect.min.y + black_height;
-            let mut fill = Color32::from_rgb(28, 28, 32);
-            if let Some(channel) = active_channels.get(&pitch) {
-                fill = note_color(&self.document.channel_colors, *channel, pitch);
+            painter.rect_filled(rect, 2.0, Color32::from_rgb(28, 28, 32));
+            if let Some(channels) = active_channels.get(&pitch) {
+                let band_width = rect.width() / channels.len().max(1) as f32;
+                for (index, channel) in channels.iter().enumerate() {
+                    let left = rect.left() + index as f32 * band_width;
+                    let right = if index + 1 == channels.len() {
+                        rect.right()
+                    } else {
+                        left + band_width
+                    };
+                    painter.rect_filled(
+                        Rect::from_min_max(
+                            Pos2::new(left, rect.top()),
+                            Pos2::new(right, rect.bottom()),
+                        ),
+                        0.0,
+                        note_color(&self.document.channel_colors, *channel, pitch),
+                    );
+                }
             }
-            painter.rect_filled(rect, 2.0, fill);
             painter.rect_stroke(rect, 2.0, Stroke::new(1.0, Color32::from_rgb(10, 10, 10)));
         }
     }

@@ -1,4 +1,12 @@
-from synthesia2midi.version import normalize_release_version, resolve_app_version
+from synthesia2midi.version import (
+    DEFAULT_APP_VERSION,
+    normalize_release_version,
+    resolve_app_version,
+)
+
+
+def test_default_app_version_tracks_next_release():
+    assert DEFAULT_APP_VERSION == "0.2.1-dev"
 
 
 def test_normalize_release_version_accepts_tag_and_version():

@@ -148,12 +148,15 @@ def test_open_video_file_records_recent_only_after_success(monkeypatch, tmp_path
     selected_path = str(tmp_path / "picked.mp4")
     (tmp_path / "picked.mp4").write_text("video")
 
+    created_dialogs = []
+
     class FakeFileDialog:
         ExistingFile = object()
         DontUseNativeDialog = object()
 
         def __init__(self, parent):
             self.parent = parent
+            created_dialogs.append(self)
 
         def setWindowTitle(self, value):
             pass
@@ -187,9 +190,12 @@ def test_open_video_file_records_recent_only_after_success(monkeypatch, tmp_path
         recent_video_store=recent_store,
     )
     monkeypatch.setattr(module, "QFileDialog", FakeFileDialog)
+    parent_marker = object()
 
-    VideoSessionUiController(app).open_video_file()
+    result = VideoSessionUiController(app).open_video_file(parent=parent_marker)
 
+    assert result is True
+    assert created_dialogs[0].parent is parent_marker
     assert recent_store.paths == [selected_path]
 
 
@@ -238,9 +244,40 @@ def test_failed_file_picker_load_does_not_record_recent(monkeypatch, tmp_path):
     )
     monkeypatch.setattr(module, "QFileDialog", FakeFileDialog)
 
-    VideoSessionUiController(app).open_video_file()
+    result = VideoSessionUiController(app).open_video_file()
 
+    assert result is False
     assert recent_store.paths == []
+
+
+def test_open_video_file_returns_false_when_picker_is_cancelled(monkeypatch):
+    from synthesia2midi.gui import video_session_ui_controller as module
+
+    class RejectedFileDialog:
+        ExistingFile = object()
+
+        def __init__(self, parent):
+            self.parent = parent
+
+        def setWindowTitle(self, value):
+            pass
+
+        def setFileMode(self, value):
+            pass
+
+        def setNameFilter(self, value):
+            pass
+
+        def setDirectory(self, value):
+            pass
+
+        def exec(self):
+            return QDialog.Rejected
+
+    monkeypatch.setattr(module, "QFileDialog", RejectedFileDialog)
+    app = SimpleNamespace(recent_video_store=RecordingRecentStore())
+
+    assert VideoSessionUiController(app).open_video_file() is False
 
 
 def test_recent_click_records_promotion_but_youtube_download_does_not(tmp_path):
@@ -256,11 +293,26 @@ def test_recent_click_records_promotion_but_youtube_download_does_not(tmp_path):
     )
     controller = VideoSessionUiController(app)
 
-    controller.open_recent_video_file(recent_path)
-    controller.handle_youtube_video_downloaded(youtube_path)
+    recent_loaded = controller.open_recent_video_file(recent_path)
+    youtube_loaded = controller.handle_youtube_video_downloaded(youtube_path)
 
+    assert recent_loaded is True
+    assert youtube_loaded is True
     assert loaded_paths == [recent_path, youtube_path]
     assert recent_store.paths == [recent_path]
+
+
+def test_recent_file_open_reports_failed_load(tmp_path):
+    recent_path = str(tmp_path / "recent.mp4")
+    app = SimpleNamespace(
+        video_session_coordinator=SimpleNamespace(
+            load_path=lambda filepath, *, log_prefix, update_fps_display: False
+        ),
+        recent_video_store=RecordingRecentStore(),
+    )
+
+    assert VideoSessionUiController(app).open_recent_video_file(recent_path) is False
+    assert app.recent_video_store.paths == []
 
 
 def test_image_sequence_uses_a_directory_picker(monkeypatch, tmp_path):

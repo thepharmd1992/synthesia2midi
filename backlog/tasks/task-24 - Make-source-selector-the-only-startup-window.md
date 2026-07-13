@@ -1,7 +1,7 @@
 ---
 id: TASK-24
 title: Make source selector the only startup window
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-07-12 00:00'
 updated_date: '2026-07-12 00:00'

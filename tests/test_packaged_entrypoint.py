@@ -59,6 +59,7 @@ def test_youtube_dialog_uses_runtime_default_download_dir(monkeypatch, tmp_path)
 
     class FakeDialog:
         def __init__(self, parent=None, default_output_dir=""):
+            calls["parent"] = parent
             calls["default_output_dir"] = default_output_dir
             self.video_downloaded = _Signal()
 
@@ -78,6 +79,53 @@ def test_youtube_dialog_uses_runtime_default_download_dir(monkeypatch, tmp_path)
     monkeypatch.setattr(module, "detect_runtime_paths", lambda: fake_paths)
 
     controller = module.VideoSessionUiController(app=object())
-    controller.show_youtube_download_dialog()
+    parent_marker = object()
+    result = controller.show_youtube_download_dialog(parent=parent_marker)
 
+    assert result is False
+    assert calls["parent"] is parent_marker
     assert calls["default_output_dir"] == str(fake_paths.default_download_dir())
+
+
+def test_youtube_dialog_returns_true_after_downloaded_video_loads(monkeypatch, tmp_path):
+    from types import SimpleNamespace
+
+    from synthesia2midi.gui import video_session_ui_controller as module
+
+    calls = {}
+
+    class _Signal:
+        def connect(self, callback):
+            calls["connected"] = callback
+
+    class FakeDialog:
+        def __init__(self, parent=None, default_output_dir=""):
+            self.video_downloaded = _Signal()
+
+        def exec(self):
+            calls["connected"]("/tmp/downloaded.mp4")
+            return QDialog.Accepted
+
+    fake_paths = RuntimePaths(
+        frozen=True,
+        app_root=tmp_path / "bundle",
+        repo_root=tmp_path / "repo",
+        home_dir=tmp_path / "home",
+        platform_name="darwin",
+    )
+    loaded = []
+    app = SimpleNamespace(
+        video_session_coordinator=SimpleNamespace(
+            load_path=lambda filepath, *, log_prefix, update_fps_display: loaded.append(
+                filepath
+            )
+            or True
+        )
+    )
+    monkeypatch.setattr(module, "YouTubeDownloadDialog", FakeDialog)
+    monkeypatch.setattr(module, "detect_runtime_paths", lambda: fake_paths)
+
+    result = module.VideoSessionUiController(app).show_youtube_download_dialog()
+
+    assert result is True
+    assert loaded == ["/tmp/downloaded.mp4"]

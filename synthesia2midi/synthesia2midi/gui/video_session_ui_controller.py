@@ -5,7 +5,7 @@ import logging
 import os
 
 from PySide6.QtCore import QCoreApplication
-from PySide6.QtWidgets import QDialog, QFileDialog
+from PySide6.QtWidgets import QDialog, QFileDialog, QWidget
 
 from synthesia2midi.gui.youtube_download_dialog import YouTubeDownloadDialog
 from synthesia2midi.runtime_paths import detect_runtime_paths
@@ -19,20 +19,29 @@ class VideoSessionUiController:
     def __init__(self, app):
         self.app = app
 
-    def show_youtube_download_dialog(self) -> None:
+    def show_youtube_download_dialog(self, parent: QWidget | None = None) -> bool:
         app = self.app
         logging.info("_show_youtube_download_dialog: Showing YouTube download dialog.")
         download_dir = str(detect_runtime_paths().default_download_dir())
-        dialog = YouTubeDownloadDialog(app, default_output_dir=download_dir)
-        dialog.video_downloaded.connect(self.handle_youtube_video_downloaded)
+        dialog_parent = app if parent is None else parent
+        dialog = YouTubeDownloadDialog(dialog_parent, default_output_dir=download_dir)
+        loaded = False
+
+        def handle_downloaded(filepath: str) -> None:
+            nonlocal loaded
+            loaded = self.handle_youtube_video_downloaded(filepath)
+
+        dialog.video_downloaded.connect(handle_downloaded)
 
         if dialog.exec() != QDialog.Accepted:
             logging.info("_show_youtube_download_dialog: User cancelled YouTube dialog, continuing with empty application.")
+        return loaded
 
-    def open_video_file(self) -> None:
+    def open_video_file(self, parent: QWidget | None = None) -> bool:
         app = self.app
         logging.info("_open_video_file: Method started.")
-        dialog = QFileDialog(app)
+        dialog_parent = app if parent is None else parent
+        dialog = QFileDialog(dialog_parent)
         dialog.setWindowTitle(translate("VideoSessionUiController", "Open Video File"))
         dialog.setFileMode(QFileDialog.ExistingFile)
         dialog.setNameFilter(
@@ -55,9 +64,11 @@ class VideoSessionUiController:
                 )
                 if loaded:
                     self._record_recent_video(filepath)
-            return
+                return bool(loaded)
+            return False
 
         logging.info("_open_video_file: User cancelled file dialog, continuing with empty application.")
+        return False
 
     def open_image_sequence_folder(self) -> None:
         """Open a directory picker for an extracted frame sequence."""
@@ -78,7 +89,7 @@ class VideoSessionUiController:
         if loaded:
             self._record_recent_video(filepath)
 
-    def open_recent_video_file(self, filepath: str) -> None:
+    def open_recent_video_file(self, filepath: str) -> bool:
         logging.info("_open_recent_video_file: Loading recent video %s", filepath)
         loaded = self.app.video_session_coordinator.load_path(
             filepath,
@@ -87,13 +98,16 @@ class VideoSessionUiController:
         )
         if loaded:
             self._record_recent_video(filepath)
+        return bool(loaded)
 
-    def handle_youtube_video_downloaded(self, filepath: str) -> None:
+    def handle_youtube_video_downloaded(self, filepath: str) -> bool:
         logging.info("_handle_youtube_video_downloaded: Video downloaded to %s", filepath)
-        self.app.video_session_coordinator.load_path(
-            filepath,
-            log_prefix="_handle_youtube_video_downloaded",
-            update_fps_display=False,
+        return bool(
+            self.app.video_session_coordinator.load_path(
+                filepath,
+                log_prefix="_handle_youtube_video_downloaded",
+                update_fps_display=False,
+            )
         )
 
     def _record_recent_video(self, filepath: str) -> None:

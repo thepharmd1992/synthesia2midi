@@ -713,5 +713,5 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
 if __name__ == "__main__":
     qapp = QApplication(sys.argv)
     app = Video2MidiApp()
-    app.show()
+    app.begin_startup()
     sys.exit(qapp.exec())

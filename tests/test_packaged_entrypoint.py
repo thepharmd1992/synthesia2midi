@@ -1,3 +1,4 @@
+import ast
 import importlib.util
 from pathlib import Path
 
@@ -15,6 +16,37 @@ def _load_module(name: str, path: Path):
     assert spec.loader is not None
     spec.loader.exec_module(module)
     return module
+
+
+def _main_guard_calls(path: Path) -> set[str]:
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    guard = next(
+        node
+        for node in tree.body
+        if isinstance(node, ast.If)
+        and isinstance(node.test, ast.Compare)
+        and any(
+            isinstance(part, ast.Constant) and part.value == "__main__"
+            for part in ast.walk(node.test)
+        )
+    )
+    return {
+        ast.unparse(node.func)
+        for node in ast.walk(guard)
+        if isinstance(node, ast.Call)
+    }
+
+
+def test_gui_launch_guards_begin_startup_without_showing_main():
+    paths = [
+        ROOT / "synthesia2midi" / "run.py",
+        ROOT / "synthesia2midi" / "synthesia2midi" / "main.py",
+    ]
+
+    for path in paths:
+        calls = _main_guard_calls(path)
+        assert "app.begin_startup" in calls
+        assert "app.show" not in calls
 
 
 def test_default_log_dir_uses_runtime_path_when_frozen(monkeypatch, tmp_path):

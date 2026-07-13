@@ -141,9 +141,9 @@ if __name__ == "__main__":
         app = Video2MidiApp()
         logger.info("Video2MidiApp instance created successfully")
         
-        logger.info("Showing application window...")
-        app.show()
-        logger.info("Application window shown")
+        logger.info("Starting source-selection flow...")
+        app.begin_startup()
+        logger.info("Source-selection flow scheduled")
         
         logger.info("Starting Qt event loop...")
         exit_code = qapp.exec()

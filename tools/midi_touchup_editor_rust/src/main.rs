@@ -1,3 +1,5 @@
+mod color_map;
+
 use std::collections::HashMap;
 use std::fs;
 #[cfg(any(target_os = "windows", target_os = "macos"))]
@@ -8,6 +10,8 @@ use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
 use clap::Parser;
+#[cfg(any(target_os = "windows", target_os = "macos"))]
+use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use crossbeam_channel::Sender;
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 use crossbeam_channel::{unbounded, Receiver};
@@ -18,8 +22,8 @@ use rfd::{FileDialog, MessageButtons, MessageDialog, MessageDialogResult, Messag
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 use rustysynth::{SoundFont, Synthesizer, SynthesizerSettings};
 use serde::Serialize;
-#[cfg(any(target_os = "windows", target_os = "macos"))]
-use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
+
+use color_map::{note_color, parse_color_map_text, ChannelColorMap};
 
 const DEFAULT_TEMPO_US_PER_BEAT: u32 = 500_000;
 const MIN_PITCH: u8 = 21;
@@ -332,6 +336,7 @@ struct MidiDocument {
     tempo_us_per_beat: u32,
     tempo_map: TempoMap,
     notes: Vec<EditableNote>,
+    channel_colors: ChannelColorMap,
     preserved_tracks: Vec<Vec<PreservedEvent>>,
     max_tick: u64,
     next_note_id: u64,
@@ -354,7 +359,10 @@ struct DragState {
 
 #[derive(Clone, Debug)]
 enum EditCommand {
-    Delete { note: EditableNote, index: usize },
+    Delete {
+        note: EditableNote,
+        index: usize,
+    },
     Update {
         note_id: u64,
         before: EditableNote,
@@ -390,8 +398,15 @@ struct TimelineDragState {
 #[cfg_attr(not(any(target_os = "windows", target_os = "macos")), allow(dead_code))]
 #[derive(Clone, Debug)]
 enum SongEventKind {
-    NoteOn { channel: u8, pitch: u8, velocity: u8 },
-    NoteOff { channel: u8, pitch: u8 },
+    NoteOn {
+        channel: u8,
+        pitch: u8,
+        velocity: u8,
+    },
+    NoteOff {
+        channel: u8,
+        pitch: u8,
+    },
 }
 
 #[cfg_attr(not(any(target_os = "windows", target_os = "macos")), allow(dead_code))]
@@ -652,7 +667,8 @@ impl MidiTouchupApp {
             }
             let dist = note.start_tick.abs_diff(target_tick);
             if dist < best_dist
-                || (dist == best_dist && best_tick.map_or(true, |current| note.start_tick < current))
+                || (dist == best_dist
+                    && best_tick.map_or(true, |current| note.start_tick < current))
             {
                 best_dist = dist;
                 best_tick = Some(note.start_tick);
@@ -756,7 +772,10 @@ impl MidiTouchupApp {
     }
 
     fn note_by_id_mut(&mut self, note_id: u64) -> Option<&mut EditableNote> {
-        self.document.notes.iter_mut().find(|n| n.note_id == note_id)
+        self.document
+            .notes
+            .iter_mut()
+            .find(|n| n.note_id == note_id)
     }
 
     fn clamp_tick(&self, tick: f64) -> f64 {
@@ -980,14 +999,18 @@ impl MidiTouchupApp {
         let mut preview = state.original_note.clone();
         match state.mode {
             DragMode::Move => {
-                let duration = (state.original_note.end_tick as i64 - state.original_note.start_tick as i64).max(1);
+                let duration = (state.original_note.end_tick as i64
+                    - state.original_note.start_tick as i64)
+                    .max(1);
                 // In falling-note coordinates, increasing y (dragging down) should move the note down.
-                let unsnapped_start = (state.original_note.start_tick as i64 - delta_tick).max(0) as u64;
+                let unsnapped_start =
+                    (state.original_note.start_tick as i64 - delta_tick).max(0) as u64;
                 let snapped_start = if self.snap_enabled {
                     match self.snap_target {
                         SnapTarget::Grid => {
                             let snapped_shift = self.snap_delta_tick(-delta_tick);
-                            let new_start = (state.original_note.start_tick as i64 + snapped_shift).max(0);
+                            let new_start =
+                                (state.original_note.start_tick as i64 + snapped_shift).max(0);
                             new_start as u64
                         }
                         SnapTarget::Onset => {
@@ -1086,12 +1109,17 @@ impl MidiTouchupApp {
     fn note_rect(&self, note: &EditableNote, layout: &FallingViewLayout) -> Rect {
         let (x, w) = pitch_xw(layout.rect, note.pitch);
 
-        let y_start = layout.strike_y - ((note.start_tick as f64 - self.playhead_tick) * layout.px_per_tick) as f32;
-        let y_end = layout.strike_y - ((note.end_tick as f64 - self.playhead_tick) * layout.px_per_tick) as f32;
+        let y_start = layout.strike_y
+            - ((note.start_tick as f64 - self.playhead_tick) * layout.px_per_tick) as f32;
+        let y_end = layout.strike_y
+            - ((note.end_tick as f64 - self.playhead_tick) * layout.px_per_tick) as f32;
 
         let top = y_end.min(y_start);
         let bottom = y_end.max(y_start);
-        Rect::from_min_max(Pos2::new(x, top), Pos2::new((x + w).min(layout.rect.right()), bottom))
+        Rect::from_min_max(
+            Pos2::new(x, top),
+            Pos2::new((x + w).min(layout.rect.right()), bottom),
+        )
     }
 
     fn draw_falling_area(&mut self, ui: &mut egui::Ui, rect: Rect) {
@@ -1120,7 +1148,11 @@ impl MidiTouchupApp {
             px_per_tick,
         };
 
-        let response = ui.interact(fall_rect, ui.id().with("falling_view"), Sense::click_and_drag());
+        let response = ui.interact(
+            fall_rect,
+            ui.id().with("falling_view"),
+            Sense::click_and_drag(),
+        );
         let painter = ui.painter();
 
         painter.rect_filled(fall_rect, 4.0, Color32::from_rgb(16, 18, 24));
@@ -1234,8 +1266,8 @@ impl MidiTouchupApp {
                 return None;
             }
 
-            let onset_y =
-                layout.strike_y - ((selected_tick as f64 - self.playhead_tick) * layout.px_per_tick) as f32;
+            let onset_y = layout.strike_y
+                - ((selected_tick as f64 - self.playhead_tick) * layout.px_per_tick) as f32;
             if onset_y < visible_note_region.top() || onset_y > visible_note_region.bottom() {
                 return None;
             }
@@ -1299,24 +1331,38 @@ impl MidiTouchupApp {
                 continue;
             }
 
-            let mut color = note_color(draw_note.channel, draw_note.pitch);
+            let mut color = note_color(
+                &self.document.channel_colors,
+                draw_note.channel,
+                draw_note.pitch,
+            );
             if self.selected_note_id == Some(draw_note.note_id) {
                 color = Color32::from_rgb(255, 221, 87);
             }
 
             painter.rect_filled(clipped_rect, 2.0, color);
-            painter.rect_stroke(clipped_rect, 2.0, Stroke::new(1.0, Color32::from_black_alpha(180)));
+            painter.rect_stroke(
+                clipped_rect,
+                2.0,
+                Stroke::new(1.0, Color32::from_black_alpha(180)),
+            );
         }
 
         if let Some((span_left, span_right, onset_y)) = onset_connector {
             painter.line_segment(
-                [Pos2::new(span_left, onset_y), Pos2::new(span_right, onset_y)],
+                [
+                    Pos2::new(span_left, onset_y),
+                    Pos2::new(span_right, onset_y),
+                ],
                 Stroke::new(1.0, Color32::from_rgba_unmultiplied(245, 245, 245, 220)),
             );
         }
 
         painter.line_segment(
-            [Pos2::new(fall_rect.left(), strike_y), Pos2::new(fall_rect.right(), strike_y)],
+            [
+                Pos2::new(fall_rect.left(), strike_y),
+                Pos2::new(fall_rect.right(), strike_y),
+            ],
             Stroke::new(2.0, Color32::from_rgb(220, 220, 220)),
         );
 
@@ -1338,7 +1384,7 @@ impl MidiTouchupApp {
             let rect = piano_key_rect(layout.keyboard_rect, pitch);
             let mut fill = Color32::from_rgb(232, 232, 224);
             if let Some(channel) = active_channels.get(&pitch) {
-                fill = note_color(*channel, pitch);
+                fill = note_color(&self.document.channel_colors, *channel, pitch);
             }
             painter.rect_filled(rect, 0.0, fill);
             painter.rect_stroke(rect, 0.0, Stroke::new(0.8, Color32::from_rgb(50, 50, 50)));
@@ -1352,7 +1398,7 @@ impl MidiTouchupApp {
             rect.max.y = rect.min.y + black_height;
             let mut fill = Color32::from_rgb(28, 28, 32);
             if let Some(channel) = active_channels.get(&pitch) {
-                fill = note_color(*channel, pitch);
+                fill = note_color(&self.document.channel_colors, *channel, pitch);
             }
             painter.rect_filled(rect, 2.0, fill);
             painter.rect_stroke(rect, 2.0, Stroke::new(1.0, Color32::from_rgb(10, 10, 10)));
@@ -1461,7 +1507,8 @@ impl MidiTouchupApp {
         // One wheel notch (~120) => about 15% zoom change.
         let wheel_steps = scroll_y / 120.0;
         let zoom_factor = 1.15_f32.powf(wheel_steps);
-        self.vertical_zoom = (self.vertical_zoom * zoom_factor).clamp(MIN_VERTICAL_ZOOM, MAX_VERTICAL_ZOOM);
+        self.vertical_zoom =
+            (self.vertical_zoom * zoom_factor).clamp(MIN_VERTICAL_ZOOM, MAX_VERTICAL_ZOOM);
     }
 }
 
@@ -1528,14 +1575,20 @@ impl App for MidiTouchupApp {
                 if ui
                     .add_sized(
                         [button_width * 1.45, button_height],
-                        egui::Button::new(RichText::new("Save Touch-Up MIDI").size(control_font_size)),
+                        egui::Button::new(
+                            RichText::new("Save Touch-Up MIDI").size(control_font_size),
+                        ),
                     )
                     .clicked()
                 {
                     self.save_touchup();
                 }
 
-                let snap_label = if self.snap_enabled { "Snap: ON" } else { "Snap: OFF" };
+                let snap_label = if self.snap_enabled {
+                    "Snap: ON"
+                } else {
+                    "Snap: OFF"
+                };
                 if ui
                     .add_sized(
                         [button_width, button_height],
@@ -1547,18 +1600,20 @@ impl App for MidiTouchupApp {
                 }
 
                 if self.snap_enabled {
-                    egui::ComboBox::from_label(RichText::new("Snap To").size(control_font_size - 2.0))
-                        .selected_text(RichText::new(self.snap_target.label()).size(control_font_size))
-                        .width(180.0)
-                        .show_ui(ui, |ui| {
-                            for option in SnapTarget::all() {
-                                ui.selectable_value(
-                                    &mut self.snap_target,
-                                    option,
-                                    RichText::new(option.label()).size(control_font_size - 1.0),
-                                );
-                            }
-                        });
+                    egui::ComboBox::from_label(
+                        RichText::new("Snap To").size(control_font_size - 2.0),
+                    )
+                    .selected_text(RichText::new(self.snap_target.label()).size(control_font_size))
+                    .width(180.0)
+                    .show_ui(ui, |ui| {
+                        for option in SnapTarget::all() {
+                            ui.selectable_value(
+                                &mut self.snap_target,
+                                option,
+                                RichText::new(option.label()).size(control_font_size - 1.0),
+                            );
+                        }
+                    });
                 }
 
                 egui::ComboBox::from_label(RichText::new("Grid").size(control_font_size - 2.0))
@@ -1578,7 +1633,9 @@ impl App for MidiTouchupApp {
                 if ui
                     .add_sized(
                         [button_width * 0.6, button_height],
-                        egui::Button::new(RichText::new(play_pause_icon).size(control_font_size + 6.0)),
+                        egui::Button::new(
+                            RichText::new(play_pause_icon).size(control_font_size + 6.0),
+                        ),
                     )
                     .on_hover_text(if self.playing { "Pause" } else { "Play" })
                     .clicked()
@@ -1687,11 +1744,8 @@ impl App for MidiTouchupApp {
                         ui.label(RichText::new("Timeline").size(control_font_size).strong());
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                             ui.label(
-                                RichText::new(format!(
-                                    "{:.2}s",
-                                    self.playback_seconds()
-                                ))
-                                .size(control_font_size - 1.0),
+                                RichText::new(format!("{:.2}s", self.playback_seconds()))
+                                    .size(control_font_size - 1.0),
                             );
                         });
                     });
@@ -1702,15 +1756,12 @@ impl App for MidiTouchupApp {
                     );
                     let timeline_painter = ui.painter();
 
-                    timeline_painter.rect_filled(
-                        timeline_rect,
-                        6.0,
-                        Color32::from_rgb(38, 52, 74),
-                    );
+                    timeline_painter.rect_filled(timeline_rect, 6.0, Color32::from_rgb(38, 52, 74));
 
                     let max_tick_f64 = self.document.max_tick.max(1) as f64;
                     let progress_ratio = (self.playhead_tick / max_tick_f64).clamp(0.0, 1.0) as f32;
-                    let progress_x = timeline_rect.left() + (timeline_rect.width() * progress_ratio);
+                    let progress_x =
+                        timeline_rect.left() + (timeline_rect.width() * progress_ratio);
                     let progress_rect = Rect::from_min_max(
                         timeline_rect.min,
                         Pos2::new(progress_x, timeline_rect.max.y),
@@ -1759,8 +1810,10 @@ impl App for MidiTouchupApp {
                                     });
                                 }
                                 if let Some(state) = &self.timeline_drag_state {
-                                    let fine_ticks_per_px = (self.grid_ticks() as f64 / 8.0).max(1.0);
-                                    let delta_tick = (pointer_pos.x - state.start_x) as f64 * fine_ticks_per_px;
+                                    let fine_ticks_per_px =
+                                        (self.grid_ticks() as f64 / 8.0).max(1.0);
+                                    let delta_tick =
+                                        (pointer_pos.x - state.start_x) as f64 * fine_ticks_per_px;
                                     let drag_base_tick = if state.fine_mode {
                                         state.start_tick
                                     } else {
@@ -1799,7 +1852,11 @@ impl App for MidiTouchupApp {
                                     .source_path
                                     .file_name()
                                     .map(|name| name.to_string_lossy().to_string())
-                                    .unwrap_or_else(|| self.document.source_path.display().to_string())
+                                    .unwrap_or_else(|| self
+                                        .document
+                                        .source_path
+                                        .display()
+                                        .to_string())
                             ))
                             .size(13.0),
                         );
@@ -1812,14 +1869,15 @@ impl App for MidiTouchupApp {
             let pointer_over_canvas = ui.rect_contains_pointer(available)
                 && pointer_targets_canvas(ui.input(|input| input.pointer.hover_pos()), available);
             if pointer_over_canvas {
-                let (smooth_scroll_y, raw_scroll_y, shift_down, zoom_modifier_down) = ui.input(|input| {
-                    (
-                        input.smooth_scroll_delta.y,
-                        input.raw_scroll_delta.y,
-                        input.modifiers.shift,
-                        input.modifiers.ctrl || input.modifiers.command,
-                    )
-                });
+                let (smooth_scroll_y, raw_scroll_y, shift_down, zoom_modifier_down) =
+                    ui.input(|input| {
+                        (
+                            input.smooth_scroll_delta.y,
+                            input.raw_scroll_delta.y,
+                            input.modifiers.shift,
+                            input.modifiers.ctrl || input.modifiers.command,
+                        )
+                    });
                 let (scroll_y, smooth_input) = if smooth_scroll_y.abs() > f32::EPSILON {
                     (smooth_scroll_y, true)
                 } else {
@@ -1845,10 +1903,10 @@ impl AudioEngineHandle {
         let sf2_file = fs::File::open(&sf2_path)
             .map_err(|err| format!("Failed to open SoundFont {}: {err}", sf2_path.display()))?;
         let mut sf2_reader = BufReader::new(sf2_file);
-        let sound_font = Arc::new(
-            SoundFont::new(&mut sf2_reader)
-                .map_err(|err| format!("Failed to parse SoundFont {}: {err}", sf2_path.display()))?,
-        );
+        let sound_font =
+            Arc::new(SoundFont::new(&mut sf2_reader).map_err(|err| {
+                format!("Failed to parse SoundFont {}: {err}", sf2_path.display())
+            })?);
 
         let host = cpal::default_host();
         let device = host
@@ -2131,7 +2189,11 @@ fn process_audio_commands(runtime: &mut AudioRuntime, receiver: &Receiver<AudioC
         match cmd {
             AudioCommand::Play => {
                 runtime.playing = true;
-                let tick = runtime.song.tempo_map.sec_to_tick(runtime.playback_sec).max(0.0) as u64;
+                let tick = runtime
+                    .song
+                    .tempo_map
+                    .sec_to_tick(runtime.playback_sec)
+                    .max(0.0) as u64;
                 seek_runtime_to_tick(runtime, tick);
             }
             AudioCommand::Pause => {
@@ -2193,8 +2255,9 @@ fn advance_preview_voices(runtime: &mut AudioRuntime) {
                 .note_off(preview.channel as i32, preview.pitch as i32);
             continue;
         }
-        runtime.preview_voices[idx].remaining_samples =
-            runtime.preview_voices[idx].remaining_samples.saturating_sub(1);
+        runtime.preview_voices[idx].remaining_samples = runtime.preview_voices[idx]
+            .remaining_samples
+            .saturating_sub(1);
         if runtime.preview_voices[idx].remaining_samples == 0 {
             let preview = runtime.preview_voices.remove(idx);
             runtime
@@ -2295,7 +2358,9 @@ fn render_audio_chunk_u16(
     render_audio_chunk_f32(&mut scratch, channels, receiver, telemetry, runtime);
     for (dst, sample) in data.iter_mut().zip(scratch.iter()) {
         let normalized = ((*sample + 1.0) * 0.5).clamp(0.0, 1.0);
-        *dst = (normalized * u16::MAX as f32).round().clamp(0.0, u16::MAX as f32) as u16;
+        *dst = (normalized * u16::MAX as f32)
+            .round()
+            .clamp(0.0, u16::MAX as f32) as u16;
     }
 }
 
@@ -2309,31 +2374,6 @@ fn apply_dark_theme(ctx: egui::Context) {
     style.visuals.widgets.hovered.bg_fill = Color32::from_rgb(52, 64, 82);
     style.visuals.widgets.active.bg_fill = Color32::from_rgb(72, 88, 116);
     ctx.set_style(style);
-}
-
-fn channel_base_color(channel: u8) -> Color32 {
-    match channel {
-        0 => Color32::from_rgba_unmultiplied(90, 168, 255, 220),
-        1 => Color32::from_rgba_unmultiplied(90, 220, 150, 220),
-        _ => Color32::from_rgba_unmultiplied(255, 185, 96, 220),
-    }
-}
-
-fn darken_color(color: Color32, factor: f32) -> Color32 {
-    let clamped = factor.clamp(0.0, 1.0);
-    let r = ((color.r() as f32) * clamped).round().clamp(0.0, 255.0) as u8;
-    let g = ((color.g() as f32) * clamped).round().clamp(0.0, 255.0) as u8;
-    let b = ((color.b() as f32) * clamped).round().clamp(0.0, 255.0) as u8;
-    Color32::from_rgba_unmultiplied(r, g, b, color.a())
-}
-
-fn note_color(channel: u8, pitch: u8) -> Color32 {
-    let base = channel_base_color(channel);
-    if is_black_key(pitch) {
-        darken_color(base, 0.72)
-    } else {
-        base
-    }
 }
 
 fn is_black_key(pitch: u8) -> bool {
@@ -2414,7 +2454,10 @@ fn draw_falling_grid(painter: &egui::Painter, layout: &FallingViewLayout, playhe
             white_stroke
         };
         painter.line_segment(
-            [Pos2::new(x, layout.rect.top()), Pos2::new(x, layout.rect.bottom())],
+            [
+                Pos2::new(x, layout.rect.top()),
+                Pos2::new(x, layout.rect.bottom()),
+            ],
             stroke,
         );
     }
@@ -2439,7 +2482,10 @@ fn draw_falling_grid(painter: &egui::Painter, layout: &FallingViewLayout, playhe
         let tick = playhead_tick + (i as f64 * line_step);
         let y = layout.strike_y - ((tick - playhead_tick) * layout.px_per_tick) as f32;
         painter.line_segment(
-            [Pos2::new(layout.rect.left(), y), Pos2::new(layout.rect.right(), y)],
+            [
+                Pos2::new(layout.rect.left(), y),
+                Pos2::new(layout.rect.right(), y),
+            ],
             Stroke::new(0.7, Color32::from_rgba_unmultiplied(70, 70, 78, 120)),
         );
     }
@@ -2487,6 +2533,7 @@ fn load_midi_document(path: &Path) -> Result<MidiDocument, String> {
     let mut max_tick = 0_u64;
     let mut tempo_us_per_beat = DEFAULT_TEMPO_US_PER_BEAT;
     let mut tempo_events: Vec<TempoEvent> = Vec::new();
+    let mut channel_colors = ChannelColorMap::new();
 
     for (track_index, track) in smf.tracks.iter().enumerate() {
         let mut abs_tick: u64 = 0;
@@ -2557,6 +2604,13 @@ fn load_midi_document(path: &Path) -> Result<MidiDocument, String> {
                     }
                 }
                 TrackEventKind::Meta(meta) => {
+                    if abs_tick == 0 {
+                        if let MetaMessage::Text(bytes) = meta {
+                            if let Some(parsed) = parse_color_map_text(bytes) {
+                                channel_colors = parsed;
+                            }
+                        }
+                    }
                     if let MetaMessage::Tempo(value) = meta {
                         let tempo_value = value.as_int().max(1);
                         if tempo_events.is_empty() {
@@ -2636,6 +2690,7 @@ fn load_midi_document(path: &Path) -> Result<MidiDocument, String> {
         tempo_us_per_beat: effective_tempo,
         tempo_map,
         notes,
+        channel_colors,
         preserved_tracks,
         max_tick: max_tick.max(ticks_per_beat as u64 * 8),
         next_note_id,
@@ -2686,7 +2741,11 @@ fn save_midi_document(doc: &MidiDocument) -> Result<PathBuf, String> {
             let note_on = RawEvent {
                 tick: note.start_tick,
                 order: note_order_seed,
-                raw_bytes: vec![0x90 | (note.channel & 0x0F), note.pitch, note.velocity_on.max(1)],
+                raw_bytes: vec![
+                    0x90 | (note.channel & 0x0F),
+                    note.pitch,
+                    note.velocity_on.max(1),
+                ],
             };
             note_order_seed += 1;
             events.push(note_off);
@@ -2769,9 +2828,13 @@ fn write_vlq(value: u64, out: &mut Vec<u8>) {
 fn encode_midi_message(channel: u8, message: &MidiMessage) -> Vec<u8> {
     let status_channel = channel & 0x0F;
     match message {
-        MidiMessage::NoteOff { key, vel } => vec![0x80 | status_channel, key.as_int(), vel.as_int()],
+        MidiMessage::NoteOff { key, vel } => {
+            vec![0x80 | status_channel, key.as_int(), vel.as_int()]
+        }
         MidiMessage::NoteOn { key, vel } => vec![0x90 | status_channel, key.as_int(), vel.as_int()],
-        MidiMessage::Aftertouch { key, vel } => vec![0xA0 | status_channel, key.as_int(), vel.as_int()],
+        MidiMessage::Aftertouch { key, vel } => {
+            vec![0xA0 | status_channel, key.as_int(), vel.as_int()]
+        }
         MidiMessage::Controller { controller, value } => {
             vec![0xB0 | status_channel, controller.as_int(), value.as_int()]
         }
@@ -2953,12 +3016,29 @@ fn main() {
 mod ui_policy_tests {
     use super::*;
 
+    fn unique_test_midi(name: &str) -> PathBuf {
+        let nanos = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        std::env::temp_dir().join(format!(
+            "synthesia2midi-{name}-{}-{nanos}.mid",
+            std::process::id()
+        ))
+    }
+
     #[test]
     fn wheel_input_only_targets_the_canvas() {
         let canvas = Rect::from_min_max(Pos2::new(100.0, 200.0), Pos2::new(900.0, 700.0));
 
-        assert!(pointer_targets_canvas(Some(Pos2::new(400.0, 400.0)), canvas));
-        assert!(!pointer_targets_canvas(Some(Pos2::new(400.0, 100.0)), canvas));
+        assert!(pointer_targets_canvas(
+            Some(Pos2::new(400.0, 400.0)),
+            canvas
+        ));
+        assert!(!pointer_targets_canvas(
+            Some(Pos2::new(400.0, 100.0)),
+            canvas
+        ));
         assert!(!pointer_targets_canvas(None, canvas));
     }
 
@@ -2971,5 +3051,44 @@ mod ui_policy_tests {
         assert!(compact.button_height < wide.button_height);
         assert!(compact.font_size <= 18.0);
         assert!(compact.button_width <= 120.0);
+    }
+
+    #[test]
+    fn color_metadata_survives_load_and_touchup_save() {
+        use midly::num::{u15, u28};
+        use midly::{Format, Header, Timing, TrackEvent};
+
+        let source_path = unique_test_midi("color-map");
+        let payload = br#"Synthesia2MIDI:color-map:v1:{"channels":{"0":{"natural":[10,20,30],"sharp_flat":[4,8,12]}}}"#;
+        let smf = Smf {
+            header: Header::new(Format::SingleTrack, Timing::Metrical(u15::new(480))),
+            tracks: vec![vec![
+                TrackEvent {
+                    delta: u28::new(0),
+                    kind: TrackEventKind::Meta(MetaMessage::Text(payload)),
+                },
+                TrackEvent {
+                    delta: u28::new(0),
+                    kind: TrackEventKind::Meta(MetaMessage::EndOfTrack),
+                },
+            ]],
+        };
+        smf.save(&source_path).unwrap();
+
+        let document = load_midi_document(&source_path).unwrap();
+        assert_eq!(
+            document.channel_colors.get(&0).unwrap().natural,
+            Some([10, 20, 30])
+        );
+
+        let saved_path = save_midi_document(&document).unwrap();
+        let reloaded = load_midi_document(&saved_path).unwrap();
+        assert_eq!(
+            reloaded.channel_colors.get(&0).unwrap().sharp_flat,
+            Some([4, 8, 12])
+        );
+
+        let _ = fs::remove_file(source_path);
+        let _ = fs::remove_file(saved_path);
     }
 }

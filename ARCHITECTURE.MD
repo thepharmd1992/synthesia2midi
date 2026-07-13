@@ -154,8 +154,11 @@ Process contract:
 - Python passes MIDI file paths to the Rust process.
 - Python reads a JSON result line from stdout.
 - `MidiTouchupController` owns process references and closes them during app shutdown.
+- Generated MIDI files may include an optional `Synthesia2MIDI:color-map:v1:` text meta event containing Natural and Sharp / Flat RGB colors by stable MIDI channel.
+- The Rust editor validates that optional event, uses a deterministic fallback palette when it is missing or invalid, and preserves the event when saving a touch-up MIDI.
+- The MIDI file is the portable color contract. Color data does not travel in process arguments or a sidecar file.
 
-If this contract changes, update both Python and Rust and run Python tests plus `cargo check`.
+If this contract changes, update both Python and Rust and run Python tests plus the documented Rust editor gate.
 
 ## Testing and Verification
 

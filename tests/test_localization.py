@@ -115,6 +115,11 @@ SPARK_AUTO_CALIBRATION_RUNTIME_STRINGS = (
     SPARK_AUTO_CALIBRATION_PRODUCTION_LOCALE_STRINGS[-2:]
 )
 
+TOUCHUP_ACCESS_PRODUCTION_LOCALE_STRINGS = [
+    ("Video2MidiApp", "Open MIDI in Touch-Up Editor..."),
+    ("ControlPanelQt", "Open Touch-Up Editor"),
+]
+
 FINAL_REVIEW_RUNTIME_STRINGS = [
     (
         "CalibrationGuideWidget",
@@ -397,6 +402,23 @@ def test_task_6_production_strings_are_localized_in_non_english_catalogs():
                 identical_english.append((locale_name, source))
 
     assert identical_english == []
+
+
+def test_touchup_access_strings_are_localized_in_their_qt_contexts():
+    incomplete = []
+
+    for locale_name in _production_translation_locales():
+        translations = {
+            (context_name, source): "" if translation is None else translation.text or ""
+            for context_name, source, translation in _catalog_messages(locale_name)
+            if translation is not None and translation.get("type") != "vanished"
+        }
+        for context_name, source in TOUCHUP_ACCESS_PRODUCTION_LOCALE_STRINGS:
+            translated = translations.get((context_name, source), "")
+            if not translated.strip() or translated == source:
+                incomplete.append((locale_name, context_name, source))
+
+    assert incomplete == []
 
 
 def test_task_10_color_family_strings_are_active_in_production_catalogs():

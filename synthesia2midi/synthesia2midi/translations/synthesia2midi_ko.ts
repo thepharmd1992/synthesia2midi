@@ -1144,79 +1144,78 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
     <name>ControlPanelQt</name>
     <message>
         <location filename="../gui/controls_qt.py" line="312"/>
-        <location filename="../gui/controls_qt.py" line="1998"/>
+        <location filename="../gui/controls_qt.py" line="2000"/>
         <source>Convert</source>
         <translation>변환</translation>
     </message>
     <message>
         <location filename="../gui/controls_qt.py" line="318"/>
-        <location filename="../gui/controls_qt.py" line="2121"/>
-        <location filename="../gui/controls_qt.py" line="2127"/>
+        <location filename="../gui/controls_qt.py" line="2123"/>
+        <location filename="../gui/controls_qt.py" line="2129"/>
         <source>Load a video to convert.</source>
         <translation>변환할 동영상을 불러오세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="322"/>
         <source>Edit MIDI</source>
-        <translation>MIDI 편집</translation>
+        <translation type="vanished">MIDI 편집</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="327"/>
+        <location filename="../gui/controls_qt.py" line="329"/>
         <source>Overlay</source>
         <translation>오버레이</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="328"/>
-        <location filename="../gui/controls_qt.py" line="2013"/>
+        <location filename="../gui/controls_qt.py" line="330"/>
+        <location filename="../gui/controls_qt.py" line="2015"/>
         <source>None</source>
         <translation>없음</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="369"/>
-        <location filename="../gui/controls_qt.py" line="389"/>
-        <location filename="../gui/controls_qt.py" line="1502"/>
+        <location filename="../gui/controls_qt.py" line="371"/>
+        <location filename="../gui/controls_qt.py" line="391"/>
+        <location filename="../gui/controls_qt.py" line="1504"/>
         <source>Language</source>
         <translation>언어</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="372"/>
+        <location filename="../gui/controls_qt.py" line="374"/>
         <source>Language:</source>
         <translation>언어:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="398"/>
-        <location filename="../gui/controls_qt.py" line="791"/>
-        <location filename="../gui/controls_qt.py" line="993"/>
+        <location filename="../gui/controls_qt.py" line="400"/>
+        <location filename="../gui/controls_qt.py" line="793"/>
+        <location filename="../gui/controls_qt.py" line="995"/>
         <source>Help</source>
         <translation>도움말</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="401"/>
+        <location filename="../gui/controls_qt.py" line="403"/>
         <source>Initial calibration directions (recommended order):</source>
         <translation>초기 보정 안내(권장 순서):</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="410"/>
+        <location filename="../gui/controls_qt.py" line="412"/>
         <source>3) Capture Pressed-Key Examples: for each Color family, capture a Natural and Sharp / Flat example that appears in the video.</source>
         <translation>3) 눌린 건반 예시 캡처: 각 색상 계열마다 영상에 보이는 내추럴 및 샤프 / 플랫 예시를 캡처하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="414"/>
+        <location filename="../gui/controls_qt.py" line="416"/>
         <source>If a key type is not present in this video, uncheck its &apos;Present in Video&apos; box.</source>
         <translation>건반 유형이 이 동영상에 없으면 해당 &apos;동영상에 있음&apos; 상자를 선택 해제하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="415"/>
+        <location filename="../gui/controls_qt.py" line="417"/>
         <source>Octave Transpose: shifts the generated MIDI up/down by octaves.</source>
         <translation>옥타브 조옮김: 생성된 MIDI를 옥타브 단위로 위/아래로 이동합니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="782"/>
+        <location filename="../gui/controls_qt.py" line="784"/>
         <source>Overlays</source>
         <translation>오버레이</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="457"/>
+        <location filename="../gui/controls_qt.py" line="459"/>
         <source>Creates overlays for the keyboard in your video. Re-run if overlays don&apos;t line up.</source>
         <translation>동영상의 키보드에 대한 오버레이를 만듭니다. 오버레이가 맞지 않으면 다시 실행하세요.</translation>
     </message>
@@ -1236,30 +1235,35 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation>샤프 / 플랫</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="471"/>
+        <location filename="../gui/controls_qt.py" line="323"/>
+        <source>Open Touch-Up Editor</source>
+        <translation>수정 편집기 열기</translation>
+    </message>
+    <message>
+        <location filename="../gui/controls_qt.py" line="473"/>
         <source>Octave</source>
         <translation>옥타브</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="480"/>
+        <location filename="../gui/controls_qt.py" line="482"/>
         <source>Shifts the MIDI output up/down by octaves.</source>
         <translation>MIDI 출력을 옥타브 단위로 위/아래로 이동합니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="493"/>
+        <location filename="../gui/controls_qt.py" line="495"/>
         <source>Captures what unpressed overlays look like from the current frame. Pause on a frame with no highlighted notes first.</source>
         <translation>현재 프레임에서 눌리지 않은 오버레이의 모습을 캡처합니다. 먼저 강조된 음이 없는 프레임에서 일시정지하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="515"/>
-        <location filename="../gui/controls_qt.py" line="1157"/>
-        <location filename="../gui/controls_qt.py" line="1970"/>
-        <location filename="../gui/controls_qt.py" line="2090"/>
+        <location filename="../gui/controls_qt.py" line="517"/>
+        <location filename="../gui/controls_qt.py" line="1159"/>
+        <location filename="../gui/controls_qt.py" line="1972"/>
+        <location filename="../gui/controls_qt.py" line="2092"/>
         <source>Not Set</source>
         <translation>설정 안 됨</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="537"/>
+        <location filename="../gui/controls_qt.py" line="539"/>
         <source>Lit Key Exemplars</source>
         <translation>눌린 건반 예시</translation>
     </message>
@@ -1272,43 +1276,43 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">이 유형의 눌린 오버레이 예시를 캡처합니다. 해당 유형이 강조된 프레임에서 일시정지하고 버튼을 클릭한 다음 강조된 오버레이를 클릭하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="795"/>
+        <location filename="../gui/controls_qt.py" line="797"/>
         <source>Before tuning detection: capture a no-key frame and at least one pressed-key example.</source>
         <translation>감지 조정 전에: 눌리지 않은 키 프레임과 눌린 키 예시를 하나 이상 캡처하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="796"/>
+        <location filename="../gui/controls_qt.py" line="798"/>
         <source>Detection Sensitivity: main setting for pressed vs unpressed keys.</source>
         <translation>감지 민감도: 눌린 키와 눌리지 않은 키를 구분하는 기본 설정입니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="797"/>
-        <location filename="../gui/controls_qt.py" line="837"/>
+        <location filename="../gui/controls_qt.py" line="799"/>
+        <location filename="../gui/controls_qt.py" line="839"/>
         <source>Missing notes? Lower it. Extra notes? Raise it.</source>
         <translation>누락되는 음이 있나요? 낮추세요. 불필요한 음이 있나요? 높이세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="798"/>
+        <location filename="../gui/controls_qt.py" line="800"/>
         <source>Histogram Detection helps when pressed colors have gradients or uneven lighting.</source>
         <translation>히스토그램 감지는 눌린 색상에 그라데이션이나 고르지 않은 조명이 있을 때 도움이 됩니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="802"/>
+        <location filename="../gui/controls_qt.py" line="804"/>
         <source>Delta Detection helps when pressed colors fade in or out instead of switching cleanly.</source>
         <translation>델타 감지는 눌린 색상이 선명하게 바뀌지 않고 서서히 나타나거나 사라질 때 도움이 됩니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="806"/>
+        <location filename="../gui/controls_qt.py" line="808"/>
         <source>Black Key Filter reduces false black-key notes caused by nearby overlays.</source>
         <translation>검은 건반 필터는 주변 오버레이로 인한 검은 건반 오검출을 줄입니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="815"/>
+        <location filename="../gui/controls_qt.py" line="817"/>
         <source>Detection Sensitivity</source>
         <translation>감지 민감도</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="834"/>
+        <location filename="../gui/controls_qt.py" line="836"/>
         <source>Detection Sensitivity:</source>
         <translation>감지 민감도:</translation>
     </message>
@@ -1317,75 +1321,75 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">건반 위 스파크 영역 선택</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1061"/>
+        <location filename="../gui/controls_qt.py" line="1063"/>
         <source>Select the area above the keys where spark bars and flashes appear.</source>
         <translation>건반 위에서 스파크 막대와 섬광이 나타나는 영역을 선택하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1070"/>
+        <location filename="../gui/controls_qt.py" line="1072"/>
         <source>Show or hide the spark area overlay on the video.</source>
         <translation>비디오에서 스파크 영역 오버레이를 표시하거나 숨깁니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1236"/>
+        <location filename="../gui/controls_qt.py" line="1238"/>
         <source>Convert Only Part of the Video</source>
         <translation>비디오의 일부만 변환</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1240"/>
+        <location filename="../gui/controls_qt.py" line="1242"/>
         <source>This affects MIDI creation only. It does not trim or change the video session.</source>
         <translation>이것은 MIDI 생성에만 영향을 줍니다. 비디오 세션을 자르거나 변경하지 않습니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1309"/>
-        <location filename="../gui/controls_qt.py" line="1371"/>
-        <location filename="../gui/controls_qt.py" line="1433"/>
-        <location filename="../gui/controls_qt.py" line="1688"/>
+        <location filename="../gui/controls_qt.py" line="1311"/>
+        <location filename="../gui/controls_qt.py" line="1373"/>
+        <location filename="../gui/controls_qt.py" line="1435"/>
+        <location filename="../gui/controls_qt.py" line="1690"/>
         <source>Permanently Trim Project</source>
         <translation>프로젝트 영구 자르기</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1314"/>
+        <location filename="../gui/controls_qt.py" line="1316"/>
         <source>Most users should use MIDI range instead. Trim changes the working video session, not the original video file.</source>
         <translation>대부분의 사용자는 대신 MIDI 범위를 사용하는 것이 좋습니다. 자르기는 원본 비디오 파일이 아니라 작업 중인 비디오 세션을 변경합니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1393"/>
+        <location filename="../gui/controls_qt.py" line="1395"/>
         <source>Open the dedicated setup window when repeated presses merge into one long note.</source>
         <translation>반복 입력이 하나의 긴 음으로 합쳐지면 전용 설정 창을 여세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1401"/>
+        <location filename="../gui/controls_qt.py" line="1403"/>
         <source>Open Repeated Notes Tool</source>
         <translation>반복 노트 도구 열기</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1413"/>
+        <location filename="../gui/controls_qt.py" line="1415"/>
         <source>Gradient or uneven pressed colors</source>
         <translation>눌린 키 색상이 고르지 않거나 그라데이션임</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1418"/>
+        <location filename="../gui/controls_qt.py" line="1420"/>
         <source>Pressed colors fade in or out</source>
         <translation>눌린 키 색상이 서서히 나타나거나 사라짐</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1423"/>
+        <location filename="../gui/controls_qt.py" line="1425"/>
         <source>False black-key notes</source>
         <translation>검은 건반 노트가 잘못 감지됨</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1428"/>
+        <location filename="../gui/controls_qt.py" line="1430"/>
         <source>Repeated notes merge together</source>
         <translation>반복 노트가 하나로 합쳐짐</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1450"/>
+        <location filename="../gui/controls_qt.py" line="1452"/>
         <source>Glossary</source>
         <translation>용어집</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1457"/>
+        <location filename="../gui/controls_qt.py" line="1459"/>
         <source>Advanced</source>
         <translation>고급</translation>
     </message>
@@ -1398,48 +1402,48 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">비디오가 왼손과 오른손 음표에 서로 다른 색상을 사용할 때만 사용하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1697"/>
+        <location filename="../gui/controls_qt.py" line="1699"/>
         <source>&lt;b&gt;This will permanently trim the working video session.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Frames outside {start_frame} to {end_text} will be unavailable in this project session.&lt;br&gt;&lt;br&gt;Most users should cancel and use the MIDI range controls instead.</source>
         <translation>&lt;b&gt;작업 중인 비디오 세션을 영구적으로 자릅니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;{start_frame}부터 {end_text}까지의 범위를 벗어난 프레임은 이 프로젝트 세션에서 사용할 수 없습니다.&lt;br&gt;&lt;br&gt;대부분의 사용자는 취소하고 대신 MIDI 범위 컨트롤을 사용하는 것이 좋습니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1709"/>
+        <location filename="../gui/controls_qt.py" line="1711"/>
         <source>Trim Project</source>
         <translation>프로젝트 자르기</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2134"/>
+        <location filename="../gui/controls_qt.py" line="2136"/>
         <source>Create key overlays first.</source>
         <translation>먼저 건반 오버레이를 만드세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2145"/>
-        <location filename="../gui/controls_qt.py" line="2157"/>
+        <location filename="../gui/controls_qt.py" line="2147"/>
+        <location filename="../gui/controls_qt.py" line="2159"/>
         <source>Capture a no-key frame.</source>
         <translation>켜진 건반이 없는 프레임을 캡처하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2164"/>
+        <location filename="../gui/controls_qt.py" line="2166"/>
         <source>Capture at least one pressed-key example.</source>
         <translation>눌린 건반 예시를 하나 이상 캡처하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2173"/>
+        <location filename="../gui/controls_qt.py" line="2175"/>
         <source>Capture a pressed-key example for {label}.</source>
         <translation>{label}의 눌린 건반 예시를 캡처하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2183"/>
+        <location filename="../gui/controls_qt.py" line="2185"/>
         <source>Check detection sensitivity.</source>
         <translation>감지 민감도를 확인하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2189"/>
+        <location filename="../gui/controls_qt.py" line="2191"/>
         <source>Check MIDI tempo.</source>
         <translation>MIDI 템포를 확인하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2194"/>
+        <location filename="../gui/controls_qt.py" line="2196"/>
         <source>Ready to create MIDI.</source>
         <translation>MIDI를 만들 준비가 되었습니다.</translation>
     </message>
@@ -1453,12 +1457,12 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation>가이드</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="402"/>
+        <location filename="../gui/controls_qt.py" line="404"/>
         <source>1) Find Keyboard Box: create overlays that line up with the keyboard in your video.</source>
         <translation>1) 키보드 상자 찾기: 동영상의 키보드와 맞는 오버레이를 만듭니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="406"/>
+        <location filename="../gui/controls_qt.py" line="408"/>
         <source>2) Capture No-Key Frame: pause where no keys are glowing, then click Capture No-Key Frame.</source>
         <translation>2) 무키 프레임 캡처: 키가 켜지지 않은 프레임에서 일시정지한 뒤 무키 프레임 캡처를 클릭합니다.</translation>
     </message>
@@ -1471,38 +1475,38 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">키보드 상자를 그려 키 찾기</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="447"/>
-        <location filename="../gui/controls_qt.py" line="464"/>
+        <location filename="../gui/controls_qt.py" line="449"/>
+        <location filename="../gui/controls_qt.py" line="466"/>
         <source>Find the keyboard</source>
         <translation>키보드를 찾기</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="465"/>
+        <location filename="../gui/controls_qt.py" line="467"/>
         <source>Pause on a clear frame where the full keyboard is visible.</source>
         <translation>키보드 전체가 보이는 선명한 프레임에서 일시정지하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="487"/>
+        <location filename="../gui/controls_qt.py" line="489"/>
         <source>Capture No-Key Frame</source>
         <translation>무키 프레임 캡처</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="499"/>
+        <location filename="../gui/controls_qt.py" line="501"/>
         <source>Capture no-key frame</source>
         <translation>무키 프레임 캡처</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="503"/>
+        <location filename="../gui/controls_qt.py" line="505"/>
         <source>Pause where no keys are glowing.</source>
         <translation>키가 빛나지 않는 곳에서 일시정지하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="522"/>
+        <location filename="../gui/controls_qt.py" line="524"/>
         <source>Capture pressed-key examples</source>
         <translation>눌린 키 예시 캡처</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="527"/>
+        <location filename="../gui/controls_qt.py" line="529"/>
         <source>Pause where a key is glowing, then click that key.</source>
         <translation>키가 빛나는 곳에서 일시정지한 다음 해당 키를 클릭하세요.</translation>
     </message>
@@ -1515,122 +1519,122 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">이 건반 유형이 이 동영상에 절대 나오지 않으면 선택 해제하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="562"/>
+        <location filename="../gui/controls_qt.py" line="564"/>
         <source>Calibration</source>
         <translation>보정</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="572"/>
+        <location filename="../gui/controls_qt.py" line="574"/>
         <source>Key Alignment</source>
         <translation>건반 정렬</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="578"/>
+        <location filename="../gui/controls_qt.py" line="580"/>
         <source>Align White Keys</source>
         <translation>흰 건반 정렬</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="581"/>
+        <location filename="../gui/controls_qt.py" line="583"/>
         <source>Align Black Keys</source>
         <translation>검은 건반 정렬</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="584"/>
+        <location filename="../gui/controls_qt.py" line="586"/>
         <source>Manual Fit</source>
         <translation>수동 맞춤</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="596"/>
+        <location filename="../gui/controls_qt.py" line="598"/>
         <source>Overlay Size Adjustment</source>
         <translation>오버레이 크기 조정</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="613"/>
+        <location filename="../gui/controls_qt.py" line="615"/>
         <source>Current:</source>
         <translation>현재:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="616"/>
+        <location filename="../gui/controls_qt.py" line="618"/>
         <source>Reset</source>
         <translation>재설정</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="631"/>
+        <location filename="../gui/controls_qt.py" line="633"/>
         <source>Decrease {setting}</source>
         <translation>{setting} 줄이기</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="634"/>
+        <location filename="../gui/controls_qt.py" line="636"/>
         <source>Increase {setting}</source>
         <translation>{setting} 높이기</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="649"/>
+        <location filename="../gui/controls_qt.py" line="651"/>
         <source>White Key Height</source>
         <translation>흰 건반 높이</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="666"/>
+        <location filename="../gui/controls_qt.py" line="668"/>
         <source>White Key Width</source>
         <translation>흰 건반 너비</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="683"/>
+        <location filename="../gui/controls_qt.py" line="685"/>
         <source>Black Key Height</source>
         <translation>검은 건반 높이</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="700"/>
+        <location filename="../gui/controls_qt.py" line="702"/>
         <source>Black Key Width</source>
         <translation>검은 건반 너비</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="717"/>
+        <location filename="../gui/controls_qt.py" line="719"/>
         <source>Left Slant</source>
         <translation>왼쪽 기울기</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="734"/>
+        <location filename="../gui/controls_qt.py" line="736"/>
         <source>Right Slant</source>
         <translation>오른쪽 기울기</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="756"/>
+        <location filename="../gui/controls_qt.py" line="758"/>
         <source>Overlay Appearance</source>
         <translation>오버레이 표시</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="761"/>
+        <location filename="../gui/controls_qt.py" line="763"/>
         <source>Overlay Color:</source>
         <translation>오버레이 색상:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1008"/>
+        <location filename="../gui/controls_qt.py" line="1010"/>
         <source>Repeated Notes Fix</source>
         <translation>반복 노트 보정</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1019"/>
+        <location filename="../gui/controls_qt.py" line="1021"/>
         <source>Enable Repeated Notes Fix</source>
         <translation>반복 노트 보정 켜기</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1051"/>
+        <location filename="../gui/controls_qt.py" line="1053"/>
         <source>Repeated-Note Setup</source>
         <translation>반복 노트 설정</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1058"/>
+        <location filename="../gui/controls_qt.py" line="1060"/>
         <source>Select Flash Area Above Keys</source>
         <translation>건반 위 깜박임 영역 선택</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1471"/>
+        <location filename="../gui/controls_qt.py" line="1473"/>
         <source>Put each Color family on a separate MIDI channel</source>
         <translation>각 색상 계열을 별도의 MIDI 채널에 배치</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1477"/>
+        <location filename="../gui/controls_qt.py" line="1479"/>
         <source>Use this when the video contains more than one Color family.</source>
         <translation>비디오에 두 개 이상의 색상 계열이 있을 때 사용하세요.</translation>
     </message>
@@ -1663,8 +1667,8 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">감지 임계값</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="826"/>
-        <location filename="../gui/controls_qt.py" line="831"/>
+        <location filename="../gui/controls_qt.py" line="828"/>
+        <location filename="../gui/controls_qt.py" line="833"/>
         <source>Main sensitivity. Lower = detects more; higher = fewer false notes.</source>
         <translation>주요 민감도입니다. 낮을수록 더 많이 감지하고, 높을수록 잘못된 음이 줄어듭니다.</translation>
     </message>
@@ -1677,106 +1681,106 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">감지 모드</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="869"/>
+        <location filename="../gui/controls_qt.py" line="871"/>
         <source>Enable Histogram Detection</source>
         <translation>히스토그램 감지 사용</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="873"/>
+        <location filename="../gui/controls_qt.py" line="875"/>
         <source>Uses a color-pattern match inside the overlay. Helpful with gradients/uneven lighting.</source>
         <translation>오버레이 안의 색상 패턴 매칭을 사용합니다. 그라데이션/고르지 않은 조명에 도움이 됩니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="885"/>
-        <location filename="../gui/controls_qt.py" line="890"/>
+        <location filename="../gui/controls_qt.py" line="887"/>
+        <location filename="../gui/controls_qt.py" line="892"/>
         <source>How strong the histogram match must be (only used when Histogram Detection is enabled).</source>
         <translation>히스토그램 매칭이 얼마나 강해야 하는지 설정합니다(히스토그램 감지가 켜진 경우에만 사용).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="892"/>
+        <location filename="../gui/controls_qt.py" line="894"/>
         <source>Strength:</source>
         <translation>강도:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="895"/>
+        <location filename="../gui/controls_qt.py" line="897"/>
         <source>Enable Delta Detection</source>
         <translation>델타 감지 사용</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="899"/>
+        <location filename="../gui/controls_qt.py" line="901"/>
         <source>Uses frame-to-frame change to confirm press/release (helps when color fades).</source>
         <translation>프레임 간 변화를 사용해 누름/떼기를 확인합니다(색상이 서서히 변할 때 도움).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="910"/>
-        <location filename="../gui/controls_qt.py" line="915"/>
+        <location filename="../gui/controls_qt.py" line="912"/>
+        <location filename="../gui/controls_qt.py" line="917"/>
         <source>How big the change must be to count as a press (only used when Delta Detection is enabled).</source>
         <translation>누름으로 판단할 변화량을 설정합니다(델타 감지가 켜진 경우에만 사용).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="917"/>
+        <location filename="../gui/controls_qt.py" line="919"/>
         <source>Rise:</source>
         <translation>상승:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="926"/>
-        <location filename="../gui/controls_qt.py" line="931"/>
+        <location filename="../gui/controls_qt.py" line="928"/>
+        <location filename="../gui/controls_qt.py" line="933"/>
         <source>How big the change must be to count as a release (only used when Delta Detection is enabled).</source>
         <translation>떼기로 판단할 변화량을 설정합니다(델타 감지가 켜진 경우에만 사용).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="933"/>
+        <location filename="../gui/controls_qt.py" line="935"/>
         <source>Fall:</source>
         <translation>하강:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="936"/>
+        <location filename="../gui/controls_qt.py" line="938"/>
         <source>Enable Black Key Filter</source>
         <translation>검은 건반 필터 사용</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="940"/>
+        <location filename="../gui/controls_qt.py" line="942"/>
         <source>Reduces false black-key presses from nearby overlays.</source>
         <translation>근처 오버레이로 인한 잘못된 검은 건반 눌림을 줄입니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="952"/>
-        <location filename="../gui/controls_qt.py" line="957"/>
+        <location filename="../gui/controls_qt.py" line="954"/>
+        <location filename="../gui/controls_qt.py" line="959"/>
         <source>Controls how strict black-key filtering is (only used when Black Key Filter is enabled).</source>
         <translation>검은 건반 필터링의 엄격도를 조절합니다(검은 건반 필터가 켜진 경우에만 사용).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="959"/>
+        <location filename="../gui/controls_qt.py" line="961"/>
         <source>Similarity:</source>
         <translation>유사도:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="968"/>
+        <location filename="../gui/controls_qt.py" line="970"/>
         <source>Restore Defaults</source>
         <translation>기본값 복원</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="970"/>
+        <location filename="../gui/controls_qt.py" line="972"/>
         <source>Reset detection threshold and detection mode parameter sliders to their defaults. Detection mode checkboxes stay unchanged.</source>
         <translation>감지 임계값과 감지 모드 매개변수 슬라이더를 기본값으로 재설정합니다. 감지 모드 체크박스는 변경되지 않습니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="977"/>
+        <location filename="../gui/controls_qt.py" line="979"/>
         <source>Detection</source>
         <translation>감지</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="996"/>
+        <location filename="../gui/controls_qt.py" line="998"/>
         <source>Use Spark Detection only when:</source>
         <translation>스파크 감지는 다음 경우에만 사용:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="997"/>
+        <location filename="../gui/controls_qt.py" line="999"/>
         <source>1) Key overlays stay ON across repeated notes (false continuous press).</source>
         <translation>1) 건반 오버레이가 반복 음 사이에서 계속 켜져 있음(잘못된 연속 눌림).</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="998"/>
+        <location filename="../gui/controls_qt.py" line="1000"/>
         <source>2) Key overlays are solid color (no fading or gradients).</source>
         <translation>2) 건반 오버레이가 단색임(페이드나 그라데이션 없음).</translation>
     </message>
@@ -1785,7 +1789,7 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">스파크 감지</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1013"/>
+        <location filename="../gui/controls_qt.py" line="1015"/>
         <source>Use this only if repeated notes merge into one long note.</source>
         <translation>반복 음표가 하나의 긴 음표로 합쳐질 때만 사용하세요.</translation>
     </message>
@@ -1794,18 +1798,18 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">스파크 감지 사용</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1023"/>
+        <location filename="../gui/controls_qt.py" line="1025"/>
         <source>Use only when key overlays stay ON across repeated notes (false continuous press), and the overlays are solid color (no fading or gradients).</source>
         <translation>건반 오버레이가 반복 음 사이에서 계속 켜져 있고(잘못된 연속 눌림), 오버레이가 단색(페이드나 그라데이션 없음)일 때만 사용하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1031"/>
+        <location filename="../gui/controls_qt.py" line="1033"/>
         <source>Sensitivity:</source>
         <translation>민감도:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1038"/>
-        <location filename="../gui/controls_qt.py" line="1044"/>
+        <location filename="../gui/controls_qt.py" line="1040"/>
+        <location filename="../gui/controls_qt.py" line="1046"/>
         <source>Controls how aggressively Spark Detection splits false continuous notes.</source>
         <translation>스파크 감지가 잘못된 연속 음을 얼마나 적극적으로 나눌지 조절합니다.</translation>
     </message>
@@ -1822,9 +1826,9 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">건반 위에서 스파크 바와 스파크가 나타나는 영역을 선택합니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1066"/>
-        <location filename="../gui/controls_qt.py" line="1810"/>
-        <location filename="../gui/controls_qt.py" line="1982"/>
+        <location filename="../gui/controls_qt.py" line="1068"/>
+        <location filename="../gui/controls_qt.py" line="1812"/>
+        <location filename="../gui/controls_qt.py" line="1984"/>
         <source>Hide Spark Overlays</source>
         <translation>스파크 오버레이 숨기기</translation>
     </message>
@@ -1833,82 +1837,82 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">동영상에서 스파크 ROI 오버레이를 표시하거나 숨깁니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1076"/>
+        <location filename="../gui/controls_qt.py" line="1078"/>
         <source>Manual Calibration</source>
         <translation>수동 보정</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1081"/>
+        <location filename="../gui/controls_qt.py" line="1083"/>
         <source>Step 1)</source>
         <translation>단계 1)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1084"/>
+        <location filename="../gui/controls_qt.py" line="1086"/>
         <source>Calibrate Background</source>
         <translation>배경 보정</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1088"/>
+        <location filename="../gui/controls_qt.py" line="1090"/>
         <source>Manual calibration: capture baseline brightness when there are no bars or sparks.</source>
         <translation>수동 보정: 막대나 스파크가 없을 때의 기준 밝기를 캡처합니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1096"/>
+        <location filename="../gui/controls_qt.py" line="1098"/>
         <source>Step 2)</source>
         <translation>단계 2)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1099"/>
+        <location filename="../gui/controls_qt.py" line="1101"/>
         <source>Calibrate Bar Only</source>
         <translation>막대만 보정</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1103"/>
+        <location filename="../gui/controls_qt.py" line="1105"/>
         <source>Manual calibration: click an overlay showing colored bars with no sparks.</source>
         <translation>수동 보정: 스파크 없이 색상 막대만 보이는 오버레이를 클릭합니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1111"/>
+        <location filename="../gui/controls_qt.py" line="1113"/>
         <source>Step 3)</source>
         <translation>단계 3)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1114"/>
+        <location filename="../gui/controls_qt.py" line="1116"/>
         <source>Calibrate Dimmest Sparks</source>
         <translation>가장 어두운 스파크 보정</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1118"/>
+        <location filename="../gui/controls_qt.py" line="1120"/>
         <source>Manual calibration: click an overlay where sparks are just barely visible.</source>
         <translation>수동 보정: 스파크가 아주 희미하게 보이는 오버레이를 클릭합니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1127"/>
+        <location filename="../gui/controls_qt.py" line="1129"/>
         <source>Auto Calibration:</source>
         <translation>자동 보정:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1143"/>
+        <location filename="../gui/controls_qt.py" line="1145"/>
         <source>Auto {key_type_label}</source>
         <translation>자동 {key_type_label}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1149"/>
+        <location filename="../gui/controls_qt.py" line="1151"/>
         <source>Recommended: auto-calibrate spark detection for this key type. Navigate to the frame where a key first turns ON, then click that overlay.</source>
         <translation>권장: 이 건반 유형의 스파크 감지를 자동 보정합니다. 건반이 처음 켜지는 프레임으로 이동한 다음 해당 오버레이를 클릭하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1169"/>
+        <location filename="../gui/controls_qt.py" line="1171"/>
         <source>Spark Preview / Status</source>
         <translation>스파크 미리보기 / 상태</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1171"/>
+        <location filename="../gui/controls_qt.py" line="1173"/>
         <source>Preview will show spark calibration status here.</source>
         <translation>스파크 보정 상태가 여기에 미리보기로 표시됩니다.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1175"/>
+        <location filename="../gui/controls_qt.py" line="1177"/>
         <source>Preview not available yet.</source>
         <translation>아직 미리보기를 사용할 수 없습니다.</translation>
     </message>
@@ -1917,18 +1921,18 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">스파크</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1199"/>
+        <location filename="../gui/controls_qt.py" line="1201"/>
         <source>Frame Rate Override</source>
         <translation>프레임 속도 재정의</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1216"/>
+        <location filename="../gui/controls_qt.py" line="1218"/>
         <source>Auto</source>
         <translation>자동</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1230"/>
-        <location filename="../gui/controls_qt.py" line="1823"/>
+        <location filename="../gui/controls_qt.py" line="1232"/>
+        <location filename="../gui/controls_qt.py" line="1825"/>
         <source>Current FPS: Auto-detected</source>
         <translation>현재 FPS: 자동 감지됨</translation>
     </message>
@@ -1937,27 +1941,27 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">사용자 지정 MIDI 처리 범위</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1255"/>
-        <location filename="../gui/controls_qt.py" line="1329"/>
+        <location filename="../gui/controls_qt.py" line="1257"/>
+        <location filename="../gui/controls_qt.py" line="1331"/>
         <source>Start Frame:</source>
         <translation>시작 프레임:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1267"/>
-        <location filename="../gui/controls_qt.py" line="1287"/>
-        <location filename="../gui/controls_qt.py" line="1341"/>
-        <location filename="../gui/controls_qt.py" line="1361"/>
+        <location filename="../gui/controls_qt.py" line="1269"/>
+        <location filename="../gui/controls_qt.py" line="1289"/>
+        <location filename="../gui/controls_qt.py" line="1343"/>
+        <location filename="../gui/controls_qt.py" line="1363"/>
         <source>Set to Current</source>
         <translation>현재로 설정</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1275"/>
-        <location filename="../gui/controls_qt.py" line="1349"/>
+        <location filename="../gui/controls_qt.py" line="1277"/>
+        <location filename="../gui/controls_qt.py" line="1351"/>
         <source>End Frame:</source>
         <translation>끝 프레임:</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1300"/>
+        <location filename="../gui/controls_qt.py" line="1302"/>
         <source>MIDI</source>
         <translation>MIDI</translation>
     </message>
@@ -1974,7 +1978,7 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">자르기</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1466"/>
+        <location filename="../gui/controls_qt.py" line="1468"/>
         <source>Optional Features</source>
         <translation>선택 기능</translation>
     </message>
@@ -1983,32 +1987,32 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">손 배정 사용 (MIDI 채널)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1492"/>
+        <location filename="../gui/controls_qt.py" line="1494"/>
         <source>Optional</source>
         <translation>선택 사항</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1503"/>
+        <location filename="../gui/controls_qt.py" line="1505"/>
         <source>Restart Synthesia2MIDI to apply the selected language.</source>
         <translation>선택한 언어를 적용하려면 Synthesia2MIDI를 다시 시작하세요.</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1508"/>
+        <location filename="../gui/controls_qt.py" line="1510"/>
         <source>Converting...</source>
         <translation>변환 중...</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1510"/>
+        <location filename="../gui/controls_qt.py" line="1512"/>
         <source>Converting video to MIDI...</source>
         <translation>동영상을 MIDI로 변환 중...</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1681"/>
+        <location filename="../gui/controls_qt.py" line="1683"/>
         <source>Invalid Trim Range</source>
         <translation>잘못된 자르기 범위</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1682"/>
+        <location filename="../gui/controls_qt.py" line="1684"/>
         <source>Start frame must be less than end frame.</source>
         <translation>시작 프레임은 끝 프레임보다 작아야 합니다.</translation>
     </message>
@@ -2017,12 +2021,12 @@ Move to a frame where no keys are lit, or continue if this is expected.</source>
         <translation type="vanished">⚠️ 동영상 자르기 - 되돌릴 수 없는 작업</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1692"/>
+        <location filename="../gui/controls_qt.py" line="1694"/>
         <source>frame {end_frame}</source>
         <translation>프레임 {end_frame}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1694"/>
+        <location filename="../gui/controls_qt.py" line="1696"/>
         <source>end of video</source>
         <translation>동영상 끝</translation>
     </message>
@@ -2051,43 +2055,43 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
         <translation type="vanished">⚠️ 예, 동영상 자르기</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1812"/>
-        <location filename="../gui/controls_qt.py" line="1984"/>
+        <location filename="../gui/controls_qt.py" line="1814"/>
+        <location filename="../gui/controls_qt.py" line="1986"/>
         <source>Show Spark Overlays</source>
         <translation>스파크 오버레이 표시</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1826"/>
+        <location filename="../gui/controls_qt.py" line="1828"/>
         <source>Current FPS: {fps} (override)</source>
         <translation>현재 FPS: {fps} (재정의)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1845"/>
+        <location filename="../gui/controls_qt.py" line="1847"/>
         <source>Current FPS: {fps_override} (override, detected: {detected_fps})</source>
         <translation>현재 FPS: {fps_override} (재정의, 감지됨: {detected_fps})</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1852"/>
+        <location filename="../gui/controls_qt.py" line="1854"/>
         <source>Current FPS: {detected_fps} (auto-detected)</source>
         <translation>현재 FPS: {detected_fps} (자동 감지됨)</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="1967"/>
+        <location filename="../gui/controls_qt.py" line="1969"/>
         <source>Unlit State Calibrated</source>
         <translation>눌리지 않은 상태 보정됨</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2003"/>
+        <location filename="../gui/controls_qt.py" line="2005"/>
         <source>Success: {message}</source>
         <translation>성공: {message}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2007"/>
+        <location filename="../gui/controls_qt.py" line="2009"/>
         <source>Error: {message}</source>
         <translation>오류: {message}</translation>
     </message>
     <message>
-        <location filename="../gui/controls_qt.py" line="2087"/>
+        <location filename="../gui/controls_qt.py" line="2089"/>
         <source>Calibrated</source>
         <translation>보정됨</translation>
     </message>
@@ -2095,47 +2099,47 @@ This will permanently trim the video session to frames {start_frame} to {end_tex
 <context>
     <name>ConversionWorkflow</name>
     <message>
-        <location filename="../workflows/conversion.py" line="37"/>
+        <location filename="../workflows/conversion.py" line="38"/>
         <source>Color {number}</source>
         <translation>색상 {number}</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="41"/>
+        <location filename="../workflows/conversion.py" line="42"/>
         <source>Natural</source>
         <translation>내추럴</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="43"/>
+        <location filename="../workflows/conversion.py" line="44"/>
         <source>Sharp / Flat</source>
         <translation>샤프 / 플랫</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="349"/>
+        <location filename="../workflows/conversion.py" line="373"/>
         <source>Detecting notes...</source>
         <translation>음 감지 중...</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="350"/>
+        <location filename="../workflows/conversion.py" line="374"/>
         <source>Cancel</source>
         <translation>취소</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="355"/>
+        <location filename="../workflows/conversion.py" line="379"/>
         <source>Processing...</source>
         <translation>처리 중...</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="419"/>
+        <location filename="../workflows/conversion.py" line="443"/>
         <source>Detecting notes</source>
         <translation>음 감지 중</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="421"/>
+        <location filename="../workflows/conversion.py" line="445"/>
         <source>Processing</source>
         <translation>처리 중</translation>
     </message>
     <message>
-        <location filename="../workflows/conversion.py" line="425"/>
+        <location filename="../workflows/conversion.py" line="449"/>
         <source>{phase_label}... {frame_count}/{total_frames} ({percent}%) (frame {actual_frame_idx})</source>
         <translation>{phase_label}... {frame_count}/{total_frames} ({percent}%) (프레임 {actual_frame_idx})</translation>
     </message>
@@ -3389,44 +3393,44 @@ Sparks should be just barely noticeable as bright flashes in the ROI.</source>
         <translation type="vanished">설정 저장 (Ctrl+S)</translation>
     </message>
     <message>
-        <location filename="../main.py" line="164"/>
-        <location filename="../main.py" line="521"/>
+        <location filename="../main.py" line="175"/>
+        <location filename="../main.py" line="532"/>
         <source>Exit</source>
         <translation>종료</translation>
     </message>
     <message>
-        <location filename="../main.py" line="170"/>
+        <location filename="../main.py" line="181"/>
         <source>View</source>
         <translation>보기</translation>
     </message>
     <message>
-        <location filename="../main.py" line="171"/>
+        <location filename="../main.py" line="182"/>
         <source>Show Overlays</source>
         <translation>오버레이 표시</translation>
     </message>
     <message>
-        <location filename="../main.py" line="177"/>
+        <location filename="../main.py" line="188"/>
         <source>Live Detection Feedback</source>
         <translation>실시간 감지 피드백</translation>
     </message>
     <message>
-        <location filename="../main.py" line="185"/>
-        <location filename="../main.py" line="444"/>
+        <location filename="../main.py" line="196"/>
+        <location filename="../main.py" line="455"/>
         <source>Focus Video (Hide Settings)</source>
         <translation>동영상에 집중 (설정 숨기기)</translation>
     </message>
     <message>
-        <location filename="../main.py" line="197"/>
+        <location filename="../main.py" line="208"/>
         <source>Frame Navigation</source>
         <translation>프레임 탐색</translation>
     </message>
     <message>
-        <location filename="../main.py" line="203"/>
+        <location filename="../main.py" line="214"/>
         <source>{count} frame</source>
         <translation>{count} 프레임</translation>
     </message>
     <message>
-        <location filename="../main.py" line="205"/>
+        <location filename="../main.py" line="216"/>
         <source>{count} frames</source>
         <translation>{count} 프레임</translation>
     </message>
@@ -3439,41 +3443,41 @@ Sparks should be just barely noticeable as bright flashes in the ROI.</source>
         <translation type="vanished">사용</translation>
     </message>
     <message>
-        <location filename="../main.py" line="245"/>
+        <location filename="../main.py" line="256"/>
         <source>Capture Window Screenshot</source>
         <translation>창 스크린샷 캡처</translation>
     </message>
     <message>
-        <location filename="../main.py" line="279"/>
+        <location filename="../main.py" line="290"/>
         <source>Settings</source>
         <translation>설정</translation>
     </message>
     <message>
-        <location filename="../main.py" line="281"/>
-        <location filename="../main.py" line="403"/>
+        <location filename="../main.py" line="292"/>
+        <location filename="../main.py" line="414"/>
         <source>Show settings</source>
         <translation>설정 표시</translation>
     </message>
     <message>
-        <location filename="../main.py" line="352"/>
+        <location filename="../main.py" line="363"/>
         <source>PgUp/PgDn or ←/→</source>
         <translation>PgUp/PgDn 또는 ←/→</translation>
     </message>
     <message>
-        <location filename="../main.py" line="401"/>
+        <location filename="../main.py" line="412"/>
         <source>Hide settings</source>
         <translation>설정 숨기기</translation>
     </message>
     <message>
-        <location filename="../main.py" line="440"/>
+        <location filename="../main.py" line="451"/>
         <source>Show Settings Panel</source>
         <translation>설정 패널 표시</translation>
     </message>
     <message>
-        <location filename="../main.py" line="157"/>
-        <location filename="../main.py" line="497"/>
-        <location filename="../main.py" line="506"/>
-        <location filename="../main.py" line="513"/>
+        <location filename="../main.py" line="168"/>
+        <location filename="../main.py" line="508"/>
+        <location filename="../main.py" line="517"/>
+        <location filename="../main.py" line="524"/>
         <source>Save Settings</source>
         <translation>설정 저장</translation>
     </message>
@@ -3488,76 +3492,81 @@ Sparks should be just barely noticeable as bright flashes in the ROI.</source>
         <translation>YouTube 동영상 다운로드...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="214"/>
+        <location filename="../main.py" line="158"/>
+        <source>Open MIDI in Touch-Up Editor...</source>
+        <translation>수정 편집기에서 MIDI 열기...</translation>
+    </message>
+    <message>
+        <location filename="../main.py" line="225"/>
         <source>Advanced</source>
         <translation>고급</translation>
     </message>
     <message>
-        <location filename="../main.py" line="218"/>
+        <location filename="../main.py" line="229"/>
         <source>Open Image Sequence Folder...</source>
         <translation>이미지 시퀀스 폴더 열기...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="228"/>
+        <location filename="../main.py" line="239"/>
         <source>Diagnostics</source>
         <translation>진단</translation>
     </message>
     <message>
-        <location filename="../main.py" line="234"/>
+        <location filename="../main.py" line="245"/>
         <source>Enable Visual Threshold Monitor</source>
         <translation>시각적 임계값 모니터 사용</translation>
     </message>
     <message>
-        <location filename="../main.py" line="498"/>
+        <location filename="../main.py" line="509"/>
         <source>No video file is open. Open a video first.</source>
         <translation>열려 있는 동영상 파일이 없습니다. 먼저 동영상을 여세요.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="507"/>
+        <location filename="../main.py" line="518"/>
         <source>Settings saved successfully.</source>
         <translation>설정이 성공적으로 저장되었습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="514"/>
+        <location filename="../main.py" line="525"/>
         <source>Failed to save settings.</source>
         <translation>설정을 저장하지 못했습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="522"/>
+        <location filename="../main.py" line="533"/>
         <source>You have unsaved changes. Save before exiting?</source>
         <translation>저장하지 않은 변경 사항이 있습니다. 종료하기 전에 저장하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../main.py" line="580"/>
+        <location filename="../main.py" line="591"/>
         <source>Screenshot Saved</source>
         <translation>스크린샷 저장됨</translation>
     </message>
     <message>
-        <location filename="../main.py" line="581"/>
+        <location filename="../main.py" line="592"/>
         <source>Window screenshot saved to:
 {filepath}</source>
         <translation>창 스크린샷 저장 위치:
 {filepath}</translation>
     </message>
     <message>
-        <location filename="../main.py" line="587"/>
+        <location filename="../main.py" line="598"/>
         <source>Screenshot Failed</source>
         <translation>스크린샷 저장 실패</translation>
     </message>
     <message>
-        <location filename="../main.py" line="588"/>
+        <location filename="../main.py" line="599"/>
         <source>Failed to save screenshot to:
 {filepath}</source>
         <translation>스크린샷 저장 실패 위치:
 {filepath}</translation>
     </message>
     <message>
-        <location filename="../main.py" line="595"/>
+        <location filename="../main.py" line="606"/>
         <source>Screenshot Error</source>
         <translation>스크린샷 오류</translation>
     </message>
     <message>
-        <location filename="../main.py" line="596"/>
+        <location filename="../main.py" line="607"/>
         <source>Error capturing window screenshot:
 {error}</source>
         <translation>창 스크린샷 캡처 중 오류:

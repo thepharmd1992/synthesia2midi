@@ -153,8 +153,9 @@ The command writes one PNG per surface plus `report.json`. The default `logs/` d
 ## Rust Editor Gate
 
 ```bash
-cd tools/midi_touchup_editor_rust
-cargo check
+cargo fmt --manifest-path tools/midi_touchup_editor_rust/Cargo.toml --check
+cargo test --manifest-path tools/midi_touchup_editor_rust/Cargo.toml
+cargo check --manifest-path tools/midi_touchup_editor_rust/Cargo.toml
 ```
 
 ## Troubleshooting

@@ -102,5 +102,8 @@ jobs:
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Test MIDI touch-up editor
+        run: cargo test --manifest-path tools/midi_touchup_editor_rust/Cargo.toml
+
       - name: Check MIDI touch-up editor
         run: cargo check --manifest-path tools/midi_touchup_editor_rust/Cargo.toml

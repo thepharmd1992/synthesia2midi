@@ -401,7 +401,7 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
 
         # Keep settings usable and allow a wider default pane for readable tabs.
         self.control_panel.setMinimumWidth(300)
-        self.control_panel.setMaximumWidth(760)
+        self.control_panel.setMaximumWidth(ControlPanelQt.MAX_PANEL_WIDTH)
         self.control_panel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self._settings_tool_was_visible_before_focus = False
 

@@ -164,6 +164,7 @@ class ControlPanelQt(QWidget):
     DEFAULT_FALL_DELTA_THRESHOLD = 5
     DEFAULT_SIMILARITY_RATIO = 60
     OVERLAY_ADJUSTMENT_INDETERMINATE = "--"
+    MAX_PANEL_WIDTH = 1040
     
     def __init__(self, parent=None, app_state: AppState = None, state_manager=None, settings=None):
         super().__init__(parent)
@@ -214,7 +215,6 @@ class ControlPanelQt(QWidget):
 
         self.tab_widget = QStackedWidget()
         self.tab_widget.setObjectName("settings_section_stack")
-        self.tab_widget.setMaximumWidth(760)  # Wide enough for readable settings
         self.tab_widget.currentChanged.connect(self.settings_section_rail.setCurrentRow)
         
         # Create all tabs

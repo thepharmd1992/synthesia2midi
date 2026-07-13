@@ -31,6 +31,9 @@ def test_settings_rail_fits_every_label_at_shipped_font_scales(locale_name, font
     app.setFont(scaled_font)
     panel = ControlPanelQt()
     try:
+        # Match the production constraint applied by Video2MidiApp.
+        panel.setMaximumWidth(760)
+        panel.resize(760, max(680, panel.sizeHint().height()))
         panel.show()
         app.processEvents()
         metrics = panel.settings_section_rail.fontMetrics()

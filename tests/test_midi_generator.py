@@ -28,8 +28,12 @@ def test_channel_color_metadata_is_deterministic_and_compact():
 @pytest.mark.parametrize(
     "channel_colors",
     [
+        {},
         {-1: {"natural": (1, 2, 3)}},
         {16: {"natural": (1, 2, 3)}},
+        {True: {"natural": (1, 2, 3)}},
+        {0: {"natural": (1, 2, 3)}, "1": {"natural": (4, 5, 6)}},
+        {0: {}},
         {0: {"natural": (1, 2)}},
         {0: {"natural": (1, 2, 999)}},
         {0: {"unknown": (1, 2, 3)}},

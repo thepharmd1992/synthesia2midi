@@ -42,28 +42,27 @@ pub(crate) fn parse_color_map_text(text: &[u8]) -> Option<ChannelColorMap> {
 
 pub(crate) fn note_color(colors: &ChannelColorMap, channel: u8, pitch: u8) -> Color32 {
     let sharp_flat = is_black_key(pitch);
-    let rgb = colors
-        .get(&channel)
-        .and_then(
-            |entry| match (sharp_flat, entry.natural, entry.sharp_flat) {
-                (false, Some(natural), _) => Some(natural),
-                (true, _, Some(accidental)) => Some(accidental),
-                (true, Some(natural), None) => Some(scale_rgb(natural, 0.72)),
-                (false, None, Some(accidental)) => {
-                    Some(blend_rgb(accidental, [255, 255, 255], 0.25))
-                }
-                _ => None,
-            },
-        )
-        .unwrap_or_else(|| {
-            let fallback = fallback_channel_rgb(channel);
-            if sharp_flat {
-                scale_rgb(fallback, 0.72)
-            } else {
-                fallback
-            }
-        });
-    let readable = ensure_readable(rgb);
+    let fallback = fallback_channel_rgb(channel);
+    let (natural, accidental) = match colors.get(&channel) {
+        Some(ChannelColors {
+            natural: Some(natural),
+            sharp_flat: Some(accidental),
+        }) => (*natural, *accidental),
+        Some(ChannelColors {
+            natural: Some(natural),
+            sharp_flat: None,
+        }) => (*natural, scale_rgb(*natural, 0.72)),
+        Some(ChannelColors {
+            natural: None,
+            sharp_flat: Some(accidental),
+        }) => (blend_rgb(*accidental, [255, 255, 255], 0.25), *accidental),
+        _ => (fallback, scale_rgb(fallback, 0.72)),
+    };
+    let readable = if sharp_flat {
+        ensure_readable(accidental, 0.07, 0.42)
+    } else {
+        ensure_readable(natural, 0.14, 0.60)
+    };
     Color32::from_rgba_unmultiplied(readable[0], readable[1], readable[2], 220)
 }
 
@@ -106,17 +105,37 @@ fn blend_rgb(rgb: [u8; 3], target: [u8; 3], amount: f32) -> [u8; 3] {
     })
 }
 
-fn ensure_readable(rgb: [u8; 3]) -> [u8; 3] {
+fn ensure_readable(rgb: [u8; 3], minimum_luminance: f32, maximum_luminance: f32) -> [u8; 3] {
     let luminance = relative_luminance(rgb);
-    if luminance < 0.18 {
-        let amount = ((0.18 - luminance) / 0.18 * 0.45).clamp(0.08, 0.45);
-        blend_rgb(rgb, [255, 255, 255], amount)
-    } else if luminance > 0.88 {
-        let amount = ((luminance - 0.88) / 0.12 * 0.35).clamp(0.08, 0.35);
-        blend_rgb(rgb, [0, 0, 0], amount)
+    if luminance < minimum_luminance {
+        blend_to_luminance(rgb, [255, 255, 255], minimum_luminance, true)
+    } else if luminance > maximum_luminance {
+        blend_to_luminance(rgb, [0, 0, 0], maximum_luminance, false)
     } else {
         rgb
     }
+}
+
+fn blend_to_luminance(
+    rgb: [u8; 3],
+    target: [u8; 3],
+    target_luminance: f32,
+    increasing: bool,
+) -> [u8; 3] {
+    let mut low = 0.0;
+    let mut high = 1.0;
+    for _ in 0..12 {
+        let amount = (low + high) * 0.5;
+        let luminance = relative_luminance(blend_rgb(rgb, target, amount));
+        if (increasing && luminance < target_luminance)
+            || (!increasing && luminance > target_luminance)
+        {
+            low = amount;
+        } else {
+            high = amount;
+        }
+    }
+    blend_rgb(rgb, target, high)
 }
 
 fn relative_luminance(rgb: [u8; 3]) -> f32 {
@@ -201,5 +220,54 @@ mod tests {
             note_color(&map, 2, 60),
             Color32::from_rgba_unmultiplied(90, 180, 220, 220)
         );
+    }
+
+    #[test]
+    fn black_single_morphology_stays_visible_and_distinct() {
+        let mut map = ChannelColorMap::new();
+        map.insert(
+            0,
+            ChannelColors {
+                natural: Some([0, 0, 0]),
+                sharp_flat: None,
+            },
+        );
+
+        let natural = note_color(&map, 0, 60).to_srgba_unmultiplied();
+        let sharp_flat = note_color(&map, 0, 61).to_srgba_unmultiplied();
+
+        assert_ne!(natural, sharp_flat);
+        assert!(relative_luminance([natural[0], natural[1], natural[2]]) >= 0.13);
+        assert!(relative_luminance([sharp_flat[0], sharp_flat[1], sharp_flat[2]]) >= 0.07);
+    }
+
+    #[test]
+    fn white_single_morphology_derives_a_distinct_pair() {
+        let mut map = ChannelColorMap::new();
+        map.insert(
+            0,
+            ChannelColors {
+                natural: None,
+                sharp_flat: Some([255, 255, 255]),
+            },
+        );
+
+        assert_ne!(note_color(&map, 0, 60), note_color(&map, 0, 61));
+    }
+
+    #[test]
+    fn near_white_natural_is_darkened_for_white_piano_keys() {
+        let mut map = ChannelColorMap::new();
+        map.insert(
+            0,
+            ChannelColors {
+                natural: Some([230, 230, 230]),
+                sharp_flat: None,
+            },
+        );
+
+        let displayed = note_color(&map, 0, 60).to_srgba_unmultiplied();
+
+        assert!(relative_luminance([displayed[0], displayed[1], displayed[2]]) <= 0.61);
     }
 }

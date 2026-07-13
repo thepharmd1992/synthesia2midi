@@ -432,6 +432,30 @@ where
         .collect())
 }
 
+fn apply_pitch_changes(
+    notes: &mut [EditableNote],
+    changes: &[PitchChange],
+    forward: bool,
+) -> usize {
+    let target_pitches: HashMap<u64, u8> = changes
+        .iter()
+        .map(|change| {
+            (
+                change.note_id,
+                if forward { change.after } else { change.before },
+            )
+        })
+        .collect();
+    let mut updated = 0;
+    for note in notes {
+        if let Some(pitch) = target_pitches.get(&note.note_id) {
+            note.pitch = *pitch;
+            updated += 1;
+        }
+    }
+    updated
+}
+
 fn octave_offset_label(offset: i8) -> String {
     if offset == 0 {
         "0".to_string()
@@ -1029,11 +1053,8 @@ impl MidiTouchupApp {
                 changes,
                 delta_octaves,
             } => {
-                for change in changes {
-                    if let Some(target) = self.note_by_id_mut(change.note_id) {
-                        target.pitch = if forward { change.after } else { change.before };
-                    }
-                }
+                let updated = apply_pitch_changes(&mut self.document.notes, changes, forward);
+                debug_assert_eq!(updated, changes.len());
                 self.octave_offset += if forward {
                     *delta_octaves
                 } else {
@@ -3384,6 +3405,33 @@ mod ui_policy_tests {
             plan_octave_shift([(1_u64, 108_u8)].into_iter(), 1),
             Err(OctaveShiftBlock::AbovePiano { pitch: 108 })
         );
+    }
+
+    #[test]
+    fn pitch_changes_apply_to_large_documents_without_id_order_assumptions() {
+        let pitches = vec![48_u8; 4096];
+        let mut app = test_app_with_pitches(&pitches);
+        let mut changes = plan_octave_shift(
+            app.document
+                .notes
+                .iter()
+                .map(|note| (note.note_id, note.pitch)),
+            1,
+        )
+        .unwrap();
+        changes.reverse();
+
+        assert_eq!(
+            apply_pitch_changes(&mut app.document.notes, &changes, true),
+            pitches.len()
+        );
+        assert!(app.document.notes.iter().all(|note| note.pitch == 60));
+
+        assert_eq!(
+            apply_pitch_changes(&mut app.document.notes, &changes, false),
+            pitches.len()
+        );
+        assert!(app.document.notes.iter().all(|note| note.pitch == 48));
     }
 
     #[test]

@@ -29,11 +29,17 @@ def serialize_channel_color_map(
     channel_colors: Mapping[int, Mapping[str, Sequence[int]]],
 ) -> str:
     """Serialize validated channel colors into a deterministic MIDI text payload."""
-    channels: dict[str, dict[str, list[int]]] = {}
-    for channel in sorted(channel_colors):
-        if not isinstance(channel, int) or not 0 <= channel <= 15:
+    if not channel_colors:
+        raise ValueError("Channel color metadata must contain at least one channel")
+
+    channel_items: list[tuple[int, Mapping[str, Sequence[int]]]] = []
+    for channel, source in channel_colors.items():
+        if type(channel) is not int or not 0 <= channel <= 15:
             raise ValueError(f"Invalid MIDI channel: {channel}")
-        source = channel_colors[channel]
+        channel_items.append((channel, source))
+
+    channels: dict[str, dict[str, list[int]]] = {}
+    for channel, source in sorted(channel_items):
         unknown = set(source) - set(COLOR_MORPHOLOGIES)
         if unknown:
             raise ValueError(f"Unknown color morphology: {sorted(unknown)}")
@@ -54,6 +60,9 @@ def serialize_channel_color_map(
             encoded[morphology] = components
         if encoded:
             channels[str(channel)] = encoded
+
+    if not channels:
+        raise ValueError("Channel color metadata must contain at least one color")
 
     body = json.dumps(
         {"channels": channels},

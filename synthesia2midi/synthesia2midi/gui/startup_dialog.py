@@ -178,12 +178,10 @@ class StartupDialog(QDialog):
         
     def _on_local_file_clicked(self):
         """Handle local file button click"""
-        self.accept()
         self.open_local_file.emit()
         
     def _on_youtube_clicked(self):
         """Handle YouTube button click"""
-        self.accept()
         self.download_from_youtube.emit()
 
     def _handle_language_changed(self, index: int):
@@ -239,5 +237,4 @@ class StartupDialog(QDialog):
 
     def _on_recent_file_clicked(self, path: str):
         """Handle recent file click"""
-        self.accept()
         self.open_recent_file.emit(path)

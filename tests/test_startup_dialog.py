@@ -67,3 +67,23 @@ def test_startup_dialog_explains_suitable_input_without_tooltip():
     finally:
         dialog.close()
         dialog.deleteLater()
+
+
+def test_startup_source_buttons_request_actions_without_closing_dialog():
+    QApplication.instance() or QApplication([])
+    dialog = StartupDialog()
+    requests = []
+    finished = []
+    dialog.open_local_file.connect(lambda: requests.append("local"))
+    dialog.download_from_youtube.connect(lambda: requests.append("youtube"))
+    dialog.finished.connect(finished.append)
+
+    try:
+        dialog.local_file_btn.click()
+        dialog.youtube_btn.click()
+
+        assert requests == ["local", "youtube"]
+        assert finished == []
+    finally:
+        dialog.close()
+        dialog.deleteLater()

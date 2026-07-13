@@ -135,10 +135,6 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         logging.info(f"{APP_NAME} started.")
 
 
-        # Show startup dialog instead of directly opening file dialog
-        QTimer.singleShot(100, self._show_startup_dialog)
-
-
     def _init_ui(self):
         # --- Menu ---
         menubar = self.menuBar()
@@ -147,11 +143,15 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         self.file_menu = menubar.addMenu(QCoreApplication.translate("Video2MidiApp", "File"))
         filemenu = self.file_menu
         open_action = QAction(QCoreApplication.translate("Video2MidiApp", "Open Video File..."), self)
-        open_action.triggered.connect(self.video_session_ui_controller.open_video_file)
+        open_action.triggered.connect(
+            lambda: self.video_session_ui_controller.open_video_file()
+        )
         filemenu.addAction(open_action)
 
         youtube_action = QAction(QCoreApplication.translate("Video2MidiApp", "Download YouTube Video..."), self)
-        youtube_action.triggered.connect(self.video_session_ui_controller.show_youtube_download_dialog)
+        youtube_action.triggered.connect(
+            lambda: self.video_session_ui_controller.show_youtube_download_dialog()
+        )
         filemenu.addAction(youtube_action)
 
         self.open_midi_touchup_action = QAction(
@@ -487,19 +487,55 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         right_action.triggered.connect(self.video_controls.navigate_frame_pgdn)
         self.addAction(right_action)
 
+    def begin_startup(self) -> None:
+        """Start source selection without revealing the empty main workspace."""
+        QTimer.singleShot(0, self._show_startup_dialog)
+
+    @staticmethod
+    def _finish_startup_action(dialog: QDialog, loaded: bool) -> None:
+        if loaded:
+            dialog.accept()
+
     def _show_startup_dialog(self):
         """Show the startup dialog for choosing video source."""
         logging.info("_show_startup_dialog: Showing startup dialog.")
 
-        dialog = StartupDialog(self, recent_video_paths=self.recent_video_store.recent_paths())
-        dialog.open_local_file.connect(self.video_session_ui_controller.open_video_file)
-        dialog.open_recent_file.connect(self.video_session_ui_controller.open_recent_video_file)
-        dialog.download_from_youtube.connect(self.video_session_ui_controller.show_youtube_download_dialog)
+        while not self.has_video_loaded():
+            dialog = StartupDialog(
+                self,
+                recent_video_paths=self.recent_video_store.recent_paths(),
+            )
+            dialog.open_local_file.connect(
+                lambda: self._finish_startup_action(
+                    dialog,
+                    self.video_session_ui_controller.open_video_file(parent=dialog),
+                )
+            )
+            dialog.open_recent_file.connect(
+                lambda path: self._finish_startup_action(
+                    dialog,
+                    self.video_session_ui_controller.open_recent_video_file(path),
+                )
+            )
+            dialog.download_from_youtube.connect(
+                lambda: self._finish_startup_action(
+                    dialog,
+                    self.video_session_ui_controller.show_youtube_download_dialog(
+                        parent=dialog
+                    ),
+                )
+            )
 
-        # If user cancels, just continue with empty application
-        if dialog.exec() != QDialog.Accepted:
-            logging.info("_show_startup_dialog: User cancelled startup dialog, continuing with empty application.")
-            # No video loaded, but app remains open.
+            if dialog.exec() != QDialog.Accepted:
+                logging.info(
+                    "_show_startup_dialog: User cancelled startup dialog; exiting."
+                )
+                qapp = QApplication.instance()
+                if qapp is not None:
+                    qapp.quit()
+                return
+
+        self.show()
 
     def _save_settings(self):
         if not self.app_state.video.filepath:

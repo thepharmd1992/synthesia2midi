@@ -59,21 +59,24 @@ def test_recent_video_store_hides_missing_paths(tmp_path):
     assert settings.values["recent_video_files"] == [str(existing)]
 
 
-def test_startup_dialog_emits_recent_file_before_closing(tmp_path):
+def test_startup_dialog_recent_file_request_does_not_close_selector(tmp_path):
     QApplication.instance() or QApplication([])
     recent_path = tmp_path / "song.mp4"
     recent_path.write_text("video")
     dialog = StartupDialog(recent_video_paths=[str(recent_path)])
     emitted = []
+    finished = []
 
     try:
-        dialog.open_recent_file.connect(lambda path: emitted.append((path, dialog.result())))
+        dialog.open_recent_file.connect(emitted.append)
+        dialog.finished.connect(finished.append)
 
         dialog.recent_video_buttons[0].click()
 
-        assert emitted == [(str(recent_path), QDialog.Accepted)]
-        assert dialog.result() == QDialog.Accepted
+        assert emitted == [str(recent_path)]
+        assert finished == []
     finally:
+        dialog.close()
         dialog.deleteLater()
         QApplication.processEvents()
 

@@ -12,10 +12,58 @@ Features:
 - Duplicate note removal
 - Comprehensive logging of conversion process
 """
+import json
 import os
 import logging
+from collections.abc import Mapping, Sequence
 from midiutil.MidiFile import MIDIFile # type: ignore
 from typing import List, Dict, Tuple
+
+
+COLOR_MAP_META_PREFIX = "Synthesia2MIDI:color-map:v1:"
+MAX_COLOR_MAP_META_BYTES = 4096
+COLOR_MORPHOLOGIES = ("natural", "sharp_flat")
+
+
+def serialize_channel_color_map(
+    channel_colors: Mapping[int, Mapping[str, Sequence[int]]],
+) -> str:
+    """Serialize validated channel colors into a deterministic MIDI text payload."""
+    channels: dict[str, dict[str, list[int]]] = {}
+    for channel in sorted(channel_colors):
+        if not isinstance(channel, int) or not 0 <= channel <= 15:
+            raise ValueError(f"Invalid MIDI channel: {channel}")
+        source = channel_colors[channel]
+        unknown = set(source) - set(COLOR_MORPHOLOGIES)
+        if unknown:
+            raise ValueError(f"Unknown color morphology: {sorted(unknown)}")
+
+        encoded: dict[str, list[int]] = {}
+        for morphology in COLOR_MORPHOLOGIES:
+            if morphology not in source:
+                continue
+            components = list(source[morphology])
+            if (
+                len(components) != 3
+                or any(type(component) is not int for component in components)
+                or any(not 0 <= component <= 255 for component in components)
+            ):
+                raise ValueError(
+                    f"Invalid RGB color for channel {channel} {morphology}"
+                )
+            encoded[morphology] = components
+        if encoded:
+            channels[str(channel)] = encoded
+
+    body = json.dumps(
+        {"channels": channels},
+        ensure_ascii=True,
+        separators=(",", ":"),
+    )
+    payload = COLOR_MAP_META_PREFIX + body
+    if len(payload.encode("utf-8")) > MAX_COLOR_MAP_META_BYTES:
+        raise ValueError("Channel color metadata exceeds 4096 bytes")
+    return payload
 
 class MidiWriter:
     """Handles the creation and saving of MIDI data."""
@@ -56,6 +104,15 @@ class MidiWriter:
         """Sets the tempo for a given track."""
         self.tempo = tempo
         self.mf.addTempo(track, time, tempo)
+
+    def add_channel_color_map(
+        self,
+        channel_colors: Mapping[int, Mapping[str, Sequence[int]]],
+        track: int = 0,
+        time: float = 0.0,
+    ) -> None:
+        """Add Synthesia2MIDI channel colors as a portable MIDI text event."""
+        self.mf.addText(track, time, serialize_channel_color_map(channel_colors))
 
     def add_program_change(self, track: int, channel: int, time: float, program: int) -> None:
         """Adds a program change event (instrument change)."""

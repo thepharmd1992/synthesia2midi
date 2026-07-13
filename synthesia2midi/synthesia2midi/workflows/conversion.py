@@ -22,6 +22,7 @@ from synthesia2midi.video_loader import VideoSession
 from synthesia2midi.app_config import DEBUG_FRAMES_DIR
 from synthesia2midi.core.app_state import AppState
 from synthesia2midi.core.color_families import (
+    COLOR_FAMILIES,
     SUPPORTED_EXEMPLAR_SLOTS,
     exemplar_display_parts,
     family_for_slot,
@@ -49,6 +50,25 @@ def _midi_channel_for_exemplar(slot: str | None) -> int:
     """Return the zero-based MIDI channel for a supported exemplar slot."""
     family = family_for_slot(slot) if slot is not None else None
     return family.midi_channel if family is not None else 0
+
+
+def _midi_channel_color_map(
+    app_state: AppState,
+) -> dict[int, dict[str, tuple[int, int, int]]]:
+    """Map enabled calibrated family colors to their stable MIDI channels."""
+    effective = app_state.detection.get_effective_exemplar_lit_colors()
+    result: dict[int, dict[str, tuple[int, int, int]]] = {}
+    for family in COLOR_FAMILIES:
+        colors: dict[str, tuple[int, int, int]] = {}
+        natural = effective.get(family.natural_slot)
+        sharp_flat = effective.get(family.accidental_slot)
+        if natural is not None:
+            colors["natural"] = natural
+        if sharp_flat is not None:
+            colors["sharp_flat"] = sharp_flat
+        if colors:
+            result[family.midi_channel] = colors
+    return result
 
 
 class ConversionWorkflow:
@@ -291,6 +311,10 @@ class ConversionWorkflow:
         
         midi_writer.set_track_name(track, time, f"{os.path.basename(self.app_state.video.filepath)} MIDI")
         midi_writer.set_tempo(track, time, self.app_state.midi.tempo)
+
+        channel_colors = _midi_channel_color_map(self.app_state)
+        if channel_colors:
+            midi_writer.add_channel_color_map(channel_colors)
         
         # Setup instruments for each channel
         for channel_1_based in set(self.app_state.midi.color_to_channel_map.values()):

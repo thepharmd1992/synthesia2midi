@@ -29,6 +29,32 @@ def test_missing_exemplar_identity_maps_to_default_channel():
     assert conversion._midi_channel_for_exemplar(None) == 0
 
 
+def test_conversion_builds_metadata_from_enabled_family_slots():
+    state = AppState()
+    state.detection.exemplar_lit_colors.update(
+        {
+            "LW": (10, 20, 30),
+            "LB": (5, 10, 15),
+            "COLOR_3_W": (100, 110, 120),
+        }
+    )
+    state.detection.exemplar_key_type_enabled.update(
+        {
+            "LW": True,
+            "LB": True,
+            "RW": False,
+            "RB": False,
+            "COLOR_3_W": True,
+            "COLOR_3_B": False,
+        }
+    )
+
+    assert conversion._midi_channel_color_map(state) == {
+        0: {"natural": (10, 20, 30), "sharp_flat": (5, 10, 15)},
+        2: {"natural": (100, 110, 120)},
+    }
+
+
 class RecordingMidiWriter:
     def __init__(self):
         self.note_ons = []

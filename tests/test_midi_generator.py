@@ -1,6 +1,58 @@
 from pathlib import Path
 
-from synthesia2midi.midi_generator import MidiWriter
+import pytest
+
+from synthesia2midi.midi_generator import (
+    COLOR_MAP_META_PREFIX,
+    MidiWriter,
+    serialize_channel_color_map,
+)
+
+
+def test_channel_color_metadata_is_deterministic_and_compact():
+    payload = serialize_channel_color_map(
+        {
+            1: {"sharp_flat": (12, 34, 56), "natural": (90, 120, 150)},
+            0: {"natural": (1, 2, 3)},
+        }
+    )
+
+    assert payload == (
+        COLOR_MAP_META_PREFIX
+        + '{"channels":{"0":{"natural":[1,2,3]},'
+        '"1":{"natural":[90,120,150],"sharp_flat":[12,34,56]}}}'
+    )
+    assert len(payload.encode("utf-8")) <= 4096
+
+
+@pytest.mark.parametrize(
+    "channel_colors",
+    [
+        {-1: {"natural": (1, 2, 3)}},
+        {16: {"natural": (1, 2, 3)}},
+        {0: {"natural": (1, 2)}},
+        {0: {"natural": (1, 2, 999)}},
+        {0: {"unknown": (1, 2, 3)}},
+    ],
+)
+def test_channel_color_metadata_rejects_invalid_values(channel_colors):
+    with pytest.raises(ValueError):
+        serialize_channel_color_map(channel_colors)
+
+
+def test_midi_writer_adds_one_channel_color_text_event():
+    writer = MidiWriter(midi_file_format=1)
+
+    writer.add_channel_color_map({0: {"natural": (1, 2, 3)}})
+
+    text_events = [
+        event
+        for track in writer.mf.tracks
+        for event in track.eventList
+        if type(event).__name__ == "Text"
+    ]
+    assert len(text_events) == 1
+    assert text_events[0].text.decode("ascii").startswith(COLOR_MAP_META_PREFIX)
 
 
 def test_midi_writer_saves_when_filename_has_no_directory(tmp_path, monkeypatch):

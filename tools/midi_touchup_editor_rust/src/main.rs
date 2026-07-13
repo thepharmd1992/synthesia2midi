@@ -383,6 +383,84 @@ enum EditCommand {
         before: EditableNote,
         after: EditableNote,
     },
+    Transpose {
+        changes: Vec<PitchChange>,
+        delta_octaves: i8,
+    },
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct PitchChange {
+    note_id: u64,
+    before: u8,
+    after: u8,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum OctaveShiftBlock {
+    BelowPiano { pitch: u8 },
+    AbovePiano { pitch: u8 },
+}
+
+fn plan_octave_shift<I>(notes: I, delta_octaves: i8) -> Result<Vec<PitchChange>, OctaveShiftBlock>
+where
+    I: IntoIterator<Item = (u64, u8)>,
+{
+    assert!(matches!(delta_octaves, -1 | 1));
+    let notes: Vec<(u64, u8)> = notes.into_iter().collect();
+    let semitones = delta_octaves as i16 * 12;
+
+    if delta_octaves < 0 {
+        if let Some(lowest) = notes.iter().map(|(_, pitch)| *pitch).min() {
+            if lowest as i16 + semitones < MIN_PITCH as i16 {
+                return Err(OctaveShiftBlock::BelowPiano { pitch: lowest });
+            }
+        }
+    } else if let Some(highest) = notes.iter().map(|(_, pitch)| *pitch).max() {
+        if highest as i16 + semitones > MAX_PITCH as i16 {
+            return Err(OctaveShiftBlock::AbovePiano { pitch: highest });
+        }
+    }
+
+    Ok(notes
+        .into_iter()
+        .map(|(note_id, before)| PitchChange {
+            note_id,
+            before,
+            after: (before as i16 + semitones) as u8,
+        })
+        .collect())
+}
+
+fn octave_offset_label(offset: i8) -> String {
+    if offset == 0 {
+        "0".to_string()
+    } else {
+        format!("{offset:+}")
+    }
+}
+
+fn midi_pitch_label(pitch: u8) -> String {
+    const NAMES: [&str; 12] = [
+        "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
+    ];
+    let octave = pitch as i16 / 12 - 1;
+    format!("{}{}", NAMES[pitch as usize % 12], octave)
+}
+
+fn octave_shift_block_message(block: OctaveShiftBlock) -> String {
+    match block {
+        OctaveShiftBlock::BelowPiano { pitch } => format!(
+            "Cannot shift down one octave because the lowest note is {} (MIDI {}). All notes must remain between A0 and C8.",
+            midi_pitch_label(pitch),
+            pitch
+        ),
+        OctaveShiftBlock::AbovePiano { pitch } => format!(
+            "Cannot shift up one octave because the highest note is {} (MIDI {}). All notes must remain between A0 and C8.",
+            midi_pitch_label(pitch),
+            pitch
+        ),
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -577,6 +655,7 @@ struct MidiTouchupApp {
     drag_preview: Option<EditableNote>,
     undo_stack: Vec<EditCommand>,
     redo_stack: Vec<EditCommand>,
+    octave_offset: i8,
     snap_enabled: bool,
     snap_target: SnapTarget,
     grid_option: GridOption,
@@ -607,11 +686,18 @@ impl MidiTouchupApp {
     ) -> Result<Self, String> {
         let document = load_midi_document(midi_path)?;
         let audio_engine = AudioEngineHandle::new(sf2_override, &document).ok();
-        let status_line = "Ready".to_string();
+        Ok(Self::from_document(document, audio_engine, result_state))
+    }
+
+    fn from_document(
+        document: MidiDocument,
+        audio_engine: Option<AudioEngineHandle>,
+        result_state: Arc<Mutex<EditorResult>>,
+    ) -> Self {
         let note_spans = note_spans_for(&document.notes);
         let note_lanes = compute_lane_assignments(&note_spans);
 
-        Ok(Self {
+        Self {
             document,
             note_spans,
             note_lanes,
@@ -621,6 +707,7 @@ impl MidiTouchupApp {
             drag_preview: None,
             undo_stack: Vec::new(),
             redo_stack: Vec::new(),
+            octave_offset: 0,
             snap_enabled: true,
             snap_target: SnapTarget::Grid,
             grid_option: GridOption::ThirtySecond,
@@ -639,8 +726,8 @@ impl MidiTouchupApp {
             audio_volume: 1.0,
             theme_applied: false,
             result_state,
-            status_line,
-        })
+            status_line: "Ready".to_string(),
+        }
     }
 
     fn active_note_channels_at_playhead(&self) -> std::collections::BTreeMap<u8, Vec<u8>> {
@@ -729,6 +816,7 @@ impl MidiTouchupApp {
                 self.drag_preview = None;
                 self.undo_stack.clear();
                 self.redo_stack.clear();
+                self.octave_offset = 0;
                 self.set_playing(false);
                 self.set_playhead_tick(0.0, true);
                 self.timeline_drag_state = None;
@@ -937,6 +1025,52 @@ impl MidiTouchupApp {
                     *target = replacement.clone();
                 }
             }
+            EditCommand::Transpose {
+                changes,
+                delta_octaves,
+            } => {
+                for change in changes {
+                    if let Some(target) = self.note_by_id_mut(change.note_id) {
+                        target.pitch = if forward { change.after } else { change.before };
+                    }
+                }
+                self.octave_offset += if forward {
+                    *delta_octaves
+                } else {
+                    -*delta_octaves
+                };
+            }
+        }
+    }
+
+    fn apply_octave_shift(&mut self, delta_octaves: i8) -> Result<(), OctaveShiftBlock> {
+        let changes = plan_octave_shift(
+            self.document
+                .notes
+                .iter()
+                .map(|note| (note.note_id, note.pitch)),
+            delta_octaves,
+        )?;
+        if changes.is_empty() {
+            return Ok(());
+        }
+        self.set_playing(false);
+        self.push_command(EditCommand::Transpose {
+            changes,
+            delta_octaves,
+        });
+        self.status_line = format!("Octave adjustment: {:+}", self.octave_offset);
+        Ok(())
+    }
+
+    fn request_octave_shift(&mut self, delta_octaves: i8) {
+        if let Err(block) = self.apply_octave_shift(delta_octaves) {
+            let _ = MessageDialog::new()
+                .set_level(MessageLevel::Info)
+                .set_title("Octave Shift Blocked")
+                .set_description(octave_shift_block_message(block))
+                .set_buttons(MessageButtons::Ok)
+                .show();
         }
     }
 
@@ -1764,6 +1898,37 @@ impl App for MidiTouchupApp {
                     );
                     if response.changed() {
                         self.set_audio_volume(volume);
+                    }
+                });
+
+                ui.horizontal(|ui| {
+                    ui.label(RichText::new("Octave").size(control_font_size - 2.0));
+                    if ui
+                        .add_sized(
+                            [button_width * 0.32, button_height],
+                            egui::Button::new(RichText::new("-").size(control_font_size)),
+                        )
+                        .on_hover_text("Shift every note down one octave")
+                        .clicked()
+                    {
+                        self.request_octave_shift(-1);
+                    }
+                    ui.add_sized(
+                        [44.0, button_height],
+                        egui::Label::new(
+                            RichText::new(octave_offset_label(self.octave_offset))
+                                .size(control_font_size),
+                        ),
+                    );
+                    if ui
+                        .add_sized(
+                            [button_width * 0.32, button_height],
+                            egui::Button::new(RichText::new("+").size(control_font_size)),
+                        )
+                        .on_hover_text("Shift every note up one octave")
+                        .clicked()
+                    {
+                        self.request_octave_shift(1);
                     }
                 });
 
@@ -3085,6 +3250,44 @@ mod ui_policy_tests {
         ))
     }
 
+    fn test_app_with_pitches(pitches: &[u8]) -> MidiTouchupApp {
+        let source_path = unique_test_midi("octave-app");
+        let notes = pitches
+            .iter()
+            .enumerate()
+            .map(|(index, pitch)| EditableNote {
+                note_id: index as u64 + 1,
+                track_index: 0,
+                channel: 0,
+                pitch: *pitch,
+                start_tick: index as u64 * 120,
+                end_tick: index as u64 * 120 + 100,
+                velocity_on: 80,
+                velocity_off: 64,
+                key_lane_unlocked: false,
+            })
+            .collect();
+        let document = MidiDocument {
+            source_path: source_path.clone(),
+            format_u16: 0,
+            division_u16: 480,
+            ticks_per_beat: 480,
+            tempo_us_per_beat: DEFAULT_TEMPO_US_PER_BEAT,
+            tempo_map: TempoMap::default(480),
+            notes,
+            channel_colors: ChannelColorMap::new(),
+            preserved_tracks: vec![Vec::new()],
+            max_tick: 3840,
+            next_note_id: pitches.len() as u64 + 1,
+            dirty: false,
+        };
+        MidiTouchupApp::from_document(
+            document,
+            None,
+            Arc::new(Mutex::new(EditorResult::cancelled(&source_path))),
+        )
+    }
+
     #[test]
     fn wheel_input_only_targets_the_canvas() {
         let canvas = Rect::from_min_max(Pos2::new(100.0, 200.0), Pos2::new(900.0, 700.0));
@@ -3148,5 +3351,115 @@ mod ui_policy_tests {
 
         let _ = fs::remove_file(source_path);
         let _ = fs::remove_file(saved_path);
+    }
+
+    #[test]
+    fn octave_plan_moves_every_note_by_twelve() {
+        let notes = vec![(1_u64, 48_u8), (2, 72)];
+
+        assert_eq!(
+            plan_octave_shift(notes.into_iter(), 1).unwrap(),
+            vec![
+                PitchChange {
+                    note_id: 1,
+                    before: 48,
+                    after: 60,
+                },
+                PitchChange {
+                    note_id: 2,
+                    before: 72,
+                    after: 84,
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn octave_plan_rejects_entire_shift_at_piano_bounds() {
+        assert_eq!(
+            plan_octave_shift([(1_u64, 21_u8)].into_iter(), -1),
+            Err(OctaveShiftBlock::BelowPiano { pitch: 21 })
+        );
+        assert_eq!(
+            plan_octave_shift([(1_u64, 108_u8)].into_iter(), 1),
+            Err(OctaveShiftBlock::AbovePiano { pitch: 108 })
+        );
+    }
+
+    #[test]
+    fn octave_shift_is_one_undoable_redoable_command() {
+        let mut app = test_app_with_pitches(&[48, 72]);
+
+        app.apply_octave_shift(1).unwrap();
+        assert_eq!(
+            app.document
+                .notes
+                .iter()
+                .map(|note| note.pitch)
+                .collect::<Vec<_>>(),
+            vec![60, 84]
+        );
+        assert_eq!(app.octave_offset, 1);
+        assert_eq!(app.undo_stack.len(), 1);
+
+        app.undo();
+        assert_eq!(
+            app.document
+                .notes
+                .iter()
+                .map(|note| note.pitch)
+                .collect::<Vec<_>>(),
+            vec![48, 72]
+        );
+        assert_eq!(app.octave_offset, 0);
+
+        app.redo();
+        assert_eq!(
+            app.document
+                .notes
+                .iter()
+                .map(|note| note.pitch)
+                .collect::<Vec<_>>(),
+            vec![60, 84]
+        );
+        assert_eq!(app.octave_offset, 1);
+    }
+
+    #[test]
+    fn blocked_octave_shift_leaves_document_and_history_unchanged() {
+        let mut app = test_app_with_pitches(&[21, 60]);
+
+        let result = app.apply_octave_shift(-1);
+
+        assert_eq!(result, Err(OctaveShiftBlock::BelowPiano { pitch: 21 }));
+        assert_eq!(
+            app.document
+                .notes
+                .iter()
+                .map(|note| note.pitch)
+                .collect::<Vec<_>>(),
+            vec![21, 60]
+        );
+        assert!(!app.document.dirty);
+        assert_eq!(app.octave_offset, 0);
+        assert!(app.undo_stack.is_empty());
+        assert!(app.redo_stack.is_empty());
+    }
+
+    #[test]
+    fn octave_labels_and_boundary_messages_are_user_readable() {
+        assert_eq!(octave_offset_label(0), "0");
+        assert_eq!(octave_offset_label(1), "+1");
+        assert_eq!(octave_offset_label(-2), "-2");
+        assert_eq!(midi_pitch_label(21), "A0");
+        assert_eq!(midi_pitch_label(60), "C4");
+        assert_eq!(midi_pitch_label(108), "C8");
+
+        let low = octave_shift_block_message(OctaveShiftBlock::BelowPiano { pitch: 21 });
+        let high = octave_shift_block_message(OctaveShiftBlock::AbovePiano { pitch: 108 });
+        assert!(low.contains("A0 (MIDI 21)"));
+        assert!(low.contains("A0 and C8"));
+        assert!(high.contains("C8 (MIDI 108)"));
+        assert!(high.contains("A0 and C8"));
     }
 }

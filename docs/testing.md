@@ -87,6 +87,8 @@ done
 
 Expected result: a zipped portable bundle appears under `dist/release/`, and the build script smoke-launches the packaged app with `QT_QPA_PLATFORM=offscreen`.
 
+Before updating remote `main` or creating a version tag, push a branch matching `codex/*-preflight`. GitHub runs the normal Windows/macOS/Linux CI matrix plus the Windows x64 and Apple Silicon package builds. Preflight packages are retained as workflow artifacts for seven days; the workflow does not create a GitHub release, create `latest` aliases, or upload release assets unless the ref is a `v*` tag. After this workflow reaches the default branch, the same non-publishing package build can also be started manually with a version label.
+
 ## Import Smoke
 
 `tests/test_import_smoke.py` imports the core app modules plus the manual auto-detector stage modules. Run the default pytest gate after adding detector modules so new files are covered by import smoke.

@@ -2,8 +2,16 @@ name: Release
 
 on:
   push:
+    branches:
+      - "codex/*-preflight"
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version label for the non-publishing package build"
+        required: true
+        default: "v0.2.1-dev"
 
 permissions:
   contents: write
@@ -14,6 +22,7 @@ env:
 
 jobs:
   create-release:
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,6 +36,7 @@ jobs:
 
   build-and-upload:
     needs: create-release
+    if: ${{ always() && (needs.create-release.result == 'success' || needs.create-release.result == 'skipped') }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -58,16 +68,31 @@ jobs:
         shell: bash
         run: python setup_env.py --dev
 
+      - name: Resolve build version
+        shell: bash
+        env:
+          REQUESTED_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            BUILD_VERSION="$REQUESTED_VERSION"
+          elif [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            BUILD_VERSION="$GITHUB_REF_NAME"
+          else
+            BUILD_VERSION="$(python -c 'from synthesia2midi.version import DEFAULT_APP_VERSION; print(DEFAULT_APP_VERSION)')"
+          fi
+          echo "BUILD_VERSION=$BUILD_VERSION" >> "$GITHUB_ENV"
+
       - name: Build packaged release
         shell: bash
         run: |
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            .venv/Scripts/python.exe packaging/build_release.py --version "$GITHUB_REF_NAME"
+            .venv/Scripts/python.exe packaging/build_release.py --version "$BUILD_VERSION"
           else
-            .venv/bin/python packaging/build_release.py --version "$GITHUB_REF_NAME"
+            .venv/bin/python packaging/build_release.py --version "$BUILD_VERSION"
           fi
 
       - name: Create stable latest archive alias
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         shell: bash
         run: |
           if [[ "$RUNNER_OS" == "Windows" ]]; then
@@ -79,7 +104,17 @@ jobs:
           fi
 
       - name: Upload packaged archive to release
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
         shell: bash
         run: gh release upload "$GITHUB_REF_NAME" dist/release/*.zip --clobber
+
+      - name: Upload preflight package artifact
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Synthesia2MIDI-${{ runner.os }}-${{ github.sha }}
+          path: dist/release/*.zip
+          if-no-files-found: error
+          retention-days: 7

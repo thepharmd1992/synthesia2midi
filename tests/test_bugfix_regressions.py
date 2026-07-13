@@ -30,17 +30,19 @@ from synthesia2midi.workflows.calibration import CalibrationWorkflow
 from synthesia2midi.utils import ffmpeg_helper
 
 
-def test_startup_youtube_choice_closes_startup_dialog_before_emitting_download_signal():
+def test_startup_youtube_choice_keeps_startup_dialog_open_while_download_is_pending():
     QApplication.instance() or QApplication([])
     dialog = StartupDialog()
     emitted_results = []
+    finished = []
 
     dialog.download_from_youtube.connect(lambda: emitted_results.append(dialog.result()))
+    dialog.finished.connect(finished.append)
 
     dialog._on_youtube_clicked()
 
-    assert emitted_results == [QDialog.Accepted]
-    assert dialog.result() == QDialog.Accepted
+    assert emitted_results == [QDialog.Rejected]
+    assert finished == []
 
 
 def test_youtube_download_dialog_closes_before_emitting_load_signal(monkeypatch, tmp_path):

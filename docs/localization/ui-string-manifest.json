@@ -2091,7 +2091,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 153,
+      "line": 151,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/main.py",
@@ -2379,7 +2379,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 607,
+      "line": 643,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/main.py",
@@ -2496,7 +2496,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 599,
+      "line": 635,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/main.py",
@@ -2505,7 +2505,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 525,
+      "line": 561,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/main.py",
@@ -2595,7 +2595,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 147,
+      "line": 143,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/main.py",
@@ -3063,7 +3063,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 197,
+      "line": 195,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/startup_dialog.py",
@@ -3648,7 +3648,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 509,
+      "line": 545,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/main.py",
@@ -3792,7 +3792,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 66,
+      "line": 77,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/video_session_ui_controller.py",
@@ -3918,7 +3918,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 36,
+      "line": 45,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/video_session_ui_controller.py",
@@ -3927,7 +3927,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 149,
+      "line": 145,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/main.py",
@@ -4458,7 +4458,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 198,
+      "line": 196,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/startup_dialog.py",
@@ -4593,7 +4593,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 606,
+      "line": 642,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/main.py",
@@ -4602,7 +4602,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 598,
+      "line": 634,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/main.py",
@@ -4611,7 +4611,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 591,
+      "line": 627,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/main.py",
@@ -4836,7 +4836,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 518,
+      "line": 554,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/main.py",
@@ -5619,7 +5619,7 @@
     {
       "classification": "translate",
       "context": "translate",
-      "line": 39,
+      "line": 48,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/video_session_ui_controller.py",
@@ -5880,7 +5880,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 592,
+      "line": 628,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/main.py",
@@ -5925,7 +5925,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 533,
+      "line": 569,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/main.py",
@@ -5988,7 +5988,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 205,
+      "line": 203,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/startup_dialog.py",
@@ -5997,7 +5997,7 @@
     {
       "classification": "translate",
       "context": "QCoreApplication.translate",
-      "line": 210,
+      "line": 208,
       "origin": "static",
       "role": "arg1",
       "source": "synthesia2midi/synthesia2midi/gui/startup_dialog.py",

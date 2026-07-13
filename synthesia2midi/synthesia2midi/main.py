@@ -154,6 +154,17 @@ class Video2MidiApp(QMainWindow, UIUpdateInterface):
         youtube_action.triggered.connect(self.video_session_ui_controller.show_youtube_download_dialog)
         filemenu.addAction(youtube_action)
 
+        self.open_midi_touchup_action = QAction(
+            QCoreApplication.translate(
+                "Video2MidiApp", "Open MIDI in Touch-Up Editor..."
+            ),
+            self,
+        )
+        self.open_midi_touchup_action.triggered.connect(
+            self.midi_touchup_controller.open_from_picker
+        )
+        filemenu.addAction(self.open_midi_touchup_action)
+
         save_action = QAction(QCoreApplication.translate("Video2MidiApp", "Save Settings"), self)
         save_action.setShortcut(QKeySequence.StandardKey.Save)
         save_action.triggered.connect(self._save_settings)

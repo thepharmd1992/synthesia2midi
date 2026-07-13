@@ -198,6 +198,8 @@ def test_main_menu_separates_primary_files_from_advanced_diagnostics(monkeypatch
 
         file_labels = [action.text() for action in app.file_menu.actions()]
         assert "Open Video File..." in file_labels
+        assert "Open MIDI in Touch-Up Editor..." in file_labels
+        assert app.open_midi_touchup_action in app.file_menu.actions()
         assert "Open Video (MP4)..." not in file_labels
         assert "Save Settings" in file_labels
         assert all("Ctrl+S" not in label for label in file_labels)
@@ -215,6 +217,25 @@ def test_main_menu_separates_primary_files_from_advanced_diagnostics(monkeypatch
             "Enable Visual Threshold Monitor",
             "Capture Window Screenshot",
         ]
+    finally:
+        app.close()
+
+
+def test_file_menu_touchup_action_opens_existing_midi_picker(monkeypatch):
+    calls = []
+    monkeypatch.setattr(
+        "synthesia2midi.gui.midi_touchup_controller.QFileDialog.getOpenFileName",
+        lambda parent, title, start_dir, filters: calls.append(
+            (parent, title, start_dir, filters)
+        ) or ("", ""),
+    )
+    app = _make_app(monkeypatch)
+    try:
+        app.open_midi_touchup_action.trigger()
+
+        assert len(calls) == 1
+        assert calls[0][0] is app
+        assert calls[0][1] == "Open MIDI for Touch-Up"
     finally:
         app.close()
 

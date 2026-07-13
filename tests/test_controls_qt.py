@@ -12,6 +12,7 @@ def test_edit_midi_button_emits_touchup_request_directly():
     emitted = []
 
     panel.midi_touchup_requested.connect(lambda: emitted.append(True))
+    assert panel.midi_touchup_button.text() == "Open Touch-Up Editor"
     panel.midi_touchup_button.click()
 
     assert emitted == [True]

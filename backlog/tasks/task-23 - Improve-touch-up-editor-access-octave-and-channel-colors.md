@@ -1,7 +1,7 @@
 ---
 id: TASK-23
 title: Improve touch-up editor access octave and channel colors
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-07-12 00:00'
 updated_date: '2026-07-12 00:00'

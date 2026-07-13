@@ -319,7 +319,9 @@ class ControlPanelQt(QWidget):
         )
         self.conversion_status.setWordWrap(True)
 
-        self.midi_touchup_button = QPushButton(QCoreApplication.translate("ControlPanelQt", "Edit MIDI"))
+        self.midi_touchup_button = QPushButton(
+            QCoreApplication.translate("ControlPanelQt", "Open Touch-Up Editor")
+        )
         self.midi_touchup_button.setObjectName("midi_touchup_button")
         self.midi_touchup_button.setMinimumHeight(36)
         self.midi_touchup_button.clicked.connect(self.midi_touchup_requested.emit)

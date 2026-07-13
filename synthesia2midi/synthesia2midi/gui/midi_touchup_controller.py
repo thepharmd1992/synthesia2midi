@@ -87,8 +87,8 @@ class MidiTouchupController(QObject):
 
     def open_from_picker(self) -> None:
         runtime_paths = detect_runtime_paths()
-        videos_dir = runtime_paths.default_video_dir()
-        start_dir = str(videos_dir if videos_dir.exists() else runtime_paths.home_dir)
+        exports_dir = runtime_paths.midi_exports_dir()
+        start_dir = str(exports_dir if exports_dir.exists() else runtime_paths.home_dir)
 
         midi_path, _ = QFileDialog.getOpenFileName(
             self.app,

@@ -84,6 +84,61 @@ def test_controller_is_qobject_and_exposes_lifecycle_signals():
         assert hasattr(controller, signal_name)
 
 
+def test_open_from_picker_prefers_midi_exports_directory(monkeypatch, tmp_path):
+    home = tmp_path / "home"
+    exports = home / "Desktop" / "Synthesia2MIDI MIDI Files"
+    exports.mkdir(parents=True)
+    runtime_paths = RuntimePaths(
+        frozen=False,
+        app_root=tmp_path,
+        repo_root=tmp_path,
+        home_dir=home,
+        platform_name="darwin",
+    )
+    calls = []
+    monkeypatch.setattr(
+        "synthesia2midi.gui.midi_touchup_controller.detect_runtime_paths",
+        lambda: runtime_paths,
+    )
+    monkeypatch.setattr(
+        "synthesia2midi.gui.midi_touchup_controller.QFileDialog.getOpenFileName",
+        lambda parent, title, start_dir, filters: calls.append(
+            (title, start_dir, filters)
+        ) or ("", ""),
+    )
+
+    MidiTouchupController(_fake_app()).open_from_picker()
+
+    assert calls[0][1] == str(exports)
+
+
+def test_open_from_picker_falls_back_to_home_directory(monkeypatch, tmp_path):
+    home = tmp_path / "home"
+    home.mkdir()
+    runtime_paths = RuntimePaths(
+        frozen=False,
+        app_root=tmp_path,
+        repo_root=tmp_path,
+        home_dir=home,
+        platform_name="darwin",
+    )
+    calls = []
+    monkeypatch.setattr(
+        "synthesia2midi.gui.midi_touchup_controller.detect_runtime_paths",
+        lambda: runtime_paths,
+    )
+    monkeypatch.setattr(
+        "synthesia2midi.gui.midi_touchup_controller.QFileDialog.getOpenFileName",
+        lambda parent, title, start_dir, filters: calls.append(
+            (title, start_dir, filters)
+        ) or ("", ""),
+    )
+
+    MidiTouchupController(_fake_app()).open_from_picker()
+
+    assert calls[0][1] == str(home)
+
+
 def test_open_editor_retains_process_and_emits_started_signal(monkeypatch, tmp_path):
     FakeProcess.instances.clear()
     midi_path = tmp_path / "song.mid"

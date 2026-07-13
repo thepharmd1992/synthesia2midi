@@ -55,6 +55,11 @@ def test_startup_dialog_explains_suitable_input_without_tooltip():
     QApplication.instance() or QApplication([])
     dialog = StartupDialog()
     try:
+        assert not hasattr(dialog, "midi_touchup_button")
+        assert [dialog.local_file_btn.text(), dialog.youtube_btn.text()] == [
+            "Open Video File",
+            "Download from YouTube",
+        ]
         assert dialog.input_cue_label.text() == (
             "Choose a Synthesia-style piano video with visible keys and falling notes."
         )

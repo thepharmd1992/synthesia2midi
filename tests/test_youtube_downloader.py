@@ -3,6 +3,8 @@ from pathlib import Path
 from synthesia2midi import youtube_downloader
 from synthesia2midi.youtube_downloader import (
     YouTubeDownloader,
+    _discover_js_runtimes,
+    _find_js_runtime_path,
     _youtube_ydl_opts,
     browser_cookie_args,
     _format_youtube_error,
@@ -10,6 +12,68 @@ from synthesia2midi.youtube_downloader import (
     _progress_percentage,
     should_retry_with_browser_cookies,
 )
+
+
+def test_runtime_discovery_skips_inaccessible_common_directory_and_finds_later_runtime(
+    monkeypatch, tmp_path
+):
+    inaccessible_dir = tmp_path / "inaccessible"
+    working_dir = tmp_path / "working"
+    working_dir.mkdir()
+    working_runtime = working_dir / "deno"
+    working_runtime.write_text("runtime")
+    working_runtime.chmod(0o755)
+
+    original_is_file = Path.is_file
+
+    def permission_aware_is_file(path):
+        if path.parent == inaccessible_dir:
+            raise PermissionError(13, "Permission denied", str(path))
+        return original_is_file(path)
+
+    class FakeRuntimePaths:
+        def deno_path(self):
+            return None
+
+    monkeypatch.setattr(Path, "is_file", permission_aware_is_file)
+    monkeypatch.setattr(youtube_downloader, "detect_runtime_paths", lambda: FakeRuntimePaths())
+    monkeypatch.setattr(youtube_downloader.shutil, "which", lambda name: None)
+    monkeypatch.setattr(
+        youtube_downloader,
+        "_COMMON_RUNTIME_DIRS",
+        (inaccessible_dir, working_dir),
+    )
+
+    assert _find_js_runtime_path("deno") == str(working_runtime)
+
+
+def test_runtime_discovery_keeps_bundled_deno_when_other_runtime_locations_are_inaccessible(
+    monkeypatch, tmp_path
+):
+    bundled_deno = tmp_path / "bundle" / "bin" / "deno"
+    inaccessible_dir = tmp_path / "inaccessible"
+
+    original_is_file = Path.is_file
+
+    def permission_aware_is_file(path):
+        if path.parent == inaccessible_dir:
+            raise PermissionError(13, "Permission denied", str(path))
+        return original_is_file(path)
+
+    class FakeRuntimePaths:
+        def deno_path(self):
+            return bundled_deno
+
+    monkeypatch.setattr(Path, "is_file", permission_aware_is_file)
+    monkeypatch.setattr(youtube_downloader, "detect_runtime_paths", lambda: FakeRuntimePaths())
+    monkeypatch.setattr(youtube_downloader.shutil, "which", lambda name: None)
+    monkeypatch.setattr(
+        youtube_downloader,
+        "_COMMON_RUNTIME_DIRS",
+        (inaccessible_dir,),
+    )
+
+    assert _discover_js_runtimes() == {"deno": {"path": str(bundled_deno)}}
 
 
 def test_get_video_info_enables_js_challenge_support(monkeypatch, tmp_path):
@@ -165,6 +229,56 @@ def test_download_video_only_enables_js_challenge_support_for_info_and_download(
     assert captured_opts[0]["remote_components"] == ["ejs:github"]
     assert captured_opts[1]["js_runtimes"] == {"node": {"path": "/fake/node"}}
     assert captured_opts[1]["remote_components"] == ["ejs:github"]
+
+
+def test_download_retries_media_403_with_embedded_youtube_client(monkeypatch, tmp_path):
+    captured_opts = []
+    statuses = []
+
+    class FakeYoutubeDL:
+        def __init__(self, opts):
+            self.opts = opts
+            captured_opts.append(opts)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def extract_info(self, url, download=False):
+            if not download:
+                return {
+                    "title": "Mary had a little lamb",
+                    "id": "SFFSZQCnU_M",
+                    "formats": [
+                        {"height": 480, "vcodec": "h264", "acodec": "none", "ext": "mp4"},
+                    ],
+                }
+            if self.opts.get("extractor_args") != {
+                "youtube": {"player_client": ["web_embedded"]}
+            }:
+                raise Exception("ERROR: unable to download video data: HTTP Error 403: Forbidden")
+            return {"title": "Mary had a little lamb", "id": "SFFSZQCnU_M"}
+
+        def prepare_filename(self, info):
+            return str(Path(self.opts["outtmpl"]).with_suffix(".mp4"))
+
+    monkeypatch.setattr(youtube_downloader.yt_dlp, "YoutubeDL", FakeYoutubeDL)
+
+    output_path = YouTubeDownloader(
+        str(tmp_path),
+        status_callback=statuses.append,
+    ).download_video_only("https://www.youtube.com/watch?v=SFFSZQCnU_M")
+
+    assert output_path.endswith("mary_had_a_little_lamb_480p.mp4")
+    assert captured_opts[1].get("extractor_args") is None
+    assert captured_opts[2]["extractor_args"] == {
+        "youtube": {"player_client": ["web_embedded"]}
+    }
+    assert statuses == [
+        "YouTube rejected the initial media URL. Retrying with an alternate YouTube client..."
+    ]
 
 
 def test_download_reuses_cookie_browser_after_info_retry(monkeypatch, tmp_path):
@@ -396,6 +510,9 @@ def test_youtube_error_messages_distinguish_common_failure_modes():
         Exception("This video is not available in your country")
     )
     assert "network or proxy" in _format_youtube_error(Exception("Unable to download webpage"))
+    forbidden_message = _format_youtube_error(Exception("HTTP Error 403: Forbidden"))
+    assert "YouTube rejected" in forbidden_message
+    assert "network or proxy" not in forbidden_message
 
 
 def test_cookie_browser_helpers_cover_supported_policy():

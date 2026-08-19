@@ -42,18 +42,31 @@ def _ensure_cert_store():
 
 def _find_js_runtime_path(runtime: str) -> Optional[str]:
     if runtime == "deno":
-        deno_path = detect_runtime_paths().deno_path()
+        try:
+            deno_path = detect_runtime_paths().deno_path()
+        except OSError as exc:
+            logging.debug("Skipping inaccessible Deno runtime candidate: %s", exc)
+            deno_path = None
         if deno_path is not None:
             return str(deno_path)
 
-    runtime_path = shutil.which(runtime)
+    try:
+        runtime_path = shutil.which(runtime)
+    except OSError as exc:
+        logging.debug("Could not search PATH for JavaScript runtime %s: %s", runtime, exc)
+        runtime_path = None
     if runtime_path:
         return runtime_path
 
     executable_name = f"{runtime}.exe" if os.name == "nt" else runtime
     for directory in _COMMON_RUNTIME_DIRS:
         candidate = directory / executable_name
-        if candidate.is_file() and os.access(candidate, os.X_OK):
+        try:
+            is_executable = candidate.is_file() and os.access(candidate, os.X_OK)
+        except OSError as exc:
+            logging.debug("Skipping inaccessible JavaScript runtime candidate %s: %s", candidate, exc)
+            continue
+        if is_executable:
             return str(candidate)
 
     return None
@@ -98,6 +111,11 @@ def should_retry_with_lower_quality(error: str | Exception) -> bool:
     return "requested format is not available" in str(error).lower()
 
 
+def should_retry_with_embedded_client(error: str | Exception) -> bool:
+    normalized = str(error).lower()
+    return "http error 403" in normalized or "403: forbidden" in normalized
+
+
 def _youtube_ydl_opts(base_opts: Dict[str, Any], *, browser_cookie: str | None = None) -> Dict[str, Any]:
     opts = dict(base_opts)
     ffmpeg_path = detect_runtime_paths().ffmpeg_path()
@@ -119,6 +137,11 @@ def _format_youtube_error(error: Exception) -> str:
     normalized = message.lower()
     if "requested format is not available" in normalized:
         return f"{message}. This video does not offer that quality."
+    if should_retry_with_embedded_client(error):
+        return (
+            f"{message}. YouTube rejected the media request. "
+            "This can happen when YouTube requires additional playback authorization."
+        )
     if (
         "sign in" in normalized
         or "cookies" in normalized
@@ -540,9 +563,14 @@ class YouTubeDownloader:
         if target_path.exists() and not overwrite:
             return str(target_path)
         
-        def perform_download(attempt_quality: str, browser_cookie: str | None) -> str:
+        def perform_download(
+            attempt_quality: str,
+            browser_cookie: str | None,
+            *,
+            player_client: str | None = None,
+        ) -> str:
             attempt_height = self.QUALITY_PRESETS[attempt_quality]['height']
-            ydl_opts = _youtube_ydl_opts({
+            base_opts = {
                 'outtmpl': str(video_folder / f'{folder_name}_{attempt_quality}.%(ext)s'),
                 # Select best video format up to specified quality, prefer mp4
                 'format': f'bestvideo[height<={attempt_height}][ext=mp4]/bestvideo[height<={attempt_height}]',
@@ -553,7 +581,12 @@ class YouTubeDownloader:
                     'key': 'FFmpegVideoConvertor',
                     'preferedformat': 'mp4',  # Convert to mp4 if needed
                 }],
-            }, browser_cookie=browser_cookie)
+            }
+            if player_client:
+                base_opts['extractor_args'] = {
+                    'youtube': {'player_client': [player_client]},
+                }
+            ydl_opts = _youtube_ydl_opts(base_opts, browser_cookie=browser_cookie)
 
             if progress_hook:
                 ydl_opts['progress_hooks'] = [progress_hook]
@@ -568,11 +601,19 @@ class YouTubeDownloader:
                         filename = mp4_path
                 return filename
 
-        def attempt_download_with_quality_fallback(browser_cookie: str | None) -> str:
+        def attempt_download_with_quality_fallback(
+            browser_cookie: str | None,
+            *,
+            player_client: str | None = None,
+        ) -> str:
             last_error: Exception | None = None
             for attempt_quality in self._quality_fallback_chain(quality):
                 try:
-                    return perform_download(attempt_quality, browser_cookie)
+                    return perform_download(
+                        attempt_quality,
+                        browser_cookie,
+                        player_client=player_client,
+                    )
                 except Exception as exc:
                     last_error = exc
                     if not should_retry_with_lower_quality(exc) or attempt_quality == QUALITY_ORDER[-1]:
@@ -585,11 +626,26 @@ class YouTubeDownloader:
                 raise last_error
             raise Exception("Download failed")
 
+        def attempt_download_with_client_fallback(browser_cookie: str | None) -> str:
+            try:
+                return attempt_download_with_quality_fallback(browser_cookie)
+            except Exception as exc:
+                if browser_cookie is not None or not should_retry_with_embedded_client(exc):
+                    raise
+                self._emit_status(
+                    "YouTube rejected the initial media URL. "
+                    "Retrying with an alternate YouTube client..."
+                )
+                return attempt_download_with_quality_fallback(
+                    None,
+                    player_client="web_embedded",
+                )
+
         try:
             if info_browser is not None:
                 return attempt_download_with_quality_fallback(info_browser)
             filename, _cookie_browser = self._with_cookie_retry(
-                attempt_download_with_quality_fallback,
+                attempt_download_with_client_fallback,
                 status_message="Download failed.",
             )
             return filename

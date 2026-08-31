@@ -40,7 +40,7 @@ Backlog and Spec Kit workflow adoption: root `AGENTS.md` remains the canonical a
 
 ## Active Task
 
-TASK-1 Backlog/Spec Kit setup is complete. Future non-trivial work should start from a Backlog task and use Spec Kit only when the implementation needs formal specs/plans/tasks.
+TASK-26 is in progress on `001-release-recovery`: repair packaged helper resolution and validation, publish verified v0.2.2, fix Guide alignment review and Unicode MIDI metadata, then reconcile TASK-9. Issue #6 is out of scope because its requested range/trim behavior already exists.
 
 ## Blockers
 

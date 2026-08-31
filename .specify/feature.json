@@ -1,4 +1,4 @@
 {
-  "active": false,
-  "feature_directory": null
+  "active": true,
+  "feature_directory": "specs/001-release-recovery"
 }

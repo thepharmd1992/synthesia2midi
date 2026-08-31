@@ -10,16 +10,17 @@ from synthesia2midi.package_self_check import (
 from synthesia2midi.runtime_paths import RuntimePaths
 
 
-def _package_paths(tmp_path: Path) -> RuntimePaths:
+def _package_paths(tmp_path: Path, platform_name: str = "linux") -> RuntimePaths:
     app_root = tmp_path / "app"
     bundle_root = app_root / "_internal"
     bin_root = bundle_root / "bin"
     asset_root = bundle_root / "assets" / "soundfonts"
     bin_root.mkdir(parents=True)
     asset_root.mkdir(parents=True)
+    native_header = b"\xcf\xfa\xed\xfe" if platform_name == "darwin" else b"\x7fELF"
     for name in ("ffmpeg", "ffprobe", "deno", "midi-touchup-editor"):
         binary = bin_root / name
-        binary.write_bytes(b"executable")
+        binary.write_bytes(native_header + b"executable")
         binary.chmod(0o755)
     (asset_root / "TouchUpPiano.sf2").write_bytes(b"soundfont")
     (asset_root / "TouchUpPiano_LICENSE.txt").write_text("license", encoding="utf-8")
@@ -28,7 +29,7 @@ def _package_paths(tmp_path: Path) -> RuntimePaths:
         app_root=app_root,
         repo_root=tmp_path / "repo",
         home_dir=tmp_path / "home",
-        platform_name="linux",
+        platform_name=platform_name,
         bundle_root=bundle_root,
     )
 
@@ -106,6 +107,25 @@ def test_system_helper_cannot_make_frozen_package_self_check_pass(tmp_path):
     assert ffmpeg_check["packaged"] is False
     assert "package" in ffmpeg_check["detail"].lower()
     assert all(command[0] != str(external) for command, _kwargs in calls)
+
+
+def test_macos_script_launcher_fails_before_probe(tmp_path):
+    paths = _package_paths(tmp_path, platform_name="darwin")
+    wrapper = paths.ffmpeg_path()
+    assert wrapper is not None
+    wrapper.write_text("#!/build-machine/python\n", encoding="utf-8")
+    calls = []
+
+    report = build_package_self_check_report(
+        paths,
+        run_probe=_successful_runner(calls),
+    )
+
+    ffmpeg_check = report["checks"][0]
+    assert report["status"] == "failed"
+    assert ffmpeg_check["status"] == "failed"
+    assert "Mach-O" in ffmpeg_check["detail"]
+    assert all(command[0] != str(wrapper) for command, _kwargs in calls)
 
 
 def test_nonzero_and_timed_out_helpers_fail_report(tmp_path):

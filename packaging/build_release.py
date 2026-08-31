@@ -32,6 +32,7 @@ BUILD_REQUIREMENTS = ROOT / "packaging" / "requirements-build.txt"
 PACKAGE_SELF_CHECK_TIMEOUT_SECONDS = 60
 
 sys.path.insert(0, str(PACKAGE_ROOT))
+from synthesia2midi.binary_payload import native_binary_issue  # noqa: E402
 from synthesia2midi.version import DEFAULT_APP_VERSION, RELEASE_APP_NAME, normalize_release_version  # noqa: E402
 
 
@@ -160,13 +161,24 @@ def _resolve_chocolatey_binary(name: str, resolved: Path) -> Path:
     return candidates[0]
 
 
+def validate_native_binary(path: Path) -> None:
+    issue = native_binary_issue(path, sys.platform)
+    if issue is not None:
+        raise ReleaseBuildError(f"Required helper is not redistributable: {path}: {issue}")
+
+
 def ensure_ffmpeg_binary(name: str) -> Path:
-    resolved = shutil.which(name)
+    override_name = f"S2M_{name.upper()}_PATH"
+    resolved = os.getenv(override_name) or shutil.which(name)
     if not resolved:
-        raise ReleaseBuildError(f"Required binary `{name}` was not found on PATH.")
+        raise ReleaseBuildError(
+            f"Required binary `{name}` was not found on PATH or in {override_name}."
+        )
     binary = Path(resolved).resolve()
+    require_file(binary, f"Configured `{name}` binary does not exist: {binary}")
     if sys.platform.startswith("win"):
         binary = _resolve_chocolatey_binary(name, binary)
+    validate_native_binary(binary)
     probe_binary(binary, "-version")
     return binary
 
@@ -459,6 +471,10 @@ def main() -> int:
     ffprobe = stage_binary(ensure_ffmpeg_binary("ffprobe"), "ffprobe")
     deno = stage_binary(ensure_deno(), "deno")
     rust_editor = stage_binary(rust_editor, "midi-touchup-editor")
+    validate_native_binary(ffmpeg)
+    validate_native_binary(ffprobe)
+    validate_native_binary(deno)
+    validate_native_binary(rust_editor)
     probe_binary(ffmpeg, "-version")
     probe_binary(ffprobe, "-version")
     probe_binary(deno, "--version")

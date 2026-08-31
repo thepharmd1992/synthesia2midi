@@ -7,6 +7,7 @@ import subprocess
 from pathlib import Path
 from typing import Any, Callable, Sequence
 
+from synthesia2midi.binary_payload import native_binary_issue
 from synthesia2midi.runtime_paths import RuntimePaths
 
 
@@ -73,6 +74,7 @@ def _check_binary(
     path: Path | None,
     probe: Sequence[str],
     ownership_root: Path | None,
+    platform_name: str,
     run_probe: ProbeRunner,
     timeout_seconds: int,
 ) -> dict[str, Any]:
@@ -89,6 +91,10 @@ def _check_binary(
         return check
     if not packaged:
         check["detail"] = "resolved binary is outside the package ownership root"
+        return check
+    payload_issue = native_binary_issue(path, platform_name)
+    if payload_issue is not None:
+        check["detail"] = payload_issue
         return check
 
     command = [str(path), *probe]
@@ -166,6 +172,7 @@ def build_package_self_check_report(
             path=path,
             probe=probe,
             ownership_root=ownership_root,
+            platform_name=runtime_paths.platform_name,
             run_probe=runner,
             timeout_seconds=timeout_seconds,
         )

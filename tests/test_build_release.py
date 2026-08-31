@@ -106,7 +106,7 @@ def test_windows_chocolatey_shim_resolves_to_real_ffmpeg(monkeypatch, tmp_path):
     shim.parent.mkdir(parents=True)
     real.parent.mkdir(parents=True)
     shim.write_bytes(b"shim")
-    real.write_bytes(b"real")
+    real.write_bytes(b"MZreal")
     probes = []
 
     monkeypatch.setattr(module.sys, "platform", "win32")
@@ -137,6 +137,61 @@ def test_windows_chocolatey_target_resolution_fails_closed_when_ambiguous(monkey
 
     with pytest.raises(module.ReleaseBuildError, match="unambiguous"):
         module.ensure_ffmpeg_binary("ffprobe")
+
+
+def test_windows_chocolatey_shim_payload_is_rejected(monkeypatch, tmp_path):
+    module = _load_module("build_release_choco_payload", ROOT / "packaging" / "build_release.py")
+    shim = tmp_path / "ffmpeg.exe"
+    marker = "ShimGen generated shim - Chocolatey Shim".encode("utf-16-le")
+    shim.write_bytes(b"MZ" + marker)
+
+    monkeypatch.setattr(module.sys, "platform", "win32")
+
+    with pytest.raises(module.ReleaseBuildError, match="ShimGen"):
+        module.validate_native_binary(shim)
+
+
+def test_macos_ffmpeg_python_launcher_is_rejected_even_when_it_runs_locally(
+    monkeypatch,
+    tmp_path,
+):
+    module = _load_module("build_release_macos_wrapper", ROOT / "packaging" / "build_release.py")
+    wrapper = tmp_path / "ffmpeg"
+    wrapper.write_text("#!/build-machine/python\nprint('ffmpeg version')\n", encoding="utf-8")
+    wrapper.chmod(0o755)
+
+    monkeypatch.setattr(module.sys, "platform", "darwin")
+    monkeypatch.setattr(module.shutil, "which", lambda _name: str(wrapper))
+    monkeypatch.setattr(
+        module,
+        "probe_binary",
+        lambda *_args, **_kwargs: pytest.fail("a non-native wrapper must not be probed"),
+    )
+
+    with pytest.raises(module.ReleaseBuildError, match="Mach-O"):
+        module.ensure_ffmpeg_binary("ffmpeg")
+
+
+def test_macos_ffmpeg_explicit_native_override_is_accepted(monkeypatch, tmp_path):
+    module = _load_module("build_release_macos_override", ROOT / "packaging" / "build_release.py")
+    native = tmp_path / "ffmpeg-native"
+    native.write_bytes(b"\xcf\xfa\xed\xfe" + b"native")
+    native.chmod(0o755)
+    probes = []
+
+    monkeypatch.setattr(module.sys, "platform", "darwin")
+    monkeypatch.setenv("S2M_FFMPEG_PATH", str(native))
+    monkeypatch.setattr(
+        module.shutil,
+        "which",
+        lambda _name: pytest.fail("the explicit override should be preferred"),
+    )
+    monkeypatch.setattr(module, "probe_binary", lambda path, *args: probes.append((path, args)))
+
+    resolved = module.ensure_ffmpeg_binary("ffmpeg")
+
+    assert resolved == native
+    assert probes == [(native, ("-version",))]
 
 
 def test_probe_binary_rejects_nonzero_helper(monkeypatch, tmp_path):

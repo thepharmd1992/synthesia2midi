@@ -6,7 +6,7 @@ from synthesia2midi.version import (
 
 
 def test_default_app_version_tracks_next_release():
-    assert DEFAULT_APP_VERSION == "0.2.1-dev"
+    assert DEFAULT_APP_VERSION == "0.2.2-dev"
 
 
 def test_normalize_release_version_accepts_tag_and_version():

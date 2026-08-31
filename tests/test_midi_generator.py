@@ -59,6 +59,50 @@ def test_midi_writer_adds_one_channel_color_text_event():
     assert text_events[0].text.decode("ascii").startswith(COLOR_MAP_META_PREFIX)
 
 
+@pytest.mark.parametrize(
+    ("source_name", "expected_name"),
+    [
+        ("ordinary-song.mp4 MIDI", "ordinary-song.mp4 MIDI"),
+        ("Café.mp4 MIDI", "Café.mp4 MIDI"),
+        ("Cafe\u0301.mp4 MIDI", "Café.mp4 MIDI"),
+        ("song：title.mp4 MIDI", "song:title.mp4 MIDI"),
+        ("钢琴😀.mp4 MIDI", "???.mp4 MIDI"),
+    ],
+)
+def test_track_name_accepts_arbitrary_unicode_with_deterministic_fallback(
+    source_name, expected_name
+):
+    writer = MidiWriter(midi_file_format=1)
+
+    writer.set_track_name(0, 0, source_name)
+
+    track_name_event = next(
+        event
+        for track in writer.mf.tracks
+        for event in track.eventList
+        if type(event).__name__ == "TrackName"
+    )
+    assert writer.miditrackname == expected_name
+    assert track_name_event.trackName.decode("ISO-8859-1") == expected_name
+
+
+@pytest.mark.parametrize("source_name", ["song：title.mp4 MIDI", "钢琴😀.mp4 MIDI"])
+def test_midi_writer_saves_after_international_track_name_normalization(
+    tmp_path, source_name
+):
+    output = tmp_path / "国际😀.mid"
+    writer = MidiWriter(midi_file_format=1)
+    writer.set_track_name(0, 0, source_name)
+    writer.set_tempo(0, 0, 120)
+    writer.add_note_on(0, 0, 0.0, 60)
+    writer.add_note_off(0, 0, 1.0, 60)
+
+    success, message = writer.save_to_disk(str(output))
+
+    assert success, message
+    assert output.is_file()
+
+
 def test_midi_writer_saves_when_filename_has_no_directory(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     writer = MidiWriter(midi_file_format=1)

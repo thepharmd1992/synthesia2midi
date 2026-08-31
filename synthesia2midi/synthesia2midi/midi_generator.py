@@ -15,6 +15,7 @@ Features:
 import json
 import os
 import logging
+import unicodedata
 from collections.abc import Mapping, Sequence
 from midiutil.MidiFile import MIDIFile # type: ignore
 from typing import List, Dict, Tuple
@@ -106,8 +107,13 @@ class MidiWriter:
 
     def set_track_name(self, track: int, time: float, name: str) -> None:
         """Sets the name for a given track."""
-        self.miditrackname = name # Store for reference, though MIDIFile handles internal name
-        self.mf.addTrackName(track, time, name)
+        safe_name = (
+            unicodedata.normalize("NFKC", name)
+            .encode("ISO-8859-1", errors="replace")
+            .decode("ISO-8859-1")
+        )
+        self.miditrackname = safe_name
+        self.mf.addTrackName(track, time, safe_name)
 
     def set_tempo(self, track: int, time: float, tempo: int) -> None:
         """Sets the tempo for a given track."""

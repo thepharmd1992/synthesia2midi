@@ -87,13 +87,13 @@ colon, CJK, and emoji names and save each MIDI file without an encoding exceptio
 
 ### Tests for User Story 3
 
-- [ ] T023 [US3] Add failing parameterized normalization, MIDIUtil event, and save regressions for representative names in `tests/test_midi_generator.py`
+- [x] T023 [US3] Add failing parameterized normalization, MIDIUtil event, and save regressions for representative names in `tests/test_midi_generator.py`
 
 ### Implementation for User Story 3
 
-- [ ] T024 [US3] Normalize track names with NFKC and deterministic ISO-8859-1 replacement before passing them to MIDIUtil in `synthesia2midi/synthesia2midi/midi_generator.py`
-- [ ] T025 [US3] Update the development version to `0.2.2-dev` and its regression in `synthesia2midi/synthesia2midi/version.py` and `tests/test_version.py`
-- [ ] T026 [US3] Run focused MIDI/version tests and create a Unicode metadata checkpoint commit after they pass
+- [x] T024 [US3] Normalize track names with NFKC and deterministic ISO-8859-1 replacement before passing them to MIDIUtil in `synthesia2midi/synthesia2midi/midi_generator.py`
+- [x] T025 [US3] Update the development version to `0.2.2-dev` and its regression in `synthesia2midi/synthesia2midi/version.py` and `tests/test_version.py`
+- [x] T026 [US3] Run focused MIDI/version tests and create a Unicode metadata checkpoint commit after they pass
 
 **Checkpoint**: International names no longer abort conversion and ASCII metadata
 is unchanged.

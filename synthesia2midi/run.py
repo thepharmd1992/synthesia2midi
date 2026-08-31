@@ -16,12 +16,16 @@ if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
 from synthesia2midi.runtime_paths import detect_runtime_paths
+from synthesia2midi.package_self_check import maybe_run_package_self_check
 from synthesia2midi.version import APP_VERSION, RELEASE_APP_NAME
+
+runtime_paths = detect_runtime_paths()
+package_self_check_exit = maybe_run_package_self_check(sys.argv[1:], runtime_paths)
+if package_self_check_exit is not None:
+    raise SystemExit(package_self_check_exit)
 
 # Centralized logging (single folder + single file per run)
 from synthesia2midi.core.logging_config import LoggingConfig
-
-runtime_paths = detect_runtime_paths()
 
 log_file = LoggingConfig.setup_logging(
     log_to_file=True,

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import shutil
 import subprocess
@@ -27,6 +28,8 @@ SOUNDFONT_LICENSE = RUST_EDITOR_DIR / "assets" / "soundfonts" / "TouchUpPiano_LI
 THIRD_PARTY_NOTICES = ROOT / "THIRD_PARTY_NOTICES.md"
 LICENSE_FILE = ROOT / "LICENSE"
 README_FILE = ROOT / "README.md"
+BUILD_REQUIREMENTS = ROOT / "packaging" / "requirements-build.txt"
+PACKAGE_SELF_CHECK_TIMEOUT_SECONDS = 60
 
 sys.path.insert(0, str(PACKAGE_ROOT))
 from synthesia2midi.version import DEFAULT_APP_VERSION, RELEASE_APP_NAME, normalize_release_version  # noqa: E402
@@ -89,7 +92,17 @@ def ensure_venv_python() -> Path:
 
 
 def ensure_pyinstaller(venv_python: Path) -> None:
-    run([str(venv_python), "-m", "pip", "install", "pyinstaller"])
+    require_file(BUILD_REQUIREMENTS, f"Missing packaging requirements: {BUILD_REQUIREMENTS}")
+    run(
+        [
+            str(venv_python),
+            "-m",
+            "pip",
+            "install",
+            "--requirement",
+            str(BUILD_REQUIREMENTS),
+        ]
+    )
 
 
 def ensure_rust_editor() -> Path:
@@ -97,11 +110,65 @@ def ensure_rust_editor() -> Path:
     return require_file(RUST_EDITOR_BINARY, f"Rust editor binary was not built: {RUST_EDITOR_BINARY}")
 
 
+def probe_binary(path: Path, *args: str, timeout_seconds: int = 20) -> None:
+    command = [str(path), *args]
+    try:
+        completed = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            timeout=timeout_seconds,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise ReleaseBuildError(f"Required binary probe failed for {path}: {exc}") from exc
+    if completed.returncode != 0:
+        detail = (completed.stderr or completed.stdout or "no diagnostic output").strip()
+        raise ReleaseBuildError(
+            f"Required binary probe failed for {path} with code "
+            f"{completed.returncode}: {detail}"
+        )
+
+
+def _is_same_path(left: Path, right: Path) -> bool:
+    return os.path.normcase(str(left.resolve())) == os.path.normcase(str(right.resolve()))
+
+
+def _resolve_chocolatey_binary(name: str, resolved: Path) -> Path:
+    chocolatey_install = os.getenv("ChocolateyInstall")
+    if not chocolatey_install:
+        return resolved
+    chocolatey_root = Path(chocolatey_install).resolve()
+    if not _is_same_path(resolved.parent, chocolatey_root / "bin"):
+        return resolved
+
+    search_root = chocolatey_root / "lib" / "ffmpeg" / "tools"
+    candidates = sorted(
+        {
+            candidate.resolve()
+            for candidate in search_root.rglob(f"{name}.exe")
+            if candidate.is_file() and not _is_same_path(candidate, resolved)
+        },
+        key=lambda candidate: str(candidate).lower(),
+    )
+    if len(candidates) != 1:
+        rendered = ", ".join(str(candidate) for candidate in candidates) or "none"
+        raise ReleaseBuildError(
+            f"Could not identify one unambiguous real Chocolatey `{name}` binary; "
+            f"found: {rendered}"
+        )
+    return candidates[0]
+
+
 def ensure_ffmpeg_binary(name: str) -> Path:
     resolved = shutil.which(name)
     if not resolved:
         raise ReleaseBuildError(f"Required binary `{name}` was not found on PATH.")
-    return Path(resolved).resolve()
+    binary = Path(resolved).resolve()
+    if sys.platform.startswith("win"):
+        binary = _resolve_chocolatey_binary(name, binary)
+    probe_binary(binary, "-version")
+    return binary
 
 
 def _binary_name(stem: str) -> str:
@@ -274,10 +341,12 @@ def raw_mac_app() -> Path:
     return pyinstaller_dist_dir() / f"{RELEASE_APP_NAME}.app"
 
 
-def stage_release_bundle(tag_label: str) -> tuple[Path, Path]:
+def stage_release_bundle(tag_label: str) -> Path:
     stem = archive_stem(tag_label)
     stage_dir = DIST_ROOT / stem
+    archive_path = DIST_ROOT / f"{stem}.zip"
     shutil.rmtree(stage_dir, ignore_errors=True)
+    archive_path.unlink(missing_ok=True)
     stage_dir.mkdir(parents=True, exist_ok=True)
 
     if sys.platform == "darwin":
@@ -294,15 +363,56 @@ def stage_release_bundle(tag_label: str) -> tuple[Path, Path]:
     shutil.copy2(LICENSE_FILE, stage_dir / LICENSE_FILE.name)
     shutil.copy2(THIRD_PARTY_NOTICES, stage_dir / THIRD_PARTY_NOTICES.name)
     shutil.copy2(README_FILE, stage_dir / README_FILE.name)
+    return stage_dir
 
-    archive_path = Path(shutil.make_archive(str(stage_dir), "zip", DIST_ROOT, stage_dir.name))
-    return stage_dir, archive_path
+
+def archive_release_bundle(stage_dir: Path) -> Path:
+    return Path(shutil.make_archive(str(stage_dir), "zip", DIST_ROOT, stage_dir.name))
 
 
 def smoke_executable_path(stage_dir: Path) -> Path:
     if sys.platform == "darwin":
         return stage_dir / f"{RELEASE_APP_NAME}.app" / "Contents" / "MacOS" / RELEASE_APP_NAME
     return stage_dir / RELEASE_APP_NAME / f"{RELEASE_APP_NAME}.exe"
+
+
+def package_self_check(stage_dir: Path) -> None:
+    executable = smoke_executable_path(stage_dir)
+    require_file(executable, f"Package-self-check target is missing: {executable}")
+    report_path = BUILD_ROOT / f"package-self-check-{platform_slug()}.json"
+    report_path.unlink(missing_ok=True)
+    try:
+        completed = subprocess.run(
+            [str(executable), "--package-self-check", str(report_path)],
+            cwd=stage_dir,
+            capture_output=True,
+            text=True,
+            timeout=PACKAGE_SELF_CHECK_TIMEOUT_SECONDS,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise ReleaseBuildError(f"Packaged application self-check could not run: {exc}") from exc
+
+    if not report_path.is_file():
+        detail = (completed.stderr or completed.stdout or "no diagnostic output").strip()
+        raise ReleaseBuildError(
+            "Packaged application self-check did not write its report"
+            f" (exit {completed.returncode}): {detail}"
+        )
+    try:
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ReleaseBuildError(f"Packaged application self-check report is invalid: {exc}") from exc
+
+    errors = report.get("errors")
+    if report.get("schema_version") != 1 or report.get("status") != "passed":
+        detail = "; ".join(str(error) for error in errors or []) or "unknown failure"
+        raise ReleaseBuildError(f"Packaged application self-check failed: {detail}")
+    if completed.returncode != 0:
+        raise ReleaseBuildError(
+            f"Packaged application self-check exited with code {completed.returncode}"
+        )
+    print(f"Package self-check report: {report_path}")
 
 
 def smoke_launch(stage_dir: Path) -> None:
@@ -331,6 +441,13 @@ def smoke_launch(stage_dir: Path) -> None:
         process.wait(timeout=5)
 
 
+def finalize_release_bundle(stage_dir: Path, *, skip_smoke: bool) -> Path:
+    package_self_check(stage_dir)
+    if not skip_smoke:
+        smoke_launch(stage_dir)
+    return archive_release_bundle(stage_dir)
+
+
 def main() -> int:
     args = parse_args()
     version, tag_label = normalize_build_version(args.version)
@@ -342,6 +459,10 @@ def main() -> int:
     ffprobe = stage_binary(ensure_ffmpeg_binary("ffprobe"), "ffprobe")
     deno = stage_binary(ensure_deno(), "deno")
     rust_editor = stage_binary(rust_editor, "midi-touchup-editor")
+    probe_binary(ffmpeg, "-version")
+    probe_binary(ffprobe, "-version")
+    probe_binary(deno, "--version")
+    probe_binary(rust_editor, "--help")
     build_version_file = write_build_version_file(version)
     require_file(SOUNDFONT, f"Bundled soundfont is missing: {SOUNDFONT}")
     require_file(SOUNDFONT_LICENSE, f"Bundled soundfont license is missing: {SOUNDFONT_LICENSE}")
@@ -354,9 +475,8 @@ def main() -> int:
         rust_editor=rust_editor,
         build_version_file=build_version_file,
     )
-    stage_dir, archive_path = stage_release_bundle(tag_label)
-    if not args.skip_smoke:
-        smoke_launch(stage_dir)
+    stage_dir = stage_release_bundle(tag_label)
+    archive_path = finalize_release_bundle(stage_dir, skip_smoke=args.skip_smoke)
     if not args.keep_pyinstaller_output:
         shutil.rmtree(pyinstaller_dist_dir(), ignore_errors=True)
     print(f"Release bundle: {stage_dir}")

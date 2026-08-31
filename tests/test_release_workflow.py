@@ -15,7 +15,7 @@ def test_release_workflow_supports_nonpublishing_preflight_builds():
     assert 'branches:\n      - "codex/*-preflight"' in workflow
     assert "workflow_dispatch:" in workflow
     assert "version:" in workflow
-    assert "default: \"v0.2.1-dev\"" in workflow
+    assert "default: \"v0.2.2-dev\"" in workflow
     assert "actions/upload-artifact@v4" in workflow
     assert "retention-days: 7" in workflow
 
@@ -38,3 +38,10 @@ def test_release_workflow_uses_one_build_recipe_for_tags_and_preflights():
     assert "BUILD_VERSION" in workflow
     assert "github.event.inputs.version" in workflow
     assert "GITHUB_REF_NAME" in workflow
+
+
+def test_windows_release_uses_reviewed_ffmpeg_package_version():
+    workflow = _workflow_text()
+
+    assert "FFMPEG_CHOCO_VERSION: \"9.0.1\"" in workflow
+    assert 'choco install ffmpeg --version="$FFMPEG_CHOCO_VERSION"' in workflow

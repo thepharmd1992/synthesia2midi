@@ -29,21 +29,21 @@ report and prevent archive creation.
 
 ### Tests for User Story 1
 
-- [ ] T003 [US1] Add failing `_MEIPASS` detection, frozen bundle precedence, and macOS compatibility regressions in `tests/test_runtime_paths.py`
-- [ ] T004 [US1] Add failing package-owned path, helper probe, timeout, missing asset, report schema, and launcher-mode tests in `tests/test_package_self_check.py` and `tests/test_packaged_entrypoint.py`
-- [ ] T005 [US1] Add failing pinned-packager, Chocolatey real-target, dead-binary, self-check-before-archive, and archive rejection tests in `tests/test_build_release.py`
-- [ ] T006 [US1] Add failing workflow assertions for the pinned Windows FFmpeg package and next preflight version in `tests/test_release_workflow.py`
+- [x] T003 [US1] Add failing `_MEIPASS` detection, frozen bundle precedence, and macOS compatibility regressions in `tests/test_runtime_paths.py`
+- [x] T004 [US1] Add failing package-owned path, helper probe, timeout, missing asset, report schema, and launcher-mode tests in `tests/test_package_self_check.py` and `tests/test_packaged_entrypoint.py`
+- [x] T005 [US1] Add failing pinned-packager, Chocolatey real-target, dead-binary, self-check-before-archive, and archive rejection tests in `tests/test_build_release.py`
+- [x] T006 [US1] Add failing workflow assertions for the pinned Windows FFmpeg package and next preflight version in `tests/test_release_workflow.py`
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Add final-field `bundle_root` detection and frozen bundle-root precedence while preserving source and macOS fallbacks in `synthesia2midi/synthesia2midi/runtime_paths.py`
-- [ ] T008 [US1] Implement the versioned, bounded, package-owned helper and asset report in `synthesia2midi/synthesia2midi/package_self_check.py`
-- [ ] T009 [US1] Route `--package-self-check <report>` before Qt startup in `synthesia2midi/run.py`
-- [ ] T010 [US1] Pin PyInstaller 6.22.2 and pyinstaller-hooks-contrib 2026.7 in `packaging/requirements-build.txt` and install that file from `packaging/build_release.py`
-- [ ] T011 [US1] Resolve Chocolatey shims to unambiguous real FFmpeg/ffprobe package binaries and probe all staged executable inputs in `packaging/build_release.py`
-- [ ] T012 [US1] Run and parse the packaged self-check before GUI smoke and move zip creation after all validation in `packaging/build_release.py`
-- [ ] T013 [US1] Pin Chocolatey FFmpeg 9.0.1 and set the v0.2.2 development preflight label in `.github/workflows/release.yml`
-- [ ] T014 [US1] Run the focused packaging tests and create a packaging checkpoint commit after they pass
+- [x] T007 [US1] Add final-field `bundle_root` detection and frozen bundle-root precedence while preserving source and macOS fallbacks in `synthesia2midi/synthesia2midi/runtime_paths.py`
+- [x] T008 [US1] Implement the versioned, bounded, package-owned helper and asset report in `synthesia2midi/synthesia2midi/package_self_check.py`
+- [x] T009 [US1] Route `--package-self-check <report>` before Qt startup in `synthesia2midi/run.py`
+- [x] T010 [US1] Pin PyInstaller 6.22.2 and pyinstaller-hooks-contrib 2026.7 in `packaging/requirements-build.txt` and install that file from `packaging/build_release.py`
+- [x] T011 [US1] Resolve Chocolatey shims to unambiguous real FFmpeg/ffprobe package binaries and probe all staged executable inputs in `packaging/build_release.py`
+- [x] T012 [US1] Run and parse the packaged self-check before GUI smoke and move zip creation after all validation in `packaging/build_release.py`
+- [x] T013 [US1] Pin Chocolatey FFmpeg 9.0.1 and set the v0.2.2 development preflight label in `.github/workflows/release.yml`
+- [x] T014 [US1] Run the focused packaging tests and create a packaging checkpoint commit after they pass
 
 **Checkpoint**: A candidate package cannot be archived unless the frozen app
 itself finds and executes all bundled helpers.

@@ -11,12 +11,13 @@ on:
       version:
         description: "Version label for the non-publishing package build"
         required: true
-        default: "v0.2.1-dev"
+        default: "v0.2.2-dev"
 
 permissions:
   contents: write
 
 env:
+  FFMPEG_CHOCO_VERSION: "9.0.1"
   PYTHONPATH: synthesia2midi
   QT_QPA_PLATFORM: offscreen
 
@@ -59,7 +60,7 @@ jobs:
         shell: bash
         run: |
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            choco install ffmpeg -y --no-progress
+            choco install ffmpeg --version="$FFMPEG_CHOCO_VERSION" -y --no-progress
           else
             brew install ffmpeg
           fi

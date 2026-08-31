@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 
 from synthesia2midi.runtime_paths import RuntimePaths
@@ -19,6 +20,47 @@ def test_ffmpeg_path_prefers_bundled_binary_in_frozen_mode(tmp_path):
     )
 
     assert paths.ffmpeg_path() == ffmpeg
+
+
+def test_detect_uses_meipass_bundle_root_for_pyinstaller_onedir(monkeypatch, tmp_path):
+    executable_root = tmp_path / "Synthesia2MIDI"
+    bundle_root = executable_root / "_internal"
+    ffmpeg = bundle_root / "bin" / "ffmpeg.exe"
+    ffmpeg.parent.mkdir(parents=True)
+    ffmpeg.write_bytes(b"real-ffmpeg")
+
+    monkeypatch.setattr(sys, "frozen", True, raising=False)
+    monkeypatch.setattr(sys, "_MEIPASS", str(bundle_root), raising=False)
+    monkeypatch.setattr(sys, "executable", str(executable_root / "Synthesia2MIDI.exe"))
+    monkeypatch.setattr(sys, "platform", "win32")
+
+    paths = RuntimePaths.detect()
+
+    assert paths.app_root == executable_root
+    assert paths.bundle_root == bundle_root
+    assert paths.ffmpeg_path() == ffmpeg
+
+
+def test_frozen_lookup_prefers_meipass_over_executable_adjacent_workaround(tmp_path):
+    app_root = tmp_path / "app"
+    bundle_root = app_root / "_internal"
+    workaround = app_root / "bin" / "ffmpeg.exe"
+    bundled = bundle_root / "bin" / "ffmpeg.exe"
+    workaround.parent.mkdir(parents=True)
+    bundle_root.joinpath("bin").mkdir(parents=True)
+    workaround.write_bytes(b"stale-workaround")
+    bundled.write_bytes(b"packaged-binary")
+
+    paths = RuntimePaths(
+        frozen=True,
+        app_root=app_root,
+        repo_root=tmp_path / "repo",
+        home_dir=tmp_path / "home",
+        platform_name="win32",
+        bundle_root=bundle_root,
+    )
+
+    assert paths.ffmpeg_path() == bundled
 
 
 def test_frozen_macos_bundle_finds_frameworks_and_resources_assets(tmp_path):

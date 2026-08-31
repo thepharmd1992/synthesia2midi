@@ -35,17 +35,25 @@ class RuntimePaths:
     repo_root: Path
     home_dir: Path
     platform_name: str = sys.platform
+    bundle_root: Path | None = None
 
     @classmethod
     def detect(cls) -> "RuntimePaths":
         executable_root = Path(sys.executable).resolve().parent
         repo_root = Path(__file__).resolve().parents[2]
+        frozen = bool(getattr(sys, "frozen", False))
+        bundle_root = (
+            Path(getattr(sys, "_MEIPASS", executable_root)).resolve()
+            if frozen
+            else None
+        )
         return cls(
-            frozen=bool(getattr(sys, "frozen", False)),
-            app_root=executable_root if getattr(sys, "frozen", False) else repo_root,
+            frozen=frozen,
+            app_root=executable_root if frozen else repo_root,
             repo_root=repo_root,
             home_dir=Path.home(),
             platform_name=sys.platform,
+            bundle_root=bundle_root,
         )
 
     @property
@@ -163,7 +171,10 @@ class RuntimePaths:
         return tuple(root / "assets" / Path(*relative_parts) for root in self._bundle_roots())
 
     def _bundle_roots(self) -> tuple[Path, ...]:
-        candidates = [self.app_root]
+        candidates = []
+        if self.frozen and self.bundle_root is not None:
+            candidates.append(self.bundle_root)
+        candidates.append(self.app_root)
         if self.frozen:
             candidates.append(self.repo_root)
             if self.platform_name == "darwin":

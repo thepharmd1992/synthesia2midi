@@ -49,6 +49,17 @@ def test_gui_launch_guards_begin_startup_without_showing_main():
         assert "app.show" not in calls
 
 
+def test_packaged_launcher_runs_self_check_before_logging_or_qt_imports():
+    launcher = (ROOT / "synthesia2midi" / "run.py").read_text(encoding="utf-8")
+
+    self_check = launcher.index("maybe_run_package_self_check")
+    logging_setup = launcher.index("LoggingConfig.setup_logging")
+    qt_import = launcher.index("from PySide6.QtWidgets import QApplication")
+
+    assert self_check < logging_setup
+    assert self_check < qt_import
+
+
 def test_default_log_dir_uses_runtime_path_when_frozen(monkeypatch, tmp_path):
     from synthesia2midi.core import logging_config
 

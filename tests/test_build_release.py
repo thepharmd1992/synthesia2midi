@@ -1,6 +1,9 @@
 import importlib.util
+from types import SimpleNamespace
 import zipfile
 from pathlib import Path
+
+import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -70,3 +73,140 @@ def test_deno_release_url_normalizes_leading_v():
     url = module.deno_release_url(version="v9.9.9", target_tuple="x86_64-pc-windows-msvc")
 
     assert url == "https://dl.deno.land/release/v9.9.9/deno-x86_64-pc-windows-msvc.zip"
+
+
+def test_pyinstaller_install_uses_reviewed_build_requirements(monkeypatch, tmp_path):
+    module = _load_module("build_release_pins_under_test", ROOT / "packaging" / "build_release.py")
+    calls = []
+    monkeypatch.setattr(module, "run", lambda command, **_kwargs: calls.append(command))
+    venv_python = tmp_path / "python"
+
+    module.ensure_pyinstaller(venv_python)
+
+    assert calls == [
+        [
+            str(venv_python),
+            "-m",
+            "pip",
+            "install",
+            "--requirement",
+            str(ROOT / "packaging" / "requirements-build.txt"),
+        ]
+    ]
+    requirements = (ROOT / "packaging" / "requirements-build.txt").read_text(encoding="utf-8")
+    assert "pyinstaller==6.22.2" in requirements.lower()
+    assert "pyinstaller-hooks-contrib==2026.7" in requirements.lower()
+
+
+def test_windows_chocolatey_shim_resolves_to_real_ffmpeg(monkeypatch, tmp_path):
+    module = _load_module("build_release_choco_under_test", ROOT / "packaging" / "build_release.py")
+    chocolatey_root = tmp_path / "chocolatey"
+    shim = chocolatey_root / "bin" / "ffmpeg.exe"
+    real = chocolatey_root / "lib" / "ffmpeg" / "tools" / "ffmpeg-9.0.1-essentials_build" / "bin" / "ffmpeg.exe"
+    shim.parent.mkdir(parents=True)
+    real.parent.mkdir(parents=True)
+    shim.write_bytes(b"shim")
+    real.write_bytes(b"real")
+    probes = []
+
+    monkeypatch.setattr(module.sys, "platform", "win32")
+    monkeypatch.setenv("ChocolateyInstall", str(chocolatey_root))
+    monkeypatch.setattr(module.shutil, "which", lambda _name: str(shim))
+    monkeypatch.setattr(module, "probe_binary", lambda path, *args: probes.append((path, args)))
+
+    resolved = module.ensure_ffmpeg_binary("ffmpeg")
+
+    assert resolved == real
+    assert probes == [(real, ("-version",))]
+
+
+def test_windows_chocolatey_target_resolution_fails_closed_when_ambiguous(monkeypatch, tmp_path):
+    module = _load_module("build_release_choco_ambiguous", ROOT / "packaging" / "build_release.py")
+    chocolatey_root = tmp_path / "chocolatey"
+    shim = chocolatey_root / "bin" / "ffprobe.exe"
+    shim.parent.mkdir(parents=True)
+    shim.write_bytes(b"shim")
+    for version in ("8.1.2", "9.0.1"):
+        candidate = chocolatey_root / "lib" / "ffmpeg" / "tools" / version / "bin" / "ffprobe.exe"
+        candidate.parent.mkdir(parents=True)
+        candidate.write_bytes(version.encode("ascii"))
+
+    monkeypatch.setattr(module.sys, "platform", "win32")
+    monkeypatch.setenv("ChocolateyInstall", str(chocolatey_root))
+    monkeypatch.setattr(module.shutil, "which", lambda _name: str(shim))
+
+    with pytest.raises(module.ReleaseBuildError, match="unambiguous"):
+        module.ensure_ffmpeg_binary("ffprobe")
+
+
+def test_probe_binary_rejects_nonzero_helper(monkeypatch, tmp_path):
+    module = _load_module("build_release_probe_under_test", ROOT / "packaging" / "build_release.py")
+    binary = tmp_path / "ffmpeg"
+    binary.write_bytes(b"broken")
+    monkeypatch.setattr(
+        module.subprocess,
+        "run",
+        lambda *_args, **_kwargs: SimpleNamespace(returncode=1, stdout="", stderr="cannot start"),
+    )
+
+    with pytest.raises(module.ReleaseBuildError, match="cannot start"):
+        module.probe_binary(binary, "-version")
+
+
+def test_finalize_release_validates_before_archiving(monkeypatch, tmp_path):
+    module = _load_module("build_release_finalize_under_test", ROOT / "packaging" / "build_release.py")
+    stage_dir = tmp_path / "stage"
+    stage_dir.mkdir()
+    calls = []
+    archive = tmp_path / "release.zip"
+    monkeypatch.setattr(module, "package_self_check", lambda path: calls.append(("self-check", path)))
+    monkeypatch.setattr(module, "smoke_launch", lambda path: calls.append(("smoke", path)))
+    monkeypatch.setattr(module, "archive_release_bundle", lambda path: calls.append(("archive", path)) or archive)
+
+    result = module.finalize_release_bundle(stage_dir, skip_smoke=False)
+
+    assert result == archive
+    assert calls == [
+        ("self-check", stage_dir),
+        ("smoke", stage_dir),
+        ("archive", stage_dir),
+    ]
+
+
+def test_finalize_release_does_not_archive_failed_self_check(monkeypatch, tmp_path):
+    module = _load_module("build_release_finalize_failure", ROOT / "packaging" / "build_release.py")
+    archived = []
+    monkeypatch.setattr(
+        module,
+        "package_self_check",
+        lambda _path: (_ for _ in ()).throw(module.ReleaseBuildError("bad helper")),
+    )
+    monkeypatch.setattr(module, "archive_release_bundle", lambda path: archived.append(path))
+
+    with pytest.raises(module.ReleaseBuildError, match="bad helper"):
+        module.finalize_release_bundle(tmp_path, skip_smoke=True)
+
+    assert archived == []
+
+
+def test_package_self_check_requires_passing_report(monkeypatch, tmp_path):
+    module = _load_module("build_release_self_check_under_test", ROOT / "packaging" / "build_release.py")
+    stage_dir = tmp_path / "stage"
+    executable = stage_dir / "Synthesia2MIDI.exe"
+    executable.parent.mkdir(parents=True)
+    executable.write_bytes(b"app")
+    monkeypatch.setattr(module, "smoke_executable_path", lambda _stage: executable)
+
+    def fake_run(command, **_kwargs):
+        report_path = Path(command[-1])
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(
+            '{"schema_version": 1, "status": "failed", "errors": ["ffmpeg failed"]}',
+            encoding="utf-8",
+        )
+        return SimpleNamespace(returncode=1, stdout="", stderr="")
+
+    monkeypatch.setattr(module.subprocess, "run", fake_run)
+
+    with pytest.raises(module.ReleaseBuildError, match="ffmpeg failed"):
+        module.package_self_check(stage_dir)

@@ -19,10 +19,11 @@ A refactor wave that keeps behavior stable while extracting low-risk `main.py` r
 
 ## Current Focus
 
-Backlog and Spec Kit workflow adoption: root `AGENTS.md` remains the canonical agent operating contract, Backlog now owns planning/status memory, Spec Kit owns non-trivial feature planning, and existing root docs remain canonical until deliberately migrated.
+The v0.2.2 release recovery is complete. Backlog remains the project-status source, Spec Kit remains the non-trivial feature-planning source, and root `AGENTS.md` remains the canonical agent operating contract.
 
 ## Completed
 
+- 2026-08-31 v0.2.2 release recovery: repaired PyInstaller 6 bundle-root lookup and packaged-helper validation, rejected Chocolatey/script shims, fixed Guide alignment-review progression and Unicode MIDI metadata, verified the exact reported YouTube 403 fallback, published and independently checked Windows/macOS assets, closed GitHub issue #9, and reconciled TASK-9/TASK-26 as Done.
 - 2026-06-08 Backlog/Spec Kit workflow foundation: installed Backlog under `backlog/`, Spec Kit under `.specify/` with Codex skills, created an inactive Spec Kit feature pointer, recorded the planning decision, and added starter process/product/parking-lot Backlog docs.
 - 2026-05-29 M0 docs consistency pass: added a docs index, confirmed root `AGENTS.md` as the single canonical agent operating model, and moved duplicated active command/runbook instructions back to `README.md` and `docs/testing.md` links.
 - 2026-05-29 M0 operating-model update: confirmed the existing root `PROJECT_LOG.md` is the project state log; root `AGENTS.md` remains tracked and canonical for agent instructions; follow-on doc-link work should point README/docs index readers here without duplicating command runbooks.
@@ -40,7 +41,7 @@ Backlog and Spec Kit workflow adoption: root `AGENTS.md` remains the canonical a
 
 ## Active Task
 
-TASK-26 is in progress on `001-release-recovery`: repair packaged helper resolution and validation, publish verified v0.2.2, fix Guide alignment review and Unicode MIDI metadata, then reconcile TASK-9. Issue #6 is out of scope because its requested range/trim behavior already exists.
+None. TASK-9 and TASK-26 are Done, and no Spec Kit feature is active. GitHub issue #6 remains unchanged because its requested range/trim behavior already exists.
 
 ## Blockers
 

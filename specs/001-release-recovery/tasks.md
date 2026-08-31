@@ -117,13 +117,13 @@ is unchanged.
 **Purpose**: Publish only the exact candidate proven by local and remote gates,
 then make project status match reality.
 
-- [ ] T032 Push the verified candidate to `codex/v0.2.2-preflight` and wait for the Release workflow plus Windows/macOS/Linux CI to finish
-- [ ] T033 Download both preflight artifacts, verify zip integrity/layout/version, and confirm the Windows log shows real FFmpeg/ffprobe plus a passing packaged self-check
-- [ ] T034 Fast-forward the verified feature commit into local and remote `main`, create annotated tag `v0.2.2`, push it, and wait for the tag Release workflow
-- [ ] T035 Verify the public v0.2.2 Windows x64/macOS arm64 versioned and latest assets, their digests/layouts, and release visibility
-- [ ] T036 Close GitHub issue #9 with exact-video and v0.2.2 release evidence while leaving issue #6 unchanged
-- [ ] T037 Reconcile every TASK-9 acceptance criterion from current evidence, mark TASK-26 complete, update `PROJECT_LOG.md`, deactivate `.specify/feature.json`, and restore the AGENTS.md Spec Kit pointer to none
-- [ ] T038 Commit and push the final status reconciliation on `main`, delete the merged local feature branch, retain the remote preflight branch because remote deletion was not authorized, and confirm `uv.lock` remains untouched
+- [x] T032 Push the verified candidate to `codex/v0.2.2-preflight` and wait for the Release workflow plus Windows/macOS/Linux CI to finish
+- [x] T033 Download both preflight artifacts, verify zip integrity/layout/version, and confirm the Windows log shows real FFmpeg/ffprobe plus a passing packaged self-check
+- [x] T034 Fast-forward the verified feature commit into local and remote `main`, create annotated tag `v0.2.2`, push it, and wait for the tag Release workflow
+- [x] T035 Verify the public v0.2.2 Windows x64/macOS arm64 versioned and latest assets, their digests/layouts, and release visibility
+- [x] T036 Close GitHub issue #9 with exact-video and v0.2.2 release evidence while leaving issue #6 unchanged
+- [x] T037 Reconcile every TASK-9 acceptance criterion from current evidence, mark TASK-26 complete, update `PROJECT_LOG.md`, deactivate `.specify/feature.json`, and restore the AGENTS.md Spec Kit pointer to none
+- [x] T038 Commit and push the final status reconciliation on `main`, delete the merged local feature branch and every non-`main` remote branch as authorized, and confirm `uv.lock` remains untouched
 
 ---
 

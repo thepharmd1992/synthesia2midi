@@ -1,10 +1,10 @@
 ---
 id: TASK-26
 title: Recover v0.2.2 release and reported workflows
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-08-31 00:00'
-updated_date: '2026-08-31 02:20'
+updated_date: '2026-08-31 02:45'
 labels:
   - release
   - packaging
@@ -26,20 +26,20 @@ Repair the packaged Windows helper failures, publish a verified v0.2.2 containin
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Frozen Windows and macOS apps resolve every bundled helper and SoundFont through package-owned paths.
+- [x] #1 Frozen Windows and macOS apps resolve every bundled helper and SoundFont through package-owned paths.
 - [x] #2 The package builder rejects missing, system-only, shimmed, or non-runnable helpers before creating an archive.
 - [x] #3 Reviewed PyInstaller inputs and the Windows FFmpeg package version are pinned.
 - [x] #4 Accepting manual or automatic alignment review advances the Guide; canceling does not; assisted-scan restoration preserves acceptance.
 - [x] #5 ASCII, accented, fullwidth-punctuation, CJK, and emoji video names produce safe MIDI track metadata without conversion failure.
-- [ ] #6 Focused tests, the full Python gate, Rust gates, and both remote package preflight jobs pass.
-- [ ] #7 v0.2.2 is publicly available with verified Windows x64 and macOS arm64 assets before GitHub issue #9 is closed.
-- [ ] #8 TASK-9 is reconciled against v0.2.2 evidence and issue #6 remains unchanged.
+- [x] #6 Focused tests, the full Python gate, Rust gates, and both remote package preflight jobs pass.
+- [x] #7 v0.2.2 is publicly available with verified Windows x64 and macOS arm64 assets before GitHub issue #9 is closed.
+- [x] #8 TASK-9 is reconciled against v0.2.2 evidence and issue #6 remains unchanged.
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Active Spec Kit feature: `specs/001-release-recovery/`.
+Completed Spec Kit feature: `specs/001-release-recovery/`.
 
 Preserve the unrelated untracked `uv.lock`.
 
@@ -52,5 +52,12 @@ Local candidate evidence (2026-08-31):
 - The first local package inspection exposed a 353-byte Python FFmpeg launcher tied to the build machine. The builder and packaged self-check now reject non-native launchers; rebuilding with the underlying 49 MB native FFmpeg/ffprobe executables passed.
 - Exact issue #9 URL `https://www.youtube.com/watch?v=B33CSGTwwmQ`: initial `HTTP Error 403: Forbidden`, emitted the alternate-client retry status, then downloaded a 19,377,627-byte 480p MP4 successfully.
 
-Remote preflight, public release, and TASK-9 reconciliation remain pending.
+Remote and publication evidence (2026-08-31):
+
+- Commit `b5770188c33f0df98c7fcb87fc291fed97a40ab1` passed the full Windows/macOS/Ubuntu Python and Rust preflight matrix plus both package jobs, then was fast-forwarded to `main` and annotated as `v0.2.2`.
+- Preflight Windows and macOS zips passed integrity, layout, and `0.2.2-dev` version checks. The downloaded macOS preflight app passed all six package checks on a separate machine.
+- The public v0.2.2 Windows versioned/latest assets are 246,678,507 bytes with SHA-256 `24411d245bdda776b47b13eca7d75532f0c60ced8a5d5d84d3800c048f8aa25b`. The macOS versioned/latest assets are 549,975,004 bytes with SHA-256 `72fd4bbd69ac172469638020b9c9ea2498702bd18840d80a109114e6a6c9e326`.
+- Both downloaded public versioned archives passed zip integrity and reported version `0.2.2`. The Windows archive contains 102,856,192-byte FFmpeg and 102,652,416-byte ffprobe PE executables with no ShimGen/Chocolatey marker. The public macOS app repeated all six self-checks successfully on this machine.
+- GitHub issue #9 was closed only after the public assets passed verification. Issue #6 remains open and unchanged. TASK-9 is now Done with every acceptance criterion reconciled from current evidence.
+- The unrelated untracked `uv.lock` remained untouched.
 <!-- SECTION:NOTES:END -->

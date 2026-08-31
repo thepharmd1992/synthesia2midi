@@ -52,5 +52,5 @@ When a command changes, update the owning document first, then update links or s
 - Do not create a second canonical agent operating model. If this file is ever retired, replace it with one linked successor instead of keeping parallel guidance.
 
 <!-- SPECKIT START -->
-Current Spec Kit feature: `specs/001-release-recovery/`. Read `.specify/feature.json`, then `spec.md`, `plan.md`, and `tasks.md` in that directory.
+Current Spec Kit feature: none. When active, read `.specify/feature.json`, then the referenced feature directory under `specs/`.
 <!-- SPECKIT END -->

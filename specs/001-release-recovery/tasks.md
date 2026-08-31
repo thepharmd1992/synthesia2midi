@@ -104,11 +104,11 @@ is unchanged.
 
 **Purpose**: Validate the combined blast radius before any publication.
 
-- [ ] T027 Update the canonical packaged release gate and self-check expectations in `docs/testing.md`
-- [ ] T028 Run `git diff --check`, compileall, the full pytest suite, and all Rust fmt/test/check gates from `specs/001-release-recovery/quickstart.md`
-- [ ] T029 Build the local macOS v0.2.2-dev package and verify its package-self-check report, GUI smoke, archive integrity, helpers, SoundFont, architecture, and version
-- [ ] T030 Re-run the exact GitHub issue #9 YouTube URL through the existing source downloader and record the initial 403/alternate-client/success evidence without changing its fallback policy
-- [ ] T031 Record local evidence in TASK-26 and create the release-preparation checkpoint commit without staging generated build outputs or `uv.lock`
+- [x] T027 Update the canonical packaged release gate and self-check expectations in `docs/testing.md`
+- [x] T028 Run `git diff --check`, compileall, the full pytest suite, and all Rust fmt/test/check gates from `specs/001-release-recovery/quickstart.md`
+- [x] T029 Build the local macOS v0.2.2-dev package and verify its package-self-check report, GUI smoke, archive integrity, helpers, SoundFont, architecture, and version
+- [x] T030 Re-run the exact GitHub issue #9 YouTube URL through the existing source downloader and record the initial 403/alternate-client/success evidence without changing its fallback policy
+- [x] T031 Record local evidence in TASK-26 and create the release-preparation checkpoint commit without staging generated build outputs or `uv.lock`
 
 ---
 

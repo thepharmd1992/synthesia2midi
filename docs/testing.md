@@ -87,6 +87,24 @@ done
 
 Expected result: a zipped portable bundle appears under `dist/release/`, and the build script smoke-launches the packaged app with `QT_QPA_PLATFORM=offscreen`.
 
+Before the GUI smoke and before creating the zip, the packaged executable runs
+its internal `--package-self-check` mode. The report is written under
+`build/release/package-self-check-<platform>.json` and must show that bundled
+FFmpeg, ffprobe, Deno, the Rust editor, SoundFont, and SoundFont license were
+resolved from package-owned paths. Each executable also has to complete its
+bounded `-version`, `--version`, or `--help` probe. Missing helpers, system-only
+fallbacks, script launchers tied to the build machine, Chocolatey ShimGen
+launchers, dead executables, and failed probes reject the candidate;
+`--skip-smoke` skips only the eight-second GUI launch, not this package
+self-check. If a local macOS `ffmpeg` or `ffprobe` command is a Python wrapper,
+set `S2M_FFMPEG_PATH` and `S2M_FFPROBE_PATH` to the corresponding native Mach-O
+executables for the release build.
+
+Release builds install exact reviewed PyInstaller inputs from
+`packaging/requirements-build.txt`. On Windows, the workflow pins the Chocolatey
+FFmpeg package and the builder resolves its real tool binaries instead of copying
+Chocolatey's global shims.
+
 Before updating remote `main` or creating a version tag, push a branch matching `codex/*-preflight`. GitHub runs the normal Windows/macOS/Linux CI matrix plus the Windows x64 and Apple Silicon package builds. Preflight packages are retained as workflow artifacts for seven days; the workflow does not create a GitHub release, create `latest` aliases, or upload release assets unless the ref is a `v*` tag. After this workflow reaches the default branch, the same non-publishing package build can also be started manually with a version label.
 
 ## Import Smoke

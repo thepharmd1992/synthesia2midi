@@ -20,7 +20,7 @@ def test_runtime_discovery_skips_inaccessible_common_directory_and_finds_later_r
     inaccessible_dir = tmp_path / "inaccessible"
     working_dir = tmp_path / "working"
     working_dir.mkdir()
-    working_runtime = working_dir / "deno"
+    working_runtime = working_dir / ("deno.exe" if youtube_downloader.os.name == "nt" else "deno")
     working_runtime.write_text("runtime")
     working_runtime.chmod(0o755)
 

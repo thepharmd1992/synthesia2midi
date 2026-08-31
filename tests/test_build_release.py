@@ -251,6 +251,7 @@ def test_package_self_check_requires_passing_report(monkeypatch, tmp_path):
     executable.parent.mkdir(parents=True)
     executable.write_bytes(b"app")
     monkeypatch.setattr(module, "smoke_executable_path", lambda _stage: executable)
+    monkeypatch.setattr(module, "platform_slug", lambda: "test-platform")
 
     def fake_run(command, **_kwargs):
         report_path = Path(command[-1])

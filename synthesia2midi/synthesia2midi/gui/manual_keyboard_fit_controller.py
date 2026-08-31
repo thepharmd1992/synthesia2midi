@@ -312,6 +312,7 @@ class ManualKeyboardFitController:
         if self._session is not None:
             self._warn_if_keyboard_box_looks_like_background()
             self._session.apply()
+            self.app.app_state.calibration.alignment_reviewed = True
         self._finish()
 
     def _handle_cancel(self) -> None:
@@ -427,7 +428,6 @@ class ManualKeyboardFitController:
         if octave_spin is not None:
             with QSignalBlocker(octave_spin):
                 octave_spin.setValue(self.app.app_state.midi.octave_transpose)
-            return
         if hasattr(control_panel, "update_controls_from_state"):
             control_panel.update_controls_from_state()
 

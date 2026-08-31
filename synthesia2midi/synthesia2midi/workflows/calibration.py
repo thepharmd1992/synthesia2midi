@@ -134,6 +134,7 @@ class CalibrationWorkflow:
         self.app_state.ui.selected_overlay_id = None
         self.app_state.calibration.calibration_mode = None
         self.app_state.calibration.current_calibration_key_type = None
+        self.app_state.calibration.alignment_reviewed = False
         self.app_state.unsaved_changes = True
         
         self.logger.info("Calibration state reset")

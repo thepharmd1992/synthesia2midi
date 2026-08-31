@@ -50,7 +50,7 @@ class GuideSnapshot:
 
 
 def derive_guide_snapshot(app_state: AppState, conversion_ready: bool) -> GuideSnapshot:
-    """Derive beginner progress without adding persisted workflow state."""
+    """Derive beginner progress from durable calibration and session review state."""
     has_video = bool(getattr(app_state.video, "filepath", ""))
     overlays = tuple(getattr(app_state, "overlays", ()) or ())
     has_overlays = bool(overlays)
@@ -69,13 +69,16 @@ def derive_guide_snapshot(app_state: AppState, conversion_ready: bool) -> GuideS
         overlay.unlit_reference_color is not None or overlay.unlit_hist is not None
         for overlay in overlays
     ) or any(color is not None for color in effective_colors.values())
+    alignment_reviewed = bool(
+        getattr(app_state.calibration, "alignment_reviewed", False)
+    )
 
     video = GuideStepState("video", GuideStatus.DONE if has_video else GuideStatus.NEXT)
     if not has_video:
         overlays_status = GuideStatus.NOT_READY
     elif not has_overlays:
         overlays_status = GuideStatus.NEXT
-    elif has_any_downstream_calibration:
+    elif alignment_reviewed or has_any_downstream_calibration:
         overlays_status = GuideStatus.DONE
     else:
         overlays_status = GuideStatus.NEEDS_REVIEW

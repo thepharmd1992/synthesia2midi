@@ -1,4 +1,8 @@
-from synthesia2midi.core.app_state import DetectionConfig
+from synthesia2midi.core.app_state import AppState, DetectionConfig
+
+
+def test_alignment_review_defaults_to_unconfirmed_session_state():
+    assert AppState().calibration.alignment_reviewed is False
 
 
 def test_detection_config_defaults_new_families_off_and_masks_them():

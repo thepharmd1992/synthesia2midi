@@ -642,6 +642,12 @@ class CalibrationWizardController:
         calibration = getattr(self.app_state, "calibration", None)
         if calibration is not None:
             calibration.overlay_generation_source = source
+            calibration.alignment_reviewed = False
+
+    def _set_alignment_reviewed(self, reviewed: bool) -> None:
+        calibration = getattr(self.app_state, "calibration", None)
+        if calibration is not None:
+            calibration.alignment_reviewed = bool(reviewed)
 
     def _has_editable_current_calibration_context(self) -> bool:
         if self._current_overlay_generation_source() == "manual":
@@ -742,6 +748,7 @@ class CalibrationWizardController:
 
     def _on_auto_detect_tuning_dialog_finished(self, result: int) -> None:
         if result == QDialog.DialogCode.Accepted:
+            self._set_alignment_reviewed(True)
             self._run_pending_assisted_auto_calibration()
             self.control_panel.update_controls_from_state()
         else:

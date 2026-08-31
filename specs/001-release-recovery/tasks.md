@@ -61,17 +61,17 @@ cancel a queued assisted scan after acceptance and remain advanced.
 
 ### Tests for User Story 2
 
-- [ ] T015 [US2] Add failing Guide derivation tests for explicit review evidence, legacy downstream evidence, and initial false state in `tests/test_calibration_guide.py` and `tests/test_app_state.py`
-- [ ] T016 [US2] Add failing Manual Fit accept/reject tests and immediate Guide refresh assertions in `tests/test_manual_keyboard_fit_controller.py`
-- [ ] T017 [US2] Add failing auto-tuning accept/reject, assisted restoration, new overlay, and new video invalidation tests in `tests/test_calibration_wizard_controller.py`, `tests/test_bugfix_regressions.py`, and `tests/test_video_loading_paths.py`
+- [x] T015 [US2] Add failing Guide derivation tests for explicit review evidence, legacy downstream evidence, and initial false state in `tests/test_calibration_guide.py` and `tests/test_app_state.py`
+- [x] T016 [US2] Add failing Manual Fit accept/reject tests and immediate Guide refresh assertions in `tests/test_manual_keyboard_fit_controller.py`
+- [x] T017 [US2] Add failing auto-tuning accept/reject, assisted restoration, new overlay, and new video invalidation tests in `tests/test_calibration_wizard_controller.py`, `tests/test_bugfix_regressions.py`, and `tests/test_video_loading_paths.py`
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Add non-persisted `CalibrationConfig.alignment_reviewed` and use it as independent Guide evidence in `synthesia2midi/synthesia2midi/core/app_state.py` and `synthesia2midi/synthesia2midi/gui/calibration_guide.py`
-- [ ] T019 [US2] Set review evidence only on accepted Manual Fit and refresh the control panel in `synthesia2midi/synthesia2midi/gui/manual_keyboard_fit_controller.py`
-- [ ] T020 [US2] Set review evidence before accepted auto-tuning launches assisted calibration, preserve it across assisted restoration, and clear it for replacement overlays in `synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py`
-- [ ] T021 [US2] Clear current-session review on new/closed video and calibration reset in `synthesia2midi/synthesia2midi/workflows/video_loading.py` and `synthesia2midi/synthesia2midi/workflows/calibration.py`
-- [ ] T022 [US2] Run focused Guide/controller tests and create an alignment checkpoint commit after they pass
+- [x] T018 [US2] Add non-persisted `CalibrationConfig.alignment_reviewed` and use it as independent Guide evidence in `synthesia2midi/synthesia2midi/core/app_state.py` and `synthesia2midi/synthesia2midi/gui/calibration_guide.py`
+- [x] T019 [US2] Set review evidence only on accepted Manual Fit and refresh the control panel in `synthesia2midi/synthesia2midi/gui/manual_keyboard_fit_controller.py`
+- [x] T020 [US2] Set review evidence before accepted auto-tuning launches assisted calibration, preserve it across assisted restoration, and clear it for replacement overlays in `synthesia2midi/synthesia2midi/gui/calibration_wizard_controller.py`
+- [x] T021 [US2] Clear current-session review on new/closed video and calibration reset in `synthesia2midi/synthesia2midi/workflows/video_loading.py` and `synthesia2midi/synthesia2midi/workflows/calibration.py`
+- [x] T022 [US2] Run focused Guide/controller tests and create an alignment checkpoint commit after they pass
 
 **Checkpoint**: Accepted review advances exactly once; cancellation advances zero
 times; later assisted-scan outcomes cannot reverse accepted review.

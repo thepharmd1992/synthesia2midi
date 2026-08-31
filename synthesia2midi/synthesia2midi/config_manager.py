@@ -283,6 +283,7 @@ class ConfigManager:
             config = configparser.ConfigParser()
             config.read(ini_path, encoding='utf-8')
             self._reset_dynamic_exemplar_state()
+            self.app_state.calibration.alignment_reviewed = False
             
             logging.debug(f"Overlays before loading {len(self.app_state.overlays)}: {self.app_state.overlays}")
             # Clear existing overlays

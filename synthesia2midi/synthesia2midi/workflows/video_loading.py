@@ -162,6 +162,7 @@ class VideoLoadingWorkflow:
         # Clear per-video state before setting new paths to avoid carrying over old config.
         self.app_state.video.filepath_ini_used = None
         self.app_state.video.original_video_path = None
+        self.app_state.calibration.alignment_reviewed = False
 
         # Store the actual path being used (frames or video)
         self.app_state.video.filepath = filepath
@@ -315,6 +316,7 @@ class VideoLoadingWorkflow:
         self.app_state.ui.selected_overlay_id = None
         self.app_state.calibration_mode = None
         self.app_state.current_calibration_key_type = None
+        self.app_state.calibration.alignment_reviewed = False
         
         # Optionally clear overlays (could be preserved for next video)
         # self.app_state.overlays.clear()

@@ -142,6 +142,50 @@ def test_manual_fit_controller_opens_modeless_top_center_and_restores_settings()
         _flush_qt_deletes()
 
 
+def test_manual_fit_accept_marks_alignment_reviewed_and_refreshes_guide():
+    QApplication.instance() or QApplication([])
+    app = _FakeApp()
+    app.app_state.overlays = [_overlay()]
+    controller = ManualKeyboardFitController(app)
+
+    try:
+        assert app.app_state.calibration.alignment_reviewed is False
+        assert controller.open() is True
+
+        controller.active_dialog.accept()
+        QApplication.processEvents()
+
+        assert app.app_state.calibration.alignment_reviewed is True
+        assert app.control_updates == 1
+    finally:
+        if controller.active_dialog is not None:
+            controller.active_dialog.reject()
+        app.close()
+        app.deleteLater()
+        _flush_qt_deletes()
+
+
+def test_manual_fit_cancel_does_not_mark_alignment_reviewed():
+    QApplication.instance() or QApplication([])
+    app = _FakeApp()
+    app.app_state.overlays = [_overlay()]
+    controller = ManualKeyboardFitController(app)
+
+    try:
+        assert controller.open() is True
+
+        controller.active_dialog.reject()
+        QApplication.processEvents()
+
+        assert app.app_state.calibration.alignment_reviewed is False
+    finally:
+        if controller.active_dialog is not None:
+            controller.active_dialog.reject()
+        app.close()
+        app.deleteLater()
+        _flush_qt_deletes()
+
+
 def test_manual_fit_dialog_uses_drawn_region_controls():
     QApplication.instance() or QApplication([])
     app = _FakeApp()

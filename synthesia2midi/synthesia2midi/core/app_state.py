@@ -389,6 +389,7 @@ class CalibrationConfig:
     calibration_mode: Optional[str] = None  # e.g., "lit_exemplar", "spark_bar_only", "spark_dimmest_sparks"
     current_calibration_key_type: Optional[str] = None  # e.g., "LW", "LB", "RW", "RB"
     overlay_generation_source: Optional[str] = None  # "auto" or "manual"
+    alignment_reviewed: bool = False  # Current-session evidence; intentionally not persisted
     manual_keyboard_box: Optional[Tuple[float, float, float, float]] = None
     
     # Calibration frame range

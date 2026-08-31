@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QDialog
 
 from synthesia2midi.app_config import OverlayConfig
 from synthesia2midi.core.app_state import AppState
@@ -265,6 +265,69 @@ def test_progress_cancel_restores_all_eight_slots_and_assignment_flag(monkeypatc
     assert controller._run_assisted_auto_calibration(np.zeros((4, 4, 3), dtype=np.uint8), 0) is False
 
     assert _state_signature(state) == original
+
+
+def test_progress_cancel_preserves_accepted_alignment_review(monkeypatch):
+    controller, state = _controller_with_seeded_state()
+    state.calibration.alignment_reviewed = True
+    _patch_assisted_dependencies(monkeypatch, state, _proposal(canceled=True))
+
+    assert controller._run_assisted_auto_calibration(
+        np.zeros((4, 4, 3), dtype=np.uint8), 0
+    ) is False
+
+    assert state.calibration.alignment_reviewed is True
+
+
+def test_accepted_auto_tuning_marks_reviewed_before_assisted_scan():
+    state = AppState()
+    seen = []
+    app = SimpleNamespace(
+        app_state=state,
+        calibration_workflow=None,
+        control_panel=SimpleNamespace(update_controls_from_state=lambda: None),
+        keyboard_canvas=SimpleNamespace(),
+        show_overlays_action=SimpleNamespace(),
+        video_loading_workflow=None,
+        video_session=None,
+    )
+    controller = CalibrationWizardController(app, _FakeTuningController())
+    controller._run_pending_assisted_auto_calibration = lambda: seen.append(
+        state.calibration.alignment_reviewed
+    ) or False
+
+    controller._on_auto_detect_tuning_dialog_finished(QDialog.DialogCode.Accepted)
+
+    assert state.calibration.alignment_reviewed is True
+    assert seen == [True]
+
+
+def test_rejected_auto_tuning_does_not_mark_alignment_reviewed():
+    state = AppState()
+    app = SimpleNamespace(
+        app_state=state,
+        calibration_workflow=None,
+        control_panel=SimpleNamespace(update_controls_from_state=lambda: None),
+        keyboard_canvas=SimpleNamespace(),
+        show_overlays_action=SimpleNamespace(),
+        video_loading_workflow=None,
+        video_session=None,
+    )
+    controller = CalibrationWizardController(app, _FakeTuningController())
+
+    controller._on_auto_detect_tuning_dialog_finished(QDialog.DialogCode.Rejected)
+
+    assert state.calibration.alignment_reviewed is False
+
+
+def test_replacement_overlay_source_invalidates_prior_alignment_review():
+    controller, state = _controller_with_seeded_state()
+    state.calibration.alignment_reviewed = True
+
+    controller._set_overlay_generation_source("auto")
+
+    assert state.calibration.overlay_generation_source == "auto"
+    assert state.calibration.alignment_reviewed is False
 
 
 def test_review_window_close_restores_all_eight_slots_and_assignment_flag(monkeypatch):

@@ -60,6 +60,21 @@ def test_guide_snapshot_advances_from_video_to_conversion():
     assert snapshot.conversion.status is GuideStatus.NEXT
 
 
+def test_explicit_alignment_review_advances_to_no_key_step_without_calibration():
+    state = AppState()
+    state.video.filepath = "/tmp/video.mp4"
+    state.overlays = [_overlay()]
+
+    assert state.calibration.alignment_reviewed is False
+    assert derive_guide_snapshot(state, False).overlays.status is GuideStatus.NEEDS_REVIEW
+
+    state.calibration.alignment_reviewed = True
+    snapshot = derive_guide_snapshot(state, False)
+
+    assert snapshot.overlays.status is GuideStatus.DONE
+    assert snapshot.unlit.status is GuideStatus.NEXT
+
+
 def test_no_key_step_requires_every_overlay_and_histograms_when_enabled():
     state = AppState()
     state.video.filepath = "/tmp/video.mp4"

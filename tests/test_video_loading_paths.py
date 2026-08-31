@@ -1,4 +1,5 @@
 import pytest
+from types import SimpleNamespace
 
 from synthesia2midi.config_manager import ConfigManager
 from synthesia2midi.core.app_state import AppState
@@ -91,3 +92,18 @@ def test_existing_legacy_frames_dir_is_reused(tmp_path):
     legacy_frames.mkdir()
 
     assert workflow._frames_dir_for_video(str(video_path)) == legacy_frames
+
+
+def test_loading_or_closing_video_invalidates_alignment_review(tmp_path):
+    _runtime_paths, app_state, _manager, workflow = _workflow(tmp_path)
+    app_state.calibration.alignment_reviewed = True
+    session = SimpleNamespace(fps=30.0, total_frames=120)
+
+    workflow._update_video_state(str(tmp_path / "next.mp4"), session)
+
+    assert app_state.calibration.alignment_reviewed is False
+
+    app_state.calibration.alignment_reviewed = True
+    workflow.close_video()
+
+    assert app_state.calibration.alignment_reviewed is False

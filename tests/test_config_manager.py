@@ -81,6 +81,29 @@ def test_config_manager_round_trips_overlay_generation_source(tmp_path):
     assert loaded_state.calibration.overlay_generation_source == "manual"
 
 
+def test_alignment_review_is_session_only_and_config_load_invalidates_it(tmp_path):
+    video_path = tmp_path / "sample.mp4"
+    video_path.write_bytes(b"")
+    runtime_paths = _runtime_paths(tmp_path)
+    app_state = AppState()
+    app_state.calibration.alignment_reviewed = True
+    manager = ConfigManager(app_state, runtime_paths=runtime_paths)
+
+    assert manager.save_config(str(video_path)) is True
+
+    ini_text = runtime_paths.project_ini_path(str(video_path)).read_text(encoding="utf-8")
+    overlay_text = runtime_paths.project_overlay_json_path(str(video_path)).read_text(
+        encoding="utf-8"
+    )
+    assert "alignment_reviewed" not in ini_text
+    assert "alignment_reviewed" not in overlay_text
+
+    assert manager.load_config(
+        str(runtime_paths.project_ini_path(str(video_path)))
+    ) is True
+    assert app_state.calibration.alignment_reviewed is False
+
+
 def test_config_manager_round_trips_manual_keyboard_box(tmp_path):
     video_path = tmp_path / "sample.mp4"
     video_path.write_bytes(b"")
